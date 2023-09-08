@@ -15,4 +15,9 @@ class AdminController extends Controller
             'status' => session('status'),
         ]);
     }
+
+    public function dormList()
+    {
+        return Inertia::render('Admin/Dorms');
+    }
 }

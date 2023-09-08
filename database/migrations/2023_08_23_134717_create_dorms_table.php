@@ -15,17 +15,20 @@ return new class extends Migration
     {
         Schema::create('dorms', function (Blueprint $table) {
             $table->id();
-            $table->longText('address');
+            $table->bigInteger('user_id')->unsigned()->comment('Foreign key from table users');
+            $table->longText('map_address');
             $table->longText('detailed_address');
+            $table->string('lat', 100);
+            $table->string('long', 100);
+            $table->longText('property_name');
             $table->longText('description');
-            $table->float('amount');
-            $table->string('business_permit', 100);
-            $table->string('image', 100);
-            $table->string('lat', 100)->nullable();
-            $table->string('long', 100)->nullable();
-            $table->boolean('is_available')->default(true);
-            $table->boolean('is_active')->default(true);
+            $table->string('floors_total', 100);
+            $table->string('rooms_total', 100);
+            $table->string('dorm_image', 100);
+            $table->string('business_permit_image', 100);
+            $table->boolean('is_active')->default(false);
 
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }

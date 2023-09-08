@@ -58,7 +58,6 @@ const submit = () => {
                     type="text"
                     class="mt-1 block w-full"
                     v-model="form.middle_name"
-                    required
                     autofocus
                     autocomplete="middle_name"
                 />

@@ -13,14 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('rooms', function (Blueprint $table) {
+        Schema::create('rules', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
-            $table->string('type_of_room', 100);
-            $table->string('is_aircon', 20);
-            $table->string('furnished_type', 100);
-            $table->string('image', 100);
-            $table->string('is_available', 20);
+            $table->string('short_term', 20);
+            $table->string('mix_gender', 20);
+            $table->string('curfew', 20);
+            $table->string('curfew_hours', 100);
+            $table->string('minimum_stay', 100);
+            $table->longText('rules')->nullable();
 
             $table->foreign('dorm_id')->references('id')->on('dorms');
             $table->timestamps();
@@ -34,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rooms');
+        Schema::dropIfExists('rules');
     }
 };

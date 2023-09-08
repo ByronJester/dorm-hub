@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Room extends Model
+class Rule extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'dorm_id', 'type_of_room', 'is_aircon', 'furnished_type', 'image'
+        'dorm_id', 'short_term', 'mix_gender', 'curfew', 'curfew_hours', 'minimum_stay', 'rules'
     ];
 }

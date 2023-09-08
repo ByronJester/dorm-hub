@@ -22,8 +22,12 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
 
-    if(Auth::user()) {
+    if(Auth::user() && Auth::user()->user_type != 'admin') {
         return redirect()->route('login');
+    }
+
+    if(Auth::user() && Auth::user()->user_type == 'admin') {
+        return redirect()->route('admin.dorms');
     }
 
     return Inertia::render('Welcome', [
@@ -33,12 +37,6 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 })->name('landing.page');
-
-// Route::middleware('guest')->group(function () {
-//     Route::get('/tenant/register', [RegisteredUserController::class, 'tenantRegister'])->name('tenant.register');
-//     Route::get('/owner/register', [RegisteredUserController::class, 'ownerRegister']) ->name('owner.register');
-//     Route::post('/user/register', [RegisteredUserController::class, 'store'])->name('user.register');
-// });
 
 Route::get('/admin', function () {
     return redirect()->route('admin.login');
@@ -60,7 +58,7 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('admin')->group(function () {
-
+        Route::get('/dashboard', [AdminController::class, 'dormList'])->name('admin.dorms');
     });
 
     Route::prefix('owner')->group(function () {
