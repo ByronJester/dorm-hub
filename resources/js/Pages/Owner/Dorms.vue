@@ -136,10 +136,10 @@ export default {
         }
 
         const dormImageChange = (e) => {
-            console.log(e.target.value)
+            // console.log(e.target.value)
             const image = e.target.files[0];
 
-            dorm_image.value = e.target.value
+            dorm_image.value = image
 
             const reader = new FileReader();
 
