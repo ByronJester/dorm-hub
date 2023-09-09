@@ -13,4 +13,23 @@ class Dorm extends Model
         'map_address', 'detailed_address', 'lat', 'long', 'property_name',
         'description', 'floors_total', 'rooms_total', 'dorm_image', 'business_permit_image'
     ];
+
+    protected $with = [
+        'user'
+    ];
+
+    public function getDormImageAttribute($value)
+    {
+        return \LaravelCloudinary::show($value, []);
+    }
+
+    public function getBusinessPermitImageAttribute($value)
+    {
+        return \LaravelCloudinary::show($value, []);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

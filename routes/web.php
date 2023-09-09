@@ -42,6 +42,10 @@ Route::get('/admin', function () {
     return redirect()->route('admin.login');
 });
 
+Route::get('/alive', function () {
+    return response()->json("Keep Alive!", 200);
+});
+
 Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
 
 Route::get('/dashboard', function () {
@@ -58,7 +62,10 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dormList'])->name('admin.dorms');
+        Route::get('/dashboard', [AdminController::class, 'dormList'])->name('admin.dashboard');
+        Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
+        Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
+
     });
 
     Route::prefix('owner')->group(function () {
