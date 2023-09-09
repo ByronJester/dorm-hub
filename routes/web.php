@@ -58,7 +58,8 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dormList'])->name('admin.dorms');
+        Route::get('/dashboard', [AdminController::class, 'dormList'])->name('admin.dashboard');
+        Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
     });
 
     Route::prefix('owner')->group(function () {

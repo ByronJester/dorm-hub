@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\{ Dorm, Room, Amenity, Rule, Payment };
 use App\Http\Requests\{ SaveDorm };
+use Cloudinary\Configuration\Configuration;
+use Cloudinary\Api\Upload\UploadApi;
 
 class OwnerController extends Controller
 {
@@ -43,7 +45,7 @@ class OwnerController extends Controller
             'deposit' => 'required',
             'advance' => 'required',
             'fee' => 'required',
-            'payments' => 'required|between:1,3'
+            'payments' => 'required|array'
         ]);
 
         if ($validator->fails()) {
@@ -76,11 +78,28 @@ class OwnerController extends Controller
         $dorm->rooms_total = $request->rooms_total;
 
         if($dorm_image = $request->dorm_image) {
+            Configuration::instance([
+                'cloud' => [
+                  'cloud_name' => 'dcmgsini6',
+                  'api_key' => '522938554472129',
+                  'api_secret' => "FrOIDIXbv7JfcVc9LpjZB1RMJQA"],
+                'url' => [
+                  'secure' => true]]);
 
-            $filename = Str::random(10) . '_dorm_image.' . $dorm_image->getClientOriginalExtension();
-            $dorm->dorm_image = $filename;
 
-            Storage::disk('cloudinary')->put($filename, $dorm_image);
+
+            // $filename = Str::random(10) . '_dorm_image.' . $dorm_image->getClientOriginalExtension();
+            $dorm->dorm_image = 'test';
+
+            // Storage::disk('cloudinary')->put($filename, $dorm_image);
+            // $cloudinary->uploadApi()->upload("https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg",
+            //     ["public_id" => "olympic_flag"]);
+            // return ;
+            // $dorm_image = file_get_contents($dorm_image);
+            // $dorm_image = base64_encode($dorm_image);
+            // return $dorm_image;
+            $aaa = (new UploadApi())->upload($dorm_image);
+
         }
 
         if($business_permit_image = $request->business_permit_image) {

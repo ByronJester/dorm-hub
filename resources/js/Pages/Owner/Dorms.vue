@@ -136,11 +136,10 @@ export default {
         }
 
         const dormImageChange = (e) => {
+            console.log(e.target.value)
             const image = e.target.files[0];
 
-            dorm_image.value = image
-
-            console.log(dorm_image.value)
+            dorm_image.value = e.target.value
 
             const reader = new FileReader();
 
@@ -246,7 +245,7 @@ export default {
 
             axios.post(route('save.dorm'), data)
                 .then(response => {
-                    location.reload()
+                    // location.reload()
                 })
                 .catch(error => {
                     errors.value = error.response.data.errors
