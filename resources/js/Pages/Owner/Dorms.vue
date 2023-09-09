@@ -246,7 +246,7 @@ export default {
 
             axios.post(route('save.dorm'), data)
                 .then(response => {
-                    location.reload()
+                    // location.reload()
                 })
                 .catch(error => {
                     errors.value = error.response.data.errors

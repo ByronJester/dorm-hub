@@ -21,6 +21,9 @@ class OwnerController extends Controller
 
     public function saveDorm(Request $request)
     {
+        $aaa= \LaravelCloudinary::show('text', []);
+        return $aaa;
+
         $validator = Validator::make($request->all(), [
             'map_address' => 'required',
             'lat' => 'required',
@@ -43,7 +46,7 @@ class OwnerController extends Controller
             'deposit' => 'required',
             'advance' => 'required',
             'fee' => 'required',
-            'payments' => 'required|between:1,3'
+            'payments' => 'required|array'
         ]);
 
         if ($validator->fails()) {
@@ -80,7 +83,8 @@ class OwnerController extends Controller
             $filename = Str::random(10) . '_dorm_image.' . $dorm_image->getClientOriginalExtension();
             $dorm->dorm_image = $filename;
 
-            Storage::disk('cloudinary')->put($filename, $dorm_image);
+            // Storage::disk('cloudinary')->put($filename, $dorm_image);
+            \LaravelCloudinary::upload($dorm_image, 'text', [], []);
         }
 
         if($business_permit_image = $request->business_permit_image) {
@@ -89,7 +93,7 @@ class OwnerController extends Controller
             $filename = Str::random(10) . '_business_permit.' . $business_permit_image->getClientOriginalExtension();
             $dorm->business_permit_image = $filename;
 
-            Storage::put($filename, $business_permit_image);
+            // Storage::put($filename, $business_permit_image);
         }
 
         if($dorm->save()) {
@@ -111,7 +115,7 @@ class OwnerController extends Controller
                 $room->is_available = $r->is_available;
                 $room->image = $filename;
 
-                Storage::put($filename, $room_image);
+                // Storage::put($filename, $room_image);
 
                 $room->save();
             }
