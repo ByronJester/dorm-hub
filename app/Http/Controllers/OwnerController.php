@@ -43,7 +43,7 @@ class OwnerController extends Controller
             'deposit' => 'required',
             'advance' => 'required',
             'fee' => 'required',
-            'payments' => 'required|between:1,3'
+            'payments' => 'required|array'
         ]);
 
         if ($validator->fails()) {
@@ -78,18 +78,18 @@ class OwnerController extends Controller
         if($dorm_image = $request->dorm_image) {
 
             $filename = Str::random(10) . '_dorm_image.' . $dorm_image->getClientOriginalExtension();
-            $dorm->dorm_image = $filename;
 
-            Storage::disk('cloudinary')->put($filename, $dorm_image);
+            $uploadFile = $this->uploadFile($dorm_image, $filename);
+            $dorm->dorm_image = $filename;
         }
 
         if($business_permit_image = $request->business_permit_image) {
             $business_permit_image = $request->business_permit_image;
 
             $filename = Str::random(10) . '_business_permit.' . $business_permit_image->getClientOriginalExtension();
-            $dorm->business_permit_image = $filename;
 
-            Storage::put($filename, $business_permit_image);
+            $uploadFile = $this->uploadFile($business_permit_image, $filename);
+            $dorm->business_permit_image = $filename;
         }
 
         if($dorm->save()) {
@@ -109,9 +109,10 @@ class OwnerController extends Controller
                 $room->is_aircon = $r->is_aircon;
                 $room->furnished_type = $r->furnished_type;
                 $room->is_available = $r->is_available;
-                $room->image = $filename;
 
-                Storage::put($filename, $room_image);
+
+                $uploadFile = $this->uploadFile($room_image, $filename);
+                $room->image = $filename;
 
                 $room->save();
             }

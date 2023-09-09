@@ -140,8 +140,6 @@ export default {
 
             dorm_image.value = image
 
-            console.log(dorm_image.value)
-
             const reader = new FileReader();
 
             reader.readAsDataURL(image);
