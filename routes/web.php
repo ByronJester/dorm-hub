@@ -22,8 +22,12 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
 
-    if(Auth::user() && Auth::user()->user_type != 'admin') {
-        return redirect()->route('login');
+    if(Auth::user() && Auth::user()->user_type == 'owner') {
+        return redirect()->route('owner.dorms');
+    }
+
+    if(Auth::user() && Auth::user()->user_type == 'tenant') {
+        return redirect()->route('tenant.dorms');
     }
 
     if(Auth::user() && Auth::user()->user_type == 'admin') {

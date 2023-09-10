@@ -12,4 +12,9 @@ class Payment extends Model
     protected $fillable = [
         'dorm_id', 'deposit', 'advance', 'fee', 'methods'
     ];
+
+    public function getMethodsAttribute($value)
+    {
+        return explode(",", $value);
+    }
 }
