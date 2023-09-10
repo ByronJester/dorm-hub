@@ -16,7 +16,11 @@ class OwnerController extends Controller
 {
     public function dormList()
     {
-        return Inertia::render('Owner/Dorms');
+        $dorms = Dorm::where('user_id', Auth::user()->id)->get();
+
+        return Inertia::render('Owner/Dorms', [
+            'dorms' => $dorms,
+        ]);
     }
 
     public function saveDorm(Request $request)

@@ -55,7 +55,6 @@
 
             onMounted(() => {
                 rows.value = page.props.dorms
-
             });
 
             const business_permit = ref(null)

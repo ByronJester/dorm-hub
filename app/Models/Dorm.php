@@ -15,7 +15,7 @@ class Dorm extends Model
     ];
 
     protected $with = [
-        'user'
+        'user', 'payment'
     ];
 
     public function getDormImageAttribute($value)
@@ -31,5 +31,10 @@ class Dorm extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
     }
 }

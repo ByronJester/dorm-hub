@@ -1,21 +1,22 @@
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { computed } from 'vue'
 import { usePage, useForm } from '@inertiajs/vue3'
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { MapboxMap, MapboxMarker } from '@studiometa/vue-mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
 import LvProgressBar from 'lightvue/progress-bar';
 import { router } from '@inertiajs/vue3'
+import DormList from '@/Components/DormList.vue';
 
 export default {
     components: {
         AuthenticatedLayout,
         InputLabel,
         TextInput,
+        DormList,
         MapboxMap,
         MapboxMarker,
         LvProgressBar: LvProgressBar,
@@ -212,13 +213,6 @@ export default {
             data.append("business_permit_image", business_permit_image.value);
 
             // Rooms Table
-            // if(rooms.value.length > 0) {
-            //     for (let room = 0; room < rooms.value.length; room++) {
-            //         data.append('rooms[]', JSON.stringify(rooms.value[room]));
-            //     }
-            // } else {
-            //     data.append('rooms', JSON.stringify([]));
-            // }
             data.append('rooms', JSON.stringify(rooms.value));
 
 
@@ -261,6 +255,12 @@ export default {
             return null;
         }
 
+        const dorms = ref([])
+
+        onMounted(() => {
+            dorms.value = page.props.dorms
+        });
+
         return {
             user,
             address,
@@ -292,6 +292,7 @@ export default {
             active,
             progress,
             errors,
+            dorms,
             openFormModal,
             closeFormModal,
             getCoordinates,
@@ -329,6 +330,9 @@ export default {
                 </div>
             </div>
 
+            <DormList :dorms.sync="dorms" :user.sync="user"/>
+
+            <!-- Modal -->
             <div id="dormModal" class="dormModal mt-10 md:mt-0">
                 <div class="dorm-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '50%'}">
                     <div class="w-full">
@@ -667,7 +671,7 @@ export default {
                                 Your house your rules. Define the dos and dont of your roomies.
                             </p>
 
-                            <div class="w-full flex flex-row mt-10">
+                            <div class="w-full flex flex-col md:flex-row mt-10">
                                 <div class="w-full px-1">
                                     <InputLabel value="Is short-term stayed allowed ?" class="text-xs"/>
 
