@@ -10,6 +10,7 @@ import axios from 'axios';
 import LvProgressBar from 'lightvue/progress-bar';
 import { router } from '@inertiajs/vue3'
 import DormList from '@/Components/DormList.vue';
+import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
 
 export default {
     components: {
@@ -20,7 +21,8 @@ export default {
         MapboxMap,
         MapboxMarker,
         LvProgressBar: LvProgressBar,
-        router
+        router,
+        PulseLoader
     },
     setup() {
         const page = usePage()
@@ -32,6 +34,7 @@ export default {
         const active = ref(0);
         const progress = ref(20);
         var timer = ref(undefined);
+        const id = ref(null);
         const address = ref('');
         const lat = ref(13.9382);
         const long = ref(120.72932);
@@ -66,6 +69,8 @@ export default {
             var modal = document.getElementById("dormModal");
 
             modal.style.display = "block";
+
+            data.value = new FormData()
         }
 
         const closeFormModal = () => {
@@ -121,7 +126,8 @@ export default {
             const image = e.target.files[0];
 
             // rooms.value[index].image = image
-            data.append('room_images[]', image);
+            // data.append('room_images[]', image);
+            rooms.value[index].image = image
 
             const reader = new FileReader();
 
@@ -171,6 +177,7 @@ export default {
         const addRoom = () => {
             rooms.value.push(
                 {
+                    id: null,
                     type_of_room: null,
                     is_aircon: null,
                     furnished_type: null,
@@ -181,12 +188,24 @@ export default {
             )
         }
 
+        const removeRoom = (index) => {
+            rooms.value = rooms.value.filter((x, i) => {
+                return i != index;
+            })
+        }
+
         const addRule = () => {
             rules.value.push(
                 {
                     name: null,
                 }
             )
+        }
+
+        const removeRule = (index) => {
+            rules.value = rules.value.filter((x, i) => {
+                return i != index;
+            })
         }
 
         const addAmenities = (amenity) => {
@@ -199,52 +218,6 @@ export default {
             }
         }
 
-        const saveDorm = () => {
-            // Dorms Table
-            data.append("map_address", address.value);
-            data.append("lat", lat.value);
-            data.append("long", long.value);
-            data.append("detailed_address", detailed_address.value);
-            data.append("property_name", property_name.value);
-            data.append("description", description.value);
-            data.append("floors_total", floors_total.value);
-            data.append("rooms_total", rooms_total.value);
-            data.append("dorm_image", dorm_image.value);
-            data.append("business_permit_image", business_permit_image.value);
-
-            // Rooms Table
-            data.append('rooms', JSON.stringify(rooms.value));
-
-
-            // Amenities Table
-            data.append('amenities', JSON.stringify(amenities.value));
-
-            // Rules Table
-            data.append("short_term", short_term.value);
-            data.append("mix_gender", mix_gender.value);
-            data.append("curfew", curfew.value);
-            data.append("curfew_hours", curfew_hours.value);
-            data.append("minimum_stay", minimum_stay.value);
-            data.append('rules', JSON.stringify(rules.value));
-
-            // Payments Table
-            data.append("deposit", deposit.value);
-            data.append("advance", advance.value);
-            data.append("fee", fee.value);
-
-            for (let payment = 0; payment < payments.value.length; payment++) {
-                data.append('payments[]', payments.value[payment]);
-            }
-
-            axios.post(route('save.dorm'), data)
-                .then(response => {
-                    location.reload()
-                })
-                .catch(error => {
-                    errors.value = error.response.data.errors
-                })
-        }
-
         const validationError = (field, errors)  =>{
             if(errors) {
               if(errors.hasOwnProperty(field)) {
@@ -255,6 +228,115 @@ export default {
             return null;
         }
 
+        const editDorm = (dorm) => {
+            active.value = 1
+            id.value = dorm.id
+            address.value = dorm.map_address
+            lat.value = dorm.lat
+            long.value = dorm.long
+            detailed_address.value = dorm.detailed_address
+            property_name.value = dorm.property_name
+            description.value = dorm.description
+            floors_total.value = dorm.floors_total
+            rooms_total.value = dorm.rooms_total
+            rooms.value = dorm.rooms
+            amenities.value = dorm.amenities.map(x => {
+                return x.amenity;
+            })
+            short_term.value = dorm.rule.short_term
+            mix_gender.value = dorm.rule.mix_gender
+            curfew.value = dorm.rule.curfew
+            curfew_hours.value = dorm.rule.curfew_hours
+            minimum_stay.value = dorm.rule.minimum_stay
+            rules.value = dorm.rule.rules.map(x => {
+                return {
+                    name: x
+                }
+            });
+            deposit.value = dorm.payment.deposit
+            advance.value = dorm.payment.advance
+            fee.value = dorm.payment.fee
+            payments.value = dorm.payment.methods
+            dorm_image.value = dorm.dorm_image
+            business_permit_image.value = dorm.business_permit_image
+            dorm_image_src.value = dorm.dorm_image
+            business_permit_image_src.value = dorm.business_permit_image
+
+            openFormModal()
+        }
+
+        const loading = ref(false)
+
+        const saveDorm = () => {
+            swal({
+                title: "Are you sure to save this dorm?",
+                type: "success",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                // swal("Deleted!", "Your imaginary file has been deleted.", "success");
+                loading.value = true
+
+                if(!!id.value) {
+                    data.append("id", id.value);
+                }
+
+                // Dorms Table
+                data.append("map_address", address.value);
+                data.append("lat", lat.value);
+                data.append("long", long.value);
+                data.append("detailed_address", detailed_address.value);
+                data.append("property_name", property_name.value);
+                data.append("description", description.value);
+                data.append("floors_total", floors_total.value);
+                data.append("rooms_total", rooms_total.value);
+                data.append("dorm_image", dorm_image.value);
+                data.append("business_permit_image", business_permit_image.value);
+
+                // Rooms Table
+                data.append('rooms', JSON.stringify(rooms.value));
+
+                // Amenities Table
+                data.append('amenities', JSON.stringify(amenities.value));
+
+                // Rules Table
+                data.append("short_term", short_term.value);
+                data.append("mix_gender", mix_gender.value);
+                data.append("curfew", curfew.value);
+                data.append("curfew_hours", curfew_hours.value);
+                data.append("minimum_stay", minimum_stay.value);
+                data.append('rules', JSON.stringify(rules.value));
+
+                // Payments Table
+                data.append("deposit", deposit.value);
+                data.append("advance", advance.value);
+                data.append("fee", fee.value);
+
+                for (let payment = 0; payment < payments.value.length; payment++) {
+                    data.append('payments[]', payments.value[payment]);
+                }
+
+                axios.post(route('save.dorm'), data)
+                    .then(response => {
+                        loading.value = false
+
+                        swal("Success!", "Your dorm has been save.", "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 1500);
+
+                    })
+                    .catch(error => {
+                        errors.value = error.response.data.errors
+                        loading.value = false
+                    })
+            });
+        }
+
         const dorms = ref([])
 
         onMounted(() => {
@@ -263,6 +345,7 @@ export default {
 
         return {
             user,
+            id,
             address,
             lat,
             long,
@@ -293,12 +376,15 @@ export default {
             progress,
             errors,
             dorms,
+            loading,
             openFormModal,
             closeFormModal,
             getCoordinates,
             mapDrag,
             changeAddress,
             addRoom,
+            removeRoom,
+            removeRule,
             addRule,
             addAmenities,
             roomImageClick,
@@ -308,7 +394,8 @@ export default {
             bpImageClick,
             bpImageChange,
             saveDorm,
-            validationError
+            validationError,
+            editDorm
         };
     }
 }
@@ -322,7 +409,7 @@ export default {
                 <div class="w-full">
                     <p class="float-right">
                         <button class="bg-cyan-500 rounded-md py-2 px-5"
-                            @click="openFormModal()"
+                            @click="[openFormModal(), active = 0]"
                         >
                             ADD DORM
                         </button>
@@ -330,7 +417,7 @@ export default {
                 </div>
             </div>
 
-            <DormList :dorms.sync="dorms" :user.sync="user"/>
+            <DormList :dorms.sync="dorms" :user.sync="user" @edit-dorm="(dorm) => editDorm(dorm)"/>
 
             <!-- Modal -->
             <div id="dormModal" class="dormModal mt-10 md:mt-0">
@@ -388,7 +475,6 @@ export default {
                                     class="mt-1 block w-full"
                                     v-model="address"
                                     required
-                                    autofocus
                                     autocomplete="address"
                                     @input="changeAddress($event)"
                                 />
@@ -404,7 +490,6 @@ export default {
                                     class="mt-1 block w-full"
                                     v-model="detailed_address"
                                     required
-                                    autofocus
                                     autocomplete="detailed_address"
                                     placeholder="House No., Street, Barangay, Municipaluty, Province, Region"
                                 />
@@ -434,7 +519,6 @@ export default {
                                     class="mt-1 block w-full"
                                     v-model="property_name"
                                     required
-                                    autofocus
                                     autocomplete="name"
                                     placeholder="Property Name"
                                 />
@@ -450,7 +534,6 @@ export default {
                                     class="mt-1 block w-full"
                                     v-model="description"
                                     required
-                                    autofocus
                                     autocomplete="description"
                                     placeholder="Describe your property ?"
                                 />
@@ -468,7 +551,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="floors_total"
                                         required
-                                        autofocus
                                         autocomplete="floors_total"
                                         placeholder="No. of Floors"
                                     />
@@ -485,7 +567,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="rooms_total"
                                         required
-                                        autofocus
                                         autocomplete="rooms_total"
                                         placeholder="No. of Rooms"
                                     />
@@ -494,65 +575,77 @@ export default {
                                 </div>
                             </div>
 
-                            <div class="w-full p-2 flex flex-row" v-for="(room, index) in rooms" :key="index">
-                                <div class="w-full mx-1">
-                                    <InputLabel value="Room Image" />
-
-                                    <input type="file" :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
-                                        @change="roomImageChange($event, 'room_image' + index, index)"
-                                    />
-
-                                    <img :src="room.src ?? '/images/upload_image.png'" alt="upload_image"
-                                        class="cursor-pointer"
-                                        @click="roomImageClick('room_image' + index)"
-                                        style="border: 1px solid black; border-radius: 5px; height: 230px; width: 100%;"
-                                    >
+                            <div class="w-full p-2 flex flex-col mt-2"
+                                style="border: 1px solid black; border-radius: 5px;"
+                                v-for="(room, index) in rooms" :key="index"
+                            >
+                                <div class="w-full">
+                                   <span class="float-right cursor-pointer"
+                                        @click="removeRoom(index)"
+                                   >
+                                        <i class="fa-solid fa-trash-can"></i>
+                                   </span>
                                 </div>
-
-                                <div class="w-full flex flex-col">
+                                <div class="flex flex-row">
                                     <div class="w-full mx-1">
-                                        <InputLabel for="type_of_room" value="Type of room" />
+                                        <InputLabel value="Room Image" />
 
-                                        <select v-model="room.type_of_room" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                            <option value="Room for 1">Room for 1</option>
-                                            <option value="Room for 2">Room for 2</option>
-                                            <option value="Room for 3">Room for 3</option>
-                                            <option value="Room for 4">Room for 4</option>
-                                            <option value="Room for 5">Room for 5</option>
-                                        </select>
+                                        <input type="file" :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
+                                            @change="roomImageChange($event, 'room_image' + index, index)"
+                                        />
+
+                                        <img :src="room.src ?? '/images/upload_image.png'" alt="upload_image"
+                                            class="cursor-pointer"
+                                            @click="roomImageClick('room_image' + index)"
+                                            style="border: 1px solid black; border-radius: 5px; height: 230px; width: 100%;"
+                                        >
                                     </div>
 
-                                    <div class="w-full mx-1">
-                                        <InputLabel for="furnished_type" value="Fursnished Type" />
+                                    <div class="w-full flex flex-col">
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="type_of_room" value="Type of room" />
 
-                                        <select v-model="room.furnished_type" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                            <option value="Furnished">Furnished</option>
-                                            <option value="Semifurnised">Semifurnised</option>
-                                            <option value="Bare">Bare</option>
-                                        </select>
-                                    </div>
+                                            <select v-model="room.type_of_room" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <option value="Room for 1">Room for 1</option>
+                                                <option value="Room for 2">Room for 2</option>
+                                                <option value="Room for 3">Room for 3</option>
+                                                <option value="Room for 4">Room for 4</option>
+                                                <option value="Room for 5">Room for 5</option>
+                                            </select>
+                                        </div>
 
-                                    <div class="w-full mx-1">
-                                        <InputLabel for="is_aircon" value="Aircon" />
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="furnished_type" value="Fursnished Type" />
 
-                                        <select v-model="room.is_aircon" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                            <option value="Yes">Yes</option>
-                                            <option value="No">No</option>
-                                        </select>
-                                    </div>
+                                            <select v-model="room.furnished_type" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <option value="Furnished">Furnished</option>
+                                                <option value="Semifurnised">Semifurnised</option>
+                                                <option value="Bare">Bare</option>
+                                            </select>
+                                        </div>
 
-                                    <div class="w-full mx-1">
-                                        <InputLabel for="is_available" value="Is Available?" />
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="is_aircon" value="Aircon" />
 
-                                        <select v-model="room.is_available" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                            <option value="Yes">Yes</option>
-                                            <option value="No">No</option>
-                                        </select>
+                                            <select v-model="room.is_aircon" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="is_available" value="Is Available?" />
+
+                                            <select v-model="room.is_available" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <option value="Yes">Yes</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="w-full">
+                            <div class="w-full mt-2">
                                 <button class="py-2 px-4 bg-cyan-500 mr-3 mt-1 rounded-md float-right"
                                     @click="addRoom()"
                                 >
@@ -706,7 +799,7 @@ export default {
                                 </div>
                             </div>
 
-                            <div class="w-full flex flex-row mt-5">
+                            <div class="w-full flex flex-col md:flex-row mt-5">
                                 <div class="w-full px-1">
                                     <InputLabel value="What is the curfew hours ?" class="text-xs"/>
 
@@ -716,7 +809,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="curfew_hours"
                                         required
-                                        autofocus
                                         autocomplete="curfew_hours"
                                     />
 
@@ -732,7 +824,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="minimum_stay"
                                         required
-                                        autofocus
                                         autocomplete="minimum_stay"
                                     />
                                     <span class="text-xs text-red-500 ml-2">{{validationError('minimum_stay', errors)}} </span>
@@ -740,22 +831,36 @@ export default {
                             </div>
 
                             <div class="w-full flex flex-col mt-5 px-1">
-                                <div class="w-full mt-2" v-for="(rule, index) in rules" :key="index">
-                                    <InputLabel value="Rule" class="text-xs"/>
+                                <div class="w-full flex flex-row mt-2" v-for="(rule, index) in rules" :key="index">
 
-                                    <TextInput
-                                        id="rule"
-                                        type="text"
-                                        class="mt-1 block w-full"
-                                        v-model="rule.name"
-                                        required
-                                        autofocus
-                                    />
+                                    <div style="width: 95%">
+                                        <InputLabel value="Rule" class="text-xs"/>
+
+                                        <TextInput
+                                            id="rule"
+                                            type="text"
+                                            class="mt-1 block w-full"
+                                            v-model="rule.name"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div style="width: 5%"
+                                        class="flex justify-center items-center mt-5"
+                                    >
+                                        <span class="cursor-pointer"
+                                            @click="removeRule(index)"
+                                         >
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </span>
+                                    </div>
+
+
                                 </div>
                             </div>
 
                             <div class="w-full px-1 mt-3">
-                                <button class="py-2 px-4 bg-cyan-500 mt-1 rounded-md float-right"
+                                <button class="py-2 px-4 bg-cyan-500 mt-1 rounded-md"
                                     @click="addRule()"
                                 >
                                     Add Rule
@@ -783,7 +888,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="deposit"
                                         required
-                                        autofocus
                                         autocomplete="deposit"
                                     />
 
@@ -799,7 +903,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="advance"
                                         required
-                                        autofocus
                                         autocomplete="advance"
                                     />
 
@@ -815,7 +918,6 @@ export default {
                                         class="mt-1 block w-full"
                                         v-model="fee"
                                         required
-                                        autofocus
                                         autocomplete="fee"
                                     />
 
@@ -943,8 +1045,10 @@ export default {
                                     Finish
                                 </button>
                             </div>
+                        </div>
 
-
+                        <div class="w-full flex justify-center items-center">
+                            <pulse-loader :loading="loading"></pulse-loader>
                         </div>
 
 

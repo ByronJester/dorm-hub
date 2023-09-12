@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use App\Models\{ Dorm };
 
 /*
 |--------------------------------------------------------------------------
@@ -34,11 +35,14 @@ Route::get('/', function () {
         return redirect()->route('admin.dorms');
     }
 
+    $dorms = Dorm::where('status', 'approved')->get();
+
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => true,
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        "dorms" => $dorms,
     ]);
 })->name('landing.page');
 
@@ -66,7 +70,7 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dormList'])->name('admin.dashboard');
+        Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
 

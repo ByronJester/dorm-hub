@@ -30,6 +30,13 @@ export default {
                 <p class="font-bold ml-4 text-xs mt-1">
                     ₱ {{ dorm.payment.fee }}/month
                 </p>
+
+                <button class="bg-cyan-500 ml-4 mt-2 text-xs py-1 px-3 rounded-md"
+                    v-if="!!props.user && props.user.user_type == 'owner'"
+                    @click="$emit('editDorm', dorm)"
+                >
+                    Edit
+                </button>
             </div>
         </div>
     </div>

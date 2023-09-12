@@ -12,4 +12,18 @@ class Room extends Model
     protected $fillable = [
         'dorm_id', 'type_of_room', 'is_aircon', 'furnished_type', 'image'
     ];
+
+    protected $appends = [
+        'src'
+    ];
+
+    public function getImageAttribute($value)
+    {
+        return \LaravelCloudinary::show($value, []);
+    }
+
+    public function getSrcAttribute()
+    {
+        return $this->image;
+    }
 }

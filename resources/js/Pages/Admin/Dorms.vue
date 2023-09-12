@@ -75,13 +75,31 @@
             }
 
             const changeStatus = (status, id) => {
-                axios.post(route('dorm.change.status', status), {id: id})
-                    .then(response => {
-                        location.reload()
-                    })
-                    .catch(error => {
-                        errors.value = error.response.data.errors
-                    })
+                var s = status == 'declined' ? 'decline' : 'approved';
+
+                swal({
+                    title: `Are you sure to ${s} this dorm?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('dorm.change.status', status), {id: id})
+                        .then(response => {
+                            swal("Success!", `You successfully ${status} this dorm.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                });
+
+
             }
 
 

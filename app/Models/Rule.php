@@ -12,4 +12,9 @@ class Rule extends Model
     protected $fillable = [
         'dorm_id', 'short_term', 'mix_gender', 'curfew', 'curfew_hours', 'minimum_stay', 'rules'
     ];
+
+    public function getRulesAttribute($value)
+    {
+        return explode(",", $value);
+    }
 }
