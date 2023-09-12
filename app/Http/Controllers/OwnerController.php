@@ -25,6 +25,7 @@ class OwnerController extends Controller
 
     public function saveDorm(Request $request)
     {
+        // return json_decode($request->rooms);
         $validator = Validator::make($request->all(), [
             'map_address' => 'required',
             'lat' => 'required',
@@ -81,7 +82,7 @@ class OwnerController extends Controller
 
         if($dorm_image = $request->dorm_image) {
 
-            $filename = Str::random(10) . '_dorm_image.' . $dorm_image->getClientOriginalExtension();
+            $filename = Str::random(10) . '_dorm_image';
 
             $uploadFile = $this->uploadFile($dorm_image, $filename);
             $dorm->dorm_image = $filename;
@@ -90,7 +91,7 @@ class OwnerController extends Controller
         if($business_permit_image = $request->business_permit_image) {
             $business_permit_image = $request->business_permit_image;
 
-            $filename = Str::random(10) . '_business_permit.' . $business_permit_image->getClientOriginalExtension();
+            $filename = Str::random(10) . '_business_permit' ;
 
             $uploadFile = $this->uploadFile($business_permit_image, $filename);
             $dorm->business_permit_image = $filename;
@@ -102,9 +103,9 @@ class OwnerController extends Controller
             foreach($rooms as $key => $r) {
                 // $r = json_decode($r);
 
-                $room_image = $request->room_images[$key];
+                // $room_image = $request->room_images[$key];
 
-                $filename = Str::random(10) . '_room_image.' . $room_image->getClientOriginalExtension();
+                $filename = Str::random(10) . '_room_image';
 
                 $room = new Room;
 
@@ -115,7 +116,7 @@ class OwnerController extends Controller
                 $room->is_available = $r->is_available;
 
 
-                $uploadFile = $this->uploadFile($room_image, $filename);
+                $uploadFile = $this->uploadFile($r->src, $filename);
                 $room->image = $filename;
 
                 $room->save();

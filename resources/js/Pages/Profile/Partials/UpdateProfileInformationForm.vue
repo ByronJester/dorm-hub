@@ -19,6 +19,35 @@ const form = useForm({
     phone_number: user.phone_number,
     email: user.email,
 });
+
+const updateProfile = () => {
+    swal({
+        title: "Are you sure to update your profile?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes",
+        closeOnConfirm: false
+    },
+    function(){
+        form.patch(route('profile.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                swal("Success!", "Your profile has been updated.", "success");
+            },
+            onError: () => {
+                if (form.errors.password) {
+                    form.reset('password', 'password_confirmation');
+                    passwordInput.value.focus();
+                }
+                if (form.errors.current_password) {
+                    form.reset('current_password');
+                    currentPasswordInput.value.focus();
+                }
+            },
+        });
+    });
+}
 </script>
 
 <template>
@@ -31,7 +60,7 @@ const form = useForm({
             </p>
         </header>
 
-        <form @submit.prevent="form.patch(route('profile.update'))" class="mt-6 space-y-6">
+        <form @submit.prevent="updateProfile" class="mt-6 space-y-6">
             <div>
                 <InputLabel for="first_name" value="First Name" />
 

@@ -16,20 +16,35 @@ const form = useForm({
 });
 
 const updatePassword = () => {
-    form.put(route('password.update'), {
-        preserveScroll: true,
-        onSuccess: () => form.reset(),
-        onError: () => {
-            if (form.errors.password) {
-                form.reset('password', 'password_confirmation');
-                passwordInput.value.focus();
-            }
-            if (form.errors.current_password) {
-                form.reset('current_password');
-                currentPasswordInput.value.focus();
-            }
-        },
+    swal({
+        title: "Are you sure to change password?",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes",
+        closeOnConfirm: false
+    },
+    function(){
+        form.put(route('password.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset()
+
+                swal("Success!", "Your password has been changed.", "success");
+            },
+            onError: () => {
+                if (form.errors.password) {
+                    form.reset('password', 'password_confirmation');
+                    passwordInput.value.focus();
+                }
+                if (form.errors.current_password) {
+                    form.reset('current_password');
+                    currentPasswordInput.value.focus();
+                }
+            },
+        });
     });
+
 };
 </script>
 

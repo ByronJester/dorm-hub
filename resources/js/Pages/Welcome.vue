@@ -1,4 +1,4 @@
-<script setup>
+<!-- <script setup>
 import { Head, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
@@ -13,31 +13,57 @@ defineProps({
     canRegister: Boolean,
     laravelVersion: String,
     phpVersion: String,
+    dorms: Array
 });
 
-</script>
+</script> -->
 
 <script>
     import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-    import { Link } from '@inertiajs/vue3';
-
+    import DormList from '@/Components/DormList.vue';
+    import { Head, Link } from '@inertiajs/vue3';
+    import { ref, onMounted } from 'vue';
+    import { usePage } from '@inertiajs/vue3'
 
     export default {
         components: {
             ApplicationLogo,
-            Link
+            Link,
+            DormList
         },
-        methods: {
-            openRegisterModal(){
+        setup(){
+            const openRegisterModal = () => {
                 var modal = document.getElementById("registerModal");
 
                 modal.style.display = "block";
-            },
+            }
 
-            closeRegisterModal(){
+            const closeRegisterModal = () => {
                 var modal = document.getElementById("registerModal");
 
                 modal.style.display = "none";
+            }
+
+            const showingNavigationDropdown = ref(false);
+
+            const isMobileView = ref(false)
+
+            isMobileView.value = screen.width < 600;
+
+            const page = usePage()
+
+            const dorms = ref([])
+
+            onMounted(() => {
+                dorms.value = page.props.dorms
+            });
+
+            return {
+                dorms,
+                openRegisterModal,
+                closeRegisterModal,
+                showingNavigationDropdown,
+                isMobileView
             }
         }
     }
@@ -75,7 +101,6 @@ defineProps({
                                 >
 
                                 <span
-                                    v-if="canRegister"
                                     @click="openRegisterModal()"
                                     class="ml-4 font-semibold text-black mt-3 cursor-pointer"
                                     >SIGN UP</span
@@ -151,40 +176,50 @@ defineProps({
 
             </nav>
 
-            <div class="w-full">
-                <div id="registerModal" class="registerModal mt-40 md:mt-0">
-                    <div class="register-modal-content flex flex-col" :style="{width: isMobileView ? '90%' : '40%'}">
-                        <div class="w-full">
-                            <span class="text-2xl font-bold ">
-                                Sign up account as:
-                            </span>
-                            <span class="float-right cursor-pointer"
-                                @click="closeRegisterModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
+            <div class="w-full main flex flex-col">
 
-                        <div class="w-full flex flex-row mt-20">
-                            <div class="w-full center">
-                                <Link
-                                    :href="route('tenant.register')"
-                                    class="font-semibold text-white register-btn rounded-sm text-lg py-3 text-center"
-                                    >Tenant</Link
+                <div class="w-full">
+                    <DormList :dorms.sync="dorms" :user.sync="null"/>
+                </div>
+
+
+                <div class="w-full">
+                    <div id="registerModal" class="registerModal mt-40 md:mt-0">
+                        <div class="register-modal-content flex flex-col" :style="{width: isMobileView ? '90%' : '40%'}">
+                            <div class="w-full">
+                                <span class="text-2xl font-bold ">
+                                    Sign up account as:
+                                </span>
+                                <span class="float-right cursor-pointer"
+                                    @click="closeRegisterModal()"
                                 >
+                                    <i class="fa-solid fa-xmark"></i>
+                                </span>
                             </div>
 
-                            <div class="w-full center">
-                                <Link
-                                    :href="route('owner.register')"
-                                    class="font-semibold text-white register-btn rounded-sm text-lg py-3 text-center"
-                                    >Dorm Owner</Link
-                                >
+                            <div class="w-full flex flex-row mt-20">
+                                <div class="w-full center">
+                                    <Link
+                                        :href="route('tenant.register')"
+                                        class="font-semibold text-white register-btn rounded-sm text-lg py-3 text-center"
+                                        >Tenant</Link
+                                    >
+                                </div>
+
+                                <div class="w-full center">
+                                    <Link
+                                        :href="route('owner.register')"
+                                        class="font-semibold text-white register-btn rounded-sm text-lg py-3 text-center"
+                                        >Dorm Owner</Link
+                                    >
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+
 
         </div>
     </div>
@@ -255,6 +290,12 @@ defineProps({
 </template>
 
 <style>
+.main {
+    height: 100%;
+    min-height: 92vh;
+    background-color: #E5E8E8;
+}
+
 .bg-landing-page {
     background-color: #EB984E;
 }

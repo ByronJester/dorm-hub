@@ -28,6 +28,15 @@ if(page.props.auth.user.user_type == 'owner') {
     ]
 }
 
+if(page.props.auth.user.user_type == 'admin') {
+    userPages = [
+        {
+            label: 'Dorms',
+            route: 'admin.dorms'
+        }
+    ]
+}
+
 </script>
 
 <template>
@@ -49,6 +58,14 @@ if(page.props.auth.user.user_type == 'owner') {
 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.user_type == 'owner'">
+                                <NavLink :href="route(p.route)" :active="route().current(p.route)"
+                                    v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
+                                >
+                                    <span class="px-3"> {{ p.label }} </span>
+                                </NavLink>
+                            </div>
+
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.user_type == 'admin'">
                                 <NavLink :href="route(p.route)" :active="route().current(p.route)"
                                     v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
                                 >
@@ -87,7 +104,7 @@ if(page.props.auth.user.user_type == 'owner') {
 
                                     <template #content>
                                         <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
-                                        <DropdownLink :href="route('profile.change.password')"> Change Password </DropdownLink>
+                                        <!-- <DropdownLink :href="route('profile.change.password')"> Change Password </DropdownLink> -->
                                         <DropdownLink :href="route('logout')" method="post" as="button">
                                             Log Out
                                         </DropdownLink>
@@ -153,7 +170,7 @@ if(page.props.auth.user.user_type == 'owner') {
 
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('profile.change.password')"> Change Password </ResponsiveNavLink>
+                            <!-- <ResponsiveNavLink :href="route('profile.change.password')"> Change Password </ResponsiveNavLink> -->
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 Log Out
                             </ResponsiveNavLink>
