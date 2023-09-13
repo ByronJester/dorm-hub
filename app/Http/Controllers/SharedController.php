@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
 use Illuminate\Http\Request;
+use App\Models\{ Dorm };
 
 class SharedController extends Controller
 {
@@ -21,6 +23,14 @@ class SharedController extends Controller
         curl_close($ch);
 
         return $result;
+    }
 
+    public function viewDorm($dorm_id)
+    {
+        $dorm = Dorm::where('id', $dorm_id)->first();
+
+        return Inertia::render('Dorm', [
+            'dorm' => $dorm
+        ]);
     }
 }

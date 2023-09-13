@@ -92,4 +92,6 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     });
 });
 
+Route::get('/view-dorm/{dorm_id}', [SharedController::class, 'viewDorm'])->name('view.dorm');
+
 require __DIR__.'/auth.php';

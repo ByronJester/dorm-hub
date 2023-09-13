@@ -1,11 +1,17 @@
 <script>
 import { ref, onMounted} from 'vue';
+import { router } from '@inertiajs/vue3'
 
 export default {
     props: ['dorms', 'user'],
     setup(props){
+        const viewDorm = (id) => {
+            router.get(route('view.dorm', id));
+        }
+
         return {
-            props
+            props,
+            viewDorm
         }
     }
 }
@@ -16,7 +22,9 @@ export default {
         <div class="w-full flex flex-col"
             v-for="(dorm, index) in props.dorms" :key="index"
         >
-            <div class="w-full cursor-pointer">
+            <div class="w-full cursor-pointer"
+                @click="viewDorm(dorm.id)"
+            >
                 <img :src="dorm.dorm_image"
                     class="dorm-image p-3"
                 >
