@@ -502,7 +502,7 @@ export default {
                                     access-token="pk.eyJ1IjoiYmFsb2dzeHh4IiwiYSI6ImNsbHA1dDN2MDAydGczZXFqZHprcW44dXIifQ.Z0dcyAB1W1B4-jcaqC_NKA"
                                     map-style="mapbox://styles/mapbox/streets-v11"
                                     :center="[long, lat]"
-                                    :zoom="11"
+                                    :zoom="15"
                                 >
                                     <MapboxMarker :lng-lat="[long, lat]"  :draggable="true" @mb-dragend="mapDrag($event)"/>
                                 </MapboxMap>
