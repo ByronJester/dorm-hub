@@ -40,11 +40,11 @@
 <template>
     <AuthenticatedLayout v-if="user">
         <div class="main w-full flex flex-col" style="min-height: 92vh;">
-            <div class="w-full mt-5 pl-5">
+            <!-- <div class="w-full mt-5 pl-5">
                 <p class="cursor-pointer" @click="back()">
                     <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>
                 </p>
-            </div>
+            </div> -->
 
             <div class="w-full mt-5">
                 <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
@@ -53,11 +53,11 @@
     </AuthenticatedLayout>
 
     <div class="main w-full flex flex-col" v-else style="min-height: 100vh;">
-        <div class="w-full mt-8 pl-5">
+        <!-- <div class="w-full mt-8 pl-5">
             <p class="cursor-pointer" @click="back()">
                 <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>
             </p>
-        </div>
+        </div> -->
 
         <div class="w-full mt-10">
             <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
