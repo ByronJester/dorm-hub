@@ -16,9 +16,8 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
-            $table->string('deposit', 100);
-            $table->string('advance', 100);
-            $table->string('fee', 100);
+            $table->string('range_from', 100);
+            $table->string('range_to', 100);
             $table->longText('methods');
 
             $table->foreign('dorm_id')->references('id')->on('dorms');
