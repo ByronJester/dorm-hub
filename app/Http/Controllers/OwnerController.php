@@ -45,9 +45,8 @@ class OwnerController extends Controller
             'curfew_hours' => 'required',
             'minimum_stay' => 'required',
             // 'rules' => 'required|array|between:1,20',
-            'deposit' => 'required',
-            'advance' => 'required',
-            'fee' => 'required',
+            'range_from' => 'required',
+            'range_to' => 'required',
             'payments' => 'required|array'
         ]);
 
@@ -101,20 +100,19 @@ class OwnerController extends Controller
             $rooms = json_decode($request->rooms);
 
             foreach($rooms as $key => $r) {
-                // $r = json_decode($r);
-
-                // $room_image = $request->room_images[$key];
-
                 $filename = Str::random(10) . '_room_image';
 
                 $room = new Room;
 
                 $room->dorm_id = $dorm->id;
+                $room->name = $r->name;
                 $room->type_of_room = $r->type_of_room;
                 $room->is_aircon = $r->is_aircon;
                 $room->furnished_type = $r->furnished_type;
+                $room->fee = $r->fee;
+                $room->deposit = $r->deposit;
+                $room->advance = $r->advance;
                 $room->is_available = $r->is_available;
-
 
                 $uploadFile = $this->uploadFile($r->src, $filename);
                 $room->image = $filename;
@@ -155,9 +153,8 @@ class OwnerController extends Controller
             $payment = new Payment;
 
             $payment->dorm_id = $dorm->id;
-            $payment->deposit = $request->deposit;
-            $payment->advance = $request->advance;
-            $payment->fee = $request->fee;
+            $payment->range_from = $request->range_from;
+            $payment->range_to = $request->range_to;
             $payment->methods = implode(',', $request->payments);
 
             $payment->save();

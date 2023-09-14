@@ -36,7 +36,7 @@ export default {
                 </p>
 
                 <p class="font-bold ml-4 text-xs mt-1">
-                    ₱ {{ dorm.payment.fee }}/month
+                    ₱ {{dorm.payment.range_from }} - {{ dorm.payment.range_to }} Monthly
                 </p>
 
                 <button class="bg-cyan-500 ml-4 mt-2 text-xs py-1 px-3 rounded-md"
