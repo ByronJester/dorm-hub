@@ -21,7 +21,11 @@ return new class extends Migration
             $table->string('phone_number', 20);
             $table->string('email')->unique();
             $table->string('password');
+            $table->string('id_picture', 100)->nullable();
+            $table->string('image', 100)->nullable();
             $table->string('user_type', 10)->default('tenant');
+            $table->boolean('is_approved')->default(true);
+            $table->boolean('is_active')->default(true);
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

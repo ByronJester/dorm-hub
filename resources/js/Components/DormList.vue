@@ -9,9 +9,16 @@ export default {
             router.get(route('view.dorm', id));
         }
 
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2)
+
+            return '₱ ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
+        }
+
         return {
             props,
-            viewDorm
+            viewDorm,
+            moneyFormat
         }
     }
 }
@@ -32,11 +39,11 @@ export default {
 
             <div class="w-full">
                 <p class="font-bold ml-4 text-sm">
-                    {{ dorm.detailed_address }}
+                    {{ dorm.property_name }}
                 </p>
 
                 <p class="font-bold ml-4 text-xs mt-1">
-                    ₱ {{dorm.payment.range_from }} - {{ dorm.payment.range_to }} Monthly
+                    {{moneyFormat(dorm.payment.range_from) }} - {{ moneyFormat(dorm.payment.range_to) }} Monthly
                 </p>
 
                 <button class="bg-cyan-500 ml-4 mt-2 text-xs py-1 px-3 rounded-md"

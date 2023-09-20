@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted} from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { router } from '@inertiajs/vue3'
 import { MapboxMap, MapboxMarker } from '@studiometa/vue-mapbox-gl';
 import 'vue3-carousel/dist/carousel.css'
@@ -18,12 +18,43 @@ export default {
     setup(props){
 
         const isMobileView = ref(false)
+        const room = ref(null);
 
         isMobileView.value = screen.width < 600;
 
+        const openModal = () => {
+
+            var modal = document.getElementById("roomModal");
+
+            modal.style.display = "block";
+
+        }
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2)
+
+            return '₱ ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
+        }
+
+        const closeModal = () => {
+            var modal = document.getElementById("roomModal");
+
+            modal.style.display = "none";
+        }
+
+        const viewRoom = (r) => {
+            room.value = r
+            openModal()
+        }
+
         return {
             props,
-            isMobileView
+            isMobileView,
+            room,
+            moneyFormat,
+            openModal,
+            closeModal,
+            viewRoom
         }
     }
 }
@@ -61,10 +92,12 @@ export default {
                     </p>
                 </div>
 
-                <Carousel :items-to-show="isMobileView ? 1 : 3" :wrap-around="true">
+                <Carousel :items-to-show="isMobileView ? 1 : props.dorm.rooms.length > 3 ? 3 : props.dorm.rooms.length"
+                    :wrap-around="true"
+                >
                     <Slide v-for="(room, index) in props.dorm.rooms" :key="index">
                         <div class="flex flex-col w-full md:px-1">
-                            <div class="w-full cursor-pointer">
+                            <div class="w-full">
                                 <img :src="room.image"
                                     class="room-image"
                                 >
@@ -74,6 +107,14 @@ export default {
                                 <p class="text-lg">
                                     {{  room.name }}
                                 </p>
+                            </div>
+
+                            <div class="w-full flex justify-center items-center">
+                                <button class="bg-cyan-500 px-2 py-1 text-xs rounded-md"
+                                    @click="viewRoom(room)"
+                                >
+                                    View
+                                </button>
                             </div>
                         </div>
                     </Slide>
@@ -199,6 +240,101 @@ export default {
                 </div>
             </div>
         </div>
+
+        <div class="w-full">
+            <div id="roomModal" class="roomModal mt-10 md:mt-0">
+                <div class="room-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}" v-if="room">
+                    <div class="w-full">
+                        <span class="text-lg font-bold">
+                            {{ room.name}}
+                        </span>
+                        <span class="float-right cursor-pointer"
+                            @click="closeModal()"
+                        >
+                            <i class="fa-solid fa-xmark"></i>
+                        </span>
+                    </div>
+
+                    <div class="w-full mt-5">
+                        <img :src="room.image" alt="" class="room-image">
+                    </div>
+
+                    <div class="w-full mt-8 flex flex-row">
+                        <div class="w-full text-center">
+                            <p class="text-sm font-bold">
+                                Deposit Fee
+                            </p>
+
+                            <p class="text-xs">
+                                {{ moneyFormat(room.deposit) }}
+                            </p>
+                        </div>
+
+                        <div class="w-full text-center">
+                            <p class="text-sm font-bold">
+                                Advance Fee
+                            </p>
+
+                            <p class="text-xs">
+                                {{ moneyFormat(room.advance) }}
+                            </p>
+                        </div>
+
+                        <div class="w-full text-center">
+                            <p class="text-sm font-bold">
+                                Monthly Fee
+                            </p>
+
+                            <p class="text-xs">
+                                {{ moneyFormat(room.fee) }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="w-full mt-5 flex flex-row">
+                        <div class="w-full text-center">
+                            <p class="text-sm font-bold">
+                                Type of Room
+                            </p>
+
+                            <p class="text-xs">
+                                {{ room.type_of_room }}
+                            </p>
+                        </div>
+
+                        <div class="w-full text-center">
+                            <p class="text-sm font-bold">
+                                Furnished Type
+                            </p>
+
+                            <p class="text-xs">
+                                {{ room.furnished_type }}
+                            </p>
+                        </div>
+
+                        <div class="w-full text-center">
+                            <p class="text-sm font-bold">
+                                Is Airconditioned?
+                            </p>
+
+                            <p class="text-xs">
+                                {{ room.is_aircon }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="w-full flex justify-center items-center mt-10">
+                        <button class="text-md bg-orange-500 mx-2 px-2 py-1 rounded-md">
+                            Reserve
+                        </button>
+
+                        <button class="text-md bg-cyan-500 mx-2 px-2 py-1 rounded-md">
+                            Rent
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -225,5 +361,48 @@ hr {
   width: 100%;
   background-color: black;
   height: 1px;
+}
+
+.roomModal {
+    display: none;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 20px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.room-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
 }
 </style>

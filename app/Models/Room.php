@@ -19,7 +19,7 @@ class Room extends Model
 
     public function getImageAttribute($value)
     {
-        return \LaravelCloudinary::show($value, []);
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 
     public function getSrcAttribute()

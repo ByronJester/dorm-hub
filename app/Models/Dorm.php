@@ -20,12 +20,13 @@ class Dorm extends Model
 
     public function getDormImageAttribute($value)
     {
-        return \LaravelCloudinary::show($value, []);
+        // return \LaravelCloudinary::show($value, []);
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 
     public function getBusinessPermitImageAttribute($value)
     {
-        return \LaravelCloudinary::show($value, []);
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 
     public function user()
