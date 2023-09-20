@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\{ Dorm };
+use App\Models\{ Dorm, User };
 
 
 class AdminController extends Controller
@@ -25,6 +25,22 @@ class AdminController extends Controller
         return Inertia::render('Admin/Dorms', [
             'dorms' => $dorms,
         ]);
+    }
+
+    public function tenantList()
+    {
+        $users = User::where('user_type', 'tenant')->get();
+
+        return Inertia::render('Admin/Users', [
+            'users' => $users,
+        ]);
+    }
+
+    public function changeTenantStatus(Request $request)
+    {
+        $update = User::where('id', $request->id)->update(['is_approved' => $request->status]);
+
+        return response()->json(["message" => $update], 200);
     }
 
     public function getDormList()

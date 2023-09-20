@@ -25,6 +25,8 @@ class User extends Authenticatable
         'user_type',
         'email',
         'password',
+        'id_picture',
+        'is_approved'
     ];
 
     /**
@@ -45,4 +47,26 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected $appends = [
+        'name'
+    ];
+
+    public function getIdPictureAttribute($value)
+    {
+        // return \LaravelCloudinary::show($value, []);
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
+
+    public function getImageAttribute($value)
+    {
+        if(!$value) return $value;
+
+        return  "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
 }

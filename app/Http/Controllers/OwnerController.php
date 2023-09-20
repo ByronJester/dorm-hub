@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\{ Dorm, Room, Amenity, Rule, Payment };
 use App\Http\Requests\{ SaveDorm };
+use App\Rules\RoomRule;
 
 class OwnerController extends Controller
 {
@@ -37,7 +38,7 @@ class OwnerController extends Controller
             'rooms_total' => 'required',
             'dorm_image' => 'required',
             'business_permit_image' => 'required',
-            // 'rooms' => 'required|array|between:1,20',
+            // 'rooms' => ['required', new RoomRule],
             // 'amenities' => 'required|array|between:1,8',
             'short_term' => 'required',
             'mix_gender' => 'required',

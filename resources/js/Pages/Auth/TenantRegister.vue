@@ -11,10 +11,11 @@ const form = useForm({
     middle_name: '',
     last_name: '',
     phone_number: '',
-    email: '',
+    username: '',
     user_type: 'tenant',
     password: '',
     password_confirmation: '',
+    id: '',
     terms: false,
 });
 
@@ -97,18 +98,18 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="username" value="Username" />
 
                 <TextInput
-                    id="email"
-                    type="email"
+                    id="username"
+                    type="text"
                     class="mt-1 block w-full"
-                    v-model="form.email"
+                    v-model="form.username"
                     required
                     autocomplete="username"
                 />
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-2" :message="form.errors.username" />
             </div>
 
             <div class="mt-4 hidden">

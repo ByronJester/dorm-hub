@@ -19,4 +19,14 @@ class TenantController extends Controller
             'dorms' => $dorms,
         ]);
     }
+
+    public function reserveDorm(Request $request)
+    {
+
+    }
+
+    public function rentDorm(Request $request)
+    {
+
+    }
 }

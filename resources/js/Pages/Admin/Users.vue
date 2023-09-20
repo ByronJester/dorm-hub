@@ -18,29 +18,16 @@
             const rows = ref([])
             const columns = ref([
                 {
-                    label: 'Dorm Owner',
-                    field: 'dorm_owner',
+                    label: 'Name',
+                    field: 'name',
                 },
                 {
                     label: 'Contact Number',
-                    field: 'contact_number',
+                    field: 'phone_number',
                 },
                 {
-                    label: 'Property Name',
-                    field: 'property_name',
-                },
-                {
-                    label: 'Dorm Address',
-                    field: 'detailed_address',
-                },
-                {
-                    label: 'Floor Total',
-                    field: 'floors_total',
-                },
-
-                {
-                    label: 'Room Total',
-                    field: 'rooms_total',
+                    label: 'Email',
+                    field: 'email',
                 },
                 {
                     label: 'Status',
@@ -54,33 +41,31 @@
             ])
 
             onMounted(() => {
-                rows.value = page.props.dorms
+                rows.value = page.props.users
             });
 
-            const business_permit = ref(null)
-            const dorm = ref(null)
+            const id_picture = ref(null)
+            const user = ref(null)
 
             const openModal = (arg) => {
-                business_permit.value = arg.business_permit_image
-                dorm.value = arg
+                id_picture.value = arg.id_picture
+                user.value = arg
 
-                var modal = document.getElementById("bpModal");
+                var modal = document.getElementById("userModal");
 
                 modal.style.display = "block";
 
             }
 
             const closeModal = () => {
-                var modal = document.getElementById("bpModal");
+                var modal = document.getElementById("userModal");
 
                 modal.style.display = "none";
             }
 
-            const changeStatus = (status, id) => {
-                var s = status == 'declined' ? 'decline' : 'approved';
-
+            const changeStatus = (id, status) => {
                 swal({
-                    title: `Are you sure to ${s} this dorm?`,
+                    title: `Are you sure to ${!status ? 'deny' : 'approve'} the rental status of this tenant?`,
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55",
@@ -88,9 +73,9 @@
                     closeOnConfirm: false
                 },
                 function(){
-                    axios.post(route('dorm.change.status', status), {id: id})
+                    axios.post(route('tenant.change.status', status), {id: id, status: status})
                         .then(response => {
-                            swal("Success!", `You successfully ${status} this dorm.`, "success");
+                            swal("Success!", `You successfully ${!status ? 'denied' : 'approved'} the rental rental status of this tenant.`, "success");
 
                             setTimeout(function () {
                                 location.reload()
@@ -109,8 +94,8 @@
                 isMobileView,
                 columns,
                 rows,
-                business_permit,
-                dorm,
+                id_picture,
+                user,
                 openModal,
                 closeModal,
                 changeStatus
@@ -134,31 +119,16 @@
                     :search-options="{ enabled: true }"
                 >
                     <template #table-row="props">
-                        <div v-if="props.column.field == 'dorm_owner'">
-                            {{ props.row.user.first_name }} {{ props.row.user.last_name }}
-                        </div>
-
-                        <div v-if="props.column.field == 'contact_number'">
-                            {{ props.row.user.phone_number }}
-                        </div>
-
                         <div v-if="props.column.field == 'status'" class="mt-2">
-                            <button class="bg-orange-500 p-1 mx-1 text-white rounded-sm text-xs"
-                                v-if="props.row.status == 'pending'"
-                                :disabled="true"
-                            >
-                                Pending
-                            </button>
-
                             <button class="bg-rose-500 p-1 mx-1 text-white rounded-md text-xs"
-                                v-if="props.row.status == 'declined'"
+                                v-if="!props.row.is_approved"
                                 :disabled="true"
                             >
-                                DECLINED
+                                DENIED
                             </button>
 
                             <button class="bg-cyan-900 p-1 mx-1 text-white rounded-md text-xs"
-                                v-if="props.row.status == 'approved'"
+                                v-if="!!props.row.is_approved"
                                 :disabled="true"
                             >
                                 APPROVED
@@ -166,7 +136,7 @@
                         </div>
 
                         <div v-if="props.column.field == 'action'">
-                            <button class="bg-orange-500 p-3 mx-1 text-white rounded-md text-xs"
+                            <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
                                 @click="openModal(props.row)"
                             >
                                 View
@@ -177,11 +147,11 @@
             </div>
 
             <div class="w-full">
-                <div id="bpModal" class="bpModal mt-10 md:mt-0">
-                    <div class="bp-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
+                <div id="userModal" class="userModal mt-10 md:mt-0">
+                    <div class="user-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
                         <div class="w-full">
                             <span class="text-lg font-bold">
-
+                                Valid ID
                             </span>
                             <span class="float-right cursor-pointer"
                                 @click="closeModal()"
@@ -190,31 +160,25 @@
                             </span>
                         </div>
 
-                        <div class="w-full mt-5" v-if="business_permit">
-                            <img :src="business_permit" alt="business_permit"
+                        <div class="w-full mt-5" v-if="id_picture">
+                            <img :src="id_picture" alt="id_picture"
                                 style="width: 100%; height: 250px;"
                             >
                         </div>
 
-                        <div class="w-full mt-5" v-if="dorm && dorm.status == 'pending'">
-                            <img :src="dorm.user.id_picture" alt="business_permit"
-                                style="width: 100%; height: 250px;"
-                            >
-                        </div>
-
-                        <div class="w-full mt-5" v-if="dorm">
-                            <button class="bg-cyan-900 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="dorm.status == 'pending'"
-                                @click="changeStatus('approved', dorm.id)"
+                        <div class="w-full mt-5" v-if="user">
+                            <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs float-right"
+                                v-if="!user.is_approved"
+                                @click="changeStatus(user.id, true)"
                             >
                                 Approve
                             </button>
 
                             <button class="bg-rose-500 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="dorm.status == 'pending'"
-                                @click="changeStatus('declined', dorm.id)"
+                                v-if="!!user.is_approved"
+                                @click="changeStatus(user.id, false )"
                             >
-                                Decline
+                                Deny
                             </button>
 
 
@@ -234,7 +198,7 @@
         background-color: #E5E8E8;
     }
 
-    .bpModal {
+    .userModal {
         display: none;
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
@@ -249,7 +213,7 @@
     }
 
     /* Modal Content */
-    .bp-modal-content {
+    .user-modal-content {
         background-color: #fefefe;
         margin: auto;
         padding: 20px;

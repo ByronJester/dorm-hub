@@ -39,12 +39,12 @@ const submit = () => {
 
                 <TextInput
                     id="email"
-                    type="email"
+                    type="text"
                     class="mt-1 block w-full"
                     v-model="form.email"
                     required
                     autofocus
-                    autocomplete="username"
+                    autocomplete="email"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
@@ -77,12 +77,12 @@ const submit = () => {
                 </span>
             </div>
 
-            <!-- <div class="block mt-4">
+            <div class="block mt-4">
                 <label class="flex items-center">
                     <Checkbox name="remember" v-model:checked="form.remember" />
                     <span class="ml-2 text-sm text-gray-600">Remember me</span>
                 </label>
-            </div> -->
+            </div>
 
             <div class="flex items-center justify-end mt-4">
                 <!-- <Link
