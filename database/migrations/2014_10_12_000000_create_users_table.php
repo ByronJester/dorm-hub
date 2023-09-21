@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('password');
             $table->string('id_picture', 100)->nullable();
             $table->string('image', 100)->nullable();
+            $table->longText('bio')->nullable();
             $table->string('user_type', 10)->default('tenant');
             $table->boolean('is_approved')->default(true);
             $table->boolean('is_active')->default(true);

@@ -120,11 +120,11 @@
                 >
                     <template #table-row="props">
                         <div v-if="props.column.field == 'status'" class="mt-2">
-                            <button class="bg-rose-500 p-1 mx-1 text-white rounded-md text-xs"
+                            <button class="bg-orange-500 p-1 mx-1 text-white rounded-md text-xs"
                                 v-if="!props.row.is_approved"
                                 :disabled="true"
                             >
-                                DENIED
+                                PENDING
                             </button>
 
                             <button class="bg-cyan-900 p-1 mx-1 text-white rounded-md text-xs"
@@ -138,6 +138,8 @@
                         <div v-if="props.column.field == 'action'">
                             <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
                                 @click="openModal(props.row)"
+                                :disabled="!!props.row.is_approved"
+                                :class="{'cursor-not-allowed' : !!props.row.is_approved}"
                             >
                                 View
                             </button>
@@ -173,15 +175,6 @@
                             >
                                 Approve
                             </button>
-
-                            <button class="bg-rose-500 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="!!user.is_approved"
-                                @click="changeStatus(user.id, false )"
-                            >
-                                Deny
-                            </button>
-
-
                         </div>
                     </div>
                 </div>

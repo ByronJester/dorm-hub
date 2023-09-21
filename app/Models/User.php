@@ -26,7 +26,9 @@ class User extends Authenticatable
         'email',
         'password',
         'id_picture',
-        'is_approved'
+        'is_approved',
+        'image',
+        'bio'
     ];
 
     /**
@@ -52,6 +54,10 @@ class User extends Authenticatable
         'name'
     ];
 
+    protected $with = [
+        'income_information'
+    ];
+
     public function getIdPictureAttribute($value)
     {
         // return \LaravelCloudinary::show($value, []);
@@ -68,5 +74,10 @@ class User extends Authenticatable
     public function getNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function income_information()
+    {
+        return $this->hasOne(UserIncomeInformation::class);
     }
 }
