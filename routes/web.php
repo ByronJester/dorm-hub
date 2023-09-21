@@ -63,6 +63,7 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/profile-change-password', [ProfileController::class, 'changePassword'])->name('profile.change.password');
+    Route::post('/profile-income-information', [ProfileController::class, 'updateIncomeInformation'])->name('profile.income_information.update');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

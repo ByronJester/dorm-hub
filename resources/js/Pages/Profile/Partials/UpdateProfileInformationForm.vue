@@ -18,6 +18,8 @@ const form = useForm({
     last_name: user.last_name,
     phone_number: user.phone_number,
     email: user.email,
+    image: user.image,
+    bio: user.bio
 });
 
 const updateProfile = () => {
@@ -48,6 +50,22 @@ const updateProfile = () => {
         });
     });
 }
+
+const imageClick = () => {
+    document.getElementById('profile_image').click()
+}
+
+const imageChange = (e) => {
+    const image = e.target.files[0];
+
+    const reader = new FileReader();
+
+    reader.readAsDataURL(image);
+
+    reader.onload = e =>{
+        form.image = e.target.result
+    }
+}
 </script>
 
 <template>
@@ -61,105 +79,113 @@ const updateProfile = () => {
         </header>
 
         <form @submit.prevent="updateProfile" class="mt-6 space-y-6">
-            <div>
-                <InputLabel for="first_name" value="First Name" />
+            <div class="w-full flex flex-col md:flex-row">
+                <div class="w-full md:w-8/12">
+                    <div class="flex flex-col md:flex-row w-full">
+                        <div class="w-full md:mr-1">
+                            <InputLabel for="first_name" value="First Name" />
 
-                <TextInput
-                    id="first_name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.first_name"
-                    required
-                    autofocus
-                    autocomplete="first_name"
-                />
+                            <TextInput
+                                id="first_name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.first_name"
+                                required
+                                autocomplete="first_name"
+                            />
 
-                <InputError class="mt-2" :message="form.errors.first_name" />
-            </div>
+                            <InputError class="mt-2" :message="form.errors.first_name" />
+                        </div>
 
-            <div>
-                <InputLabel for="middle_name" value="Middle Name" />
+                        <div class="w-full md:mr-1">
+                            <InputLabel for="middle_name" value="Middle Name" />
 
-                <TextInput
-                    id="middle_name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.middle_name"
-                    required
-                    autofocus
-                    autocomplete="middle_name"
-                />
+                            <TextInput
+                                id="middle_name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.middle_name"
+                                autocomplete="middle_name"
+                            />
 
-                <InputError class="mt-2" :message="form.errors.middle_name" />
-            </div>
+                            <InputError class="mt-2" :message="form.errors.middle_name" />
+                        </div>
 
-            <div>
-                <InputLabel for="last_name" value="Middle Name" />
+                        <div class="w-full">
+                            <InputLabel for="last_name" value="Middle Name" />
 
-                <TextInput
-                    id="last_name"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.last_name"
-                    required
-                    autofocus
-                    autocomplete="last_name"
-                />
+                            <TextInput
+                                id="last_name"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.last_name"
+                                required
+                                autocomplete="last_name"
+                            />
 
-                <InputError class="mt-2" :message="form.errors.last_name" />
-            </div>
+                            <InputError class="mt-2" :message="form.errors.last_name" />
+                        </div>
+                    </div>
 
-            <div>
-                <InputLabel for="phone_number" value="Contact" />
+                    <div class="w-full flex flex-col md:flex-row md:mt-5">
+                        <div class="w-full md:mr-1">
+                            <InputLabel for="phone_number" value="Contact" />
 
-                <TextInput
-                    id="phone_number"
-                    type="text"
-                    class="mt-1 block w-full"
-                    v-model="form.phone_number"
-                    required
-                    autofocus
-                    autocomplete="phone_number"
-                />
+                            <TextInput
+                                id="phone_number"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.phone_number"
+                                required
+                                autocomplete="phone_number"
+                            />
 
-                <InputError class="mt-2" :message="form.errors.phone_number" />
-            </div>
+                            <InputError class="mt-2" :message="form.errors.phone_number" />
+                        </div>
 
-            <div>
-                <InputLabel for="email" value="Email" />
+                        <div class="w-full">
+                            <InputLabel for="email" value="Email" />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
-                    required
-                    autocomplete="username"
-                />
+                            <TextInput
+                                id="email"
+                                type="email"
+                                class="mt-1 block w-full"
+                                v-model="form.email"
+                                required
+                                autocomplete="username"
+                            />
 
-                <InputError class="mt-2" :message="form.errors.email" />
-            </div>
+                            <InputError class="mt-2" :message="form.errors.email" />
+                        </div>
+                    </div>
 
-            <div v-if="props.mustVerifyEmail && user.email_verified_at === null">
-                <p class="text-sm mt-2 text-gray-800">
-                    Your email address is unverified.
-                    <Link
-                        :href="route('verification.send')"
-                        method="post"
-                        as="button"
-                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        Click here to re-send the verification email.
-                    </Link>
-                </p>
+                    <div class="w-full mt-2">
+                        <InputLabel for="bio" value="Bio" />
 
-                <div
-                    v-show="props.status === 'verification-link-sent'"
-                    class="mt-2 font-medium text-sm text-green-600"
-                >
-                    A new verification link has been sent to your email address.
+                        <textarea rows="4" cols="50" class="w-full text-sm" v-model="form.bio">
+
+                        </textarea>
+                    </div>
                 </div>
+
+                <div class="w-full md:w-4/12 mt-5 md:mt-0">
+                    <div class="w-full md:px-10">
+                        <InputLabel for="profile_picture" value="Profile Picture" />
+
+                        <input type="file" id="profile_image" style="display: none"
+                                @change="imageChange($event)"
+                        />
+
+                        <img :src="form.image ?? '/images/upload_image.png'"
+                            class="cursor-pointer"
+                            @click="imageClick()"
+                            style="border: 1px solid black; border-radius: 5px; width: 100%; height: 260px;"
+                        >
+                    </div>
+                </div>
+
             </div>
+
 
             <div class="flex items-center gap-4">
                 <PrimaryButton :disabled="form.processing">Save</PrimaryButton>

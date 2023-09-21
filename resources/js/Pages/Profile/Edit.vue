@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
+import IncomeInformation from './Partials/IncomeInformation.vue';
 import { Head } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
 
@@ -17,8 +18,7 @@ defineProps({
 
     <AuthenticatedLayout>
         <div class="w-full pt-10">
-            <button class="bg-cyan-500 float-right py-2 px-4 rounded-md text-xs"
-                style="margin-right: 7.5vw;"
+            <button class="bg-cyan-500 float-right py-2 px-4 rounded-md text-xs mr-2 md:mr-32"
             >
                 <Link
                     class="block w-full text-xs"
@@ -30,22 +30,20 @@ defineProps({
         </div>
 
         <div class="py-12 main">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            <div class="w-full mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg mx-2 md:mx-24">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
-                        class="max-w-xl"
+                        class="w-full"
                     />
                 </div>
+            </div>
 
-                <!-- <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div> -->
-
-                <!-- <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                    <DeleteUserForm class="max-w-xl" />
-                </div> -->
+            <div class="w-full mx-auto sm:px-6 lg:px-8 space-y-6 mt-5">
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg mx-2 md:mx-24">
+                    <IncomeInformation />
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
