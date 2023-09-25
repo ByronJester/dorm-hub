@@ -19,7 +19,9 @@ const form = useForm({
     phone_number: user.phone_number,
     email: user.email,
     image: user.image,
-    bio: user.bio
+    bio: user.bio,
+    pk: user.pk,
+    sk: user.sk
 });
 
 const updateProfile = () => {
@@ -165,6 +167,34 @@ const imageChange = (e) => {
                         <textarea rows="4" cols="50" class="w-full text-sm" v-model="form.bio">
 
                         </textarea>
+                    </div>
+
+                    <div class="w-full flex flex-col md:flex-row md:mt-5" v-if="user.user_type == 'owner'">
+                        <div class="w-full md:mr-1">
+                            <InputLabel for="pk" value="Paymongo Public Key" />
+
+                            <TextInput
+                                id="pk"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.pk"
+                            />
+
+                            <InputError class="mt-2" :message="form.errors.pk" />
+                        </div>
+
+                        <div class="w-full">
+                            <InputLabel for="sk" value="Paymongo Secret Key" />
+
+                            <TextInput
+                                id="sk"
+                                type="text"
+                                class="mt-1 block w-full"
+                                v-model="form.sk"
+                            />
+
+                            <InputError class="mt-2" :message="form.errors.sk" />
+                        </div>
                     </div>
                 </div>
 

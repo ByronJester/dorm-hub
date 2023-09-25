@@ -26,7 +26,8 @@ return new class extends Migration
             $table->string('rooms_total', 100);
             $table->string('dorm_image', 100);
             $table->string('business_permit_image', 100);
-            $table->string('status')->default('pending', 20);
+            $table->string('status', 20)->default('pending');
+            $table->string('ratings', 20)->nullable();
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();

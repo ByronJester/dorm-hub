@@ -6,11 +6,16 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 
 const showingNavigationDropdown = ref(false);
 
 const page = usePage()
+
+const isMobileView = ref(false)
+isMobileView.value = screen.width < 600;
+
+const notifications = page.props.notifications
 
 var userPages = [];
 
@@ -46,6 +51,10 @@ if(page.props.auth.user.user_type == 'tenant') {
         {
             label: 'Dorms',
             route: 'tenant.dorms'
+        },
+        {
+            label: 'Payments',
+            route: 'tenant.payments'
         }
     ]
 }
@@ -58,6 +67,27 @@ const logOut = () => {
         .catch(error => {
             errors.value = error.response.data.errors
         })
+}
+
+const openModal = () => {
+    var modal = document.getElementById("notificationModal");
+
+    modal.style.display = "block";
+
+}
+
+const closeModal = () => {
+    var modal = document.getElementById("notificationModal");
+
+    modal.style.display = "none";
+}
+
+const markAsRead = (id) => {
+    router.get(route('notification.mark-as-read', id))
+}
+
+const viewNotification = (r) => {
+    router.get(route(r))
 }
 
 </script>
@@ -88,29 +118,21 @@ const logOut = () => {
                                 </NavLink>
                             </div>
 
-                            <!-- <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.user_type == 'owner'">
-                                <NavLink :href="route(p.route)" :active="route().current(p.route)"
-                                    v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <p class="absolute md:right-52 top-5 cursor-pointer mr-1"
+                                    @click="openModal()"
                                 >
-                                    <span class="px-3"> {{ p.label }} </span>
-                                </NavLink>
-                            </div>
+                                    <i class="fa-solid fa-globe"> </i>
+                                </p>
 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.user_type == 'admin'">
-                                <NavLink :href="route(p.route)" :active="route().current(p.route)"
-                                    v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
+                                <p class="absolute md:right-52 top-3 text-xs cursor-pointer text-red-500 font-bold"
+                                    @click="openModal()"
+                                    v-if="notifications.filter(x => { return !x.is_read }).length > 0"
                                 >
-                                    <span class="px-3"> {{ p.label }} </span>
-                                </NavLink>
-                            </div>
+                                    {{ notifications.filter(x => { return !x.is_read }).length }}
+                                </p>
 
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex" v-if="$page.props.auth.user.user_type == 'tenant'">
-                                <NavLink :href="route(p.route)" :active="route().current(p.route)"
-                                    v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
-                                >
-                                    <span class="px-3"> {{ p.label }} </span>
-                                </NavLink>
-                            </div> -->
+                            </div>
                         </div>
 
                         <div class="hidden sm:flex sm:items-center sm:ml-6">
@@ -185,6 +207,7 @@ const logOut = () => {
                     </div>
                 </div>
 
+
                 <!-- Responsive Navigation Menu -->
                 <div
                     :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
@@ -196,6 +219,22 @@ const logOut = () => {
                         >
                             <span class="px-3"> {{ p.label }} </span>
                         </ResponsiveNavLink>
+
+                        <div class="w-full">
+                            <span class="cursor-pointer ml-7"
+                             @click="openModal()"
+                            >
+                                <i class="fa-solid fa-globe"></i>
+                                <span v-if="notifications.filter(x => { return !x.is_read }).length > 0"
+                                    class="text-xs text-red-500 absolute"
+                                >
+                                    {{ notifications.filter(x => { return !x.is_read }).length }}
+                                </span>
+
+                            </span>
+
+
+                        </div>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -217,6 +256,69 @@ const logOut = () => {
                     </div>
                 </div>
             </nav>
+
+            <div class="w-full">
+                <div id="notificationModal" class="notificationModal mt-10 md:mt-0"
+                    :style="{'top': isMobileView ? '0px' : '3vh !important'}"
+                >
+                    <div class="notification-modal-content flex flex-col"
+                        :style="{
+                            width: isMobileView ? '97%' : '30%',
+                            'margin-right': isMobileView ? 'none' : '15vw',
+                        }"
+                    >
+                        <div class="w-full">
+                            <span class="text-lg font-bold">
+                                Notifications
+                            </span>
+                            <span class="float-right cursor-pointer"
+                                @click="closeModal()"
+                            >
+                                <i class="fa-solid fa-xmark"></i>
+                            </span>
+                        </div>
+
+                        <div class="w-full bg-gray-300 mt-3 text-center py-5 rounded-md"
+                            v-if="notifications.length == 0"
+                        >
+                            There's no notification.
+                        </div>
+
+                        <div class="w-full flex flex-col bg-gray-300 mt-3"
+                            style="border-radius: 5px;"
+                            v-for="notification in notifications" :key="notification.id"
+                        >
+                            <div class="px-3 my-3">
+                                <p class="text-xs font-bold mt-1">
+                                    {{ notification.type }}
+                                </p>
+
+                                <p class="text-xs mt-2">
+                                    {{ notification.message }}
+                                </p>
+
+                                <p class="text-xs mt-5">
+                                    <span class="cursor-pointer mr-3" v-if="!!notification.redirection"
+                                        @click="viewNotification(notification.redirection)"
+                                    >
+                                        View
+                                    </span>
+
+                                    <span class="cursor-pointer" v-if="!notification.is_read"
+                                        @click="markAsRead(notification.id)"
+                                    >
+                                        Mark as Read
+                                    </span>
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
             <main class="main">
                 <slot />
             </main>
@@ -238,5 +340,48 @@ const logOut = () => {
     border-radius: 5px;
     margin-top: 10px;
     margin-bottom: 10px;
+}
+
+.notificationModal {
+    display: none;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 20px; /* Location of the box */
+    left: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: scroll; /* Enable scroll if needed */
+}
+
+/* Modal Content */
+.notification-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+    max-height: 80vh;
+    border-radius: 5px;
+    overflow: scroll;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
 }
 </style>

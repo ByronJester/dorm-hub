@@ -81,16 +81,24 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('owner')->group(function () {
         Route::get('/dorms', [OwnerController::class, 'dormList'])->name('owner.dorms');
-        Route::get('/tenants-application', [OwnerController::class, 'dormList'])->name('owner.tenants.application');
+        Route::get('/tenants', [OwnerController::class, 'tenantApplications'])->name('owner.tenants.application');
+        Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
 
     });
 
     Route::prefix('tenant')->group(function () {
         Route::get('/dorms', [TenantController::class, 'dormList'])->name('tenant.dorms');
+        Route::get('/payments', [TenantController::class, 'paymentList'])->name('tenant.payments');
+        Route::get('/paymongo/success', [TenantController::class, 'successPage']);
+        Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
+        Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
+        Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
+        Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');
     });
 
     Route::prefix('shared')->group(function () {
+        Route::get('/notification/mark-as-read/{id}', [SharedController::class, 'notificationMarkAsRead'])->name('notification.mark-as-read');
         Route::post('/get-long-lat/{address}', [SharedController::class, 'getlongLat'])->name('location.long.lat');
     });
 });
