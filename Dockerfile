@@ -19,7 +19,6 @@ COPY app ./app
 COPY bootstrap ./bootstrap
 COPY public ./public
 COPY resources ./resources
-COPY vendor ./vendor
 
 RUN npm run build
 ############################################
