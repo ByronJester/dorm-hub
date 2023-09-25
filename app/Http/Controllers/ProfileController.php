@@ -50,6 +50,8 @@ class ProfileController extends Controller
         }
 
         $data["bio"] = $request->bio;
+        $data["pk"] = $request->pk;
+        $data["sk"] = $request->sk;
 
         $request->user()->fill($data);
 

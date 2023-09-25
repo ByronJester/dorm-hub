@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\{ Dorm };
+use App\Models\{ Dorm, Notification };
+use Illuminate\Support\Facades\Auth;
 
 class SharedController extends Controller
 {
@@ -32,5 +33,19 @@ class SharedController extends Controller
         return Inertia::render('Dorm', [
             'dorm' => $dorm
         ]);
+    }
+
+    public function notificationMarkAsRead($id)
+    {
+        $auth = Auth::user();
+
+        Notification::where('id', $id)->update(['is_read' => true]);
+
+        $notifications = Notification::orderBy('created_at', 'desc')->where('user_id', $auth->id)->get();
+
+        Inertia::share('notifications', $notifications);
+
+        return redirect()->back();
+
     }
 }

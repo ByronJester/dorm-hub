@@ -9,9 +9,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{ Dorm, Room, Amenity, Rule, Payment };
+use App\Models\{ Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, Notification };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\RoomRule;
+use Carbon\Carbon;
 
 class OwnerController extends Controller
 {
@@ -21,6 +22,17 @@ class OwnerController extends Controller
 
         return Inertia::render('Owner/Dorms', [
             'dorms' => $dorms,
+        ]);
+    }
+
+    public function tenantApplications()
+    {
+        $user = Auth::user();
+
+        $applications = TenantRoom::where('owner_id', $user->id)->where('is_active', true)->get();
+
+        return Inertia::render('Owner/Tenants', [
+            'applications' => $applications,
         ]);
     }
 
@@ -113,7 +125,6 @@ class OwnerController extends Controller
                 $room->fee = $r->fee;
                 $room->deposit = $r->deposit;
                 $room->advance = $r->advance;
-                $room->is_available = $r->is_available;
 
                 $uploadFile = $this->uploadFile($r->src, $filename);
                 $room->image = $filename;
@@ -165,5 +176,58 @@ class OwnerController extends Controller
         }
 
         return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 200);
+    }
+
+    public function applicationStatusChange(Request $request)
+    {
+        $status = $request->status;
+
+        $application = TenantRoom::where('id', $request->id)->first();
+        $room = Room::where('id', $application->room_id)->first();
+        $notification = new Notification;
+
+        if($status == 'approved') {
+            $application->is_approved = true;
+
+            $payment = new TenantPayments;
+            $payment->amount_to_pay = $room->fee;
+
+            if($application->status == 'reserve') {
+                $payment->partial = 300;
+            }
+
+            $payment->tenant_room_id = $application->id;
+            $payment->user_id = $application->tenant_id;
+            $payment->date = Carbon::now();
+            $payment->save();
+
+            $newPayment = new TenantPayments;
+            $newPayment->amount_to_pay = $room->advance;
+
+            $newPayment->tenant_room_id = $application->id;
+            $newPayment->user_id = $application->tenant_id;
+            $newPayment->date = Carbon::now()->addMonth();
+            $newPayment->save();
+
+            $notification->user_id = $application->tenant_id;
+            $notification->message = 'Your rental application has been approved.';
+            $notification->type = 'Rental Application';
+            $notification->redirection = 'tenant.payments';
+        }
+
+        if($status == 'declined') {
+            $application->is_active = false;
+            $room->is_available = true;
+            $room->save();
+
+            $notification->user_id = $application->tenant_id;
+            $notification->message = 'Your rental application has been declined.';
+            $notification->type = 'Rental Application';
+        }
+
+        $application->save();
+        $notification->save();
+
+        return response()->json(['message' => $status], 200);
     }
 }

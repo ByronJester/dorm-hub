@@ -598,7 +598,7 @@ export default {
                                             <img :src="room.src ?? '/images/upload_image.png'" alt="upload_image"
                                                 class="cursor-pointer"
                                                 @click="roomImageClick('room_image' + index)"
-                                                style="border: 1px solid black; border-radius: 5px; height: 300px; width: 100%;"
+                                                style="border: 1px solid black; border-radius: 5px; height: 235px; width: 100%;"
                                             >
                                         </div>
 
@@ -642,15 +642,6 @@ export default {
                                                 <InputLabel for="is_aircon" value="Aircon" />
 
                                                 <select v-model="room.is_aircon" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                                    <option value="Yes">Yes</option>
-                                                    <option value="No">No</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="w-full mx-1">
-                                                <InputLabel for="is_available" value="Is Available?" />
-
-                                                <select v-model="room.is_available" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Yes">Yes</option>
                                                     <option value="No">No</option>
                                                 </select>

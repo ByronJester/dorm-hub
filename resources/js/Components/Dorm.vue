@@ -47,6 +47,80 @@ export default {
             openModal()
         }
 
+        const reserveRoom = (arg) => {
+            if(!props.user.income_information) {
+                router.get(route('profile.edit'))
+
+                return;
+            }
+
+            swal({
+                title: `Are you sure to reserve this room?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                const data = {
+                    'dorm_id': props.dorm.id,
+                    'owner_id': props.dorm.user_id,
+                    'room_id': arg.id,
+                    'tenant_id': props.user.id,
+                    'status': 'reserve'
+                };
+
+                axios.post(route('reserve.room'), data)
+                    .then(response => {
+                        swal("Application submitted.", `Wait for dorm owner approval.\n Note: Once its approved you will pay ₱300`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        errors.value = error.response.data.errors
+                    })
+            });
+        }
+
+        const rentRoom = (arg) => {
+            if(!props.user.income_information) {
+                router.get(route('profile.edit'))
+            }
+
+            swal({
+                title: `Are you sure to rent this room?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                const data = {
+                    'dorm_id': props.dorm.id,
+                    'owner_id': props.dorm.user_id,
+                    'room_id': arg.id,
+                    'tenant_id': props.user.id,
+                    'status': 'rent'
+                };
+
+                axios.post(route('rent.room'), data)
+                    .then(response => {
+                        swal("Application submitted.", `Wait for dorm owner approval.\n Note: Once its approved you will pay advance and deposit fee.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+                        errors.value = error.response.data.errors
+                    })
+            });
+        }
+
         return {
             props,
             isMobileView,
@@ -54,7 +128,9 @@ export default {
             moneyFormat,
             openModal,
             closeModal,
-            viewRoom
+            viewRoom,
+            reserveRoom,
+            rentRoom
         }
     }
 }
@@ -103,13 +179,20 @@ export default {
                                 >
                             </div>
 
-                            <div class="w-full">
-                                <p class="text-lg">
-                                    {{  room.name }}
+                            <div class="w-full mt-3">
+                                <p>
+                                    <span class="text-md mr-3">
+                                        {{  room.name }}
+                                    </span>
+
+                                    <span class="text-xs bg-orange-500 p-1 rounded-md text-white">
+                                        {{  room.is_available ? 'Available' : 'Not Available' }}
+                                    </span>
+
                                 </p>
                             </div>
 
-                            <div class="w-full flex justify-center items-center">
+                            <div class="w-full flex justify-center items-center mt-2" v-if="props.user && props.user.user_type == 'tenant'">
                                 <button class="bg-cyan-500 px-2 py-1 text-xs rounded-md"
                                     @click="viewRoom(room)"
                                 >
@@ -324,11 +407,19 @@ export default {
                     </div>
 
                     <div class="w-full flex justify-center items-center mt-10">
-                        <button class="text-md bg-orange-500 mx-2 px-2 py-1 rounded-md">
+                        <button class="text-md bg-orange-500 mx-2 px-2 py-1 rounded-md"
+                            @click="reserveRoom(room)"
+                            :class="{'cursor-not-allowed': !room.is_available}"
+                            :disabled="!room.is_available"
+                        >
                             Reserve
                         </button>
 
-                        <button class="text-md bg-cyan-500 mx-2 px-2 py-1 rounded-md">
+                        <button class="text-md bg-cyan-500 mx-2 px-2 py-1 rounded-md"
+                            @click="rentRoom(room)"
+                            :class="{'cursor-not-allowed': !room.is_available}"
+                            :disabled="!room.is_available"
+                        >
                             Rent
                         </button>
                     </div>

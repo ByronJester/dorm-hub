@@ -25,6 +25,8 @@ return new class extends Migration
             $table->string('image', 100)->nullable();
             $table->longText('bio')->nullable();
             $table->string('user_type', 10)->default('tenant');
+            $table->string('sk', 100)->nullable();
+            $table->string('pk', 100)->nullable();
             $table->boolean('is_approved')->default(true);
             $table->boolean('is_active')->default(true);
 

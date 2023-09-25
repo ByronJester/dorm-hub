@@ -28,7 +28,9 @@ class User extends Authenticatable
         'id_picture',
         'is_approved',
         'image',
-        'bio'
+        'bio',
+        'pk',
+        'sk'
     ];
 
     /**
