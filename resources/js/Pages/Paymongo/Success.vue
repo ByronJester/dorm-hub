@@ -16,15 +16,11 @@ export default {
         const isMobileView = ref(false)
         isMobileView.value = screen.width < 600;
         const amount = ref()
-        const method = ref()
         const owner = ref()
         const source = ref()
 
         onMounted(() => {
-            // payments.value = page.props.payments
-            console.log(page.props)
             amount.value = page.props.amount
-            method.value = page.props.method
             owner.value = page.props.owner
             source.value = page.props.source
         });
@@ -33,7 +29,6 @@ export default {
             user,
             isMobileView,
             amount,
-            method,
             owner,
             source
         }
@@ -63,7 +58,7 @@ export default {
                     </div>
 
                     <div class="w-full text-center mt-5" style="font-size: 15px">
-                        {{ method }}
+                        GCash Payment
                     </div>
 
 

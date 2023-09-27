@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned()->comment('Foreign key from table users');
             $table->string('amount_to_pay', 100);
             $table->string('amount_paid', 100)->nullable();
+            $table->string('pending_payment', 100)->nullable();
             $table->string('partial', 100)->nullable();
             $table->string('mode_of_payment', 20)->nullable();
             $table->string('receipt', 100)->nullable();

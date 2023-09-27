@@ -115,13 +115,13 @@ const viewNotification = (r) => {
                             </div>
 
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <p class="absolute md:right-52 top-5 cursor-pointer mr-1"
+                                <p class="absolute md:right-12 top-5 cursor-pointer mr-1"
                                     @click="openModal()"
                                 >
                                     <i class="fa-solid fa-globe"> </i>
                                 </p>
 
-                                <p class="absolute md:right-52 top-3 text-xs cursor-pointer text-red-500 font-bold"
+                                <p class="absolute md:right-10 top-3 text-xs cursor-pointer text-red-500 font-bold"
                                     @click="openModal()"
                                     v-if="notifications.filter(x => { return !x.is_read }).length > 0"
                                 >
@@ -257,12 +257,12 @@ const viewNotification = (r) => {
 
             <div class="w-full">
                 <div id="notificationModal" class="notificationModal mt-10 md:mt-0"
-                    :style="{'top': isMobileView ? '0px' : '3vh !important'}"
+                    :style="{'top': isMobileView ? '0px' : '3vw !important'}"
                 >
                     <div class="notification-modal-content flex flex-col"
                         :style="{
                             width: isMobileView ? '97%' : '30%',
-                            'margin-right': isMobileView ? 'none' : '15vw',
+                            'margin-right': isMobileView ? 'none' : '4vw',
                         }"
                     >
                         <div class="w-full">
