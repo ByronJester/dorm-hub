@@ -88,6 +88,8 @@ export default {
         const rentRoom = (arg) => {
             if(!props.user.income_information) {
                 router.get(route('profile.edit'))
+
+                return;
             }
 
             swal({
@@ -411,6 +413,8 @@ export default {
                             @click="reserveRoom(room)"
                             :class="{'cursor-not-allowed': !room.is_available}"
                             :disabled="!room.is_available"
+                            v-if="user.is_approved"
+
                         >
                             Reserve
                         </button>
@@ -419,6 +423,7 @@ export default {
                             @click="rentRoom(room)"
                             :class="{'cursor-not-allowed': !room.is_available}"
                             :disabled="!room.is_available"
+                            v-if="user.is_approved"
                         >
                             Rent
                         </button>

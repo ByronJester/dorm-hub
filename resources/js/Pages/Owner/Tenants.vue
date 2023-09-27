@@ -50,17 +50,69 @@
 
             const user = page.props.auth.user;
 
+            const paymentColumns = ref([
+                {
+                    label: 'Amount To Pay',
+                    field: 'amount_to_pay',
+                },
+                {
+                    label: 'Amount Paid',
+                    field: 'amount_paid',
+                },
+                {
+                    label: 'Partial Payment',
+                    field: 'partial',
+                },
+                {
+                    label: 'Balance',
+                    field: 'balance',
+                },
+                {
+                    label: 'Mode of Payment',
+                    field: 'mode_of_payment',
+                },
+                {
+                    label: 'Status',
+                    field: 'status',
+                },
+                {
+                    label: 'Date',
+                    field: 'display_date',
+                },
+                {
+                    label: 'Partial Payment Receipt',
+                    field: 'partial_receipt',
+                },
+                {
+                    label: 'Receipt',
+                    field: 'receipt',
+                },
+                {
+                    label: 'Actions',
+                    field: 'action',
+                },
+            ])
+
             const application = ref();
+            const payments = ref([])
+            const viewPayment = ref(false)
 
-            const openModal = (arg) => {
-                application.value = arg
+            const openModal = (arg, isViewPayment = false) => {
+                viewPayment.value = isViewPayment
 
-                console.log(arg.tenant.income_information.proof);
+                if(!isViewPayment) {
+                    application.value = arg
 
-                var modal = document.getElementById("tenantModal");
+                    var modal = document.getElementById("tenantModal");
 
-                modal.style.display = "block";
+                    modal.style.display = "block";
+                } else {
+                    payments.value = arg
 
+                    var modal = document.getElementById("tenantModal");
+
+                    modal.style.display = "block";
+                }
             }
 
             const closeModal = () => {
@@ -96,9 +148,39 @@
             }
 
             const moneyFormat = (amount) => {
+                if(amount == null || amount == '') {
+                    amount = 0;
+                }
+
                 amount = parseFloat(amount).toFixed(2)
 
                 return '₱ ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
+            }
+
+            const markAsPaid = (id) => {
+
+                swal({
+                    title: `Are you sure to mark as paid this payment?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('payment.mark-as-paid'), {id: id})
+                        .then(response => {
+                            swal("Success!", `You successfully mark as paid this payment.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 1500);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                });
+
             }
 
             return {
@@ -107,10 +189,14 @@
                 rows,
                 user,
                 application,
+                payments,
+                paymentColumns,
+                viewPayment,
                 openModal,
                 closeModal,
                 changeStatus,
-                moneyFormat
+                moneyFormat,
+                markAsPaid
             }
         }
     }
@@ -144,7 +230,7 @@
                         </div>
 
                         <div v-if="props.column.field == 'status'" class="mt-2">
-                            {{ props.row.is_approved ? 'Approved' : application.created_at != application.updated_at ? 'Declined' :'Pending' }}
+                            {{ props.row.is_approved ? 'Approved' : props.row.created_at != props.row.updated_at ? 'Declined' :'Pending' }}
                         </div>
 
                         <div v-if="props.column.field == 'monthly_expenses'" class="mt-2">
@@ -153,9 +239,15 @@
 
                         <div v-if="props.column.field == 'action'">
                             <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
-                                @click="openModal(props.row)"
+                                @click="openModal(props.row, false)"
                             >
                                 View
+                            </button>
+
+                            <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
+                            @click="openModal(props.row.payments, true)"
+                            >
+                                Payments
                             </button>
                         </div>
                     </template>
@@ -164,7 +256,7 @@
 
             `<div class="w-full">
                 <div id="tenantModal" class="tenantModal mt-10 md:mt-0">
-                    <div class="tenant-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
+                    <div class="tenant-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}" v-if="!viewPayment">
                         <div class="w-full">
                             <span class="text-lg font-bold">
                                 Source of Income Proof
@@ -200,6 +292,95 @@
                             </button>
                         </div>
 
+                    </div>
+
+                    <div class="tenant-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '97%'}" v-else>
+                        <div class="w-full">
+                            <span class="text-lg font-bold">
+                                Payments
+                            </span>
+                            <span class="float-right cursor-pointer"
+                                @click="closeModal()"
+                            >
+                                <i class="fa-solid fa-xmark"></i>
+                            </span>
+                        </div>
+
+                        <vue-good-table
+                            class="mt-5"
+                            styleClass="vgt-table condensed"
+                            style="width: 100%"
+                            :columns="paymentColumns"
+                            :rows="payments"
+                            :select-options="{ enabled: false }"
+                            :search-options="{ enabled: true }"
+                            :pagination-options="{
+                                enabled: true,
+                                perPage: 3,
+                                perPageDropdown: [3],
+                                jumpFirstOrLast : true,
+                            }"
+                        >
+                            <template #table-row="props">
+                                <div v-if="props.column.field == 'amount_to_pay'" class="mt-2">
+                                    {{ moneyFormat(props.row.amount_to_pay) }}
+                                </div>
+
+                                <div v-if="props.column.field == 'amount_paid'" class="mt-2">
+                                    {{ moneyFormat(props.row.amount_paid) }}
+                                </div>
+
+                                <div v-if="props.column.field == 'partial'" class="mt-2">
+                                    {{ moneyFormat(props.row.partial) }}
+                                </div>
+
+                                <div v-if="props.column.field == 'balance'" class="mt-2">
+                                    {{ moneyFormat(props.row.amount_to_pay - props.row.amount_paid) }}
+                                </div>
+
+                                <div v-if="props.column.field == 'mode_of_payment'" class="mt-2">
+                                    {{ props.row.mode_of_payment }}
+                                </div>
+
+                                <div v-if="props.column.field == 'status'" class="mt-2">
+                                    <button class="bg-cyan-500 py-1 px-3 mx-1 text-white rounded-md text-xs"
+                                        v-if="!!props.row.is_paid"
+                                        :disabled="true"
+                                    >
+                                        PAID
+                                    </button>
+
+                                    <button class="bg-rose-500 py-1 px-3 mx-1 text-white rounded-md text-xs"
+                                        v-if="!props.row.is_paid"
+                                        :disabled="true"
+                                    >
+                                        NOT PAID
+                                    </button>
+                                </div>
+
+                                <div v-if="props.column.field == 'partial_receipt'" class="mt-2">
+                                    <img :src="props.row.partial_receipt ?? '/images/upload_image.png'" class="rounded-md"
+                                        style="width: 150px; height: 200px; border: 1px solid gray;"
+                                    />
+                                </div>
+
+                                <div v-if="props.column.field == 'receipt'" class="mt-2">
+                                    <img :src="props.row.receipt ?? '/images/upload_image.png'" class="rounded-md"
+                                        style="width: 150px; height: 200px; border: 1px solid gray;"
+                                    />
+                                </div>
+
+                                <div v-if="props.column.field == 'action'" class="mt-2">
+                                    <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
+                                        :disabled="!!props.row.is_paid"
+                                        :class="{'cursor-not-allowed' : !!props.row.is_paid}"
+                                        @click="markAsPaid(props.row.id)"
+                                    >
+                                        MARK AS PAID
+                                    </button>
+                                </div>
+                            </template>
+                        </vue-good-table>
                     </div>
                 </div>
             </div>`

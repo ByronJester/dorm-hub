@@ -21,4 +21,9 @@ class TenantRoom extends Model
     {
         return $this->belongsTo(User::class, 'tenant_id');
     }
+
+    public function payments()
+    {
+        return $this->hasMany(TenantPayments::class);
+    }
 }

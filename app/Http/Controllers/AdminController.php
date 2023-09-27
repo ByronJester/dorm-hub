@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\{ Dorm, User };
+use App\Models\{ Dorm, User, Notification };
 
 
 class AdminController extends Controller
@@ -38,9 +38,26 @@ class AdminController extends Controller
 
     public function changeTenantStatus(Request $request)
     {
-        $update = User::where('id', $request->id)->update(['is_approved' => $request->status]);
+        $user = User::where('id', $request->id)->first();
+        $user->is_approved = $request->status;
+        $user->save();
 
-        return response()->json(["message" => $update], 200);
+        $notification = new Notification;
+
+        $status = $request->status ? 'approved' : 'declined';
+        $message = $status == 'approved' ? 'Your account has been approved you can reserve/rent room now.' : 'Your account has been declined';
+
+        if($status == 'approved') {
+            $notification->redirection = 'tenant.dorms';
+        }
+
+
+        $notification->user_id = $user->id;
+        $notification->message = "Your account has been $status";
+        $notification->type = 'Account Status';
+        $notification->save();
+
+        return response()->json(["message" => true], 200);
     }
 
     public function getDormList()
@@ -56,6 +73,14 @@ class AdminController extends Controller
         $dorm = Dorm::where('id', $request->id)->first();
         $dorm->status = $status;
         $dorm->save();
+
+        $notification = new Notification;
+
+        $notification->user_id = $dorm->user_id;
+        $notification->message = "Your dorm named $dorm->property_name has been $status";
+        $notification->type = 'Dorm Status';
+        $notification->redirection = 'owner.dorms';
+        $notification->save();
 
         return response()->json(["message" => "Success"], 200);
     }
