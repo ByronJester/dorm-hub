@@ -167,27 +167,23 @@ export default {
 
                                 <p class="text-center font-bold my-8"
                                     :style="{'font-size': isMobileView ? '15px': '22px'}"
-                                    v-if="payment.mode_of_payment == 'Bank'"
                                 >
                                     ₱{{
-                                        !payment.partial && !payment.partial_receipt
+                                        payment.partial != null
+                                        ? parseFloat(payment.partial).toFixed(2)
+                                        : payment.pending_payment != null
+                                        ? parseFloat(payment.pending_payment).toFixed(2)
+                                        : payment.amount_paid != null
                                         ? parseFloat(payment.amount_to_pay - payment.amount_paid).toFixed(2)
-                                        : parseFloat(payment.amount_paid).toFixed(2)
-                                    }}
-                                </p>
-
-                                <p class="text-center font-bold my-8"
-                                    :style="{'font-size': isMobileView ? '15px': '22px'}"
-                                    v-else
-                                >
-                                    ₱{{
-                                        !payment.partial ? parseFloat(payment.amount_to_pay - payment.amount_paid).toFixed(2) : parseFloat(payment.partial).toFixed(2)
+                                        : payment.amount_paid == null
+                                        ? parseFloat(payment.amount_to_pay).toFixed(2)
+                                        : ''
                                     }}
                                 </p>
                             </div>
 
                             <div class="w-full flex justify-center items-center mb-2"
-                                v-if="(!payment.mode_of_payment && !payment.is_paid) || (payment.amount_to_pay != payment.amount_paid) && payment.amount_paid != null"
+                                v-if="payment.amount_to_pay != payment.amount && !payment.pending_payment"
                             >
                                 <button class="bg-cyan-500 py-2 px-5 rounded-md font-bold text-xs mr-1"
                                     @click="pay(payment.id, 'GCash Payment')"
@@ -204,11 +200,11 @@ export default {
                                 </button>
                             </div>
 
-                            <div class="w-full" v-if="payment.mode_of_payment == 'Bank' && payment.amount_paid == null">
+                            <div class="w-full" v-if="payment.pending_payment">
                                 <p class="text-center font-bold mt-10"
                                     :style="{'font-size': isMobileView ? '10px': '12px'}"
                                 >
-                                    Waiting for dorm owner to verify your payment.
+                                    Wait for dorm owner to verify your payment.
                                 </p>
                             </div>
 

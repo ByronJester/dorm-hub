@@ -73,7 +73,6 @@ class OwnerController extends Controller
             $dorm = Dorm::where('id', $id)->first();
 
             if($dorm) {
-                Room::where('dorm_id', $id)->delete();
                 Amenity::where('dorm_id', $id)->delete();
                 Rule::where('dorm_id', $id)->delete();
                 Payment::where('dorm_id', $id)->delete();
@@ -115,7 +114,12 @@ class OwnerController extends Controller
             foreach($rooms as $key => $r) {
                 $filename = Str::random(10) . '_room_image';
 
-                $room = new Room;
+
+                if($r->id){
+                    $room = Room::where('id', $id)->first();
+                } else {
+                    $room = new Room;
+                }
 
                 $room->dorm_id = $dorm->id;
                 $room->name = $r->name;
@@ -235,18 +239,40 @@ class OwnerController extends Controller
     {
         $id = $request->id;
 
-
         $payment = TenantPayments::where('id', $id)->first();
         $application = TenantRoom::where('id', $payment->tenant_room_id)->first();
 
-        $payment->amount_paid = !!$payment->partial ? $payment->partial : $payment->amount_to_pay;
+        $payment->mode_of_payment = 'Cash';
 
-        if(!$payment->mode_of_payment && !$payment->receipt) {
-            $payment->mode_of_payment = 'Cash';
+        if($payment->pending_payment) {
+            $payment->mode_of_payment = 'Bank';
+
+            if($payment->amount_paid != null) {
+                $payment->amount_paid = $payment->amount_paid + $payment->pending_payment;
+            } else {
+                $payment->amount_paid = $payment->pending_payment;
+            }
+
+            if($payment->partial) {
+                $payment->pending_payment = $payment->amount_to_pay - 300;
+            }
+
+        } else {
+            if($payment->partial) {
+                $payment->amount_paid = $payment->partial;
+            } else {
+                $payment->amount_paid = $payment->amount_to_pay;
+            }
         }
 
-        $payment->is_paid = !!$payment->partial ? false : true;
+
         $payment->partial = null;
+        $payment->pending_payment = null;
+        $payment->is_paid = $payment->amount_to_pay == $payment->amount_paid;
+        $payment->save();
+
+        $application->expired_at = null;
+        $application->save();
 
         $notification = new Notification;
         $notification->user_id = $application->tenant_id;
@@ -254,8 +280,6 @@ class OwnerController extends Controller
         $notification->message = sprintf($message, $payment->amount_paid);
         $notification->type = 'Rental Payment';
         $notification->save();
-
-        $payment->save();
 
         return response()->json(['message' => $payment], 200);
     }

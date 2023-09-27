@@ -9,6 +9,8 @@ class TenantPayments extends Model
 {
     use HasFactory;
 
+    protected $table = 'tenant_payments';
+
     protected $appends = [
         'display_date'
     ];
