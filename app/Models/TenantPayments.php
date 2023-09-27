@@ -21,4 +21,18 @@ class TenantPayments extends Model
 
         return "$month $year";
     }
+
+    public function getReceiptAttribute($value)
+    {
+        if(!$value) return $value;
+
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
+
+    public function getPartialReceiptAttribute($value)
+    {
+        if(!$value) return $value;
+
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
 }

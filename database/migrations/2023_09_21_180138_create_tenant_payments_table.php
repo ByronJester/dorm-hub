@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('amount_paid', 100)->nullable();
             $table->string('partial', 100)->nullable();
             $table->string('mode_of_payment', 20)->nullable();
+            $table->string('receipt', 100)->nullable();
+            $table->string('partial_receipt', 100)->nullable();
             $table->boolean('is_paid')->default(false);
             $table->timestamp('date')->nullable();
 

@@ -29,7 +29,7 @@ class OwnerController extends Controller
     {
         $user = Auth::user();
 
-        $applications = TenantRoom::where('owner_id', $user->id)->where('is_active', true)->get();
+        $applications = TenantRoom::with('payments')->where('owner_id', $user->id)->where('is_active', true)->get();
 
         return Inertia::render('Owner/Tenants', [
             'applications' => $applications,
@@ -229,5 +229,34 @@ class OwnerController extends Controller
         $notification->save();
 
         return response()->json(['message' => $status], 200);
+    }
+
+    public function paymentMarkAsPaid(Request $request)
+    {
+        $id = $request->id;
+
+
+        $payment = TenantPayments::where('id', $id)->first();
+        $application = TenantRoom::where('id', $payment->tenant_room_id)->first();
+
+        $payment->amount_paid = !!$payment->partial ? $payment->partial : $payment->amount_to_pay;
+
+        if(!$payment->mode_of_payment && !$payment->receipt) {
+            $payment->mode_of_payment = 'Cash';
+        }
+
+        $payment->is_paid = !!$payment->partial ? false : true;
+        $payment->partial = null;
+
+        $notification = new Notification;
+        $notification->user_id = $application->tenant_id;
+        $message = "Your amount to pay of ₱%s has been mark as paid by dorm owner.";
+        $notification->message = sprintf($message, $payment->amount_paid);
+        $notification->type = 'Rental Payment';
+        $notification->save();
+
+        $payment->save();
+
+        return response()->json(['message' => $payment], 200);
     }
 }

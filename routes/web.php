@@ -84,6 +84,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/tenants', [OwnerController::class, 'tenantApplications'])->name('owner.tenants.application');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
+        Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');
 
     });
 

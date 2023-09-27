@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\{ Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, User, Notification };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
-
+use Illuminate\Support\Str;
 
 class TenantController extends Controller
 {
@@ -29,19 +29,25 @@ class TenantController extends Controller
         $payments = TenantPayments::where('user_id', $auth->id)->where('is_paid', false)->get();
 
         $owner = null;
+        $methods = [];
         if($application) {
             $owner = User::where('id', $application->owner_id)->first();
+            $methods = Payment::where('dorm_id', $application->dorm_id)->first();
+            $methods = $methods->methods;
         }
 
         return Inertia::render('Tenant/Payments', [
             'applicaiton' => $application,
             'payments' => $payments,
-            'owner' => $owner
+            'owner' => $owner,
+            'methods' => $methods
         ]);
     }
 
     public function reserveRoom(Request $request)
     {
+        $user = Auth::user();
+
         $tenantRoom = new TenantRoom;
 
         $tenantRoom->owner_id = $request->owner_id;
@@ -51,6 +57,14 @@ class TenantController extends Controller
         $tenantRoom->status = $request->status;
         $tenantRoom->from_reserve = true;
 
+        $notification = new Notification;
+
+        $notification->user_id = $tenantRoom->owner_id;
+        $notification->message = "You received a rental reservation from $user->name";
+        $notification->type = 'Rental Application.';
+        $notification->redirection = 'owner.tenants.application';
+        $notification->save();
+
         $tenantRoom->save();
 
         Room::where('id', $request->room_id)->update(['is_available' => false]);
@@ -59,6 +73,8 @@ class TenantController extends Controller
 
     public function rentRoom(Request $request)
     {
+        $user = Auth::user();
+
         $tenantRoom = new TenantRoom;
 
         $tenantRoom->owner_id = $request->owner_id;
@@ -66,6 +82,14 @@ class TenantController extends Controller
         $tenantRoom->dorm_id = $request->dorm_id;
         $tenantRoom->room_id = $request->room_id;
         $tenantRoom->status = $request->status;
+
+        $notification = new Notification;
+
+        $notification->user_id = $tenantRoom->owner_id;
+        $notification->message = "You received rental application from $user->name";
+        $notification->type = 'Rental Application.';
+        $notification->redirection = 'owner.tenants.application';
+        $notification->save();
 
         $tenantRoom->save();
 
@@ -80,7 +104,12 @@ class TenantController extends Controller
         $owner = User::where('id', $application->owner_id)->first();
         $room = Room::where('id', $application->room_id)->first();
 
-        $amount = !$payment->partial ? $payment->amount_to_pay : $payment->partial;
+        $amount = !$payment->partial
+        ? $payment->amount_paid != null && $payment->amount_paid != $payment->amount_to_pay
+        ? $payment->amount_to_pay - $payment->amount_paid
+        : $payment->amount_to_pay
+        : $payment->partial;
+
         $payment->amount_paid = $amount;
 
         if($application->status == 'reserve') {
@@ -94,59 +123,95 @@ class TenantController extends Controller
             $application->save();
         }
 
-        if($payment->partial != null) {
-            $payment->partial = null;
-            $payment->is_paid = false;
+        $payment->mode_of_payment = 'GCash';
+
+        if($request->method == 'Bank Payment') {
+            if($request->has('receipt')) {
+                $receipt = $request->receipt;
+
+                $filename = Str::random(10) . '_bank_receipt' ;
+
+                $uploadFile = $this->uploadFile($receipt, $filename);
+
+                $payment->is_paid = false;
+
+                if($payment->partial) {
+                    $payment->partial_receipt = $filename;
+                    $payment->amount_paid = null;
+                } else {
+                    $payment->receipt = $filename;
+
+                    // if($payment->amount_paid != null && $payment->amount_to_pay != $payment->amount_paid) {
+                    //     $payment->amount_paid = $payment->amount_to_pay - $payment->amount_paid;
+                    // }
+                }
+
+                $payment->mode_of_payment = 'Bank';
+            }
         } else {
-            $payment->is_paid = true;
+            if($payment->partial != null) {
+                $payment->partial = null;
+                $payment->is_paid = false;
+            } else {
+                $payment->amount_paid = $payment->amount_to_pay;
+                $payment->is_paid = true;
+            }
         }
+
 
         $payment->save();
 
-        $body = [
-			"data" => [
-				"attributes" => [
-					"amount" => $amount * 100,
-					"type" => 'gcash',
-					"currency" => "PHP",
-					"redirect" => [
-						"success" => url('tenant/paymongo/success'),
-						"failed" => url('tenant/paymongo/failed')
-                    ],
-                    "billing" => [
-                        "name" => $auth->name,
-                        "phone" => $auth->phone_number,
-                        "email" => 'balogz2203@gmail.com'
+        if($request->method == 'GCash Payment') {
+            $body = [
+                "data" => [
+                    "attributes" => [
+                        "amount" => $amount * 100,
+                        "type" => 'gcash',
+                        "currency" => "PHP",
+                        "redirect" => [
+                            "success" => url('tenant/paymongo/success'),
+                            "failed" => url('tenant/paymongo/failed')
+                        ],
+                        "billing" => [
+                            "name" => $auth->name,
+                            "phone" => $auth->phone_number,
+                            "email" => 'balogz2203@gmail.com'
+                        ]
                     ]
-				]
-			]
-		];
+                ]
+            ];
 
-        $client = new \GuzzleHttp\Client(['verify' => false]);
+            $client = new \GuzzleHttp\Client(['verify' => false]);
 
-		$response = $client->request('POST', 'https://api.paymongo.com/v1/sources', [
-			'body' => json_encode($body),
-			'headers' => [
-				'Accept' => 'application/json',
-				'Authorization' => "Basic " . base64_encode($owner->pk),
-				'Content-Type' => 'application/json',
-			],
-		]);
+            $response = $client->request('POST', 'https://api.paymongo.com/v1/sources', [
+                'body' => json_encode($body),
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'Authorization' => "Basic " . base64_encode($owner->pk),
+                    'Content-Type' => 'application/json',
+                ],
+            ]);
 
 
-		$body = json_decode($response->getBody());
-		$source = $body->data->attributes;
-        $url = $source->redirect->checkout_url;
+            $body = json_decode($response->getBody());
+            $source = $body->data->attributes;
+            $url = $source->redirect->checkout_url;
 
-        session()->put('source_id', $body->data->id);
-        session()->put('source', $source);
-        session()->put('owner', $owner);
-        session()->put('payment', $payment);
-        session()->put('application', $application);
-        session()->put('amount', $amount);
-        session()->put('method', $request->method);
+            session()->put('source_id', $body->data->id);
+            session()->put('source', $source);
+            session()->put('owner', $owner);
+            session()->put('payment', $payment);
+            session()->put('application', $application);
+            session()->put('amount', $amount);
+            session()->put('method', $request->method);
 
-       return $source;
+           return $source;
+        }
+
+
+        return response()->json($request->method, 200);
+
+
 
     }
 
