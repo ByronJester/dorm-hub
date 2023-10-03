@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
-use App\Models\{ Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, User, Notification };
+use App\Models\{
+    Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, User, Notification,
+    Thread, ThreadMember, ThreadMessage
+};
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -304,5 +307,17 @@ class TenantController extends Controller
             'owner' => $owner,
             'amount' => $payment->amount_paid
         ]);
+    }
+
+    public function messageOwner($owner_id)
+    {
+        $auth = Auth::user();
+
+        $tread = Thread::updateOrCreate(
+            ['tenant_id' => $auth->id, 'owner_id' => $owner_id],
+            ['tenant_id' => $auth->id, 'owner_id' => $owner_id]
+        );
+
+        return redirect()->route('view.user.messages');
     }
 }

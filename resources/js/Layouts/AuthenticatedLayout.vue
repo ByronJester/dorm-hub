@@ -162,6 +162,7 @@ const viewNotification = (r) => {
                                     <template #content>
                                         <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
                                         <DropdownLink :href="route('tenant.payments')"> Payments </DropdownLink>
+                                        <DropdownLink :href="route('view.user.messages')"> Messages </DropdownLink>
                                         <!-- <DropdownLink :href="route('profile.change.password')"> Change Password </DropdownLink> -->
                                         <DropdownLink as="button" @click="logOut()">
                                             Log Out
@@ -246,6 +247,7 @@ const viewNotification = (r) => {
                         <div class="mt-3 space-y-1">
                             <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
                             <ResponsiveNavLink :href="route('tenant.payments')"> Payments </ResponsiveNavLink>
+                            <ResponsiveNavLink :href="route('view.user.messages')"> Messages </ResponsiveNavLink>
                             <!-- <ResponsiveNavLink :href="route('profile.change.password')"> Change Password </ResponsiveNavLink> -->
                             <ResponsiveNavLink :href="route('logout')" method="post" as="button">
                                 Log Out

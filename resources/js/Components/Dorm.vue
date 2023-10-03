@@ -123,6 +123,10 @@ export default {
             });
         }
 
+        const messageOwner = (owner_id) => {
+            router.get(route('message.owner', owner_id))
+        }
+
         return {
             props,
             isMobileView,
@@ -132,7 +136,8 @@ export default {
             closeModal,
             viewRoom,
             reserveRoom,
-            rentRoom
+            rentRoom,
+            messageOwner
         }
     }
 }
@@ -147,7 +152,9 @@ export default {
                         {{ props.dorm.property_name }}
                     </span>
 
-                    <span class="bg-orange-500 px-1 py-1 float-right rounded-md text-xs cursor-pointer">
+                    <span class="bg-orange-500 px-1 py-1 float-right rounded-md text-xs cursor-pointer"
+                        @click="messageOwner(props.dorm.user_id)" v-if="props.user"
+                    >
                         Message
                     </span>
                 </p>
