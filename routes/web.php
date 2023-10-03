@@ -93,6 +93,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/payments', [TenantController::class, 'paymentList'])->name('tenant.payments');
         Route::get('/paymongo/success', [TenantController::class, 'successPage']);
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
+        Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
         Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
         Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
         Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');
@@ -100,6 +101,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('shared')->group(function () {
         Route::get('/notification/mark-as-read/{id}', [SharedController::class, 'notificationMarkAsRead'])->name('notification.mark-as-read');
+        Route::get('/view/messages', [SharedController::class, 'viewMessages'])->name('view.user.messages');
+        Route::get('/fetch/messages', [SharedController::class, 'fetchMessages'])->name('fetch.messages');
+        Route::post('/send-message', [SharedController::class, 'sendMessage'])->name('send.message');
         Route::post('/get-long-lat/{address}', [SharedController::class, 'getlongLat'])->name('location.long.lat');
     });
 });

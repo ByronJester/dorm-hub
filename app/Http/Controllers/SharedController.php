@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\{ Dorm, Notification };
+use App\Models\{ Dorm, Notification, Thread, ThreadMessage };
 use Illuminate\Support\Facades\Auth;
 
 class SharedController extends Controller
@@ -47,5 +47,55 @@ class SharedController extends Controller
 
         return redirect()->back();
 
+    }
+
+    public function viewMessages()
+    {
+        $auth = Auth::user();
+
+        $threads = Thread::with(['messages', 'owner', 'tenant'])->orderBy('created_at', 'desc');
+
+        if($auth->user_type == 'tenant'){
+            $threads = $threads->where('tenant_id', $auth->id);
+        }
+
+        if($auth->user_type == 'owner'){
+            $threads = $threads->where('owner_id', $auth->id);
+        }
+
+        return Inertia::render('Messages', [
+            'threads' => $threads->get()
+        ]);
+    }
+
+    public function sendMessage(Request $request)
+    {
+        $auth = Auth::user();
+
+        ThreadMessage::create([
+            'thread_id' => $request->thread_id,
+            'message' => $request->message,
+            'user_id' => $auth->id
+        ]);
+
+        return Thread::with(['messages', 'owner', 'tenant'])->where('id', $request->thread_id)->first();
+    }
+
+    public function fetchMessages()
+    {
+        $auth = Auth::user();
+
+        $threads = Thread::with(['messages', 'owner', 'tenant'])->orderBy('created_at', 'desc');
+
+        if($auth->user_type == 'tenant'){
+            $threads = $threads->where('tenant_id', $auth->id);
+        }
+
+        if($auth->user_type == 'owner'){
+            $threads = $threads->where('owner_id', $auth->id);
+        }
+
+        // return response()->json(['threads' => $threads->get()], 200);
+        return $threads->get();
     }
 }
