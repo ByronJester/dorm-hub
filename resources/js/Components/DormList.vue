@@ -60,7 +60,7 @@ export default {
 <style>
 .dorm-image {
     width: 100%;
-    height: 300px;
+    height: 200px;
     border-radius: 20px;
 }
 </style>

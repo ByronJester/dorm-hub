@@ -1,5 +1,6 @@
 <script>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
+// import AuthenticatedLayout from '@/Layouts/ResponsiveLayout.vue';
 import { usePage, useForm } from '@inertiajs/vue3'
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';

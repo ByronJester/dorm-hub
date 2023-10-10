@@ -1,5 +1,6 @@
 <script>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import TenantLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import OtherLayout from '@/Layouts/SidebarLayout.vue';
     import { usePage, Head, Link, router, useForm  } from '@inertiajs/vue3'
     import Dorm from '@/Components/Dorm.vue';
     import { ref } from 'vue';
@@ -12,7 +13,6 @@
 
     export default {
         components: {
-            AuthenticatedLayout,
             Dorm,
             ApplicationLogo,
             Link,
@@ -20,7 +20,9 @@
             PrimaryButton,
             TextInput,
             InputError,
-            Checkbox
+            Checkbox,
+            TenantLayout,
+            OtherLayout
         },
         setup() {
             const page = usePage()
@@ -143,19 +145,37 @@
 
 <template>
     <div>
-        <AuthenticatedLayout v-if="user">
-            <div class="main w-full flex flex-col" style="min-height: 92vh;">
-                <div class="w-full mt-5 pl-5">
-                    <p class="cursor-pointer" @click="back()">
-                        <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>
-                    </p>
-                </div>
+        <div class="w-full" v-if="user">
+            <TenantLayout v-if="user.user_type == 'tenant'">
+                <div class="main w-full flex flex-col" style="min-height: 92vh;">
+                    <div class="w-full mt-5 pl-5">
+                        <p class="cursor-pointer" @click="back()">
+                            <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>
+                        </p>
+                    </div>
 
-                <div class="w-full mt-5">
-                    <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
+                    <div class="w-full mt-5">
+                        <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
+                    </div>
                 </div>
-            </div>
-        </AuthenticatedLayout>
+            </TenantLayout>
+
+
+            <OtherLayout v-else>
+                <div class="main w-full flex flex-col" style="min-height: 92vh;">
+                    <div class="w-full mt-5 pl-5">
+                        <p class="cursor-pointer" @click="back()">
+                            <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>
+                        </p>
+                    </div>
+
+                    <div class="w-full mt-5">
+                        <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
+                    </div>
+                </div>
+            </OtherLayout>
+        </div>
+
 
         <div class="main w-full flex flex-col" style="min-height: 100vh;" v-else>
             <nav class="bg-white border-b border-gray-300 py-1">

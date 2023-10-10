@@ -1,5 +1,6 @@
 <script>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import TenantLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import OtherLayout from '@/Layouts/SidebarLayout.vue';
     import { usePage, Head, Link, router, useForm  } from '@inertiajs/vue3'
     import Dorm from '@/Components/Dorm.vue';
     import { ref, onMounted } from 'vue';
@@ -12,7 +13,8 @@
 
     export default {
         components: {
-            AuthenticatedLayout,
+            TenantLayout,
+            OtherLayout
         },
         setup() {
             const page = usePage()
@@ -114,16 +116,16 @@
 
 <template>
     <div>
-        <AuthenticatedLayout>
-            <div class="w-full flex flex-col overflow-y-hidden" style="min-height: 92vh;">
-                <div class="flex flex-row px-1 main" v-if="!isMobileView">
-                    <div class="w-3/12 border-r flex flex-col">
-                        <div class="w-full border-b py-4" v-for="thread in threads"
+        <TenantLayout v-if="user.user_type == 'tenant'">
+            <div class="w-full flex flex-col overflow-y-hidden main">
+                <div class="flex flex-row" v-if="!isMobileView">
+                    <div class="w-3/12 border-r flex flex-col main">
+                        <div class="w-full border-b py-5" v-for="thread in threads"
                             :class="{
-                                'bg-gray-300': thread.id == selectedThread.id,
+                                'bg-gradient-to-r from-cyan-500 to-gray-400': thread.id == selectedThread.id,
                             }"
                         >
-                            <p class="cursor-pointer" @click="selectThread(thread)">
+                            <p class="cursor-pointer text-center" @click="selectThread(thread)">
                                 {{
                                     user.user_type  == 'owner' ? thread.tenant.name : thread.owner.name
                                 }}
@@ -131,12 +133,12 @@
                         </div>
                     </div>
 
-                    <div class="w-9/12">
+                    <div class="w-9/12 main">
                         <div class="w-full border-b" style="height: 7.2vh;">
-                            <p class="ml-5 p-4 font-bold ">
-                                <!-- {{
+                            <p class="p-4 font-bold ">
+                                {{
                                     user.user_type  == 'owner' ? selectedThread.tenant.name : selectedThread.owner.name
-                                }} -->
+                                }}
                             </p>
                         </div>
 
@@ -170,7 +172,65 @@
                     </div>
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </TenantLayout>
+
+        <OtherLayout v-else>
+            <div class="w-full flex flex-col overflow-y-hidden main">
+                <div class="flex flex-row" v-if="!isMobileView">
+                    <div class="w-3/12 border-r flex flex-col main">
+                        <div class="w-full border-b py-5" v-for="thread in threads"
+                            :class="{
+                                'bg-gradient-to-r from-cyan-500 to-gray-400': thread.id == selectedThread.id,
+                            }"
+                        >
+                            <p class="cursor-pointer text-center" @click="selectThread(thread)">
+                                {{
+                                    user.user_type  == 'owner' ? thread.tenant.name : thread.owner.name
+                                }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="w-9/12 main">
+                        <div class="w-full border-b" style="height: 7.2vh;">
+                            <p class="p-4 font-bold ">
+                                {{
+                                    user.user_type  == 'owner' ? selectedThread.tenant.name : selectedThread.owner.name
+                                }}
+                            </p>
+                        </div>
+
+                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv">
+                            <div class="w-full px-2" v-for="m in selectedThread.messages">
+                                <p class="break-words my-2 bg-gray-300 p-3 text-sm"
+                                    style="width: 400px; border-radius: 10px;"
+                                    :class="{
+                                        'float-right': user.id == m.user_id,
+                                    }"
+                                >
+                                    {{ m.message }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="w-full px-2" style="height: 10%;">
+                            <input type="text" placeholder="Type your message here..."
+                                class="message-input py-2"
+                                style="width: 90%;"
+                                v-model="messageToSend"
+                                @keyup.enter="sendMessage()"
+                            />
+
+                            <button class="send-btn bg-cyan-500 py-2" style="width: 10%;"
+                                @click="sendMessage()"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </OtherLayout>
     </div>
 </template>
 

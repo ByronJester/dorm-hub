@@ -144,7 +144,7 @@ export default {
 </script>
 
 <template>
-    <div class="w-full flex flex-col justify-center items-center">
+    <div class="w-full flex flex-col justify-center items-center overflow-y-scroll">
         <div :style="{width : isMobileView ? '100%' : '60%'}">
             <div class="w-full px-5">
                 <p class="w-full">

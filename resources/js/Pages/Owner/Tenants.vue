@@ -1,5 +1,6 @@
 <script>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
+    // import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
     import { Head } from '@inertiajs/vue3';
     import 'vue-good-table-next/dist/vue-good-table-next.css'
     import { VueGoodTable } from 'vue-good-table-next';
