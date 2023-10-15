@@ -21,7 +21,7 @@ class RouteServiceProvider extends ServiceProvider
 
     public const ADMIN = '/admin/dorms';
 
-    public const OWNER = '/owner/dorms';
+    public const OWNER = '/owner/dashboard';
 
     public const TENANT = '/tenant/dorms';
 
