@@ -416,6 +416,45 @@ export default {
                 </div>
             </div>
 
+            <div class="w-full flex flex-col md:flex-row mt-5">
+                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0" style="border: 1px solid black; height: 100px;">
+                    <div>
+                        <p class="text-2xl text-center">
+                            {{ dorms.filter(x => {return x.status == 'pending'}).length }}
+                        </p>
+
+                        <p class="text-xs text-center mt-5">
+                            TOTAL PENDING DORM(S)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0" style="border: 1px solid black; height: 100px;">
+                    <div>
+                        <p class="text-2xl text-center">
+                            {{ dorms.filter(x => {return x.status == 'approved'}).length }}
+                        </p>
+
+                        <p class="text-xs text-center mt-5">
+                            TOTAL APPROVED DORM(S)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0" style="border: 1px solid black; height: 100px;">
+                    <div>
+                        <p class="text-2xl text-center">
+                            {{ dorms.filter(x => {return x.status != 'approved' && x.status != 'pending'}).length }}
+                        </p>
+
+                        <p class="text-xs text-center mt-5">
+                            TOTAL DECLINED DORM(S)
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+
             <DormList :dorms.sync="dorms" :user.sync="user" @edit-dorm="(dorm) => editDorm(dorm)"/>
 
             <!-- Modal -->

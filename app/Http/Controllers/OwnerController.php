@@ -283,4 +283,53 @@ class OwnerController extends Controller
 
         return response()->json(['message' => $payment], 200);
     }
+
+    public function dashboard()
+    {
+        $user = Auth::user();
+
+        $applications = TenantRoom::with('payments')->where('owner_id', $user->id);
+
+        $currentMonth = Carbon::now()->month;
+        $paidAmount = 0;
+        $unpaidAmount = 0;
+
+        foreach($applications->where('is_approved', true)->where('is_active', true)->get() as $application) {
+            $application = (object) $application;
+
+            foreach($application->payments as $payment) {
+                $paymentMonth = Carbon::parse($payment->date)->month;
+
+                if($currentMonth == $paymentMonth) {
+                    if($payment->is_paid) {
+                        $paidAmount += $payment->amount_to_pay;
+                    } else {
+                        $balance = $payment->amount_paid != null ? $payment->amount_to_pay - $payment->amount_paid : $payment->amount_to_pay;
+                        $unpaidAmount += $balance;
+                    }
+                }
+            }
+        }
+
+        return Inertia::render('Owner/Dashboard', [
+            'paidAmount' => $paidAmount,
+            'unpaidAmount' => $unpaidAmount,
+            'totalTenants' => $applications->where('is_approved', true)->where('is_active', true)->count(),
+            'totalApplications' => $applications->count()
+        ]);
+    }
+
+    public function reports()
+    {
+        return Inertia::render('Owner/Reports', [
+
+        ]);
+    }
+
+    public function billings()
+    {
+        return Inertia::render('Owner/Billings', [
+
+        ]);
+    }
 }

@@ -1,9 +1,12 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import TenantLayout from '@/Layouts/AuthenticatedLayout.vue';
+import OtherLayout from '@/Layouts/SidebarLayout.vue';
 import DeleteUserForm from './Partials/DeleteUserForm.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
+
+const user = usePage().props.auth.user;
 
 defineProps({
     mustVerifyEmail: Boolean,
@@ -14,7 +17,7 @@ defineProps({
 <template>
     <Head title="Profile" />
 
-    <AuthenticatedLayout>
+    <TenantLayout v-if="user.user_type == 'tenant'">
         <div class="py-12 main">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
@@ -22,7 +25,17 @@ defineProps({
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </TenantLayout>
+
+    <OtherLayout v-else>
+        <div class="py-12 main">
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+                <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <UpdatePasswordForm class="max-w-xl" />
+                </div>
+            </div>
+        </div>
+    </OtherLayout>
 </template>
 
 <style>

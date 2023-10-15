@@ -20,12 +20,16 @@
             const page = usePage()
             const user = page.props.auth.user;
             const threads = ref([])
-            const selectedThread = ref()
+            const selectedThread = ref(null)
             const isMobileView = ref(false)
             const messageToSend = ref(null)
 
-            selectedThread.value = page.props.threads[0]
             isMobileView.value = screen.width < 600;
+
+            if(!isMobileView.value) {
+                selectedThread.value = page.props.threads.length ?  page.props.threads[0] : null
+            }
+
             threads.value = page.props.threads
 
             const selectThread = (thread) =>{
@@ -134,15 +138,15 @@
                     </div>
 
                     <div class="w-9/12 main">
-                        <div class="w-full border-b" style="height: 7.2vh;">
-                            <p class="p-4 font-bold ">
+                        <div class="w-full border-b" style="height: 7.2vh;" v-if="selectedThread">
+                            <p class="p-4 font-bold">
                                 {{
                                     user.user_type  == 'owner' ? selectedThread.tenant.name : selectedThread.owner.name
                                 }}
                             </p>
                         </div>
 
-                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv">
+                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv" v-if="selectedThread">
                             <div class="w-full px-2" v-for="m in selectedThread.messages">
                                 <p class="break-words my-2 bg-gray-300 p-3 text-sm"
                                     style="width: 400px; border-radius: 10px;"
@@ -155,7 +159,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full px-2" style="height: 10%;">
+                        <div class="w-full px-2" style="height: 10%;" v-if="selectedThread">
                             <input type="text" placeholder="Type your message here..."
                                 class="message-input py-2"
                                 style="width: 90%;"
@@ -164,6 +168,57 @@
                             />
 
                             <button class="send-btn bg-cyan-500 py-2" style="width: 10%;"
+                                @click="sendMessage()"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else>
+                    <div class="w-full flex flex-col" v-if="!selectedThread">
+                        <div class="w-full border-b py-5" v-for="thread in threads"
+                        >
+                            <p class="cursor-pointer text-center" @click="selectThread(thread)">
+                                {{
+                                    user.user_type  == 'owner' ? thread.tenant.name : thread.owner.name
+                                }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div v-else>
+                        <div class="w-full border-b" style="height: 7.2vh;">
+                            <p class="p-4 font-bold text-center">
+                                {{
+                                    user.user_type  == 'owner' ? selectedThread.tenant.name : selectedThread.owner.name
+                                }}
+                            </p>
+                        </div>
+
+                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv">
+                            <div class="w-full px-2" v-for="m in selectedThread.messages">
+                                <p class="break-words my-2 bg-gray-300 p-3 text-sm"
+                                    style="width: 100px; border-radius: 10px;"
+                                    :class="{
+                                        'float-right': user.id == m.user_id,
+                                    }"
+                                >
+                                    {{ m.message }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="w-full px-2" style="height: 10%;">
+                            <input type="text" placeholder="Type your message here..."
+                                class="message-input py-2"
+                                style="width: 70%;"
+                                v-model="messageToSend"
+                                @keyup.enter="sendMessage()"
+                            />
+
+                            <button class="send-btn bg-cyan-500 py-1" style="width: 30%;"
                                 @click="sendMessage()"
                             >
                                 Send
@@ -192,7 +247,7 @@
                     </div>
 
                     <div class="w-9/12 main">
-                        <div class="w-full border-b" style="height: 7.2vh;">
+                        <div class="w-full border-b" style="height: 7.2vh;" v-if="selectedThread">
                             <p class="p-4 font-bold ">
                                 {{
                                     user.user_type  == 'owner' ? selectedThread.tenant.name : selectedThread.owner.name
@@ -200,7 +255,7 @@
                             </p>
                         </div>
 
-                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv">
+                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv" v-if="selectedThread">
                             <div class="w-full px-2" v-for="m in selectedThread.messages">
                                 <p class="break-words my-2 bg-gray-300 p-3 text-sm"
                                     style="width: 400px; border-radius: 10px;"
@@ -213,7 +268,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full px-2" style="height: 10%;">
+                        <div class="w-full px-2" style="height: 10%;" v-if="selectedThread">
                             <input type="text" placeholder="Type your message here..."
                                 class="message-input py-2"
                                 style="width: 90%;"
@@ -222,6 +277,57 @@
                             />
 
                             <button class="send-btn bg-cyan-500 py-2" style="width: 10%;"
+                                @click="sendMessage()"
+                            >
+                                Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else>
+                    <div class="w-full flex flex-col" v-if="!selectedThread">
+                        <div class="w-full border-b py-5" v-for="thread in threads"
+                        >
+                            <p class="cursor-pointer text-center" @click="selectThread(thread)">
+                                {{
+                                    user.user_type  == 'owner' ? thread.tenant.name : thread.owner.name
+                                }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div v-else>
+                        <div class="w-full border-b" style="height: 7.2vh;">
+                            <p class="p-4 font-bold text-center">
+                                {{
+                                    user.user_type  == 'owner' ? selectedThread.tenant.name : selectedThread.owner.name
+                                }}
+                            </p>
+                        </div>
+
+                        <div style="height: 77vh;" class="overflow-y-scroll flex flex-col" ref="messageDiv">
+                            <div class="w-full px-2" v-for="m in selectedThread.messages">
+                                <p class="break-words my-2 bg-gray-300 p-3 text-sm"
+                                    style="width: 100px; border-radius: 10px;"
+                                    :class="{
+                                        'float-right': user.id == m.user_id,
+                                    }"
+                                >
+                                    {{ m.message }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="w-full px-2" style="height: 10%;">
+                            <input type="text" placeholder="Type your message here..."
+                                class="message-input py-2"
+                                style="width: 70%;"
+                                v-model="messageToSend"
+                                @keyup.enter="sendMessage()"
+                            />
+
+                            <button class="send-btn bg-cyan-500 py-1" style="width: 30%;"
                                 @click="sendMessage()"
                             >
                                 Send
