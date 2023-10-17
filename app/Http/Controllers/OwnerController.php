@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{ Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, Notification };
+use App\Models\{ User, Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, Notification };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\RoomRule;
 use Carbon\Carbon;
@@ -331,5 +331,55 @@ class OwnerController extends Controller
         return Inertia::render('Owner/Billings', [
 
         ]);
+    }
+
+    public function getRoomDetails($month, $dorm_id)
+    {
+        $dorm = Dorm::where('id', $dorm_id)->first();
+
+        $totalPaid = 0;
+        $totalUnpaid = 0;
+
+        $rooms = Room::where('dorm_id', $dorm->id)->get();
+
+        $roomTenants = [];
+
+        $tenantPayment = TenantPayments::whereMonth('date', $month)->first();
+
+        foreach($rooms as $room) {
+            $application = TenantRoom::where('dorm_id', $dorm->id)
+                ->where('room_id', $room->id)
+                ->where('is_approved', true)
+                ->where('is_active', true)
+                ->first();
+
+            if($application) {
+                $tenant = User::where('id', $application->tenant_id)->first();
+
+                array_push($roomTenants, [
+                    'id' => $room->id,
+                    'room_name' => $room->name,
+                    'tenant_name' => $tenantPayment ? $tenant->name : 'No Tenant(s)',
+                    'monthly_price' => $room->fee,
+                    'availability' => $room->is_available,
+                    'status' => $tenantPayment ? !$tenantPayment->is_paid ? 'Unpaid' : 'Paid' : 'No Tenant(s)'
+                ]);
+            } else {
+                array_push($roomTenants, [
+                    'id' => $room->id,
+                    'room_name' => $room->name,
+                    'tenant_name' => 'No Tenant(s)',
+                    'monthly_price' => $room->fee,
+                    'availability' => $room->is_available,
+                    'status' => 'No Tenant(s)'
+                ]);
+            }
+        }
+
+        return [
+            'roomTenants' => $roomTenants,
+            'total_paid' => 0,
+            'total_unpaid' => 0,
+        ];
     }
 }

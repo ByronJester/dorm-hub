@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\{ Dorm, Notification, Thread, ThreadMessage };
+use App\Models\{ User, Dorm, Room, Notification, Thread, ThreadMessage, TenantRoom, TenantPayments };
 use Illuminate\Support\Facades\Auth;
 
 class SharedController extends Controller

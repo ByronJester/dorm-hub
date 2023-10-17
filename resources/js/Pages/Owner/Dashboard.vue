@@ -73,7 +73,7 @@
                     </p>
 
                     <p class="text-center text-xs my-3">
-                        TOTAL NO. OF TENANTS
+                        TOTAL NO. OF TENANT(S)
                     </p>
                 </div>
 
@@ -83,7 +83,7 @@
                     </p>
 
                     <p class="text-center text-xs my-3">
-                        TOTAL UNPAID RENTAL AMOUNT FOR THIS MONTH
+                        TOTAL NO. OF APPLICATION(S)
                     </p>
                 </div>
             </div>

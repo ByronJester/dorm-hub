@@ -25,7 +25,7 @@ export default {
 </script>
 
 <template>
-    <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 pt-2 md:pt-10 px-5">
+    <div class="w-full grid grid-cols-1 md:grid-cols-4 gap-4 pt-2 md:pt-3 px-5">
         <div class="w-full flex flex-col"
             v-for="(dorm, index) in props.dorms" :key="index"
         >

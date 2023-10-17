@@ -12,6 +12,7 @@ import LvProgressBar from 'lightvue/progress-bar';
 import { router } from '@inertiajs/vue3'
 import DormList from '@/Components/DormList.vue';
 import PulseLoader from 'vue-spinner/src/PulseLoader.vue'
+import { VueGoodTable } from 'vue-good-table-next';
 
 export default {
     components: {
@@ -23,7 +24,8 @@ export default {
         MapboxMarker,
         LvProgressBar: LvProgressBar,
         router,
-        PulseLoader
+        PulseLoader,
+        VueGoodTable
     },
     setup() {
         const page = usePage()
@@ -343,6 +345,12 @@ export default {
             dorms.value = page.props.dorms
         });
 
+        const dorm_status = ref('approved')
+
+        const changeDormStatus = (s) => {
+            dorm_status.value = s.target.value
+        }
+
         return {
             user,
             id,
@@ -376,6 +384,7 @@ export default {
             errors,
             dorms,
             loading,
+            dorm_status,
             openFormModal,
             closeFormModal,
             getCoordinates,
@@ -394,7 +403,8 @@ export default {
             bpImageChange,
             saveDorm,
             validationError,
-            editDorm
+            editDorm,
+            changeDormStatus
         };
     }
 }
@@ -417,7 +427,7 @@ export default {
             </div>
 
             <div class="w-full flex flex-col md:flex-row mt-5">
-                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0" style="border: 1px solid black; height: 100px;">
+                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0 rounded-md" style="border: 1px solid black; height: 100px;">
                     <div>
                         <p class="text-2xl text-center">
                             {{ dorms.filter(x => {return x.status == 'pending'}).length }}
@@ -429,7 +439,7 @@ export default {
                     </div>
                 </div>
 
-                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0" style="border: 1px solid black; height: 100px;">
+                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0 rounded-md" style="border: 1px solid black; height: 100px;">
                     <div>
                         <p class="text-2xl text-center">
                             {{ dorms.filter(x => {return x.status == 'approved'}).length }}
@@ -441,10 +451,10 @@ export default {
                     </div>
                 </div>
 
-                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0" style="border: 1px solid black; height: 100px;">
+                <div class="w-full flex justify-center items-center md:mx-2 mt-2 md:mt-0 rounded-md" style="border: 1px solid black; height: 100px;">
                     <div>
                         <p class="text-2xl text-center">
-                            {{ dorms.filter(x => {return x.status != 'approved' && x.status != 'pending'}).length }}
+                            {{ dorms.filter(x => {return x.status == 'declined'}).length }}
                         </p>
 
                         <p class="text-xs text-center mt-5">
@@ -455,7 +465,15 @@ export default {
                 </div>
             </div>
 
-            <DormList :dorms.sync="dorms" :user.sync="user" @edit-dorm="(dorm) => editDorm(dorm)"/>
+            <div class="w-full mt-20 ml-8">
+                <select class="rounded-md" v-model="dorm_status" @change="changeDormStatus($event)">
+                    <option value="approved">Approved</option>
+                    <option value="declined">Declined</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+
+            <DormList :dorms.sync="dorms.filter(x => { return x.status == dorm_status})" :user.sync="user" @edit-dorm="(dorm) => editDorm(dorm)"/>
 
             <!-- Modal -->
             <div id="dormModal" class="dormModal mt-10 md:mt-0">

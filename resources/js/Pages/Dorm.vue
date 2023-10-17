@@ -3,13 +3,15 @@
     import OtherLayout from '@/Layouts/SidebarLayout.vue';
     import { usePage, Head, Link, router, useForm  } from '@inertiajs/vue3'
     import Dorm from '@/Components/Dorm.vue';
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     import ApplicationLogo from '@/Components/ApplicationLogo.vue';
     import InputLabel from '@/Components/InputLabel.vue';
     import PrimaryButton from '@/Components/PrimaryButton.vue';
     import TextInput from '@/Components/TextInput.vue';
     import InputError from '@/Components/InputError.vue';
     import Checkbox from '@/Components/Checkbox.vue';
+    import 'vue-good-table-next/dist/vue-good-table-next.css'
+    import { VueGoodTable } from 'vue-good-table-next';
 
     export default {
         components: {
@@ -22,7 +24,8 @@
             InputError,
             Checkbox,
             TenantLayout,
-            OtherLayout
+            OtherLayout,
+            VueGoodTable
         },
         setup() {
             const page = usePage()
@@ -121,6 +124,56 @@
                 loginForm.post(route('login'), {});
             }
 
+            const roomTenants = ref([]);
+
+            const getRoomDetails = async(month = '1') => {
+                await axios.get(`/owner/room-details/${month}/${dorm.id}`)
+                    .then(response => {
+                        roomTenants.value = response.data.roomTenants
+                    })
+                    .catch(error => {
+                        errors.value = error.response.data.errors
+                        loading.value = false
+                    })
+            }
+
+            onMounted(() => {
+                // getRoomDetails()
+            });
+
+
+            const dateChange = (e) => {
+                getRoomDetails(e.target.value)
+            }
+
+            const columns = [
+                {
+                    label: 'Room',
+                    field: 'room_name',
+                },
+                {
+                    label: 'Tenant',
+                    field: 'tenant_name',
+                },
+                {
+                    label: 'Fee',
+                    field: 'monthly_price',
+                },
+                {
+                    label: 'Availability',
+                    field: 'availability',
+                },
+                {
+                    label: 'Status',
+                    field: 'status',
+                },
+                {
+                    label: 'Actions',
+                    field: 'action',
+                }
+            ]
+
+
             return {
                 user,
                 dorm,
@@ -128,6 +181,8 @@
                 isMobileView,
                 form,
                 loginForm,
+                columns,
+                roomTenants,
                 idPictureClick,
                 idPictureChange,
                 submit,
@@ -136,7 +191,8 @@
                 closeRegisterModal,
                 openLoginModal,
                 closeLoginModal,
-                login
+                login,
+                dateChange
             }
         }
     }
@@ -169,7 +225,63 @@
                         </p>
                     </div>
 
-                    <div class="w-full mt-5">
+                    <!-- <div class="w-full mt-10">
+                        <div class="w-full" :style="{ padding: !isMobileView ? '0vw 17vw' : '0vw 5vw'}">
+                            <select class="float-right rounded-md" @change="dateChange($event)">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+
+                        <div class="w-full mt-12" :style="{ padding: !isMobileView ? '0vw 17vw' : '0vw 5vw'}">
+                            <vue-good-table
+                                styleClass="vgt-table condensed"
+                                style="width: 100%"
+                                :columns="columns"
+                                :rows="roomTenants"
+                                :pagination-options="{ enabled: true }"
+                                :select-options="{ enabled: false }"
+                                :search-options="{ enabled: true }"
+                            >
+                                <template #table-row="props">
+                                    <div v-if="props.column.field == 'availability'" class="mt-2">
+                                        <button class="bg-cyan-500 p-1 mx-1 text-white rounded-sm text-xs"
+                                            :disabled="true"
+                                        >
+                                            {{props.row.availability ? 'Available' : 'Not Available'}}
+                                        </button>
+                                    </div>
+
+                                    <div v-if="props.column.field == 'status'" class="mt-2">
+                                        <button class="bg-cyan-500 p-1 mx-1 text-white rounded-sm text-xs"
+                                            :disabled="true"
+                                        >
+                                            {{props.row.status}}
+                                        </button>
+                                    </div>
+
+                                    <div v-if="props.column.field == 'action'">
+                                        <button class="bg-orange-500 p-3 mx-1 text-white rounded-md text-xs" >
+                                            Manage Availability
+                                        </button>
+                                    </div>
+                                </template>
+                            </vue-good-table>
+                        </div>
+
+                    </div> -->
+
+                    <div class="w-full mt-20">
                         <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
                     </div>
                 </div>
