@@ -1,3 +1,4 @@
+
 <script>
     import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
     // import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';

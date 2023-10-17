@@ -1,3 +1,4 @@
+
 <script>
     import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
     import { Head } from '@inertiajs/vue3';
