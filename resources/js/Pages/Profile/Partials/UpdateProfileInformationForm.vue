@@ -43,6 +43,7 @@ const updateProfile = () => {
                         "Your profile has been updated.",
                         "success"
                     );
+                    window.location.reload();
                 },
                 onError: () => {
                     if (form.errors.password) {

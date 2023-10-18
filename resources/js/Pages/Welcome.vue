@@ -485,7 +485,7 @@ defineProps({
                                                 
                                                 <input type="file" id="selfie_id_picture" class="hidden" @change="SelfieidPictureChange($event)" accept="image/*">
 
-                                                <label for="id_picture" class="relative cursor-pointer">
+                                                <label for="selfie_id_picture" class="relative cursor-pointer">
                                                     <div class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg">
                                                         <img v-if="form.selfie_id_picture" :src="form.selfie_id_picture" alt="Selfie with Valid ID" class="h-48 w-auto rounded-lg">
                                                         <span v-else>Select or Drag & Drop a file</span>
@@ -519,10 +519,10 @@ defineProps({
                         <div class="h-screen flex justify-center items-center">
                             <div class="relative w-full max-w-2xl max-h-full">
                                 <!-- Modal content -->
-                                <div class="relative bg-gray-700 rounded-lg shadow dark:bg-white">
+                                <div class="relative bg-white rounded-lg shadow">
                                     <!-- Modal header -->
                                     <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
-                                        <h3 class="text-xl font-semibold text-white dark:text-black">
+                                        <h3 class="text-xl font-semibold text-black">
                                             Terms and Condition
                                         </h3>
                                         <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" @click="closeTermsModal()">
