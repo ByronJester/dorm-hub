@@ -46,13 +46,16 @@ class RegisteredUserController extends Controller
             'phone_number' => 'required|numeric|digits:11',
             'user_type' => 'required',
             'id_picture' => 'required',
+            'selfie_id_picture' => 'required',
             'email' => 'required|string|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $filename = Str::random(10) . '_id_picture' ;
+        $id_picture = Str::random(10) . '_id_picture';
+        $selfie_picture = Str::random(10) . '_selfie_picture';
 
-        $uploadFile = $this->uploadFile($request->id_picture, $filename);
+        $this->uploadFile($request->id_picture, $id_picture);
+        $this->uploadFile($request->id_picture, $selfie_picture);
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -62,7 +65,8 @@ class RegisteredUserController extends Controller
             'user_type' => $request->user_type,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'id_picture' => $filename,
+            'id_picture' => $id_picture,
+            'selfie_id_picture' => $selfie_picture,
             'is_approved' => $request->user_type == 'tenant' ? false : true
         ]);
 

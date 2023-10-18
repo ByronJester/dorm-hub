@@ -158,7 +158,7 @@ export default {
                                     ></path>
                                 </svg>
                             </button>
-                            
+
                             <AppDropdownContent class="">
                                 <AppDropdownItem
                                     :href="route('profile.edit')"
@@ -170,21 +170,21 @@ export default {
                                     :href="route('view.user.messages')"
                                     class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
                                 >
-                                        Message 
+                                        Message
                                 </AppDropdownItem>
                                 <AppDropdownItem
-                                    @click=""
+                                    :href="route('profile.payment-settings')"
                                     class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                    role="menuitem"                                
-                                > 
+                                    role="menuitem"
+                                >
                                         Payment Setting
                                 </AppDropdownItem>
                                 <hr />
                                 <AppDropdownItem
                                     @click="logOut()"
                                     class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                    role="menuitem"                                
-                                > 
+                                    role="menuitem"
+                                >
                                         Logout
                                 </AppDropdownItem>
                             </AppDropdownContent>
@@ -272,13 +272,13 @@ export default {
                         </p>
                         </div>
                     </div>
-      
+
                     </AppDropdownContent>
 
                     </AppDropdown>
-                    
 
-                   
+
+
                 </div>
             </div>
         </div>
@@ -320,7 +320,7 @@ export default {
         </div>
     </div>
 
-    
+
 
     <slot />
 </template>

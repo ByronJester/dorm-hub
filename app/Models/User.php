@@ -26,11 +26,15 @@ class User extends Authenticatable
         'email',
         'password',
         'id_picture',
+        'selfie_id_picture',
         'is_approved',
         'image',
         'bio',
         'pk',
-        'sk'
+        'sk',
+        'bank_name',
+        'account_name',
+        'account_number'
     ];
 
     /**

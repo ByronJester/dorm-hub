@@ -29,8 +29,8 @@ defineProps({
     import InputError from '@/Components/InputError.vue';
     import Checkbox from '@/Components/Checkbox.vue';
     import Terms from '@/Components/Terms.vue' //dinagdag ko pati nasa component
-    
-    
+
+
 
     export default {
         components: {
@@ -92,7 +92,7 @@ defineProps({
                form.user_type = userType;
             }
             //Hanggang dito
-            
+
             const openLoginModal = () => {
                 var modal = document.getElementById("loginModal");
 
@@ -131,6 +131,7 @@ defineProps({
                 password: '',
                 password_confirmation: '',
                 id_picture: '',
+                selfie_id_picture: '',
                 terms: false,
             });
 
@@ -165,7 +166,7 @@ defineProps({
 
                 reader.onload = e =>{
                     console.log(e)
-                    form.id_picture = e.target.result
+                    form.selfie_id_picture = e.target.result
                 }
             }
             //hanggagn dito
@@ -228,7 +229,7 @@ defineProps({
                                     />
                                 </Link>
                             </div>
-                            
+
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex absolute right-0">
                                 <button @click.prevent="openLoginModal()" class="bg-transparent hover:bg-orange-400 text-orange-400 font-semibold hover:text-white py-2 px-4 border border-orange-400 hover:border-transparent rounded">
@@ -237,7 +238,7 @@ defineProps({
                                 <button @click.prevent="openRegisterModal()" class="bg-orange-400 hover:bg-transparent text-white font-semibold hover:text-orange-400 py-2 px-4 border border-transparent hover:border-orange-400 rounded">
                                      Signup
                                 </button>
-                              
+
                             </div>
                         </div>
 
@@ -325,7 +326,7 @@ defineProps({
                                             <h3 class="text-xl font-medium text-gray-900 dark:text-white">Welcome to Dormhub!</h3>
                                             <span class="mb-4 text-sm font-medium text-gray-900 dark:text-white">Create an account</span>
                                         </div>
-                                        
+
                                         <hr class="mb-4">
                                         <form class="space-y-6" @submit.prevent="submit">
                                             <div class="mb-4">
@@ -386,7 +387,7 @@ defineProps({
 
                                                 <InputError class="mt-2" :message="form.errors.last_name" />
                                             </div>
-                                    
+
                                             <div>
                                                 <InputLabel for="phone_number" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Contact" />
 
@@ -403,7 +404,7 @@ defineProps({
                                              </div>
                                         </div>
 
-        
+
 
                                             <div>
                                                 <InputLabel for="email-login" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Your Email" />
@@ -434,7 +435,7 @@ defineProps({
                                                     autocomplete="current-password"
                                                 />
 
-                                                <InputError class="mt-2" :message="form.errors.password" />                                           
+                                                <InputError class="mt-2" :message="form.errors.password" />
                                              </div>
 
                                              <div>
@@ -464,7 +465,7 @@ defineProps({
                                                         <span class="text-xs  text-red-500">(ex: Passport, National Id, etc For Student: School ID)</span>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <input type="file" id="id_picture" class="hidden" @change="idPictureChange($event)" accept="image/*">
 
                                                 <label for="id_picture" class="relative cursor-pointer">
@@ -482,7 +483,7 @@ defineProps({
                                                     <InputLabel for="selfie_id_picture" class="block text-sm font-medium text-gray-900 dark:text-white" value="Selfie Verificaion" />
                                                     <span class="text-xs  text-red-500">Confirm your identity with a photo of yourself holding your ID</span>
                                                 </div>
-                                                
+
                                                 <input type="file" id="selfie_id_picture" class="hidden" @change="SelfieidPictureChange($event)" accept="image/*">
 
                                                 <label for="selfie_id_picture" class="relative cursor-pointer">
@@ -509,10 +510,10 @@ defineProps({
                                     </div>
                                 </div>
                             </div>
-                        </div> 
+                        </div>
                     </div>
 
-                   
+
                     <!-- Terms modal -->
                     <div id="defaultModal" tabindex="-1" aria-hidden="true" style="background-color: rgba(0, 0, 0, 0.7);"
                     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -545,7 +546,7 @@ defineProps({
                             </div>
                         </div>
                     </div>
-                       
+
                     <!--Tutorial modal-->
                     <div id="tutModal" tabindex="-1" aria-hidden="true" style="background-color: rgba(0, 0, 0, 0.7);"
                     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
@@ -567,7 +568,7 @@ defineProps({
                                     </div>
                                     <!-- Modal body -->
                                     <div class="p-6 space-y-6">
-                                        
+
                                     </div>
                                     <!-- Modal footer -->
                                     <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
@@ -624,7 +625,7 @@ defineProps({
                                                     autocomplete="current-password"
                                                 />
 
-                                                <InputError class="mt-2" :message="form.errors.password" />                                           
+                                                <InputError class="mt-2" :message="form.errors.password" />
                                              </div>
                                             <div class="flex justify-between">
                                                 <div class="flex items-start">
@@ -641,11 +642,11 @@ defineProps({
                                     </div>
                                 </div>
                             </div>
-                        </div> 
+                        </div>
                     </div>
-                            
-               
-                
+
+
+
             </div>
         </div>
     </div>
