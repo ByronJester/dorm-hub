@@ -476,7 +476,7 @@ defineProps({
 
                                                 <InputError class="mt-2" :message="form.errors.id_picture" />
                                             </div>
-                                            <!--  Wala pa data na nakalagay sa table para sa selfie id
+                                            <!--Selfie-->
                                             <div class="mb-4">
                                                 <div class="mb-4">
                                                     <InputLabel for="selfie_id_picture" class="block text-sm font-medium text-gray-900 dark:text-white" value="Selfie Verificaion" />
@@ -494,7 +494,6 @@ defineProps({
 
                                                 <InputError class="mt-2" :message="form.errors.selfie_id_picture" />
                                             </div>
-                                            -->
                                             <hr class="mb-4">
                                             <div class="flex justify-between">
                                                 <div class="flex items-start">
