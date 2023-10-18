@@ -42,6 +42,6 @@ export default {
     .main {
         height: 100%;
         min-height: 92vh;
-        background-color: #E5E8E8;
+        background-color: #ffffff;
     }
 </style>

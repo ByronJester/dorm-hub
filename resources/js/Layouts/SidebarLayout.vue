@@ -140,7 +140,59 @@ export default {
                     </a>
                 </div>
                 <div class="flex items-center">
-                    <button @click="openModal()">
+                    <div class="flex items-center ml-3">
+                        <AppDropdown>
+                            <button
+                                type="button"
+                                class="flex text-sm text-black dark:text-white hover:text-gray-400"
+                                aria-expanded="false"
+                            >
+                                {{ $page.props.auth.user.first_name }}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    class="ml-1 h-5 w-5 fill-current"
+                                >
+                                    <path
+                                        d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
+                                    ></path>
+                                </svg>
+                            </button>
+                            
+                            <AppDropdownContent class="">
+                                <AppDropdownItem
+                                    :href="route('profile.edit')"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                >
+                                    Profile
+                                </AppDropdownItem>
+                                <AppDropdownItem
+                                    :href="route('view.user.messages')"
+                                    class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                >
+                                        Message 
+                                </AppDropdownItem>
+                                <AppDropdownItem
+                                    @click=""
+                                    class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                    role="menuitem"                                
+                                > 
+                                        Payment Setting
+                                </AppDropdownItem>
+                                <hr />
+                                <AppDropdownItem
+                                    @click="logOut()"
+                                    class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                    role="menuitem"                                
+                                > 
+                                        Logout
+                                </AppDropdownItem>
+                            </AppDropdownContent>
+                        </AppDropdown>
+                    </div>
+
+                    <AppDropdown>
+                        <button>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -172,106 +224,13 @@ export default {
                         </span>
                     </button>
 
-                    <div class="flex items-center ml-3">
-                        <AppDropdown>
-                            <button
-                                type="button"
-                                class="flex text-sm text-black dark:text-white hover:text-gray-400"
-                                aria-expanded="false"
-                            >
-                                {{ $page.props.auth.user.first_name }}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    class="ml-1 h-5 w-5 fill-current"
-                                >
-                                    <path
-                                        d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
-                                    ></path>
-                                </svg>
-                            </button>
-
-                            <AppDropdownContent>
-                                <AppDropdownItem
-                                    :href="route('profile.edit')"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-black"
-                                >
-                                    Profile
-                                </AppDropdownItem>
-                                <AppDropdownItem>
-                                    <a
-                                        :href="route('view.user.messages')"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-black"
-                                        >Message</a
-                                    >
-                                </AppDropdownItem>
-                                <AppDropdownItem>
-                                    <a
-                                        href="#"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-black"
-                                        role="menuitem"
-                                        >Logout</a
-                                    >
-                                </AppDropdownItem>
-                            </AppDropdownContent>
-                        </AppDropdown>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div
-        id="sidebarModal"
-        :class="{ '-translate-x-0': showSidebar, '-translate-x-full': !showSidebar }"
-        class="fixed top-0 left-0 z-40 w-64 shadow-md h-screen pt-20 transition-transform  bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
-    >
-        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-            <div
-                class="w-full flex justify-center items-center"
-                v-for="r in routes"
-                :key="r.label"
-            >
-                <div
-                    class="w-full md:w-[80%] flex flex-row py-2 md:py-5 px-5 md:px-10 md:mt-5 cursor-pointer text-xs md:text-md"
-                    :class="{
-                        'text-white': route().current() == r.route,
-                        'bg-gradient-to-r': route().current() == r.route,
-                        'from-sky-600': route().current() == r.route,
-                        'to-cyan-400': route().current() == r.route,
-                    }"
-                    style="border-radius: 15px"
-                    @click="redirectPage(r.route)"
-                >
-                    <div class="w-[20%]">
-                        <i :class="r.icon"></i>
-                    </div>
-
-                    <div class="w-[80%]">
-                        <p>
-                            {{ r.label }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="w-full">
-        <div id="notificationModal" class="notificationModal mt-10 md:mt-0">
-            <div class="notification-modal-content flex flex-col">
-                <div class="w-full">
-                    <span class="text-lg font-bold"> Notifications </span>
-                    <span
-                        class="float-right cursor-pointer"
-                        @click="closeModal()"
-                    >
-                        <i class="fa-solid fa-xmark"></i>
-                    </span>
-                </div>
-
-                <div
-                    class="w-full bg-gray-300 mt-3 text-center py-5 rounded-md"
+                    <AppDropdownContent class="w-100%">
+                        <div class="block px-4 py-2 w-auto font-medium text-center">
+                            Notifications
+                        </div>
+                        <hr/>
+                        <div
+                    class="w-ful mt-3 text-center py-5 rounded-md"
                     v-if="notifications.length == 0"
                 >
                     There's no notification.
@@ -311,11 +270,57 @@ export default {
                                 Mark as Read
                             </span>
                         </p>
+                        </div>
+                    </div>
+      
+                    </AppDropdownContent>
+
+                    </AppDropdown>
+                    
+
+                   
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div
+        id="sidebarModal"
+        :class="{ '-translate-x-0': showSidebar, '-translate-x-full': !showSidebar }"
+        class="fixed top-0 left-0 z-40 w-64 shadow-md h-screen pt-20 transition-transform  bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+    >
+        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+            <div
+                class="w-full flex justify-center items-center"
+                v-for="r in routes"
+                :key="r.label"
+            >
+                <div
+                    class="w-full md:w-[80%] flex text-black hover:bg-orange-400 hover:text-white dark:text-white flex-row py-2 md:py-5 px-5 md:px-10 md:mt-5 cursor-pointer text-xs md:text-md"
+                    :class="{
+                        'text-white': route().current() == r.route,
+                        'bg-gradient-to-r': route().current() == r.route,
+                        'from-orange-400': route().current() == r.route,
+                        'to-red-600': route().current() == r.route,
+                    }"
+                    style="border-radius: 10px"
+                    @click="redirectPage(r.route)"
+                >
+                    <div class="w-[20%]">
+                        <i :class="r.icon"></i>
+                    </div>
+
+                    <div class="w-[80%]">
+                        <p>
+                            {{ r.label }}
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    
 
     <slot />
 </template>

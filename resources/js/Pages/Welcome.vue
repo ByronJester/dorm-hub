@@ -331,8 +331,8 @@ defineProps({
                                             <div class="mb-4">
                                             <InputLabel class="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Register as ?" />
                                             <div class="grid grid-cols-2 gap-2">
-                                                <button @click="selectUserType('tenant')" :class="{ 'bg-orange-500': form.user_type === 'tenant', 'bg-transparent': form.user_type !== 'tenant' }" class="px-4 py-2 rounded-lg border hover:bg-orange-400 text-white">Tenant</button>
-                                                <button @click="selectUserType('owner')" :class="{ 'bg-orange-500': form.user_type === 'owner', 'bg-transparent': form.user_type !== 'owner' }" class="px-4 py-2 rounded-lg border hover:bg-orange-400 text-white">Dorm Owner</button>
+                                                <button @click="selectUserType('tenant')" :class="{ 'bg-orange-500': form.user_type === 'tenant', 'bg-transparent': form.user_type !== 'tenant' }" class="px-4 py-2 rounded-lg border hover:bg-orange-400 text-black dark:text-white">Tenant</button>
+                                                <button @click="selectUserType('owner')" :class="{ 'bg-orange-500': form.user_type === 'owner', 'bg-transparent': form.user_type !== 'owner' }" class="px-4 py-2 rounded-lg border hover:bg-orange-400 text-black dark:text-white">Dorm Owner</button>
                                             </div>
                                             <InputError class="mt-2" :message="form.errors.user_type" />
                                             </div>
@@ -658,7 +658,7 @@ defineProps({
 .main {
     height: 100%;
     min-height: 92vh;
-    background-color: #E5E8E8;
+    background-color: #ffffff;
 }
 
 .bg-landing-page {

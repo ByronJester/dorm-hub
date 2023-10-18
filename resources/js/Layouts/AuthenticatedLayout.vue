@@ -91,7 +91,7 @@ const viewNotification = (r) => {
 <template>
     <div>
         <div class="h-full">
-            <nav class="bg-white border-b border-gray-300">
+            <nav class="bg-white border-b shadow-md border-gray-300">
                 <!-- Primary Navigation Menu -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between nav-bar-h">
@@ -319,7 +319,7 @@ const viewNotification = (r) => {
             </div>
 
 
-            <main class="main">
+            <main class="bg-white">
                 <slot />
             </main>
         </div>
@@ -331,16 +331,7 @@ const viewNotification = (r) => {
     height: 8vh;
 }
 
-.main-bg {
-    background-color: #E5E8E8;
-}
 
-.active-bg {
-    background-color: #F8C471;
-    border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
 
 .notificationModal {
     display: none;

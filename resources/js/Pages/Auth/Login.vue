@@ -26,7 +26,7 @@ const submit = () => {
 </script>
 
 <template>
-    <GuestLayout style="background-color: #eb984e">
+    <GuestLayout class="bg-white">
         <Head title="Log" />
 
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
