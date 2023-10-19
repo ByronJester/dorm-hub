@@ -169,7 +169,7 @@
 
 
             <OtherLayout v-else>
-                <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
+                <div class="p-4 lg:ml-64">
                     <div 
                         className="
                         max-w-screen-lg 

@@ -82,7 +82,7 @@ defineProps({
     </TenantLayout>
 
     <OtherLayout v-else>
-        <div class="p-4 mt-16 sm:ml-64">
+        <div class="p-4 mt-16 lg:ml-64">
             <section class="mb-6 flex items-center justify-between">
                 <div class="flex items-center justify-start">
                     <span

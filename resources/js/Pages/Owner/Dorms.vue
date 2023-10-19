@@ -403,7 +403,7 @@ export default {
 
 <template>
     <AuthenticatedLayout>
-        <div class="px-4 pt-14  md:ml-64">
+        <div class="px-4 pt-14 xl:ml-64">
             <div class="flex flex-col pr-5 pt-10">
                 <div class="w-full">
                     <p class="float-right">
@@ -1144,14 +1144,11 @@ export default {
             </div>
         </div>
     </AuthenticatedLayout>
+
 </template>
 
 <style>
-    .main {
-        height: 100%;
-        min-height: 92vh;
-        background-color: #E5E8E8;
-    }
+
 
     .dormModal {
         display: none;

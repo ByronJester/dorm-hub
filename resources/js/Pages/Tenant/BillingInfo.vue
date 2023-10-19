@@ -1,4 +1,7 @@
+
+
 <script>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 </script>
 
 <template>

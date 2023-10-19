@@ -115,7 +115,7 @@ export default {
                 <div class="flex items-center justify-start">
                     <button
                         @click="clickShowSideBar()"
-                        class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                        class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
                     >
                         <span class="sr-only">Open sidebar</span>
                         <svg
@@ -297,7 +297,7 @@ export default {
     <div
         id="sidebarModal"
         :class="{ '-translate-x-0': showSidebar, '-translate-x-full': !showSidebar }"
-        class="fixed top-0 left-0 z-40 w-64 shadow-md h-screen pt-20 transition-transform  bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        class="fixed top-0 left-0 z-40 w-64 shadow-md h-screen pt-20 transition-transform  bg-white border-r border-gray-200 lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
     >
         <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
             <div

@@ -44,7 +44,7 @@ export default {
 
 <template>
     <AuthenticatedLayout>
-        <div class="p-4 md:ml-64">
+        <div class="p-4 lg:ml-64">
             
             <div class="flex items-center justify-start mt-16">
                 <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
