@@ -29,7 +29,7 @@ export default {
     <div @click="viewDorm(dorm.id)">
         <img class="rounded-lg w-full h-64 " :src="dorm.dorm_image" alt="dorm image" />
     </div>
-    
+
 
     <div class="pb-5 mt-4">
         <a href="#">
@@ -39,7 +39,6 @@ export default {
             <p class="text-sm font-semibold tracking-tight text-gray-400">{{ dorm.detailed_address }}</p>
         </a>
         <span class="text-sm font-bold text-gray-400 dark:text-white">{{moneyFormat(dorm.payment.range_from) }} - {{ moneyFormat(dorm.payment.range_to) }} Monthly</span>
-        >
     </div>
 
     <footer>
@@ -51,7 +50,7 @@ export default {
                     Edit
         </button>
         </div>
-        
+
     </footer>
 </div>
 

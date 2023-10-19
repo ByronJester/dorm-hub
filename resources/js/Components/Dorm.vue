@@ -170,17 +170,17 @@ export default {
 
 <template>
     <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
-                    <div 
+                    <div
                         className="
-                        max-w-screen-lg 
+                        max-w-screen-lg
                         mx-auto
                         "
                     >
     <div
         class="w-full flex flex-col justify-center items-center overflow-y-scroll"
     >
-    
-        
+
+
             <!--Header-->
             <div class="w-full px-5">
                 <p class="w-full">
@@ -308,10 +308,10 @@ export default {
             <div
                 className="
               w-full
-              grid 
-              grid-cols-1 
-              md:grid-cols-7 
-              md:gap-10 
+              grid
+              grid-cols-1
+              md:grid-cols-7
+              md:gap-10
             "
             >
                 <div className="col-span-4 flex flex-col gap-8">
@@ -319,10 +319,10 @@ export default {
                         <div
                             className="
                             text-xl
-                            lg:text-3xl 
-                            font-semibold 
-                            flex 
-                            flex-row 
+                            lg:text-3xl
+                            font-semibold
+                            flex
+                            flex-row
                             items-center
                             gap-2
                         "
@@ -345,10 +345,10 @@ export default {
                         </div>
                         <div
                             className="
-                            flex 
-                            flex-row 
-                            items-center 
-                            gap-4 
+                            flex
+                            flex-row
+                            items-center
+                            gap-4
                             font-light
                             text-sm
                             text-neutral-500
@@ -365,10 +365,10 @@ export default {
                         <div
                             className="
                         text-xl
-                            lg:text-3xl 
-                            font-semibold 
-                            flex 
-                            flex-row 
+                            lg:text-3xl
+                            font-semibold
+                            flex
+                            flex-row
                             items-center
                             gap-2
                         "
@@ -472,10 +472,10 @@ export default {
                 <div
                     className="order-last my-10 sm:my-0 md:order-last sm:col-span-3"
                 >
-                    <!--
+
                     <div
                         class="flex items-center cursor-pointer hover:text-orange-400 justify-center mb-8"
-                        v-if="props.user.user_type == 'tenant'"
+                        v-if="props.user && props.user.user_type == 'tenant'"
                     >
                         <a
                             @click="openReviewModal()"
@@ -483,8 +483,8 @@ export default {
                             <i class="hp-icon fas fa-star"></i>
                             <span class="text-xl">Write a Review</span>
                         </a>
-                    </div>-->
-                    
+                    </div>
+
                     <div
                         className="bg-white rounded-xl border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
                     >
@@ -615,7 +615,7 @@ export default {
                         <p class="text-xs mt-2 font-bold">Custom Rule(s)</p>
 
                         <p class="text-xs mt-1">
-                             //comment to{{ props.dorm.rule.rules.toString() }} 
+                             //comment to{{ props.dorm.rule.rules.toString() }}
                             <span v-for="r in props.dorm.rule.rules" :key="r">
                                 {{ r
                                 }}{{
@@ -658,7 +658,7 @@ export default {
                 </div>
             </div>
 
-            
+
         </div>
     -->
             <!--rateReviewModal-->
@@ -911,7 +911,7 @@ hr {
     display: none;
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 20px; /* Location of the box */
+    padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
