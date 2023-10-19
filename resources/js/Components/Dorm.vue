@@ -56,6 +56,10 @@ export default {
             openModal();
         };
 
+        const redirectToBillingInfo = (arg) => {
+            router.get(route("tenant.billing_info", arg.id));
+        }
+
         const reserveRoom = (arg) => {
             if (!props.user.income_information) {
                 router.get(route("profile.edit"));
@@ -163,6 +167,7 @@ export default {
             messageOwner,
             closeReviewModal,
             openReviewModal,
+            redirectToBillingInfo
         };
     },
 };
@@ -853,7 +858,7 @@ export default {
                         >
                             <button
                                 class="text-md bg-orange-500 mx-2 px-2 py-1 rounded-md"
-                                @click="reserveRoom(room)"
+                                @click="redirectToBillingInfo(room)"
                                 :class="{
                                     'cursor-not-allowed': !room.is_available,
                                 }"
@@ -865,7 +870,7 @@ export default {
 
                             <button
                                 class="text-md bg-cyan-500 mx-2 px-2 py-1 rounded-md"
-                                @click="rentRoom(room)"
+                                @click="redirectToBillingInfo(room)"
                                 :class="{
                                     'cursor-not-allowed': !room.is_available,
                                 }"

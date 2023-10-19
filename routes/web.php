@@ -98,6 +98,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/paymongo/success', [TenantController::class, 'successPage']);
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
+        Route::get('/billing-info/{room_id}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
         Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
         Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
         Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');

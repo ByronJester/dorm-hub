@@ -47,6 +47,15 @@ class TenantController extends Controller
         ]);
     }
 
+    public function viewBillingInfo($room_id)
+    {
+        $room = Room::where('id', $room_id)->first();
+
+        return Inertia::render('Tenant/BillingInfo', [
+            'room' => $room
+        ]);
+    }
+
     public function reserveRoom(Request $request)
     {
         $user = Auth::user();
