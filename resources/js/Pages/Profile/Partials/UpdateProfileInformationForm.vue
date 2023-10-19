@@ -83,15 +83,16 @@ const imageChange = (e) => {
 
 <template>
     <div class="flex-1 p-6">
+        
         <div
             class="justify-around shadow-md p-5 lg:justify-center items-center block md:flex"
         >
             <div class="flex items-center justify-center mb-6 md:mb-0">
-                <div class="lg:mx-12">
+                <div class="lg:mx-12 md:mx-2">
                     <img
                         :src="form.image ?? 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                         alt="Profile picture"
-                        class="rounded-full block h-60 w-full max-w-full bg-gray-100 dark:bg-slate-800"
+                        class="rounded-full block md:h-60 w-full max-w-full bg-gray-100 dark:bg-slate-800"
                     />
                 </div>
             </div>
@@ -501,4 +502,5 @@ const imageChange = (e) => {
         </form>
     </section>
         -->
+        
 </template>

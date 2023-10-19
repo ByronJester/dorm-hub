@@ -37,7 +37,7 @@ export default {
                     icon: "fa-solid fa-chart-simple",
                 },
                 {
-                    route: "#",
+                    route: "owner.dorms",
                     label: "Dormitories",
                     icon: "fa-solid fa-building",
                 },
@@ -173,11 +173,21 @@ export default {
                                         Message
                                 </AppDropdownItem>
                                 <AppDropdownItem
+                                    v-if = "user.user_type == 'owner'"
                                     :href="route('profile.payment-settings')"
                                     class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
                                     role="menuitem"
                                 >
                                         Payment Setting
+                                </AppDropdownItem>
+                                
+                                <AppDropdownItem
+                                    v-if = "user.user_type == 'tenant'"
+                                    @click=""
+                                    class="block px-4 py-2 text-sm  text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                    role="menuitem"
+                                >
+                                        Payments
                                 </AppDropdownItem>
                                 <hr />
                                 <AppDropdownItem

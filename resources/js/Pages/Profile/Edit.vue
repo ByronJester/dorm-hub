@@ -18,7 +18,13 @@ defineProps({
 
 <template>
     <TenantLayout v-if="user.user_type == 'tenant'">
-        <div class="p-4">
+        <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 pt-20 px-4">
+                    <div 
+                        className="
+                        max-w-screen-lg 
+                        mx-auto
+                        "
+                    >
             <section class="mb-6 flex items-center justify-between">
                 <div class="flex items-center justify-start">
                     <span
@@ -71,6 +77,7 @@ defineProps({
                     </div>
                 </div>
             </div>
+            </div>
         </div>
     </TenantLayout>
 
@@ -92,7 +99,7 @@ defineProps({
                             ></path>
                         </svg>
                     </span>
-                    <h1 class="text-3xl leading-tight">Account</h1>
+                    <h1 class="text-3xl leading-tight">Profile</h1>
                 </div>
                 <button
                     class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded-full border-gray-800 dark:border-white ring-gray-300 dark:ring-gray-400 bg-gray-800 text-white dark:bg-white dark:text-black hover:bg-gray-700 hover:dark:bg-orange-400 hover:dark:text-white text-sm px-3 py-1"

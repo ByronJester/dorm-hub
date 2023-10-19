@@ -403,7 +403,7 @@ export default {
 
 <template>
     <AuthenticatedLayout>
-        <div class="main w-full">
+        <div class="px-4 pt-14  md:ml-64">
             <div class="flex flex-col pr-5 pt-10">
                 <div class="w-full">
                     <p class="float-right">
@@ -454,8 +454,24 @@ export default {
 
                 </div>
             </div>
-
+ 
+            <div
+                className="
+                pt-5
+            grid 
+            grid-cols-1 
+            sm:grid-cols-2 
+            md:grid-cols-3 
+            lg:grid-cols-4
+            xl:grid-cols-5
+            2xl:grid-cols-6
+            gap-8
+          "
+            >
             <DormList :dorms.sync="dorms" :user.sync="user" @edit-dorm="(dorm) => editDorm(dorm)"/>
+
+            </div>
+   
 
             <!-- Modal -->
             <div id="dormModal" class="dormModal mt-10 md:mt-0">
