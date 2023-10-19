@@ -85,7 +85,7 @@ export default {
     <div>
         <div class="h-full">
             <nav
-                class="fixed top-0 z-50 w-full bg-white shadow-md border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                class="fixed top-0 z-50 w-full bg-white shadow-md border-gray-200 "
             >
                 <div class="py-4 border-b-[1px]">
                     <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
@@ -100,7 +100,7 @@ export default {
                                 <AppDropdown>
                                     <button
                                         type="button"
-                                        class="flex text-sm text-black dark:text-white hover:text-gray-400"
+                                        class="flex text-sm text-black  hover:text-gray-400"
                                         aria-expanded="false"
                                     >
                                         {{ $page.props.auth.user.first_name }}
@@ -169,7 +169,7 @@ export default {
                                         viewBox="0 0 24 24"
                                         stroke-width="1.5"
                                         stroke="currentColor"
-                                        class="w-6 h-6 dark:text-white"
+                                        class="w-6 h-6"
                                     >
                                         <path
                                             stroke-linecap="round"
