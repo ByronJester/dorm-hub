@@ -234,14 +234,14 @@ export default {
                                         Signin
                                     </button>
 
-  
+
                                     <button
                                         @click.prevent="openRegisterModal()"
                                         class="bg-orange-400 hover:bg-transparent text-white font-semibold hover:text-orange-400 py-2 px-4 border border-transparent hover:border-orange-400 rounded"
                                     >
                                         Signup
                                     </button>
-                                
+
                                 </div>
                             </div>
                         </div>
@@ -252,10 +252,10 @@ export default {
                 <div
                     className="
                         pt-24
-                        grid 
-                        grid-cols-1 
-                        sm:grid-cols-2 
-                        md:grid-cols-3 
+                        grid
+                        grid-cols-1
+                        sm:grid-cols-2
+                        md:grid-cols-3
                         lg:grid-cols-4
                         xl:grid-cols-5
                         2xl:grid-cols-6
@@ -505,7 +505,7 @@ export default {
 
                                             <TextInput
                                                 id="password-login"
-                                                type="text"
+                                                type="password"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                                 placeholder="*********"
                                                 v-model="form.password"
@@ -959,7 +959,7 @@ export default {
 
                                             <TextInput
                                                 id="password-login"
-                                                type="text"
+                                                type="password"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                                 placeholder="*********"
                                                 v-model="loginForm.password"

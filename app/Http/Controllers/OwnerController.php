@@ -58,8 +58,8 @@ class OwnerController extends Controller
             'curfew_hours' => 'required',
             'minimum_stay' => 'required',
             // 'rules' => 'required|array|between:1,20',
-            'range_from' => 'required',
-            'range_to' => 'required',
+            // 'range_from' => 'required',
+            // 'range_to' => 'required',
             'payments' => 'required|array'
         ]);
 
@@ -169,8 +169,8 @@ class OwnerController extends Controller
             $payment = new Payment;
 
             $payment->dorm_id = $dorm->id;
-            $payment->range_from = $request->range_from;
-            $payment->range_to = $request->range_to;
+            // $payment->range_from = $request->range_from;
+            // $payment->range_to = $request->range_to;
             $payment->methods = implode(',', $request->payments);
 
             $payment->save();

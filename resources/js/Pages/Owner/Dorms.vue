@@ -312,8 +312,8 @@ export default {
                 data.append('rules', JSON.stringify(rules.value));
 
                 // Payments Table
-                data.append("range_from", range_from.value);
-                data.append("range_to", range_to.value);
+                // data.append("range_from", range_from.value);
+                // data.append("range_to", range_to.value);
 
                 for (let payment = 0; payment < payments.value.length; payment++) {
                     data.append('payments[]', payments.value[payment]);
@@ -454,14 +454,14 @@ export default {
 
                 </div>
             </div>
- 
+
             <div
                 className="
                 pt-5
-            grid 
-            grid-cols-1 
-            sm:grid-cols-2 
-            md:grid-cols-3 
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            md:grid-cols-3
             lg:grid-cols-4
             xl:grid-cols-5
             2xl:grid-cols-6
@@ -471,11 +471,11 @@ export default {
             <DormList :dorms.sync="dorms" :user.sync="user" @edit-dorm="(dorm) => editDorm(dorm)"/>
 
             </div>
-   
+
 
             <!-- Modal -->
             <div id="dormModal" class="dormModal mt-10 md:mt-0">
-                <div class="dorm-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '55%'}">
+                <div class="dorm-modal-content flex flex-col " :style="{width: isMobileView ? '97%' : '55%'}">
                     <div class="w-full">
                         <span class="text-lg font-bold">
                             New Dorm
@@ -487,7 +487,7 @@ export default {
                         </span>
                     </div>
 
-                    <div class="w-full flex flex-col relative overflow-scroll mt-2"
+                    <div class="w-full flex flex-col relative overflow-y-scroll mt-2 overflow-x-hidden"
                         :style="{height: '500px'}"
                     >
 
@@ -519,7 +519,7 @@ export default {
                             </div>
                         </div>
 
-                        <div class="flex flex-col w-full" v-if="active == 1">
+                        <div class="flex flex-col w-full" v-if="active == 3">
                             <div class="w-full p-2">
                                 <InputLabel for="address" value="Map Address" />
 
@@ -563,7 +563,7 @@ export default {
                             </div>
                         </div>
 
-                        <div class="flex flex-col w-full" v-if="active == 2">
+                        <div class="flex flex-col w-full" v-if="active == 5">
                             <div class="w-full px-2 flex flex-row">
                                 <div class="w-full mx-1">
                                     <InputLabel for="property_name" value="Property Name" />
@@ -673,7 +673,7 @@ export default {
                                             </div>
 
                                             <div class="w-full mx-1">
-                                                <InputLabel for="type_of_room" value="Type of room" />
+                                                <InputLabel for="type_of_room" value="Capacity" />
 
                                                 <select v-model="room.type_of_room" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Room for 1">Room for 1</option>
@@ -754,7 +754,7 @@ export default {
                             </div>
                         </div>
 
-                        <div class="w-full" v-if="active == 3">
+                        <div class="w-full" v-if="active == 7">
                             <p class="text-2xl font-bold mt-1 ml-3">
                                 Amenities
                             </p>
@@ -855,7 +855,7 @@ export default {
                             </div>
                         </div>
 
-                        <div class="w-full" v-if="active == 4">
+                        <div class="w-full" v-if="active == 6">
                             <p class="text-2xl font-bold mt-1 ml-2">
                                 Rules
                             </p>
@@ -969,7 +969,7 @@ export default {
 
                         </div>
 
-                        <div class="w-full" v-if="active == 5">
+                        <div class="w-full" v-if="active == 4">
                             <p class="text-2xl font-bold mt-1 ml-2">
                                 Payment Terms
                             </p>
@@ -979,7 +979,7 @@ export default {
                             </p>
 
                             <div class="w-full flex flex-col mt-6 px-2">
-                                <div class="w-full flex flex-row">
+                                <!-- <div class="w-full flex flex-row">
                                     <div class="w-full mt-2">
                                         <InputLabel value="Range monthly fee from?" class="text-xs"/>
 
@@ -1007,25 +1007,25 @@ export default {
 
                                         <span class="text-xs text-red-500 ml-2">{{validationError('range_to', errors)}} </span>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <div class="w-full px-1">
                                     <InputLabel value="What is the mode of payment ?" class="text-xs"/>
 
                                     <div class="flex flex-col w-full">
                                         <div class="w-full mt-2">
-                                            <input type="checkbox" value="Cash" v-model="payments">
-                                            <label class="ml-2">Cash</label>
+                                            <input type="checkbox" value="Online Payment" v-model="payments">
+                                            <label class="ml-2">Online Payment</label>
                                         </div>
 
-                                        <div class="w-full mt-2">
+                                        <!-- <div class="w-full mt-2">
                                             <input type="checkbox" value="GCash" v-model="payments">
                                             <label class="ml-2">GCash</label>
-                                        </div>
+                                        </div> -->
 
                                         <div class="w-full mt-2">
-                                            <input type="checkbox" value="Bank" v-model="payments">
-                                            <label class="ml-2">Bank</label>
+                                            <input type="checkbox" value="Cash" v-model="payments">
+                                            <label class="ml-2">Cash</label>
                                         </div>
                                     </div>
 
@@ -1035,7 +1035,7 @@ export default {
 
                         </div>
 
-                        <div class="w-full" v-if="active == 6">
+                        <div class="w-full" v-if="active == 2">
                             <p class="text-2xl font-bold mt-1 ml-2">
                                 Dorm Image
                             </p>
@@ -1061,7 +1061,7 @@ export default {
 
                         </div>
 
-                        <div class="w-full" v-if="active == 7">
+                        <div class="w-full" v-if="active == 1">
                             <p class="text-2xl font-bold mt-1 ml-2">
                                 Business Permit
                             </p>
@@ -1157,7 +1157,7 @@ export default {
         display: none;
         position: fixed; /* Stay in place */
         z-index: 1; /* Sit on top */
-        padding-top: 20px; /* Location of the box */
+        padding-top: 100px; /* Location of the box */
         left: 0;
         top: 0;
         width: 100%; /* Full width */
