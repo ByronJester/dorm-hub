@@ -38,8 +38,7 @@ class OwnerController extends Controller
 
     public function saveDorm(Request $request)
     {
-        // return json_decode($request->rooms);
-        $validator = Validator::make($request->all(), [
+        $req = [
             'map_address' => 'required',
             'lat' => 'required',
             'long' => 'required',
@@ -55,13 +54,22 @@ class OwnerController extends Controller
             'short_term' => 'required',
             'mix_gender' => 'required',
             'curfew' => 'required',
-            'curfew_hours' => 'required',
-            'minimum_stay' => 'required',
             // 'rules' => 'required|array|between:1,20',
             // 'range_from' => 'required',
             // 'range_to' => 'required',
-            'payments' => 'required|array'
-        ]);
+            // 'payments' => 'required|array'
+        ];
+
+        if($request->curfew == 'Yes') {
+            $req['curfew_hours'] = 'required';
+        }
+
+        if($request->short_term == 'Yes') {
+            $req['minimum_stay'] = 'required';
+        }
+
+
+        $validator = Validator::make($request->all(), $req);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
@@ -75,7 +83,7 @@ class OwnerController extends Controller
             if($dorm) {
                 Amenity::where('dorm_id', $id)->delete();
                 Rule::where('dorm_id', $id)->delete();
-                Payment::where('dorm_id', $id)->delete();
+                // Payment::where('dorm_id', $id)->delete();
             }
         } else {
             $dorm = new Dorm;
@@ -166,14 +174,14 @@ class OwnerController extends Controller
 
             $rule->save();
 
-            $payment = new Payment;
+            // $payment = new Payment;
 
-            $payment->dorm_id = $dorm->id;
+            // $payment->dorm_id = $dorm->id
             // $payment->range_from = $request->range_from;
             // $payment->range_to = $request->range_to;
-            $payment->methods = implode(',', $request->payments);
+            // $payment->methods = implode(',', $request->payments);
 
-            $payment->save();
+            // $payment->save();
 
             return response()->json(['message' => 'Your dorm succesfully registered.', 'status' => 200], 200);
 
