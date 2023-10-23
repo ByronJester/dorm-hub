@@ -611,7 +611,7 @@ export default {
                                                         class="h-48 w-auto rounded-lg"
                                                     />
                                                     <span v-else
-                                                        >Input Image</span
+                                                        >Input</span
                                                     >
                                                 </div>
                                             </label>

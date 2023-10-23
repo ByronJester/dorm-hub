@@ -1,5 +1,5 @@
 <script>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
     import { Head } from '@inertiajs/vue3';
     import 'vue-good-table-next/dist/vue-good-table-next.css'
     import { VueGoodTable } from 'vue-good-table-next';
@@ -16,6 +16,7 @@
             const isMobileView = ref(false)
             const page = usePage()
             const rows = ref([])
+            
             const columns = ref([
                 {
                     label: 'Dorm Owner',
@@ -52,6 +53,7 @@
                 },
 
             ])
+           
 
             onMounted(() => {
                 rows.value = page.props.dorms
@@ -110,6 +112,7 @@
                 columns,
                 rows,
                 business_permit,
+                
                 dorm,
                 openModal,
                 closeModal,
@@ -122,11 +125,57 @@
 
 <template>
     <AuthenticatedLayout>
-        <div class="main">
-            <div class="w-full pt-2 md:pt-20">
+        <div class="p-4 lg:ml-64">
+            <div class="flex items-center justify-start mt-16">
+                <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
+                    <svg viewBox="0 0 24 24" width="24" height="24" class="inline-block"><path fill="currentColor" d="M3,14L3.5,14.07L8.07,9.5C7.89,8.85 8.06,8.11 8.59,7.59C9.37,6.8 10.63,6.8 11.41,7.59C11.94,8.11 12.11,8.85 11.93,9.5L14.5,12.07L15,12C15.18,12 15.35,12 15.5,12.07L19.07,8.5C19,8.35 19,8.18 19,8A2,2 0 0,1 21,6A2,2 0 0,1 23,8A2,2 0 0,1 21,10C20.82,10 20.65,10 20.5,9.93L16.93,13.5C17,13.65 17,13.82 17,14A2,2 0 0,1 15,16A2,2 0 0,1 13,14L13.07,13.5L10.5,10.93C10.18,11 9.82,11 9.5,10.93L4.93,15.5L5,16A2,2 0 0,1 3,18A2,2 0 0,1 1,16A2,2 0 0,1 3,14Z"></path></svg>
+                </span>
+                <h3 class="text-3xl">User Verification</h3>
+            </div>
+            <div
+                class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-4 text-gray-400 dark:text-white"
+            >
+                <div
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                >
+                    <div class="text-center p-4">
+                        <p class="text-2xl mb-2">
+                         {{pends}}
+                        </p>
+                        <p class="text-xs">TOTAL NO. OF Declined Dorm</p>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                >
+                    <div class="text-center p-4">
+                        <p class="text-2xl mb-2">
+                            <!--
+                            {{
+                                props.rows.status =='pending'
+                            }}-->
+                        </p>
+                        <p class="text-xs">TOTAL NO. OF Approved Dorm</p>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                >
+                    <div class="text-center p-4">
+                        <p class="text-2xl mb-2">
+                            {{ appr }}
+                        </p>
+                        <p class="text-xs">TOTAL NO. OF Pending Dorm</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="w-full">
                 <vue-good-table
                     styleClass="vgt-table condensed"
-                    style="padding: 0vw 5vw; width: 100%"
+                    style="width: 100%"
                     :columns="columns"
                     :rows="rows"
                     :pagination-options="{ enabled: true }"
@@ -177,7 +226,7 @@
             </div>
 
             <div class="w-full">
-                <div id="bpModal" class="bpModal mt-10 md:mt-0">
+                <div id="bpModal" class="bpModal hidden mt-20 md:mt-0">
                     <div class="bp-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
                         <div class="w-full">
                             <span class="text-lg font-bold">
@@ -228,34 +277,7 @@
 </template>
 
 <style>
-    .main {
-        height: 100%;
-        min-height: 92vh;
-        background-color: #E5E8E8;
-    }
 
-    .bpModal {
-        display: none;
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 20px; /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .bp-modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-    }
 
     /* The Close Button */
     .close {

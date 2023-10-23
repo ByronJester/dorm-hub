@@ -53,6 +53,35 @@ export default {
                 },
             ];
         }
+        if (user.user_type == "admin") {
+            routes = [
+                {
+                    route: "#",
+                    label: "Dashboard",
+                    icon: "fa-solid fa-chart-line",
+                },
+                {
+                    route: "admin.dorms",
+                    label: "Dorm Verificartion",
+                    icon: "fa-solid fa-chart-simple",
+                },
+                {
+                    route: "admin.tenants",
+                    label: "User Verification",
+                    icon: "fa-solid fa-building",
+                },
+                {
+                    route: "#",
+                    label: "Reports",
+                    icon: "fa-solid fa-users",
+                },
+                {
+                    route: "#",
+                    label: "Utilities",
+                    icon: "fa-solid fa-comments-dollar",
+                },
+            ];
+        }
 
         const redirectPage = (r) => {
             router.get(route(r));
@@ -234,7 +263,7 @@ export default {
                         </span>
                     </button>
 
-                    <AppDropdownContent class="w-100%">
+                    <AppDropdownContent class="w-80 p-5 h-auto">
                         <div class="block px-4 py-2 w-auto font-medium text-center">
                             Notifications
                         </div>
@@ -335,26 +364,5 @@ export default {
     <slot />
 </template>
 <style scoped>
-.notificationModal {
-    display: none;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 20px; /* Location of the box */
-    left: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: scroll; /* Enable scroll if needed */
-}
 
-/* Modal Content */
-.notification-modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 100%;
-    max-height: 80vh;
-    border-radius: 5px;
-    overflow: scroll;
-}
 </style>

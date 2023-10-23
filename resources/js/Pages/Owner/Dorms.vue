@@ -402,7 +402,7 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div class="px-4 pt-14 xl:ml-64">
-            <div class="flex flex-col pr-5 pt-10">
+            <div class="flex flex-col overflow-y-auto pr-5 pt-10">
                 <div class="w-full">
                     <p class="float-right">
                         <button
@@ -492,7 +492,7 @@ export default {
                 id="dormModal"
                 tabindex="-1"
                 aria-hidden="true"
-                class="fixed top-0 left-0 right-0 z-50 hidden shadow-md items-center justify-center min-h-screen p-4 overflow-x-hidden overflow-y-auto md:inset-0"
+                class="fixed top-0 left-0 right-0 z-50 hidden w-full flex items-center justify-center p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
             >
                 <div class="relative w-full max-w-2xl max-h-full">
                     <!-- Modal content -->
@@ -531,6 +531,7 @@ export default {
                                 <span class="sr-only">Close modal</span>
                             </button>
                         </div>
+                       
                     
                         
                         <!-- Modal body -->
@@ -776,7 +777,7 @@ export default {
                                 </div>
                             </div>
 
-                            <div class="w-full px-3">
+                            <div class="w-full  px-3">
                                 <div class="w-ful flex flex-col p-2 mt-2"
                                     style="border: 1px solid black; border-radius: 5px;"
                                     v-for="(room, index) in rooms" :key="index"
