@@ -326,7 +326,7 @@ const imageChange = (e) => {
 
         </div>
 
-        <footer class="p-6">
+        <footer class="flex-1">
             <div class="flex items-center justify-start flex-wrap -mb-3">
                 <button
                     :disabled="form.processing"

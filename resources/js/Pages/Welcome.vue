@@ -611,8 +611,7 @@ export default {
                                                         class="h-48 w-auto rounded-lg"
                                                     />
                                                     <span v-else
-                                                        >Select or Drag & Drop a
-                                                        file</span
+                                                        >Input Image</span
                                                     >
                                                 </div>
                                             </label>

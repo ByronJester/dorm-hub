@@ -238,7 +238,7 @@ export default {
                                     </a>
                                     <a>
                                         <p
-                                            class="text-xs mx-12 bg-orange-500 p-1 w-auto rounded-md text-white"
+                                            class="text-xs mx-12 bg-orange-500 p-3 w-auto rounded-md text-white"
                                         >
                                             {{
                                                 room.is_available
@@ -250,7 +250,7 @@ export default {
                                 </div>
 
                                 <button
-                                    class="bg-cyan-500 ml-4 text-white h-7 mt-2 text-xs py-1 px-3 rounded-md"
+                                    class="bg-cyan-500 items-center justify-center text-white text-sm py-4 w-full hover:bg-opacity-25 rounded-md"
                                     v-if="
                                         props.user &&
                                         props.user.user_type == 'tenant'
@@ -827,7 +827,7 @@ export default {
 
                         <div class="w-full mt-5 flex flex-row">
                             <div class="w-full text-center">
-                                <p class="text-sm font-bold">Type of Room</p>
+                                <p class="text-sm font-bold">Capacity</p>
 
                                 <p class="text-xs">
                                     {{ room.type_of_room }}
@@ -857,7 +857,7 @@ export default {
                             class="w-full flex justify-center items-center mt-10"
                         >
                             <button
-                                class="text-md bg-orange-500 mx-2 px-2 py-1 rounded-md"
+                                class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
                                 @click="redirectToBillingInfo(room)"
                                 :class="{
                                     'cursor-not-allowed': !room.is_available,
@@ -869,7 +869,7 @@ export default {
                             </button>
 
                             <button
-                                class="text-md bg-cyan-500 mx-2 px-2 py-1 rounded-md"
+                                class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
                                 @click="redirectToBillingInfo(room)"
                                 :class="{
                                     'cursor-not-allowed': !room.is_available,

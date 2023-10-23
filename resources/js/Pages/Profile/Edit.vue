@@ -67,14 +67,12 @@ defineProps({
                         
 
                 <div
-                    class="w-full mx-auto sm:px-6 lg:px-8 space-y-6 mt-5"
+                    class="w-full mx-auto shadow-md sm:px-6 lg:px-8 space-y-6 mt-5"
                     v-if="user.user_type == 'tenant'"
                 >
-                    <div
-                        class="p-4 sm:p-8 bg-white shadow sm:rounded-lg mx-2 md:mx-24"
-                    >
+                   
                         <IncomeInformation />
-                    </div>
+                  
                 </div>
             </div>
             </div>
