@@ -1,5 +1,5 @@
 <script>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
     import { Head } from '@inertiajs/vue3';
     import 'vue-good-table-next/dist/vue-good-table-next.css'
     import { VueGoodTable } from 'vue-good-table-next';
@@ -107,7 +107,7 @@
 
 <template>
     <AuthenticatedLayout>
-        <div class="main">
+        <div class="p-4 lg:ml-64">
             <div class="w-full pt-2 md:pt-20">
                 <vue-good-table
                     styleClass="vgt-table condensed"
