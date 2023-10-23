@@ -1,6 +1,6 @@
 <script>
 import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 
 export default {
     components: {
@@ -9,21 +9,25 @@ export default {
     setup() {
         const page = usePage()
         const user = page.props.auth.user;
+
+        const room = page.props.room
+
         const back = () => {
-                var url = null;
+            var url = null;
 
-                if(user) {
-                    url = user.user_type + '.dorms'
-                } else {
-                    url = 'landing.page'
-                }
+            if(user) {
+                router.get(route('view.dorm', room.dorm_id));
+            } else {
+                router.get(route('landing.page'));
+            }
 
-                router.get(route(url));
-            }
-            return{
-                back,
-            }
-    },
+        }
+
+        return{
+            back,
+            room
+        }
+},
 };
 </script>
 
@@ -62,7 +66,7 @@ export default {
                             <!--Image ng Room-->
                             <div class="md:col-span-3">
                                 <img
-                                    src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                    :src="room.image"
                                     style="
                                         display: block;
                                         box-sizing: border-box;
@@ -71,20 +75,20 @@ export default {
                                     "
                                     width="882"
                                     height="404"
-                                />  
+                                />
                             </div>
                             <!--Room Details -->
                             <div clas="flex p-10 flex-cols-1 items-center justify-ceneter md:flex-cols-4">
                                 <div class="text-3xl mb-5">Room Details</div>
-                                <div class="font-semibold">Room Name: <span class="font-light">Jear Dorm</span></div>
-                                <div class="font-semibold">Deposit fee: <span class="font-light">P2000.00</span></div>
-                                <div class="font-semibold">Advance fee: <span class="font-light">P2000.00</span></div>
-                                <div class="font-semibold">Monthy fee: <span class="font-light">P1000.00</span></div>
-                                <div class="font-semibold">Capacity: <span class="font-light">Room forr 5</span></div>
-                                <div class="font-semibold">Furnished Type: <span class="font-light">Bare</span></div>
-                                <div class="font-semibold">Air Condition: <span class="font-light">Not-Arconditioned</span></div>
+                                <div class="font-semibold">Room Name: <span class="font-light">{{ room.name }}</span></div>
+                                <div class="font-semibold">Deposit fee: <span class="font-light">{{ room.deposit }}</span></div>
+                                <div class="font-semibold">Advance fee: <span class="font-light">{{ room.advance }}</span></div>
+                                <div class="font-semibold">Monthy fee: <span class="font-light">{{ room.fee }}</span></div>
+                                <div class="font-semibold">Capacity: <span class="font-light">{{ room.type_of_room }}</span></div>
+                                <div class="font-semibold">Furnished Type: <span class="font-light">{{ room.furnished_type }}</span></div>
+                                <div class="font-semibold">Air Condition: <span class="font-light">{{ room.is_aircon == 'Yes' ? 'Arconditioned' : 'Not-Arconditioned'}}</span></div>
                             </div>
-                           
+
                         </div>
                     </div>
                     <hr class="h-px my-5 mx-5 bg-gray-200 border-0" />
@@ -115,17 +119,17 @@ export default {
                                         <label for="dorm_name" class="block mb-2 text-sm font-medium text-gray-900">Dorm Name</label>
                                         <input type="text" disabled id="dorm_name" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Matic malalagyan ng data" required>
                                     </div>
-                                    <!--Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999--> 
+                                    <!--Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999-->
                                     <div>
                                         <label for="reserve_date_from" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date From</label>
                                         <input type="text" disabled id="reserve_date_from" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999" required>
-                                    </div> 
-                                    <!--7days dapat yung date simula from Jan 19, 1999--> 
+                                    </div>
+                                    <!--7days dapat yung date simula from Jan 19, 1999-->
                                     <div>
                                         <label for="reserve_date_to" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date To</label>
                                         <input type="text" disabled id="reserve_date_to" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="7days dapat yung date simula from Jan 19, 1999" required>
-                                    </div> 
-                                    
+                                    </div>
+
                                 </div>
                             </form>
 
@@ -151,20 +155,20 @@ export default {
                                         <label for="amount" class="block mb-2 text-sm font-medium text-gray-900">Amount to be paid:</label>
                                         <input type="tel" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="300 sa reservation sa rent e advance + deposit"  required>
                                     </div>
-                                    
-                                    
+
+
                                 </div>
-                                
+
                                 <button type="submit" class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Proceed to Payment</button>
                             </form>
                         </div>
                     </div>
-                </div>    
-              
+                </div>
+
                 </div>
                 <!--Billing Information-->
-           
-                    
+
+
             </section>
         </div>
     </TenantLayout>

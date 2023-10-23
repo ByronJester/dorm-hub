@@ -15,7 +15,11 @@ class Dorm extends Model
     ];
 
     protected $with = [
-        'user', 'payment', 'rooms', 'rule', 'amenities',
+        'user', 'rooms', 'rule', 'amenities',
+    ];
+
+    protected $appends = [
+        'range_from', 'range_to'
     ];
 
     public function getDormImageAttribute($value)
@@ -52,5 +56,43 @@ class Dorm extends Model
     public function amenities()
     {
         return $this->hasMany(Amenity::class);
+    }
+
+    public function getRangeFromAttribute()
+    {
+        $rooms = Room::where('dorm_id', $this->id)->get();
+
+        $fee = null;
+
+        foreach($rooms as $room) {
+            if($fee == null) {
+                $fee = $room->fee;
+            } else {
+                if($room->fee < $fee) {
+                    $fee = $room->fee;
+                }
+            }
+        }
+
+        return $fee;
+    }
+
+    public function getRangeToAttribute()
+    {
+        $rooms = Room::where('dorm_id', $this->id)->get();
+
+        $fee = null;
+
+        foreach($rooms as $room) {
+            if($fee == null) {
+                $fee = $room->fee;
+            } else {
+                if($room->fee > $fee) {
+                    $fee = $room->fee;
+                }
+            }
+        }
+
+        return $fee;
     }
 }

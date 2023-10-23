@@ -68,7 +68,6 @@ class OwnerController extends Controller
             $req['minimum_stay'] = 'required';
         }
 
-
         $validator = Validator::make($request->all(), $req);
 
         if ($validator->fails()) {
