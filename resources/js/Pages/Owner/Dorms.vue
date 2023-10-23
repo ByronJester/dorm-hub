@@ -46,9 +46,9 @@ export default {
         const rooms_total = ref("");
         const rooms = ref([]);
         const amenities = ref([]);
-        const short_term = ref("");
-        const mix_gender = ref("");
-        const curfew = ref();
+        const short_term = ref("No");
+        const mix_gender = ref("No");
+        const curfew = ref("No");
         const curfew_hours = ref("");
         const minimum_stay = ref("");
         const rules = ref([]);
@@ -271,7 +271,7 @@ export default {
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55",
                     confirmButtonText: "Yes",
-                    closeOnConfirm: false,
+                    closeOnConfirm: true,
                 },
                 function () {
                     // swal("Deleted!", "Your imaginary file has been deleted.", "success");
@@ -310,11 +310,11 @@ export default {
                     data.append("minimum_stay", minimum_stay.value);
                     data.append("rules", JSON.stringify(rules.value));
 
-                
+
                     // data.append("range_from", range_from.value);
                     // data.append("range_to", range_to.value);
 
-                  
+
 
                     axios
                         .post(route("save.dorm"), data)
@@ -531,8 +531,8 @@ export default {
                                 <span class="sr-only">Close modal</span>
                             </button>
                         </div>
-                    
-                        
+
+
                         <!-- Modal body -->
                         <div class="p-6 space-y-6">
                             <div
@@ -561,10 +561,10 @@ export default {
                                         Register your dorm free by answering the
                                         following questions.
                                     </p>
-                                    
+
                                 </div>
-                                
-                                
+
+
                             </div>
                             <div v-if="active==0">
                                 <div class="w-full mt-2">
@@ -615,10 +615,10 @@ export default {
                                                 </div>
                                             </label>
                                 </div>
-                               
+
 
                                 <p class="text-xs text-red-500 ml-2 mt-4">{{validationError('business_permit_image', errors)}} </p>
-                                
+
                             </div>
                             <!--Dorm Image-->
                             <div class="w-full" v-if="active == 2">
@@ -658,10 +658,10 @@ export default {
                                                 </div>
                                             </label>
                                 </div>
-                               
+
 
                                 <p class="text-xs text-red-500 ml-2 mt-4">{{validationError('business_permit_image', errors)}} </p>
-                                
+
                             </div>
                             <!--Address-->
                             <div class="flex flex-col w-full" v-if="active == 3" >
@@ -788,7 +788,7 @@ export default {
                                             <i class="fa-solid fa-trash-can"></i>
                                     </span>
                                     </div>
-                                    
+
                                             <InputLabel value="Room Image" />
 
                                             <input type="file" :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
@@ -800,12 +800,12 @@ export default {
                                                 @click="roomImageClick('room_image' + index)"
                                                 style="border: 1px solid black; border-radius: 5px; height: 235px; width: 100%;"
                                             >
-                                        
 
-                        
 
-                                        
-                                   
+
+
+
+
                                     <div class="w-full flex flex-row mt-3">
                                             <div class="w-full mx-1">
                                                 <InputLabel for="name" value="Room Name" />
@@ -946,7 +946,7 @@ export default {
                                             required
                                             autocomplete="minimum_stay"
                                         />
-                                       
+
                                     </div>
                                 </div>
 
@@ -959,7 +959,7 @@ export default {
                                     </select>
 
                                     <span class="text-xs text-red-500 ml-2">{{validationError('mix_gender', errors)}} </span>
-                                    
+
                                 </div>
 
                                 <div class="w-full px-1">
@@ -985,7 +985,7 @@ export default {
                                             required
                                             autocomplete="curfew_hours"
                                         />
-                                        <span class="text-xs text-red-500 ml-2">{{validationError('curfew_hours', errors)}} 
+                                        <span class="text-xs text-red-500 ml-2">{{validationError('curfew_hours', errors)}}
                                         </span>
                                     </div>
                                     <div class="my-4 hidden"
@@ -1004,7 +1004,7 @@ export default {
                                 </div>
                             </div>
 
-                           
+
                             <div class="w-full flex flex-col mt-5 px-1">
                                 <div class="w-full flex flex-row mt-2" v-for="(rule, index) in rules" :key="index">
 
@@ -1144,8 +1144,8 @@ export default {
                                 </div>
                             </div>
                         </div>
-                          
-                            
+
+
                         </div>
                         <!-- Modal footer -->
                         <div
@@ -1170,7 +1170,7 @@ export default {
                             </div>
 
                             <div class="w-full" v-else>
-                                
+
                                 <button
                                     data-modal-hide="defaultModal"
                                     v-if="active > 1"
@@ -1198,13 +1198,17 @@ export default {
                                     v-if="active == 6"
                                     @click="saveDorm()"
                                     type="button"
+                                    :disabled="loading"
+                                    :class="{'cursor-not-allowed': loading}"
                                     class="text-gray-500 float-right bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    Upload
+                                    {{!!loading ? 'Saving...' : 'Submit'}}
+                                    <pulse-loader :loading="loading"></pulse-loader>
                                 </button>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

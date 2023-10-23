@@ -15,7 +15,7 @@ export default {
             return '₱ ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
         }
 
-        console.log(props.dorms)
+        console.log(props)
 
         return {
             props,
@@ -41,7 +41,11 @@ export default {
             <p class="text-sm font-semibold tracking-tight text-gray-400">{{ dorm.detailed_address }}</p>
         </a>
 
-       
+        <a href="#">
+            <p class="text-sm font-semibold tracking-tight text-gray-400">{{ moneyFormat(dorm.range_from) }} - {{ moneyFormat(dorm.range_to) }}</p>
+        </a>
+
+
     </div>
 
     <footer>
