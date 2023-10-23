@@ -224,7 +224,6 @@ export default {
                         : errors[field];
                 }
             }
-            console.log(errors);
 
             return null;
         };
@@ -532,7 +531,7 @@ export default {
                                 <span class="sr-only">Close modal</span>
                             </button>
                         </div>
-                        
+                    
                         
                         <!-- Modal body -->
                         <div class="p-6 space-y-6">
@@ -989,19 +988,18 @@ export default {
                                         <span class="text-xs text-red-500 ml-2">{{validationError('curfew_hours', errors)}} 
                                         </span>
                                     </div>
-
                                     <div class="my-4 hidden"
                                         v-else>
                                         <InputLabel value="What is the curfew hours ?" class="text-xs"/>
 
-                                        <TextInput
-                                            id="curfew_hours"
-                                            type="text"
-                                            class="mt-1 block w-full"
-                                            v-model="curfew_hours"
-                                            required
-                                            autocomplete="curfew_hours"
-                                        />
+                                    <TextInput
+                                        id="curfew_hours"
+                                        type="text"
+                                        class="mt-1 block w-full"
+                                        v-model="curfew_hours"
+                                        required
+                                        autocomplete="curfew_hours"
+                                    />
                                     </div>
                                 </div>
                             </div>

@@ -41,7 +41,7 @@ export default {
             <p class="text-sm font-semibold tracking-tight text-gray-400">{{ dorm.detailed_address }}</p>
         </a>
 
-        <span class="text-sm font-bold tracking-tight text-gray-400"> {{dorm.payment.range_from}} - {{dorm.payment.range_to}} Monthly</span>
+       
     </div>
 
     <footer>

@@ -341,8 +341,7 @@ export default {
                             <div
                                 className="text-md  text-neutral-600 font-semibold"
                             >
-                                ₱ {{ props.dorm.payment.range_from }}.00 - ₱
-                                {{ props.dorm.payment.range_to }}.00
+                                
                             </div>
                             <div className="font-light text-neutral-600">
                                 a month
