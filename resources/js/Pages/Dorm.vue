@@ -120,6 +120,49 @@
             const login = () => {
                 loginForm.post(route('login'), {});
             }
+            const openTermsModal = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeTermsModal = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "none";
+        };
+
+        const openTutModal = () => {
+            var modal = document.getElementById("tutModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeTutModal = () => {
+            var modal = document.getElementById("tutModal");
+
+            modal.style.display = "none";
+        };
+
+        const selectUserType = (userType) => {
+            form.user_type = userType;
+        };
+        const SelfieidPictureClick = () => {
+            document.getElementById("selfie_id_picture").click();
+        };
+
+        const SelfieidPictureChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                console.log(e);
+                form.selfie_id_picture = e.target.result;
+            };
+        };
 
             return {
                 user,
@@ -136,7 +179,15 @@
                 closeRegisterModal,
                 openLoginModal,
                 closeLoginModal,
-                login
+                login,
+                closeTermsModal,
+                openTutModal,
+                closeTutModal,
+                selectUserType,
+                openTermsModal,
+                SelfieidPictureChange,
+                SelfieidPictureClick
+
             }
         }
     }
@@ -193,7 +244,7 @@
 
         <div class="bg-white w-full flex flex-col" style="min-height: 100vh;" v-else>
             <nav
-                class="fixed top-0 z-50 w-full bg-white shadow-md border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                class="fixed top-0 z-1 w-full bg-white shadow-md border-gray-20"
             >
                 <div class="py-4 border-b-[1px]">
                     <div
@@ -237,7 +288,7 @@
                     tabindex="-1"
                     aria-hidden="true"
                     style="background-color: rgba(0, 0, 0, 0.7)"
-                    class="registerModal fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                    class="registerModal fixed top-0 left-0 right-0  hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
                 >
                     <div class="h-screen flex justify-center items-center">
                         <div class="relative w-full max-w-2xl max-h-full">

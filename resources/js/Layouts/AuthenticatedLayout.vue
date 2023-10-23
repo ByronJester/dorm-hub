@@ -143,7 +143,7 @@ export default {
 
                                         <AppDropdownItem
                                             v-if="user.user_type == 'tenant'"
-                                            @click=""
+                                            :href="route('tenant.payments')"
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
                                             role="menuitem"
                                         >

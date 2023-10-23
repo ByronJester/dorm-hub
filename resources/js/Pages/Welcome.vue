@@ -211,7 +211,7 @@ export default {
     <div>
         <div class="h-full">
             <nav
-                class="fixed top-0 z-50 w-full bg-white shadow-md border-gray-200 dark:bg-gray-800 dark:border-gray-700"
+                class="fixed top-0 z-50 w-full bg-white shadow-md border-gray-200"
             >
                 <div class="py-4 border-b-[1px]">
                     <div
@@ -257,7 +257,7 @@ export default {
                         sm:grid-cols-2
                         md:grid-cols-3
                         lg:grid-cols-4
-                        xl:grid-cols-5
+                        xl:grid-cols-6
                         2xl:grid-cols-6
                         gap-8
                     "
@@ -270,10 +270,10 @@ export default {
               <!--New UI register modal-->
                 <div
                     id="registerModal"
-                    tabindex="-1"
+      
                     aria-hidden="true"
                     style="background-color: rgba(0, 0, 0, 0.7)"
-                    class="registerModal fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                    class="registerModal fixed top-0 left-0 right-0 z-80 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
                 >
                     <div class="h-screen flex justify-center items-center">
                         <div class="relative w-full max-w-2xl max-h-full">

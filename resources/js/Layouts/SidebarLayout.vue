@@ -297,7 +297,7 @@ export default {
     <div
         id="sidebarModal"
         :class="{ '-translate-x-0': showSidebar, '-translate-x-full': !showSidebar }"
-        class="fixed top-0 left-0 z-40 w-64 shadow-md h-screen pt-20 transition-transform  bg-white border-r border-gray-200 lg:translate-x-0 dark:bg-gray-800 dark:border-gray-700"
+        class="fixed top-0 left-0 z-40 w-64 shadow-md h-screen pt-20 transition-transform bg-white border-r border-gray-200   dark:bg-gray-800 dark:border-gray-700"
     >
         <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
             <div
