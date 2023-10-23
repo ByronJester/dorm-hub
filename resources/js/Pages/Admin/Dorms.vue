@@ -174,10 +174,13 @@
 
             <div class="w-full">
                 <vue-good-table
-                    styleClass="vgt-table condensed"
+                    styleClass="vgt-table bordered"
                     style="width: 100%"
+                    :line-numbers="{ enabled: true }"
                     :columns="columns"
                     :rows="rows"
+                    theme="black-rhino"
+                    
                     :pagination-options="{ enabled: true }"
                     :select-options="{ enabled: false }"
                     :search-options="{ enabled: true }"
