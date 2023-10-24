@@ -157,6 +157,8 @@ export default {
             router.get(route("message.owner", owner_id));
         };
 
+        console.log(props)
+
         return {
             props,
             isMobileView,
@@ -870,9 +872,9 @@ export default {
                                 class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'reserve')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available,
+                                    'cursor-not-allowed': !room.is_available || props.user.income_information == null,
                                 }"
-                                :disabled="!room.is_available"
+                                :disabled="!room.is_available || props.user.income_information == null"
                                 v-if="user.is_approved"
                             >
                                 Reserve
@@ -882,9 +884,9 @@ export default {
                                 class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'rent')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available,
+                                    'cursor-not-allowed': !room.is_available || props.user.income_information == null,
                                 }"
-                                :disabled="!room.is_available"
+                                :disabled="!room.is_available || props.user.income_information == null"
                                 v-if="user.is_approved"
                             >
                                 Rent
