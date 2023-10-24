@@ -418,8 +418,15 @@ export default {
 
 <template>
     <AuthenticatedLayout>
-        <div class="px-4 pt-14 xl:ml-64">
-            <div class="flex flex-col pr-5 pt-10">
+        <div class="px-4 pt-14 lg:ml-64">
+            <div class="flex items-center justify-start mt-4">
+                <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"/></svg>                </span>
+                <h3 class="text-3xl">Manage Dormitories</h3>
+            </div>
+            <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+
+            <div class="flex flex-col pr-5 pt-5">
                 <div class="w-full">
                     <p class="float-right">
                         <button
@@ -499,14 +506,14 @@ export default {
             <div
                 className="
                 pt-5
-            grid
-            grid-cols-1
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-4
-            xl:grid-cols-4
-            2xl:grid-cols-6
-            gap-8
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                md:grid-cols-3
+                lg:grid-cols-4
+                xl:grid-cols-4
+                2xl:grid-cols-6
+                gap-8
           "
             >
                 <DormList
@@ -563,7 +570,7 @@ export default {
 
 
                         <!-- Modal body -->
-                        <div class="p-6 space-y-6">
+                        <div class="p-6 space-y-6 dark:text-white">
                             <div
                                 class="w-full flex justify-center items-center"
                                 v-if="active == 0"

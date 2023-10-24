@@ -24,15 +24,23 @@ class OwnerController extends Controller
             'dorms' => $dorms,
         ]);
     }
-
-    public function tenantApplications()
+    
+    public function applications()
     {
         $user = Auth::user();
 
         $applications = TenantRoom::with('payments')->where('owner_id', $user->id)->where('is_active', true)->get();
 
-        return Inertia::render('Owner/Tenants', [
+        return Inertia::render('Owner/ApplicationModule', [
             'applications' => $applications,
+        ]);
+    }
+
+    public function tenants()
+    {
+
+        return Inertia::render('Owner/Tenants', [
+            
         ]);
     }
 
