@@ -82,7 +82,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('owner')->group(function () {
         Route::get('/dorms', [OwnerController::class, 'dormList'])->name('owner.dorms');
-        Route::get('/tenants', [OwnerController::class, 'tenantApplications'])->name('owner.tenants.application');
+        Route::get('/applicationmodule', [OwnerController::class, 'applications'])->name('owner.manage.application');
+        Route::get('/tenants', [OwnerController::class, 'tenants'])->name('owner.manage.tenants');
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');

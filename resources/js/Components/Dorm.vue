@@ -4,10 +4,12 @@ import { router } from "@inertiajs/vue3";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
+import { VueGoodTable } from 'vue-good-table-next';
 
 export default {
     props: ["dorm", "user"],
     components: {
+        VueGoodTable,
         MapboxMap,
         MapboxMarker,
         Carousel,
@@ -18,6 +20,7 @@ export default {
     setup(props) {
         const isMobileView = ref(false);
         const room = ref(null);
+
 
         isMobileView.value = screen.width < 600;
 
@@ -181,7 +184,80 @@ export default {
     <!-- IF LOGGED IN USER IS OWNER -->
     <!-- props.dorm.rooms para maccess yun mga room -->
     <div class="w-full" v-if="props.user && props.user.user_type == 'owner'">
-        Owner
+        <!--Title-->
+        <div class="flex items-center justify-start">
+                <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
+                    <svg viewBox="0 0 24 24" width="24" height="24" class="inline-block"><path fill="currentColor" d="M3,14L3.5,14.07L8.07,9.5C7.89,8.85 8.06,8.11 8.59,7.59C9.37,6.8 10.63,6.8 11.41,7.59C11.94,8.11 12.11,8.85 11.93,9.5L14.5,12.07L15,12C15.18,12 15.35,12 15.5,12.07L19.07,8.5C19,8.35 19,8.18 19,8A2,2 0 0,1 21,6A2,2 0 0,1 23,8A2,2 0 0,1 21,10C20.82,10 20.65,10 20.5,9.93L16.93,13.5C17,13.65 17,13.82 17,14A2,2 0 0,1 15,16A2,2 0 0,1 13,14L13.07,13.5L10.5,10.93C10.18,11 9.82,11 9.5,10.93L4.93,15.5L5,16A2,2 0 0,1 3,18A2,2 0 0,1 1,16A2,2 0 0,1 3,14Z"></path></svg>
+                </span>
+                <h3 class="text-3xl">Manage Room Availability</h3>
+            </div>
+            <div class="flex items-center justify-start mt-5">
+                
+                <h3 class="text-2xl">Dorm Name</h3>
+            </div>
+        <!--Overview-->
+        <div
+                class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-4 text-gray-400 dark:text-white"
+            >
+                <div
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                >
+                    <div class="text-center p-4">
+                        <p class="text-2xl mb-2">
+                            <!--Palagay na lang ng data pre-->
+                        </p>
+                        <p class="text-xs">TOTAL NO. OF Rooms</p>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                >
+                    <div class="text-center p-4">
+                        <p class="text-2xl mb-2">
+                           <!--Palagay na lang ng data pre-->
+                        </p>
+                        <p class="text-xs">TOTAL NO. OF Available Rooms</p>
+                    </div>
+                </div>
+
+                <div
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                >
+                    <div class="text-center p-4">
+                        <p class="text-2xl mb-2">
+                            <!--Palagay na lang ng data pre-->
+                        </p>
+                        <p class="text-xs">TOTAL NO. OF Unavailable Rooms</p>
+                    </div>
+                </div>
+                
+         </div>
+         <!--Filtering Table-->
+         <div class="my-10">
+                <select
+                class="w-40 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                >
+                <option value="Approved">Available</option>
+                <option value="Declined">UnAvailable</option>
+                </select>
+            </div>
+        <!--Table-->
+        <div class="w-full pt-2 md:pt-20">
+            <!--
+                <vue-good-table
+                    styleClass="vgt-table condensed"
+                    style="padding: 0vw 5vw; width: 100%"
+                    :columns="columns"
+                    :pagination-options="{ enabled: true }"
+                    :select-options="{ enabled: false }"
+                    :search-options="{ enabled: true }"
+                    >
+                    <template>
+
+                    </template>
+                </vue-good-table>-->
+        </div>
     </div>
 
 
@@ -562,120 +638,7 @@ export default {
                     </div>
                 </div>
             </div>
-            <!--
-        <hr class="h-px my-5 bg-gray-200 border-0 dark:bg-gray-700" />
-
-        <div class="w-full flex flex-col md:flex-row">
-            <div class="w-full flex flex-col mr-2">
-                <div class="w-full">
-                    <p class="text-lg">
-                        {{ props.dorm.user.first_name }}
-                        {{ props.dorm.user.last_name }}
-                    </p>
-
-                    <p class="text-xs">
-                        {{ props.dorm.floors_total }} Floor(s) -
-                        {{ props.dorm.rooms_total }} Room(s)
-                    </p>
-                </div>
-
-                <div class="w-full mt-3">
-                    <hr />
-                </div>
-
-                <div class="w-full mt-3">
-                    <div class="w-full">
-                        <p class="text-sm font-bold">Rules</p>
-
-                        <p class="text-xs mt-2 font-bold">
-                            Is short-term allowed?
-                        </p>
-
-                        <p class="text-xs mt-1">
-                            {{ props.dorm.rule.short_term }}
-                        </p>
-
-                        <p class="text-xs mt-2 font-bold">
-                            Is Co-ed mixed gender allowed?
-                        </p>
-
-                        <p class="text-xs mt-1">
-                            {{ props.dorm.rule.mix_gender }}
-                        </p>
-
-                        <p class="text-xs mt-2 font-bold">
-                            Do you have a curfew?
-                        </p>
-
-                        <p class="text-xs mt-1">
-                            {{ props.dorm.rule.curfew }}
-                        </p>
-
-                        <p class="text-xs mt-2 font-bold">
-                            What is the curfew hours?
-                        </p>
-
-                        <p class="text-xs mt-1">
-                            {{ props.dorm.rule.curfew_hours }}
-                        </p>
-
-                        <p class="text-xs mt-2 font-bold">
-                            What is the minimum stayed allowed?
-                        </p>
-
-                        <p class="text-xs mt-1">
-                            {{ props.dorm.rule.minimum_stay }}
-                        </p>
-
-                        <p class="text-xs mt-2 font-bold">Custom Rule(s)</p>
-
-                        <p class="text-xs mt-1">
-                             //comment to{{ props.dorm.rule.rules.toString() }}
-                            <span v-for="r in props.dorm.rule.rules" :key="r">
-                                {{ r
-                                }}{{
-                                    r ==
-                                    props.dorm.rule.rules[
-                                        props.dorm.rule.rules.length - 1
-                                    ]
-                                        ? ""
-                                        : ", "
-                                }}
-                            </span>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="w-full mt-3">
-                    <hr />
-                </div>
-
-                <div class="w-full mt-3">
-                    <p class="text-sm font-bold">Amenities</p>
-
-                    <p class="text-xs mt-2">
-                        <span v-for="a in props.dorm.amenities" :key="a">
-                            {{ a.amenity
-                            }}{{
-                                a.amenity ==
-                                props.dorm.amenities[
-                                    props.dorm.amenities.length - 1
-                                ]["amenity"]
-                                    ? ""
-                                    : ", "
-                            }}
-                        </span>
-                    </p>
-                </div>
-
-                <div class="w-full my-3" v-if="isMobileView">
-                    <hr />
-                </div>
-            </div>
-
-
-        </div>
-    -->
+            
             <!--rateReviewModal-->
             <div
                 id="rateReviewModal"

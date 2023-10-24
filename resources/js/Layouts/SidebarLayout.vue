@@ -40,10 +40,15 @@ export default {
                     route: "owner.dorms",
                     label: "Dormitories",
                     icon: "fa-solid fa-building",
+                }, 
+                {
+                    route: "owner.manage.tenants",
+                    label: "Manage Tenants",
+                    icon: "fa-solid fa-people-roof",
                 },
                 {
-                    route: "owner.tenants.application",
-                    label: "Tenants",
+                    route: "owner.manage.application",
+                    label: "Applications",
                     icon: "fa-solid fa-users",
                 },
                 {
@@ -51,6 +56,7 @@ export default {
                     label: "Billing",
                     icon: "fa-solid fa-comments-dollar",
                 },
+               
             ];
         }
         if (user.user_type == "admin") {
