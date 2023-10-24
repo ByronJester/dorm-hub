@@ -47,12 +47,15 @@ class TenantController extends Controller
         ]);
     }
 
-    public function viewBillingInfo($room_id)
+    public function viewBillingInfo($param)
     {
-        $room = Room::where('id', $room_id)->first();
+        $routeParam = explode("-", $param);
+
+        $room = Room::where('id', $routeParam[0])->first();
 
         return Inertia::render('Tenant/BillingInfo', [
-            'room' => $room
+            'room' => $room,
+            'action' => $routeParam[1]
         ]);
     }
 

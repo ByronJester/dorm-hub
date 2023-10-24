@@ -56,8 +56,11 @@ export default {
             openModal();
         };
 
-        const redirectToBillingInfo = (arg) => {
-            router.get(route("tenant.billing_info", arg.id));
+        const redirectToBillingInfo = (arg, action) => {
+            const routeParam = arg.id + '-' + action;
+            console.log(routeParam)
+
+            router.get(route("tenant.billing_info", routeParam));
         }
 
         const reserveRoom = (arg) => {
@@ -174,7 +177,15 @@ export default {
 </script>
 
 <template>
-    <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
+
+    <!-- IF LOGGED IN USER IS OWNER -->
+    <!-- props.dorm.rooms para maccess yun mga room -->
+    <div class="w-full" v-if="props.user && props.user.user_type == 'owner'">
+        Owner
+    </div>
+
+
+    <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4" v-if="!props.user || (!!props.user && props.user.user_type == 'tenant')">
                     <div
                         className="
                         max-w-screen-lg
@@ -341,10 +352,10 @@ export default {
                             <div
                                 className="text-md  text-neutral-600 font-semibold"
                             >
-                                
+
                             </div>
                             <div className="font-light text-neutral-600">
-                                a month
+                                {{props.dorm.range_from }} - {{props.dorm.range_to }} a month
                             </div>
                         </div>
                         <div
@@ -857,7 +868,7 @@ export default {
                         >
                             <button
                                 class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
-                                @click="redirectToBillingInfo(room)"
+                                @click="redirectToBillingInfo(room, 'reserve')"
                                 :class="{
                                     'cursor-not-allowed': !room.is_available,
                                 }"
@@ -869,7 +880,7 @@ export default {
 
                             <button
                                 class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
-                                @click="redirectToBillingInfo(room)"
+                                @click="redirectToBillingInfo(room, 'rent')"
                                 :class="{
                                     'cursor-not-allowed': !room.is_available,
                                 }"
