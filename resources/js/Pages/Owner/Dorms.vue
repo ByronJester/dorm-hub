@@ -570,7 +570,7 @@ export default {
 
 
                         <!-- Modal body -->
-                        <div class="p-6 space-y-6">
+                        <div class="p-6 space-y-6 dark:text-white">
                             <div
                                 class="w-full flex justify-center items-center"
                                 v-if="active == 0"

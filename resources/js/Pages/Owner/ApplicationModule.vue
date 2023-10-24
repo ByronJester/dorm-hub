@@ -222,7 +222,7 @@
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                       
+                            
                         </p>
                         <p class="text-xs">TOTAL NO. OF Applicants</p>
                     </div>
