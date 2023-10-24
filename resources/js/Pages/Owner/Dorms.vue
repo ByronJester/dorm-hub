@@ -344,8 +344,25 @@ export default {
         onMounted(() => {
             dorms.value = page.props.dorms;
         });
+        const selectedStatus = ref('Approved'); 
+
+        const filteredDorms = computed(() => {
+      if (selectedStatus.value === 'Approved') {
+        return dorms.value.filter(x => x.status === 'approved');
+      } else if (selectedStatus.value === 'Declined') {
+        return dorms.value.filter(x => x.status != 'approved' && x.status != 'pending');
+      } else if (selectedStatus.value === 'Pending') {
+        return dorms.value.filter(x => x.status === 'pending');
+      }
+    });
+        
+            
+       
+
 
         return {
+            selectedStatus,
+            filteredDorms,
             user,
             id,
             address,
@@ -465,6 +482,18 @@ export default {
                         <p class="text-xs">TOTAL NO. OF Pending Dorm</p>
                     </div>
                 </div>
+                
+            </div>
+
+            <div class="my-10">
+                <select
+                class="w-40 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                v-model="selectedStatus"
+                >
+                <option value="Approved">Approved</option>
+                <option value="Declined">Declined</option>
+                <option value="Pending">Pending</option>
+                </select>
             </div>
 
             <div
@@ -481,7 +510,7 @@ export default {
           "
             >
                 <DormList
-                    :dorms.sync="dorms"
+                    :dorms.sync="filteredDorms"
                     :user.sync="user"
                     @edit-dorm="(dorm) => editDorm(dorm)"
                 />

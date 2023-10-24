@@ -42,7 +42,7 @@ export default {
                     icon: "fa-solid fa-building",
                 },
                 {
-                    route: "#",
+                    route: "owner.tenants.application",
                     label: "Tenants",
                     icon: "fa-solid fa-users",
                 },
