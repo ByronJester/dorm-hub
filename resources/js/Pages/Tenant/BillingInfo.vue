@@ -1,9 +1,6 @@
 <script>
 import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
-import { usePage, router } from "@inertiajs/vue3";
-import VueDatePicker from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
-import { ref, computed, onMounted } from "vue";
+import { usePage, router } from '@inertiajs/vue3'
 
 export default {
     components: {
@@ -15,34 +12,7 @@ export default {
         const user = page.props.auth.user;
         const options = ["Bank Transfer", "Online Payment"];
 
-        const room = page.props.room;
-
-        const date = ref();
-        //Display 7days
-        const allowedDates = computed(() => {
-            return [
-                new Date(),
-                new Date(new Date().setDate(new Date().getDate() + 1)),
-                new Date(new Date().setDate(new Date().getDate() + 2)),
-                new Date(new Date().setDate(new Date().getDate() + 3)),
-                new Date(new Date().setDate(new Date().getDate() + 4)),
-                new Date(new Date().setDate(new Date().getDate() + 5)),
-                new Date(new Date().setDate(new Date().getDate() + 6)),
-            ];
-        });
-        const time = ref({
-            hours: new Date().getHours(),
-            minutes: new Date().getMinutes(),
-        });
-        const dateRange = ref();
-
-        onMounted(() => {
-            const startDate = new Date();
-            const endDate = new Date(
-                new Date().setDate(startDate.getDate() + 6)
-            );
-            dateRange.value = [startDate, endDate];
-        });
+        const room = page.props.room
 
         const back = () => {
             var url = null;
@@ -50,46 +20,16 @@ export default {
             if (user) {
                 router.get(route("view.dorm", room.dorm_id));
             } else {
-                router.get(route("landing.page"));
+                router.get(route('landing.page'));
             }
-        };
-        const selectedPaymentMethod = ref(''); // Initialize with an empty string
-        const showBankTransfer = ref(false);
-        const toggleBankTransfer = () => {
-            showBankTransfer.value = selectedPaymentMethod.value === 'Bank Transfer';
-        };
 
-        const proofPayment = () => {
-            document.getElementById("proof_payment").click();
-        };
+        }
 
-        const proofPaymentChange = (e) => {
-            const image = e.target.files[0];
-
-            const reader = new FileReader();
-
-            reader.readAsDataURL(image);
-
-            reader.onload = (e) => {
-                console.log(e);
-                form.selfie_id_picture = e.target.result;
-            };
-        };
-        return {
+        return{
             back,
-            toggleBankTransfer,
-            proofPaymentChange,
-            proofPayment,
-            selectedPaymentMethod,
-            showBankTransfer,
-            room,
-            date,
-            allowedDates,
-            time,
-            dateRange,
-            options,
-        };
-    },
+            room
+        }
+},
 };
 </script>
 
@@ -314,260 +254,75 @@ export default {
                         </div>
                     </div>
                     <hr class="h-px my-5 mx-5 bg-gray-200 border-0" />
-                    <div class="flex-1 p-6">
-                        <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
-                            <div
-                                class="rounded-lg border border-gray-300 shadow-sm"
-                            >
-                                <!--Header-->
-                                <div
-                                    class="text-2xl p-5 border-b border-gray-300 bg-gray-100"
-                                >
-                                    Billing Information
-                                </div>
-                                <!--Body-->
-                                <form class="m-8">
-                                    <div class="grid gap-6 mb-6">
-                                        <div>
-                                            <label
-                                                for="first_name"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >First name</label
-                                            >
-                                            <input
-                                                type="text"
-                                                id="first_name"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="John"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label
-                                                for="last_name"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Last name</label
-                                            >
-                                            <input
-                                                type="text"
-                                                id="last_name"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="Doe"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label
-                                                for="phone_number"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Phone number</label
-                                            >
-                                            <input
-                                                type="tel"
-                                                id="phone_number"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="123-45-678"
-                                                pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-                                                required
-                                            />
-                                        </div>
-                                        <!--Matic malalagyan ng data-->
-                                        <div>
-                                            <label
-                                                for="dorm_name"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Dorm Name</label
-                                            >
-                                            <input
-                                                type="text"
-                                                disabled
-                                                id="dorm_name"
-                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="Matic malalagyan ng data"
-                                                required
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label
-                                                for="dorm_owner_name"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Dorm Owner Name</label
-                                            >
-                                            <input
-                                                type="text"
-                                                disabled
-                                                id="dorm_name"
-                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="Matic malalagyan ng data"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label
-                                                for="date"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Reservation Date:
-                                            </label>
-                                            <VueDatePicker
-                                                v-model="dateRange"
-                                                range
-                                                :enable-time-picker="false"
-                                                disabled
-                                            />
-                                        </div>
-                                        <!--7days dapat yung date simula from Jan 19, 1999-->
-
-                                        <div>
-                                            <label
-                                                for="date"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >When will you check the
-                                                reserved room?
-                                            </label>
-                                            <div
-                                                class="flex flex-row items-center gap-2"
-                                            >
-                                                <div>
-                                                    <VueDatePicker
-                                                        v-model="date"
-                                                        :allowed-dates="
-                                                            allowedDates
-                                                        "
-                                                        :enable-time-picker="
-                                                            false
-                                                        "
-                                                        placeholder="Select Date..."
-                                                        required
-                                                    />
-                                                </div>
-                                                <div class="flex-grow">
-                                                    <VueDatePicker
-                                                        v-model="time"
-                                                        time-picker
-                                                        :is-24="false"
-                                                        :min-time="{
-                                                            hours: 8,
-                                                            minutes: 0,
-                                                        }"
-                                                        :max-time="{
-                                                            hours: 17,
-                                                            minutes: 30,
-                                                        }"
-                                                        placeholder="Select Time..."
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
+                <div class="flex-1 p-6">
+                    <div class="grid grid-cols-1  gap-2 md:grid-cols-2">
+                        <div class="rounded-lg border border-gray-300 shadow-sm">
+                            <!--Header-->
+                            <div class="text-2xl p-5 border-b  border-gray-300   bg-gray-100">
+                                Billing Information
                             </div>
-                            <div
-                                class="rounded-lg border border-gray-300 shadow-sm"
-                            >
-                                <div
-                                    class="text-2xl p-5 border-b border-gray-300 bg-gray-100"
-                                >
-                                    Payment Information
-                                </div>
-                                <form class="m-8">
-                                    <div class="grid gap-6 mb-6">
-                                        <div>
-                                            <!--300 sa reservation sa rent e advance + deposit-->
-                                            <label
-                                                for="amount"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Amount to be paid:</label
-                                            >
-                                            <input
-                                                type="tel"
-                                                id="amount"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="300 sa reservation sa rent e advance + deposit"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label
-                                                for="amount"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Payment Method</label
-                                            >
-                                            <select
-                                                id="subject"
-                                                v-model="selectedPaymentMethod"
-                                                 @change="toggleBankTransfer"
-                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            >
-                                                <option
-                                                    v-for="option in options"
-                                                    :key="option"
-                                                >
-                                                    {{ option }}
-                                                </option>
-                                            </select>
-                                        </div>
-                                        <div id="bankpayment" v-if="showBankTransfer">
-                                            <label
-                                                for="amount"
-                                                class="block mb-2 text-sm font-medium text-gray-900"
-                                                >Bank Transfer</label
-                                            >
-                                           
-                                            <div class="mb-4">
-                                                
-                                                <span
-                                                    class="text-xs text-gray-500"
-                                                    >Submit a proof of payment</span
-                                                >
-                                            </div>
-
-                                            <input
-                                                type="file"
-                                                id="proof_payment"
-                                                class="hidden"
-                                                @change="proofPaymentChange($event)"
-                                                accept="image/*"
-                                            />
-
-                                            <label
-                                                for="proof_payment"
-                                                class="relative cursor-pointer"
-                                            >
-                                                <div
-                                                    class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                                >
-                                                    <img
-                                                        v-if="
-                                                            src=''
-                                                        "
-                                                        alt="Selfie with Valid ID"
-                                                        class="h-48 w-auto rounded-lg"
-                                                    />
-                                                    <span v-else
-                                                        >Click to Input Image</span
-                                                    >
-                                                </div>
-                                            </label>
-
-                                            <InputError
-                                                class="mt-2"
-                                              
-                                            />
-                                        </div>
-                                        
-                                        
+                            <!--Body-->
+                            <form class="m-8">
+                                <div class="grid gap-6 mb-6 ">
+                                    <div>
+                                        <label for="first_name" class="block mb-2 text-sm font-medium text-gray-900">First name</label>
+                                        <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="John" required>
+                                    </div>
+                                    <div>
+                                        <label for="last_name" class="block mb-2 text-sm font-medium text-gray-900">Last name</label>
+                                        <input type="text" id="last_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Doe" required>
+                                    </div>
+                                    <div>
+                                        <label for="phone_number" class="block mb-2 text-sm font-medium text-gray-900">Phone number</label>
+                                        <input type="tel" id="phone_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="123-45-678" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+                                    </div>
+                                    <!--Matic malalagyan ng data-->
+                                    <div>
+                                        <label for="dorm_name" class="block mb-2 text-sm font-medium text-gray-900">Dorm Name</label>
+                                        <input type="text" disabled id="dorm_name" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Matic malalagyan ng data" required>
+                                    </div>
+                                    <!--Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999-->
+                                    <div>
+                                        <label for="reserve_date_from" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date From</label>
+                                        <input type="text" disabled id="reserve_date_from" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999" required>
+                                    </div>
+                                    <!--7days dapat yung date simula from Jan 19, 1999-->
+                                    <div>
+                                        <label for="reserve_date_to" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date To</label>
+                                        <input type="text" disabled id="reserve_date_to" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="7days dapat yung date simula from Jan 19, 1999" required>
                                     </div>
 
-                                    <button
-                                        type="submit"
-                                        class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                    >
-                                        Proceed to Payment
-                                    </button>
-                                </form>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="rounded-lg border border-gray-300 shadow-sm">
+                            <div class="text-2xl p-5 border-b  border-gray-300   bg-gray-100">
+                                Payment Information
                             </div>
+                            <form class="m-8">
+                                <div class="grid gap-6 mb-6 ">
+                                    <div>
+                                        <!--Papalitan pre ng date time picker ang selectable lang dapat e yung 7days na reservation from hanggan to-->
+                                        <label for="date" class="block mb-2 text-sm font-medium text-gray-900 ">When will you check the reserved room? </label>
+                                        <input type="text" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Papalitan pre ng date time picker ang selectable lang dapat e yung 7days na reservation from hanggan to" required>
+                                    </div>
+                                    <div>
+                                        <!--Pa palitan ako pre ng select-->
+                                        <label for="pm" class="block mb-2 text-sm font-medium text-gray-900">Payment Method</label>
+                                        <input type="text" id="pm" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Pa palitan ako pre ng select" required>
+                                    </div>
+                                    <div>
+                                        <!--300 sa reservation sa rent e advance + deposit-->
+                                        <label for="amount" class="block mb-2 text-sm font-medium text-gray-900">Amount to be paid:</label>
+                                        <input type="tel" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="300 sa reservation sa rent e advance + deposit"  required>
+                                    </div>
+
+
+                                </div>
+
+                                <button type="submit" class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Proceed to Payment</button>
+                            </form>
                         </div>
                     </div>
                 </div>
