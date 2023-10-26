@@ -159,39 +159,6 @@ export default {
             router.get(route("message.owner", owner_id));
         };
 
-        const headers = [
-            "Room Name",
-            "Tenant Name",
-            "Capacity",
-            "Furnished",
-            "Description",
-            "Price",
-            "Moved-In Date",
-            "Status",
-        ];
-        const data = [
-            {
-                RoomName: "Room 101",
-                TenantName: "Jear De La Rea",
-                Capacity: "Room for 5",
-                Furnished: "Bare",
-                Description: "Studio Type",
-                Price: "P3000.00",
-                MovedInDate: "09/12/23",
-                Status: "Unavailable",
-            },
-            {
-                RoomName: "Room 102",
-                TenantName: "",
-                Capacity: "Room for 2",
-                Furnished: "Bare",
-                Description: "Studio Type",
-                Price: "P2000.00",
-                MovedInDate: "",
-                Status: "Available",
-            },
-        ];
-
         return {
             props,
             isMobileView,
@@ -940,43 +907,39 @@ export default {
                                 </div>
                             </div>
 
-                            <div
-                                class="w-full flex justify-center items-center mt-10"
+                        <div
+                            class="w-full flex justify-center items-center mt-10"
+                        >
+                            <button
+                                class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
+                                @click="redirectToBillingInfo(room, 'reserve')"
+                                :class="{
+                                    'cursor-not-allowed': !room.is_available,
+                                }"
+                                :disabled="!room.is_available"
+                                v-if="user.is_approved"
                             >
-                                <button
-                                    class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
-                                    @click="
-                                        redirectToBillingInfo(room, 'reserve')
-                                    "
-                                    :class="{
-                                        'cursor-not-allowed':
-                                            !room.is_available,
-                                    }"
-                                    :disabled="!room.is_available"
-                                    v-if="user.is_approved"
-                                >
-                                    Reserve
-                                </button>
+                                Reserve
+                            </button>
 
-                                <button
-                                    class="text-md bg-cyan-500 text-white mx-2 p-5 rounded-md"
-                                    @click="redirectToBillingInfo(room, 'rent')"
-                                    :class="{
-                                        'cursor-not-allowed':
-                                            !room.is_available,
-                                    }"
-                                    :disabled="!room.is_available"
-                                    v-if="user.is_approved"
-                                >
-                                    Rent
-                                </button>
-                            </div>
+                            <button
+                                class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
+                                @click="redirectToBillingInfo(room, 'rent')"
+                                :class="{
+                                    'cursor-not-allowed': !room.is_available,
+                                }"
+                                :disabled="!room.is_available"
+                                v-if="user.is_approved"
+                            >
+                                Rent
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+</div>
+</div>
 </template>
 
 <style>
