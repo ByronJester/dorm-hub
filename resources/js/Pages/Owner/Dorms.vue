@@ -702,12 +702,12 @@ export default {
                             <!--Address-->
                             <div class="flex flex-col w-full" v-if="active == 3" >
                                 <div class="w-full p-2">
-                                <InputLabel for="address" value="Map Address" />
+                                <InputLabel class="dark:text-white text-black" for="address" value="Map Address" />
 
                                 <TextInput
                                     id="address"
                                     type="text"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full text-black"
                                     v-model="address"
                                     required
                                     autocomplete="address"
@@ -717,12 +717,12 @@ export default {
                             </div>
 
                             <div class="w-full p-2">
-                                <InputLabel for="detailed_address" value="Detailed Address" />
+                                <InputLabel class="dark:text-white text-black" for="detailed_address" value="Detailed Address" />
 
                                 <TextInput
                                     id="detailed_address"
                                     type="text"
-                                    class="mt-1 block w-full"
+                                    class="mt-1 block w-full text-black"
                                     v-model="detailed_address"
                                     required
                                     autocomplete="detailed_address"
@@ -747,12 +747,12 @@ export default {
                             <div class="flex flex-col w-full" v-if="active == 4">
                             <div class="w-full px-2 flex flex-row">
                                 <div class="w-full mx-1">
-                                    <InputLabel for="property_name" value="Dorm Name" />
+                                    <InputLabel class="dark:text-white text-black" for="property_name" value="Dorm Name" />
 
                                     <TextInput
                                         id="property_name"
                                         type="text"
-                                        class="mt-1 block w-full"
+                                        class="mt-1 block w-full text-black"
                                         v-model="property_name"
                                         required
                                         autocomplete="name"
@@ -762,12 +762,12 @@ export default {
                                 </div>
 
                                 <div class="w-full mx-1">
-                                    <InputLabel for="description" value="Describe your dorm ?" />
+                                    <InputLabel class="dark:text-white text-black" for="description" value="Describe your dorm ?" />
 
                                     <TextInput
                                         id="description"
                                         type="text"
-                                        class="mt-1 block w-full"
+                                        class="mt-1 block w-full text-black"
                                         v-model="description"
                                         required
                                         autocomplete="description"
@@ -780,12 +780,12 @@ export default {
 
                             <div class="w-full px-2 flex flex-row">
                                 <div class="w-full mx-1">
-                                    <InputLabel for="floors_total" value="How many floors in total ?" />
+                                    <InputLabel for="floors_total" class="dark:text-white text-black" value="How many floors in total ?" />
 
                                     <TextInput
                                         id="floors_total"
                                         type="number"
-                                        class="mt-1 block w-full"
+                                        class="mt-1 block w-full text-black"
                                         v-model="floors_total"
                                         required
                                         autocomplete="floors_total"
@@ -796,12 +796,12 @@ export default {
                                 </div>
 
                                 <div class="w-full mx-1">
-                                    <InputLabel for="rooms_total" value="How many rooms in total ?" />
+                                    <InputLabel class="dark:text-white text-black" for="rooms_total" value="How many rooms in total ?" />
 
                                     <TextInput
                                         id="rooms_total"
                                         type="number"
-                                        class="mt-1 block w-full"
+                                        class="mt-1 block w-full text-black"
                                         v-model="rooms_total"
                                         required
                                         autocomplete="rooms_total"
@@ -825,7 +825,7 @@ export default {
                                     </span>
                                     </div>
 
-                                            <InputLabel value="Room Image" />
+                                            <InputLabel value="Room Image" class="dark:text-white text-black"/>
 
                                             <input type="file" :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
                                                 @change="roomImageChange($event, 'room_image' + index, index)"
@@ -838,18 +838,14 @@ export default {
                                             >
 
 
-
-
-
-
                                     <div class="w-full flex flex-row mt-3">
                                             <div class="w-full mx-1">
-                                                <InputLabel for="name" value="Room Name" />
+                                                <InputLabel class="dark:text-white text-black" for="name" value="Room Name" />
 
                                                 <TextInput
                                                     id="name"
                                                     type="text"
-                                                    class="block w-full"
+                                                    class="block w-full text-black"
                                                     v-model="room.name"
                                                     required
                                                     placeholder="Room Name"
@@ -857,9 +853,9 @@ export default {
                                             </div>
 
                                             <div class="w-full mx-1">
-                                                <InputLabel for="type_of_room" value="Capacity" />
+                                                <InputLabel class="dark:text-white text-black" for="type_of_room" value="Capacity" />
 
-                                                <select v-model="room.type_of_room" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <select v-model="room.type_of_room" class="w-full border-gray-300  text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Room for 1">Room for 1</option>
                                                     <option value="Room for 2">Room for 2</option>
                                                     <option value="Room for 3">Room for 3</option>
@@ -869,9 +865,9 @@ export default {
                                             </div>
 
                                             <div class="w-full mx-1">
-                                                <InputLabel for="furnished_type" value="Fursnished Type" />
+                                                <InputLabel class="dark:text-white text-black" or="furnished_type" value="Fursnished Type" />
 
-                                                <select v-model="room.furnished_type" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <select v-model="room.furnished_type" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Furnished">Furnished</option>
                                                     <option value="Semifurnised">Semifurnised</option>
                                                     <option value="Bare">Bare</option>
@@ -879,9 +875,9 @@ export default {
                                             </div>
 
                                             <div class="w-full mx-1">
-                                                <InputLabel for="is_aircon" value="Aircon" />
+                                                <InputLabel for="is_aircon" class="dark:text-white text-black" value="Aircon" />
 
-                                                <select v-model="room.is_aircon" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                <select v-model="room.is_aircon" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Yes">Yes</option>
                                                     <option value="No">No</option>
                                                 </select>
@@ -890,36 +886,36 @@ export default {
 
                                     <div class="w-full flex flex-row mt-3">
                                         <div class="w-full mr-1">
-                                            <InputLabel for="fee" value="Monthly Fee" />
+                                            <InputLabel for="fee" class="dark:text-white text-black" value="Monthly Fee" />
 
                                             <TextInput
                                                 id="fee"
                                                 type="number"
-                                                class="mt-1 block w-full"
+                                                class="mt-1 block w-full text-black"
                                                 v-model="room.fee"
                                                 required
                                             />
                                         </div>
 
                                         <div class="w-full mr-1">
-                                            <InputLabel for="deposit" value="Deposit Fee" />
+                                            <InputLabel for="deposit" class="dark:text-white text-black" value="Deposit Fee" />
 
                                             <TextInput
                                                 id="deposit"
                                                 type="number"
-                                                class="mt-1 block w-full"
+                                                class="mt-1 block w-full text-black"
                                                 v-model="room.deposit"
                                                 required
                                             />
                                         </div>
 
                                         <div class="w-full">
-                                            <InputLabel for="advance" value="Advance Fee" />
+                                            <InputLabel for="advance" class="dark:text-white text-black" value="Advance Fee" />
 
                                             <TextInput
                                                 id="advance"
                                                 type="number"
-                                                class="mt-1 block w-full"
+                                                class="mt-1 block w-full text-black"
                                                 v-model="room.advance"
                                                 required
                                             />
@@ -938,19 +934,19 @@ export default {
                             </div>
                             <!--Rules-->
                             <div class="w-full" v-if="active == 5">
-                            <p class="text-2xl font-bold mt-1 ml-2">
+                            <p class="text-2xl font-bold mt-1 ml-2 dark:text-white text-black">
                                 Rules
                             </p>
 
-                            <p class="text-xs mt-1 ml-2">
+                            <p class="text-xs mt-1 ml-2 dark:text-white text-black">
                                 Your house your rules. Define the dos and dont of your tenants.
                             </p>
 
                             <div class="w-full flex flex-col gap-3 mt-10">
                                 <div class="w-full px-1">
-                                    <InputLabel value="Is short-term stayed allowed ?" class="text-xs"/>
+                                    <InputLabel class="dark:text-white text-black" value="Is short-term stayed allowed ?" />
 
-                                    <select v-model="short_term" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <select v-model="short_term" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
                                     </select>
@@ -958,12 +954,12 @@ export default {
                                     <span class="text-xs text-red-500 ml-2">{{validationError('short_term', errors)}} </span>
                                     <div class="my-4"
                                     v-if="short_term=='Yes'">
-                                        <InputLabel value="What is the minimum stayed allowed ?" class="text-xs"/>
+                                        <InputLabel class="dark:text-white text-black" value="What is the minimum stayed allowed ?" />
 
                                         <TextInput
                                             id="minimum_stay"
                                             type="text"
-                                            class="mt-1 block w-full"
+                                            class="mt-1 block w-full text-black"
                                             v-model="minimum_stay"
                                             required
                                             autocomplete="minimum_stay"
@@ -972,12 +968,12 @@ export default {
                                     </div>
                                     <div class="my-4 hidden"
                                     v-else>
-                                        <InputLabel value="What is the minimum stayed allowed ?" class="text-xs"/>
+                                        <InputLabel class="dark:text-white text-black" value="What is the minimum stayed allowed ?"/>
 
                                         <TextInput
                                             id="minimum_stay"
                                             type="text"
-                                            class="mt-1 block w-full"
+                                            class="mt-1 block w-full text-black"
                                             v-model="minimum_stay"
                                             required
                                             autocomplete="minimum_stay"
@@ -987,9 +983,9 @@ export default {
                                 </div>
 
                                 <div class="w-full px-1">
-                                    <InputLabel value="Is Co-ed mixed gender allowed ?" class="text-xs"/>
+                                    <InputLabel class="dark:text-white text-black" value="Is Co-ed mixed gender allowed ?" />
 
-                                    <select v-model="mix_gender" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <select v-model="mix_gender" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
                                     </select>
@@ -999,24 +995,23 @@ export default {
                                 </div>
 
                                 <div class="w-full px-1">
-                                    <InputLabel value="Do you have a curfew ?" class="text-xs"/>
+                                    <InputLabel class="dark:text-white text-black" value="Do you have a curfew ?" />
 
-                                    <select v-model="curfew" class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <select v-model="curfew" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
                                     </select>
 
                                     <span class="text-xs text-red-500 ml-2">{{validationError('curfew', errors)}} </span>
 
-                                    <div class="my-4"
-                                        v-if="curfew=='Yes'"
+                                    <div v-if="curfew=='Yes'"
                                     >
-                                        <InputLabel value="What is the curfew hours ?" class="text-xs"/>
+                                        <InputLabel class="dark:text-white text-black" value="What is the curfew hours ?"/>
 
                                         <TextInput
                                             id="curfew_hours"
                                             type="text"
-                                            class="mt-1 block w-full"
+                                            class="block w-full text-black"
                                             v-model="curfew_hours"
                                             required
                                             autocomplete="curfew_hours"
@@ -1024,14 +1019,14 @@ export default {
                                         <span class="text-xs text-red-500 ml-2">{{validationError('curfew_hours', errors)}}
                                         </span>
                                     </div>
-                                    <div class="my-4 hidden"
+                                    <div class="hidden mt-5"
                                         v-else>
                                         <InputLabel value="What is the curfew hours ?" class="text-xs"/>
 
                                     <TextInput
                                         id="curfew_hours"
                                         type="text"
-                                        class="mt-1 block w-full"
+                                        class="block w-full text-black"
                                         v-model="curfew_hours"
                                         required
                                         autocomplete="curfew_hours"
@@ -1045,7 +1040,7 @@ export default {
                                 <div class="w-full flex flex-row mt-2" v-for="(rule, index) in rules" :key="index">
 
                                     <div style="width: 95%">
-                                        <InputLabel value="Rule" class="text-xs"/>
+                                        <InputLabel class="dark:text-white text-black" value="Rule" />
 
                                         <TextInput
                                             id="rule"

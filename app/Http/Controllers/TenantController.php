@@ -24,6 +24,14 @@ class TenantController extends Controller
         ]);
     }
 
+    public function mydorm()
+    {
+        return Inertia::render('Tenant/MyDorm', [
+            
+        ]);
+    }
+
+
     public function paymentList()
     {
         $auth = Auth::user();
