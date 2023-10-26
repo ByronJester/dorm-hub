@@ -44,6 +44,16 @@ class OwnerController extends Controller
         ]);
     }
 
+    public function maintenance()
+    {
+
+        return Inertia::render('Owner/Maintenance', [
+            
+        ]);
+    }
+
+
+
     public function saveDorm(Request $request)
     {
         $req = [
@@ -336,7 +346,7 @@ class OwnerController extends Controller
 
     public function reports()
     {
-        return Inertia::render('Owner/Reports', [
+        return Inertia::render('Owner/Report', [
 
         ]);
     }

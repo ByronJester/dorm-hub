@@ -4,12 +4,14 @@ import { ref } from "vue";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 
 export default {
     components: {
         AppDropdown,
         AppDropdownContent,
         AppDropdownItem,
+        ApplicationLogo
     },
     setup() {
         const showSidebar = ref(false);
@@ -161,11 +163,8 @@ export default {
                             ></path>
                         </svg>
                     </button>
-                    <a href="#" class="flex ml-2 md:mr-24">
-                        <span
-                            class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white"
-                            >Dormhub</span
-                        >
+                    <a href="/" class="ml-2 md:mr-24">
+                        <ApplicationLogo />
                     </a>
                 </div>
                 <div class="flex items-center">
@@ -605,7 +604,7 @@ export default {
                                 d="M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H544c53 0 96-43 96-96V96c0-53-43-96-96-96H96zM64 96c0-17.7 14.3-32 32-32H544c17.7 0 32 14.3 32 32V416c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V96zm159.8 80a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM96 309.3c0 14.7 11.9 26.7 26.7 26.7h56.1c8-34.1 32.8-61.7 65.2-73.6c-7.5-4.1-16.2-6.4-25.3-6.4H149.3C119.9 256 96 279.9 96 309.3zM461.2 336h56.1c14.7 0 26.7-11.9 26.7-26.7c0-29.5-23.9-53.3-53.3-53.3H421.3c-9.2 0-17.8 2.3-25.3 6.4c32.4 11.9 57.2 39.5 65.2 73.6zM372 289c-3.9-.7-7.9-1-12-1H280c-4.1 0-8.1 .3-12 1c-26 4.4-47.3 22.7-55.9 47c-2.7 7.5-4.1 15.6-4.1 24c0 13.3 10.7 24 24 24H408c13.3 0 24-10.7 24-24c0-8.4-1.4-16.5-4.1-24c-8.6-24.3-29.9-42.6-55.9-47zM512 176a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM320 256a64 64 0 1 0 0-128 64 64 0 1 0 0 128z"
                             />
                         </svg>
-                        <span class="ml-3">Application</span>
+                        <span class="ml-3">Applicants</span>
                     </a>
                 </li>
                 <li>
@@ -636,14 +635,14 @@ export default {
                 <li>
                     <a
                         :class="{
-                            'text-white': route().current() == 'owner.billing',
+                            'text-white': route().current() == 'owner.maintenance',
                             'bg-gradient-to-r':
-                                route().current() == 'owner.billing',
+                                route().current() == 'owner.maintenance',
                             'from-orange-400':
-                                route().current() == 'owner.billing',
-                            'to-red-600': route().current() == 'owner.billing',
+                                route().current() == 'owner.maintenance',
+                            'to-red-600': route().current() == 'owner.maintenance',
                         }"
-                        :href="route('owner.billing')"
+                        :href="route('owner.maintenance')"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                     >
                         <svg
@@ -656,11 +655,19 @@ export default {
                         <span class="ml-3">Maintenance</span>
                     </a>
                 </li>
+               
                 <li>
-                    <button
-                        type="button"
-                        class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                        @click="toggleDropDown()"
+                    <a
+                        :class="{
+                            'text-white': route().current() == 'owner.reports',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.reports',
+                            'from-orange-400':
+                                route().current() == 'owner.reports',
+                            'to-red-600': route().current() == 'owner.reports',
+                        }"
+                        :href="route('owner.reports')"
+                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                     >
                         <svg
                             class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -671,26 +678,9 @@ export default {
                                 d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V288H216c-13.3 0-24 10.7-24 24s10.7 24 24 24H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM384 336V288H494.1l-39-39c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l80 80c9.4 9.4 9.4 24.6 0 33.9l-80 80c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l39-39H384zm0-208H256V0L384 128z"
                             />
                         </svg>
-
-                        <span class="flex-1 ml-3 text-left whitespace-nowrap"
-                            >Reports</span
-                        >
-                        <svg
-                            class="w-3 h-3"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 10 6"
-                        >
-                            <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="m1 1 4 4 4-4"
-                            />
-                        </svg>
-                    </button>
+                        <span class="ml-3">Reports</span>
+                    </a>
+                    <!--
                     <ul
                         class="py-2 space-y-2"
                         :class="{
@@ -700,96 +690,150 @@ export default {
                     >
                         <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Income Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.incomereport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.incomereport',
+                            'from-orange-400':
+                                route().current() == 'owner.incomereport',
+                            'to-red-600': route().current() == 'owner.incomereport',
+                            }"
+                            :href="route('owner.incomereport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Income Report
+                            </a>
+                        </li>
+                        <li>
+                            <a
+                            :class="{
+                            'text-white': route().current() == 'owner.rentrollreport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.rentrollreport',
+                            'from-orange-400':
+                                route().current() == 'owner.rentrollreport',
+                            'to-red-600': route().current() == 'owner.rentrollreport',
+                            }"
+                            :href="route('owner.rentrollreport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Rent Roll Report</a
                             >
                         </li>
                         <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Rent Roll Report</a
-                            >
-                        </li>
-                        <li>
-                            <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Occupancy Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.occupancyreport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.occupancyreport',
+                            'from-orange-400':
+                                route().current() == 'owner.occupancyreport',
+                            'to-red-600': route().current() == 'owner.occupancyreport',
+                            }"
+                            :href="route('owner.occupancyreport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Occupancy Report</a
                             >
                         </li>
                          <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Tenant Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.tenantreport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.tenantreport',
+                            'from-orange-400':
+                                route().current() == 'owner.tenantreport',
+                            'to-red-600': route().current() == 'owner.tenantreport',
+                            }"
+                            :href="route('owner.tenantreport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Tenant Report</a
                             >
                         </li>
                         <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Reservation Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.reservereport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.reservereport',
+                            'from-orange-400':
+                                route().current() == 'owner.reservereport',
+                            'to-red-600': route().current() == 'owner.reservereport',
+                            }"
+                            :href="route('owner.reservereport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Reservation Report</a
                             >
                         </li>
                         <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Room Allocation Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.roomallocreport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.roomallocreport',
+                            'from-orange-400':
+                                route().current() == 'owner.roomallocreport',
+                            'to-red-600': route().current() == 'owner.roomallocreport',
+                            }"
+                            :href="route('owner.reservereport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                            -Room Allocation Report</a
                             >
                         </li>
                         <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Billing and Invoices Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.billingreport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.billingreport',
+                            'from-orange-400':
+                                route().current() == 'owner.billingreport',
+                            'to-red-600': route().current() == 'owner.billingreport',
+                            }"
+                            :href="route('owner.billingreport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Billing and Invoices Report</a
                             >
                         </li>
                         <li>
                             <a
-                                href="#"
-                                class="flex items-center w-full p-2 text-gray-900 transition duration-75 rounded-lg pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                                >-Maintenance Request Report</a
+                            :class="{
+                            'text-white': route().current() == 'owner.maintenancereport',
+                            'bg-gradient-to-r':
+                                route().current() == 'owner.maintenancereport',
+                            'from-orange-400':
+                                route().current() == 'owner.maintenancereport',
+                            'to-red-600': route().current() == 'owner.maintenancereport',
+                            }"
+                            :href="route('owner.maintenancereport')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
+                                -Maintenance Request Report</a
                             >
                         </li>
-                    </ul>
+                    </ul>-->
                 </li>
             </ul>
         </div>
-        <!--
-        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-            <div
-                class="w-full flex justify-center items-center"
-                v-for="r in routes"
-                :key="r.label"
-            >
-                <div
-                    class="w-full md:w-[80%] flex text-black hover:bg-orange-400 hover:text-white dark:text-white flex-row py-2 md:py-5 px-5 md:px-10 md:mt-5 cursor-pointer text-xs md:text-md"
-                    :class="{
-                        'text-white': route().current() == r.route,
-                        'bg-gradient-to-r': route().current() == r.route,
-                        'from-orange-400': route().current() == r.route,
-                        'to-red-600': route().current() == r.route,
-                    }"
-                    style="border-radius: 10px"
-                    @click="redirectPage(r.route)"
-                >
-                    <div class="w-[20%]">
-                        <i :class="r.icon"></i>
-                    </div>
-
-                    <div class="w-[80%]">
-                        <p>
-                            {{ r.label }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>-->
     </div>
+    <main class="flex-grow mb-16 sm:mb-24 ">
+        <slot />
+    </main>
+    
+    
+    <footer class="fixed bottom-0 w-full bg-white rounded-lg  border dark:bg-gray-800">
+            <div class=" mx-auto p-4 lg:ml-64 md:flex md:items-center md:justify-between">
+                <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">Dormhub™</a>. All Rights Reserved.</span>
+                <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+                <li>
+                    <a href="#" class="mr-4 hover:underline md:mr-6">About us</a>
+                </li>
+                <li>
+                    <a href="#" class="mr-4 hover:underline md:mr-6">Privacy Policy</a>
+                </li>
+                <li>
+                    <a href="#" class="hover:underline">Contact us</a>
+                </li>
+                </ul>
+            </div>
+            </footer>
 
-    <slot />
 </template>
-<style scoped></style>
+<style></style>

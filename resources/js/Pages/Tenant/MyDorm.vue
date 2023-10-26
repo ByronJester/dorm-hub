@@ -1,0 +1,456 @@
+<script>
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+
+export default {
+    components: {
+        AuthenticatedLayout,
+    },
+    setup() {
+        const headers = ["Subject", "Message", "Status"];
+        const data = [
+            {
+                Subject: "Broken",
+                Message: "Sira po ang pinto",
+                Status: "pending",
+            },
+        ];
+        const openComplainModal = () => {
+            var modal = document.getElementById("complainModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeComplainModal = () => {
+            var modal = document.getElementById("complainModal");
+
+            modal.style.display = "none";
+        };
+        return {
+            headers,
+            data,
+            openComplainModal,
+            closeComplainModal,
+        };
+    },
+};
+</script>
+<template>
+    <AuthenticatedLayout>
+        <div
+            class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
+        >
+            <div
+                className="
+                        max-w-screen-lg 
+                        mx-auto
+                        "
+            >
+                <div class="flex items-center justify-start">
+                    <span
+                        class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            height="24px"
+                            viewBox="0 0 384 512"
+                        >
+                            <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                            <path
+                                d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"
+                            />
+                        </svg>
+                    </span>
+                    <h3 class="text-3xl font-bold">My Dorm</h3>
+                </div>
+                <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+                <!-- eto dapat pre mag didisplay kapag ka wala pang dorm
+                <div class="flex items-center justify-center mt-24">
+                    You do not have a dorm 
+                </div>-->
+                <!--Tapos eto kapag may dorm na-->
+                <div class="mt-10">
+                    <!--Dorm name-->
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-2xl font-bold">De La Rea's Dorm</h3>
+                        <button
+                            class="py-1 px-4 text-white rounded-md bg-red-600 hover:bg-opacity-25"
+                        >
+                            Leave
+                        </button>
+                    </div>
+                    <p>Brgy.Caloocan Balayan Batangas</p>
+                    <div
+                        className="col-span-2 flex mt-5 flex-col md:flex-row gap-8"
+                    >
+                        <div>
+                            <div class="md:col-span-3">
+                                <img
+                                    src="https://thumbor.forbes.com/thumbor/fit-in/1290x/https://www.forbes.com/advisor/wp-content/uploads/2022/10/condo-vs-apartment.jpeg.jpg"
+                                    style="
+                                        display: block;
+                                        box-sizing: border-box;
+                                        height: 404px;
+                                        width: 600px;
+                                    "
+                                    class="rounded-md shadow-md"
+                                    width="882"
+                                    height="404"
+                                />
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <div
+                                className="bg-white rounded-xl border-[1px] w-full h-full shadow-lg p-4 border-neutral-200 overflow-hidden"
+                            >
+                                <h5 class="text-2xl font-bold">Room 1</h5>
+                                <hr class="w-full my-2" />
+                                <!--Room Image-->
+                                <img
+                                    src="https://www.thespruce.com/thmb/Yaz6mR23IBvAPvkviKYi1N6clLU=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/PAinteriors-7-cafe9c2bd6be4823b9345e591e4f367f.jpg"
+                                    style="
+                                        display: block;
+                                        box-sizing: border-box;
+                                    "
+                                    class="rounded-md shadow-md w-[350px] h-[200px]"
+                                    width="882"
+                                    height="404"
+                                />
+                                <!--Price ng room-->
+                                <p class="mt-2">P3000.00 a month</p>
+                                <!--Features ng room-->
+                                <div class="flex flex-row mt-1 gap-2">
+                                    <svg
+                                        width="20"
+                                        height="20"
+                                        stroke-width="1.5"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            d="M22 3.6V11H2V3.6C2 3.26863 2.26863 3 2.6 3H21.4C21.7314 3 22 3.26863 22 3.6Z"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                        <path
+                                            d="M18 7H19"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                        <path
+                                            d="M2 11L2.78969 13.5844C3.04668 14.4255 3.82294 15 4.70239 15H6"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                        <path
+                                            d="M22 11L21.2103 13.5844C20.9533 14.4255 20.1771 15 19.2976 15H18"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                        <path
+                                            d="M9.5 14.5C9.5 14.5 9.5 21.5 6 21.5"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                        <path
+                                            d="M14.5 14.5C14.5 14.5 14.5 21.5 18 21.5"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                        <path
+                                            d="M12 14.5V21.5"
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        />
+                                    </svg>
+                                    <p>Aircon not available</p>
+                                </div>
+                                <div class="flex flex-row mt-1 gap-2">
+                                    <i class="fa-solid fa-users"></i>
+                                    <p>Room for 5 person(s)</p>
+                                </div>
+                                <div class="flex flex-row mt-1 gap-2">
+                                    <svg
+                                        height="20"
+                                        width="20"
+                                        version="1.1"
+                                        id="Layer_1"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                                        viewBox="0 0 512 512"
+                                        xml:space="preserve"
+                                        fill="#000000"
+                                    >
+                                        <g
+                                            id="SVGRepo_bgCarrier"
+                                            stroke-width="0"
+                                        ></g>
+                                        <g
+                                            id="SVGRepo_tracerCarrier"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                        ></g>
+                                        <g id="SVGRepo_iconCarrier">
+                                            <g>
+                                                <g>
+                                                    <g>
+                                                        <path
+                                                            style="
+                                                                fill: #010101;
+                                                            "
+                                                            d="M490.305,265.22H21.695C9.763,265.22,0,274.983,0,286.915v167.051 c0,11.932,9.763,21.695,21.695,21.695h33.627v14.102c0,11.932,9.763,21.695,21.695,21.695s21.695-8.678,21.695-21.695v-14.102 h314.576v14.102c0,11.932,9.763,21.695,21.695,21.695c10.847,0,20.61-8.678,21.695-21.695v-14.102h33.627 c11.932,0,20.61-9.763,21.695-21.695V286.915C512,274.983,502.237,265.22,490.305,265.22z M43.39,307.525h190.915v124.746H83.759 c-2.125-0.7-4.39-1.085-6.742-1.085s-4.617,0.384-6.742,1.085H43.39V307.525z M468.61,432.271h-26.885 c-2.125-0.7-4.39-1.085-6.742-1.085s-4.617,0.384-6.742,1.085H277.695V307.525H468.61V432.271z"
+                                                        ></path>
+                                                        <path
+                                                            style="
+                                                                fill: #010101;
+                                                            "
+                                                            d="M373.153,368.271h1.085c11.932,0,21.695-9.763,21.695-21.695s-9.763-21.695-21.695-21.695h-1.085 c-11.932,0-21.695,9.763-21.695,21.695S361.22,368.271,373.153,368.271z"
+                                                        ></path>
+                                                        <path
+                                                            style="
+                                                                fill: #010101;
+                                                            "
+                                                            d="M136.678,368.271h2.169c11.932,0,20.61-9.763,20.61-21.695s-9.763-21.695-21.695-21.695h-1.085 c-11.932,0-21.695,9.763-21.695,21.695S124.746,368.271,136.678,368.271z"
+                                                        ></path>
+                                                        <path
+                                                            style="
+                                                                fill: #010101;
+                                                            "
+                                                            d="M120.407,230.508h271.186c11.932,0,21.695-9.763,21.695-21.695V22.237 c0-11.932-9.763-21.695-21.695-21.695H120.407c-11.932,0-21.695,9.763-21.695,21.695v186.576 C98.712,220.746,108.475,230.508,120.407,230.508z M142.102,43.932h228.881v143.186H142.102V43.932z"
+                                                        ></path>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                    <p>Bare furniture</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr
+                        class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700"
+                    />
+                    <!--Rate and review-->
+                    <h3 class="text-2xl mt-4">Rate and Review</h3>
+                    <div class="w-full mt-2">
+                        <div style="cursor: pointer">
+                            <i
+                                data-alt="1"
+                                class="fas fa-star active"
+                                title=""
+                            ></i
+                            >&nbsp;<i
+                                data-alt="2"
+                                class="fas fa-star active"
+                                title=""
+                            ></i
+                            >&nbsp;<i
+                                data-alt="3"
+                                class="fas fa-star active"
+                                title=""
+                            ></i
+                            >&nbsp;<i
+                                data-alt="4"
+                                class="fas fa-star active"
+                                title=""
+                            ></i
+                            >&nbsp;<i
+                                data-alt="5"
+                                class="fas fa-star active"
+                                title=""
+                            ></i
+                            ><input name="rating" type="hidden" value="5" />
+                        </div>
+                        <textarea
+                            id="message"
+                            rows="4"
+                            class="block p-2.5 w-full text-sm mt-2 text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Write your thoughts here..."
+                        ></textarea>
+                        <button
+                            class="py-1 px-4 float-right mt-5 text-white rounded-md bg-orange-400 hover:bg-opacity-25"
+                        >
+                            Submit
+                        </button>
+                    </div>
+                    <hr
+                        class="h-px mb-5 mt-16 bg-orange-400 border-1 dark:bg-gray-700"
+                    />
+                    <h3 class="text-2xl mt-4">Complaints</h3>
+                    <div class="w-full mt-2 mb-5">
+                        <div class="w-full mb-12 mt-5">
+                            <app-card-table
+                                ><div
+                                    class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                                >
+                                    <div
+                                        class="rounded-t mb-0 px-4 py-3 border-0"
+                                    >
+                                        <div
+                                            class="flex flex-wrap items-center"
+                                        >
+                                            <div
+                                                class="relative w-full px-4 max-w-full flex-grow flex-1"
+                                            >
+                                                <button
+                                                    class="py-2 px-4 text-white rounded-md bg-green-400 hover:bg-opacity-25"
+                                                    @click="openComplainModal()"
+                                                >
+                                                    <span>
+                                                        <i
+                                                            class="fa-solid fa-plus mr-2"
+                                                        ></i>
+                                                    </span>
+                                                    Make Complain
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="block w-full overflow-x-auto">
+                                        <table
+                                            class="items-center w-full bg-transparent border-collapse"
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th
+                                                        class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                                        v-for="header in headers"
+                                                        :key="header"
+                                                    >
+                                                        {{ header }}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    v-for="(
+                                                        item, rowIndex
+                                                    ) in data"
+                                                    :key="rowIndex"
+                                                >
+                                                    <td
+                                                        class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                                        v-for="(
+                                                            value, colIndex
+                                                        ) in item"
+                                                        :key="colIndex"
+                                                    >
+                                                        {{ value }}
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div></app-card-table
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                    id="complainModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Make Complain
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeComplainModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <form>
+                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Select Subject</label>
+                                            <select id="subject" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                <option selected>Choose a Subject</option>
+                                                <option value="Maintenance">Maintenance Request</option>
+                                                <option value="Cleanliness">Cleanliness</option>
+                                                <option value="Noise">Noise and Disturbances</option>
+                                                <option value="Safety and Security">Safety and Security</option>
+                                                <option value="Bill Concerns">Bill Concerns</option>
+                                                <option value="General Inquiries">General Inquiries</option>
+                                                <option value="Others">Others</option>
+                                                
+                                            </select>
+                                    <div class="w-full mb-4 border border-gray-200 mt-6 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                                        <div class="flex items-center justify-between px-3 py-2 border-b dark:border-gray-600">
+                                            <div class="flex flex-wrap items-center divide-gray-200 sm:divide-x dark:divide-gray-600">
+                                                <div class="flex items-center space-x-1 sm:pr-4">
+                                                    <button type="button" class="p-2 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-600">
+                                                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 20">
+                                                                <path d="M14.066 0H7v5a2 2 0 0 1-2 2H0v11a1.97 1.97 0 0 0 1.934 2h12.132A1.97 1.97 0 0 0 16 18V2a1.97 1.97 0 0 0-1.934-2ZM10.5 6a1.5 1.5 0 1 1 0 2.999A1.5 1.5 0 0 1 10.5 6Zm2.221 10.515a1 1 0 0 1-.858.485h-8a1 1 0 0 1-.9-1.43L5.6 10.039a.978.978 0 0 1 .936-.57 1 1 0 0 1 .9.632l1.181 2.981.541-1a.945.945 0 0 1 .883-.522 1 1 0 0 1 .879.529l1.832 3.438a1 1 0 0 1-.031.988Z"/>
+                                                                <path d="M5 5V.13a2.96 2.96 0 0 0-1.293.749L.879 3.707A2.98 2.98 0 0 0 .13 5H5Z"/>
+                                                            </svg>
+                                                        <span class="sr-only">Upload image</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="px-4 py-2 bg-white rounded-b-lg dark:bg-gray-800">
+                                            <label for="complainmessage" class="sr-only">Complain</label>
+                                            <textarea id="complainmessage" rows="8" class="block w-full px-0 text-sm text-gray-800 bg-white border-0 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a Complain..." required></textarea>
+                                        </div>
+                                    </div>
+                                    </form>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        @click="closeComplainModal()"
+                                        type="button"
+                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Submit
+                                    </button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </AuthenticatedLayout>
+</template>
