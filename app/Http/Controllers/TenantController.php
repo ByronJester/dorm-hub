@@ -52,10 +52,19 @@ class TenantController extends Controller
         $routeParam = explode("-", $param);
 
         $room = Room::where('id', $routeParam[0])->first();
+        $dorm = Dorm::where('id', $room->dorm_id)->first();
+
+        $now = Carbon::now();
+        $expiredDate = Carbon::now()->addDay(7);
 
         return Inertia::render('Tenant/BillingInfo', [
             'room' => $room,
-            'action' => $routeParam[1]
+            'dorm' => $dorm,
+            'action' => $routeParam[1],
+            'now' => $now->isoFormat('LL'),
+            'expiredDate' => $expiredDate->isoFormat('LL'),
+            'min' => $now,
+            'max' => $expiredDate
         ]);
     }
 

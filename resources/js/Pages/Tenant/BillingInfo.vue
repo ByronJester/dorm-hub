@@ -1,6 +1,7 @@
 <script>
 import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { usePage, router } from '@inertiajs/vue3'
+import { ref, reactive, watch, onMounted, computed } from "vue";
 
 export default {
     components: {
@@ -11,6 +12,12 @@ export default {
         const user = page.props.auth.user;
 
         const room = page.props.room
+        const dorm = page.props.dorm
+        const action = page.props.action
+        const now = page.props.now
+        const expiredDate = page.props.expiredDate
+        const min = page.props.min
+        const max = page.props.max
 
         const back = () => {
             var url = null;
@@ -20,12 +27,59 @@ export default {
             } else {
                 router.get(route('landing.page'));
             }
-
         }
+
+        const visitDate = ref(new Date().toISOString().split('T')[0])
+
+        const onVisitDateChange = (e) => {
+            const minDate = new Date(min);
+            const maxDate = new Date(max);
+            const selectedDate = new Date(e.target.value)
+
+            if(selectedDate < minDate || selectedDate > maxDate) {
+                visitDate.value = new Date().toISOString().split('T')[0]
+            }  else {
+                visitDate.value = e.target.value
+            }
+        }
+
+        const moveInDate = ref(new Date().toISOString().split('T')[0])
+
+        const onMoveInDateChange = (e) => {
+            const minDate = new Date(min);
+            const maxDate = new Date(max);
+            const selectedDate = new Date(e.target.value)
+
+            if(selectedDate < minDate) {
+                moveInDate.value = new Date().toISOString().split('T')[0]
+            }  else {
+                moveInDate.value = e.target.value
+            }
+        }
+
+        const amount_to_paid = ref(0)
+
+        if(action == 'rent') {
+            amount_to_paid.value = parseInt(room.advance) + parseInt(room.deposit)
+        } else {
+            amount_to_paid.value = 300
+        }
+
 
         return{
             back,
-            room
+            room,
+            dorm,
+            action,
+            now,
+            expiredDate,
+            min,
+            max,
+            visitDate,
+            moveInDate,
+            amount_to_paid,
+            onVisitDateChange,
+            onMoveInDateChange
         }
 },
 };
@@ -117,18 +171,29 @@ export default {
                                     <!--Matic malalagyan ng data-->
                                     <div>
                                         <label for="dorm_name" class="block mb-2 text-sm font-medium text-gray-900">Dorm Name</label>
-                                        <input type="text" disabled id="dorm_name" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="Matic malalagyan ng data" required>
+                                        <input v-model="dorm.property_name" type="text" disabled id="dorm_name" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 ">
                                     </div>
                                     <!--Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999-->
-                                    <div>
-                                        <label for="reserve_date_from" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date From</label>
-                                        <input type="text" disabled id="reserve_date_from" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Matic malalagyan ng date kung kailan nag reserve ang format Jan 12, 1999" required>
+
+                                    <div v-if="action == 'reserve'">
+                                        <div>
+                                            <label for="reserve_date_from" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date From</label>
+                                            <input v-model="now" type="text" disabled id="reserve_date_from" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                        </div>
+                                        <!--7days dapat yung date simula from Jan 19, 1999-->
+                                        <div>
+                                            <label for="reserve_date_to" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date To</label>
+                                            <input v-model="expiredDate" type="text" disabled id="reserve_date_to" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " required>
+                                        </div>
                                     </div>
-                                    <!--7days dapat yung date simula from Jan 19, 1999-->
-                                    <div>
-                                        <label for="reserve_date_to" class="block mb-2 text-sm font-medium text-gray-900 ">Reservation Date To</label>
-                                        <input type="text" disabled id="reserve_date_to" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="7days dapat yung date simula from Jan 19, 1999" required>
+
+                                    <div v-if="action == 'rent'">
+                                        <div>
+                                            <label for="rent_date" class="block mb-2 text-sm font-medium text-gray-900 ">Rent Date</label>
+                                            <input v-model="now" type="text" disabled id="rent_date" class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                        </div>
                                     </div>
+
 
                                 </div>
                             </form>
@@ -142,8 +207,14 @@ export default {
                                 <div class="grid gap-6 mb-6 ">
                                     <div>
                                         <!--Papalitan pre ng date time picker ang selectable lang dapat e yung 7days na reservation from hanggan to-->
-                                        <label for="date" class="block mb-2 text-sm font-medium text-gray-900 ">When will you check the reserved room? </label>
-                                        <input type="text" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Papalitan pre ng date time picker ang selectable lang dapat e yung 7days na reservation from hanggan to" required>
+                                        <label for="date" class="block mb-2 text-sm font-medium text-gray-900 ">When will you check the {{action == 'reserve' ? 'reserved room' : 'move in'}}? </label>
+                                        <input type="date" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            v-model="visitDate" v-if="action == 'reserve'" @change="(e) => onVisitDateChange(e)"
+                                        >
+
+                                        <input type="date" id="date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            v-model="moveInDate" v-if="action == 'rent'" @change="(e) => onMoveInDateChange(e)"
+                                        >
                                     </div>
                                     <div>
                                         <!--Pa palitan ako pre ng select-->
@@ -153,13 +224,13 @@ export default {
                                     <div>
                                         <!--300 sa reservation sa rent e advance + deposit-->
                                         <label for="amount" class="block mb-2 text-sm font-medium text-gray-900">Amount to be paid:</label>
-                                        <input type="tel" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="300 sa reservation sa rent e advance + deposit"  required>
+                                        <input v-model="amount_to_paid" disabled type="text" id="amount" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 " placeholder="300 sa reservation sa rent e advance + deposit"  required>
                                     </div>
 
 
                                 </div>
 
-                                <button type="submit" class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Proceed to Payment</button>
+                                <button class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Proceed to Payment</button>
                             </form>
                         </div>
                     </div>
