@@ -158,6 +158,38 @@ export default {
         const messageOwner = (owner_id) => {
             router.get(route("message.owner", owner_id));
         };
+        const headers = [
+            "Room Name",
+            "Tenant Name",
+            "Capacity",
+            "Furnished",
+            "Description",
+            "Price",
+            "Moved-In Date",
+            "Status",
+        ];
+        const data = [
+            {
+                RoomName: "Room 101",
+                TenantName: "Jear De La Rea",
+                Capacity: "Room for 5",
+                Furnished: "Bare",
+                Description: "Studio Type",
+                Price: "P3000.00",
+                MovedInDate: "09/12/23",
+                Status: "Unavailable",
+            },
+            {
+                RoomName: "Room 102",
+                TenantName: "",
+                Capacity: "Room for 2",
+                Furnished: "Bare",
+                Description: "Studio Type",
+                Price: "P2000.00",
+                MovedInDate: "",
+                Status: "Available",
+            },
+        ];
 
         return {
             props,
