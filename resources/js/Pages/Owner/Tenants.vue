@@ -21,8 +21,9 @@ export default {
         
         <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
         <!--Add tenant button-->
-        <button
-            class="flex items-center justify-start bg-orange-400 p-5 gap-2 rounded-md h-12 text-white"
+        <div>
+            <button
+            class="flex items-center justify-start bg-orange-400 py-2 px-2 gap-2 rounded-md h-8 text-white"
             @click=""
         >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -31,6 +32,8 @@ export default {
 
                 Add Tenant
         </button>
+        </div>
+        
         <!--Table-->
         <div>
             palagay na lang table

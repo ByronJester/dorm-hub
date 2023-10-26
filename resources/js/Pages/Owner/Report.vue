@@ -2,7 +2,7 @@
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import IncomeReport from "@/Pages/Owner/Reports/IncomeReport.vue";
 import OccupancyReport from "@/Pages/Owner/Reports/OccupancyReport.vue"
-import { ref } from 'vue';
+import { ref} from 'vue';
 
 export default {
     components: {
@@ -53,14 +53,12 @@ export default {
             <hr class="my-5" />
             <main>
 
-            <transition 
-                name="custom-transition"  
-                mode="out-in"
-                enter-active-class="opacity duration-500 transform scale-100"
-                leave-active-class="opacity duration-500 transform scale-90"
-            >
+         
+        
                 <component :is="activeReportComponent"></component>
-            </transition>
+
+
+      
 
             <div
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 items-center w-full gap-8 mb-40 mt-5"

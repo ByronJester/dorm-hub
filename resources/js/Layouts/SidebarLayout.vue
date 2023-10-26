@@ -138,7 +138,11 @@ export default {
 </script>
 
 <template>
-    <nav
+    <div v-if="redirectToHome">
+            Not allowed
+    </div>
+    <div v-else>
+        <nav
         class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -680,135 +684,7 @@ export default {
                         </svg>
                         <span class="ml-3">Reports</span>
                     </a>
-                    <!--
-                    <ul
-                        class="py-2 space-y-2"
-                        :class="{
-                            hidden: !isDropDownOpen,
-                            block: isDropDownOpen,
-                        }"
-                    >
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.incomereport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.incomereport',
-                            'from-orange-400':
-                                route().current() == 'owner.incomereport',
-                            'to-red-600': route().current() == 'owner.incomereport',
-                            }"
-                            :href="route('owner.incomereport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Income Report
-                            </a>
-                        </li>
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.rentrollreport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.rentrollreport',
-                            'from-orange-400':
-                                route().current() == 'owner.rentrollreport',
-                            'to-red-600': route().current() == 'owner.rentrollreport',
-                            }"
-                            :href="route('owner.rentrollreport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Rent Roll Report</a
-                            >
-                        </li>
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.occupancyreport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.occupancyreport',
-                            'from-orange-400':
-                                route().current() == 'owner.occupancyreport',
-                            'to-red-600': route().current() == 'owner.occupancyreport',
-                            }"
-                            :href="route('owner.occupancyreport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Occupancy Report</a
-                            >
-                        </li>
-                         <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.tenantreport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.tenantreport',
-                            'from-orange-400':
-                                route().current() == 'owner.tenantreport',
-                            'to-red-600': route().current() == 'owner.tenantreport',
-                            }"
-                            :href="route('owner.tenantreport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Tenant Report</a
-                            >
-                        </li>
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.reservereport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.reservereport',
-                            'from-orange-400':
-                                route().current() == 'owner.reservereport',
-                            'to-red-600': route().current() == 'owner.reservereport',
-                            }"
-                            :href="route('owner.reservereport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Reservation Report</a
-                            >
-                        </li>
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.roomallocreport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.roomallocreport',
-                            'from-orange-400':
-                                route().current() == 'owner.roomallocreport',
-                            'to-red-600': route().current() == 'owner.roomallocreport',
-                            }"
-                            :href="route('owner.reservereport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                            -Room Allocation Report</a
-                            >
-                        </li>
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.billingreport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.billingreport',
-                            'from-orange-400':
-                                route().current() == 'owner.billingreport',
-                            'to-red-600': route().current() == 'owner.billingreport',
-                            }"
-                            :href="route('owner.billingreport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Billing and Invoices Report</a
-                            >
-                        </li>
-                        <li>
-                            <a
-                            :class="{
-                            'text-white': route().current() == 'owner.maintenancereport',
-                            'bg-gradient-to-r':
-                                route().current() == 'owner.maintenancereport',
-                            'from-orange-400':
-                                route().current() == 'owner.maintenancereport',
-                            'to-red-600': route().current() == 'owner.maintenancereport',
-                            }"
-                            :href="route('owner.maintenancereport')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group">
-                                -Maintenance Request Report</a
-                            >
-                        </li>
-                    </ul>-->
+                    
                 </li>
             </ul>
         </div>
@@ -816,9 +692,11 @@ export default {
     <main class="flex-grow mb-16 sm:mb-24 ">
         <slot />
     </main>
+    </div>
     
     
-    <footer class="fixed bottom-0 w-full bg-white rounded-lg  border dark:bg-gray-800">
+    
+    <footer class="fixed bottom-0 w-full z-20 bg-white rounded-lg  border dark:bg-gray-800">
             <div class=" mx-auto p-4 lg:ml-64 md:flex md:items-center md:justify-between">
                 <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">Dormhub™</a>. All Rights Reserved.</span>
                 <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
