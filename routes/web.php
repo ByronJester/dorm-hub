@@ -101,10 +101,12 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
         Route::get('/mydorm', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
-        Route::get('/billing-info/{room_id}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
-        Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
-        Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
+        Route::get('/billing-info/{param}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
+        // Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
+        // Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
         Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');
+        Route::post('/application/apply', [TenantController::class, 'submitApplication'])->name('application.apply');
+        Route::post('/reserve/room', [TenantController::class, 'submitRoomReservation'])->name('reserve.room');
     });
 
     Route::prefix('shared')->group(function () {

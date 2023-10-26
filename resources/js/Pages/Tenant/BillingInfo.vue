@@ -4,6 +4,7 @@ import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 
 export default {
     components: {
@@ -15,26 +16,10 @@ export default {
         const user = page.props.auth.user;
         const options = ["Bank Transfer", "Online Payment"];
 
+        const dorm = page.props.dorm;
         const room = page.props.room;
-
-        const date = ref();
-        //Display 7days
-        const allowedDates = computed(() => {
-            return [
-                new Date(),
-                new Date(new Date().setDate(new Date().getDate() + 1)),
-                new Date(new Date().setDate(new Date().getDate() + 2)),
-                new Date(new Date().setDate(new Date().getDate() + 3)),
-                new Date(new Date().setDate(new Date().getDate() + 4)),
-                new Date(new Date().setDate(new Date().getDate() + 5)),
-                new Date(new Date().setDate(new Date().getDate() + 6)),
-            ];
-        });
-        const time = ref({
-            hours: new Date().getHours(),
-            minutes: new Date().getMinutes(),
-        });
-        const dateRange = ref();
+        const action = page.props.action
+        const hasExistingApplication = page.props.hasExistingApplication
 
         onMounted(() => {
             const startDate = new Date();
@@ -53,11 +38,42 @@ export default {
                 router.get(route("landing.page"));
             }
         };
-        const selectedPaymentMethod = ref(''); // Initialize with an empty string
+
         const showBankTransfer = ref(false);
         const toggleBankTransfer = () => {
             showBankTransfer.value = selectedPaymentMethod.value === 'Bank Transfer';
         };
+
+        const allowedDates = [
+            new Date(),
+            new Date(new Date().setDate(new Date().getDate() + 1)),
+            new Date(new Date().setDate(new Date().getDate() + 2)),
+            new Date(new Date().setDate(new Date().getDate() + 3)),
+            new Date(new Date().setDate(new Date().getDate() + 4)),
+            new Date(new Date().setDate(new Date().getDate() + 5)),
+            new Date(new Date().setDate(new Date().getDate() + 6)),
+        ]
+
+        const first_name = ref(null)
+        const last_name = ref(null)
+        const phone_number = ref(null)
+        const date = ref();
+        const dateRange = ref();
+        const time = ref({
+            hours: new Date().getHours(),
+            minutes: new Date().getMinutes(),
+        });
+        const expired_at = ref(allowedDates[6])
+        const amount_to_paid = ref(0)
+        const selectedPaymentMethod = ref('');
+        const proof_of_payment = ref(null);
+
+        if(action == 'reserve') {
+            amount_to_paid.value = 300;
+        } else {
+            amount_to_paid.value = parseInt(room.advance) + parseInt(room.deposit);
+        }
+
 
         const proofPayment = () => {
             document.getElementById("proof_payment").click();
@@ -71,10 +87,96 @@ export default {
             reader.readAsDataURL(image);
 
             reader.onload = (e) => {
-                console.log(e);
-                form.selfie_id_picture = e.target.result;
+                proof_of_payment.value = e.target.result;
             };
         };
+
+        const submitApplication = () => {
+            const request = {
+                owner_id : dorm.user_id,
+                tenant_id : user.id,
+                dorm_id: dorm.id,
+                room_id: room.id,
+                status: 'pending',
+            }
+
+            swal({
+                title: `Are you sure to submit this application?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false,
+            },
+            function () {
+                axios.post(route("application.apply"), request)
+                    .then((response) => {
+                        swal(
+                            "Application submitted.",
+                            `Wait for dorm owner approval.\n Note: Once its approved you will pay advance and deposit fee.`,
+                            "success"
+                        );
+
+                        setTimeout(function () {
+                            location.reload();
+                        }, 3000);
+                    })
+                    .catch((error) => {
+                        errors.value = error.response.data.errors;
+                    });
+
+            });
+        }
+
+        const reserveRoom = () => {
+            const request = {
+                owner_id : dorm.user_id,
+                tenant_id : user.id,
+                dorm_id: dorm.id,
+                room_id: room.id,
+                status: 'pending',
+                amount: amount_to_paid.value,
+                check_date: date.value,
+                check_time: time.value.hours + ':' + time.value.minutes,
+                first_name: first_name.value,
+                last_name: last_name.value,
+                phone_number: phone_number.value,
+                payment_method: selectedPaymentMethod.value,
+                proof_of_payment: proof_of_payment.value
+            }
+
+            swal({
+                title: `Are you sure to reserve this room?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false,
+            },
+            function () {
+                axios.post(route("reserve.room"), request)
+                    .then((response) => {
+                        console.log(response.data.payment_method)
+                        if(response.data.payment_method == "Online Payment") {
+                            window.location.href = response.data.data.redirect.checkout_url
+                        } else {
+                            swal(
+                                "Reservation submitted.",
+                                `Wait for dorm owner approval.\n Note: If your reservation has decline you will be notify and you can refund your payment.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        }
+                    })
+                    .catch((error) => {
+                    });
+
+            });
+        }
+
         return {
             back,
             toggleBankTransfer,
@@ -82,12 +184,22 @@ export default {
             proofPayment,
             selectedPaymentMethod,
             showBankTransfer,
+            dorm,
             room,
+            action,
             date,
             allowedDates,
             time,
             dateRange,
             options,
+            amount_to_paid,
+            first_name,
+            last_name,
+            phone_number,
+            proof_of_payment,
+            hasExistingApplication,
+            submitApplication,
+            reserveRoom
         };
     },
 };
@@ -122,7 +234,7 @@ export default {
                                 fill="currentColor"
                                 d="M11,2V22C5.9,21.5 2,17.2 2,12C2,6.8 5.9,2.5 11,2M13,2V11H22C21.5,6.2 17.8,2.5 13,2M13,13V22C17.7,21.5 21.5,17.8 22,13H13Z"
                             ></path></svg></span>
-                    <h1 class="text-4xl leading-tight">Billing</h1>
+                    <h1 class="text-4xl leading-tight">{{ action == 'reserve' ? 'Billing' : 'Apply'}}</h1>
                 </div>
                 <div
                     class="rounded-2xl flex-col shadow-lg p-5 bg-white flex mb-6"
@@ -147,6 +259,18 @@ export default {
                                     <div>
                                         <div class="text-3xl mb-5">
                                             {{ room.name }}
+                                        </div>
+                                        <div class="font-semibold">
+                                            Dorm:
+                                            <span class="font-light">{{
+                                                dorm.property_name
+                                            }}</span>
+                                        </div>
+                                        <div class="font-semibold">
+                                            Owner:
+                                            <span class="font-light">{{
+                                                dorm.user.name
+                                            }}</span>
                                         </div>
                                         <div class="font-semibold">
                                             Deposit fee:
@@ -174,9 +298,9 @@ export default {
                                                     room.type_of_room
                                                 }} person(s)</span>
                                             </div>
-                                           
+
                                         </div>
-                                        
+
                                         <div class="font-semibold">
                                             <div class="flex flex-row mt-1 gap-2">
                                     <svg
@@ -237,7 +361,7 @@ export default {
                                             }}</span>
                                         </div>
                                          </div>
-                                            
+
                                         <!--Aircon-->
                                         <div class="font-semibold">
                                             <div
@@ -302,19 +426,32 @@ export default {
                                                 }}</span>
                                             </div>
                                         </div>
+                                        <div class="mt-5" v-if="action == 'rent' && !hasExistingApplication">
+                                            <button class="py-2 px-3 bg-cyan-400 rounded-md"
+                                                @click="submitApplication()"
+                                            >
+                                                Submit Application
+                                            </button>
+                                        </div>
+                                        <div v-if="!!hasExistingApplication">
+                                            <span class="text-[8px] font-bold text-rose-500">
+                                                YOU HAVE PENDING APPLICATION TO THIS ROOM
+                                            </span>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
-                            
+
                         </div>
                         <div class="flex-grow">
                             <div className="bg-white rounded-xl w-full h-full px-5 border-neutral-200 overflow-hidden">
-                                
+
                             </div>
                         </div>
                     </div>
                     <hr class="h-px my-5 mx-5 bg-gray-200 border-0" />
-                    <div class="flex-1 p-6">
+                    <div class="flex-1 p-6" v-if="action == 'reserve' && !hasExistingApplication">
                         <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
                             <div
                                 class="rounded-lg border border-gray-300 shadow-sm"
@@ -340,6 +477,7 @@ export default {
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="John"
                                                 required
+                                                v-model="first_name"
                                             />
                                         </div>
                                         <div>
@@ -354,6 +492,7 @@ export default {
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Doe"
                                                 required
+                                                v-model="last_name"
                                             />
                                         </div>
                                         <div>
@@ -369,10 +508,11 @@ export default {
                                                 placeholder="123-45-678"
                                                 pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
                                                 required
+                                                v-model="phone_number"
                                             />
                                         </div>
                                         <!--Matic malalagyan ng data-->
-                                        <div>
+                                        <!-- <div>
                                             <label
                                                 for="dorm_name"
                                                 class="block mb-2 text-sm font-medium text-gray-900"
@@ -385,6 +525,7 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="dorm.property_name"
                                             />
                                         </div>
 
@@ -401,9 +542,10 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="dorm.user.name"
                                             />
-                                        </div>
-                                        <div>
+                                        </div> -->
+                                        <!-- <div>
                                             <label
                                                 for="date"
                                                 class="block mb-2 text-sm font-medium text-gray-900"
@@ -415,10 +557,10 @@ export default {
                                                 :enable-time-picker="false"
                                                 disabled
                                             />
-                                        </div>
+                                        </div> -->
                                         <!--7days dapat yung date simula from Jan 19, 1999-->
 
-                                        <div>
+                                        <div v-if="action == 'reserve'">
                                             <label
                                                 for="date"
                                                 class="block mb-2 text-sm font-medium text-gray-900"
@@ -445,7 +587,7 @@ export default {
                                                     <VueDatePicker
                                                         v-model="time"
                                                         time-picker
-                                                        :is-24="false"
+                                                        :is-24="true"
                                                         :min-time="{
                                                             hours: 8,
                                                             minutes: 0,
@@ -471,8 +613,7 @@ export default {
                                 >
                                     Payment Information
                                 </div>
-                                <form class="m-8">
-                                    <div class="grid gap-6 mb-6">
+                                    <div class="grid gap-6 m-8">
                                         <div>
                                             <!--300 sa reservation sa rent e advance + deposit-->
                                             <label
@@ -484,8 +625,9 @@ export default {
                                                 type="tel"
                                                 id="amount"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                                                placeholder="300 sa reservation sa rent e advance + deposit"
                                                 required
+                                                disabled
+                                                v-model="amount_to_paid"
                                             />
                                         </div>
                                         <div>
@@ -498,8 +640,9 @@ export default {
                                                 id="subject"
                                                 v-model="selectedPaymentMethod"
                                                  @change="toggleBankTransfer"
-                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-300 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             >
+                                                <option :value="null" disabled> Select Payment Method</option>
                                                 <option
                                                     v-for="option in options"
                                                     :key="option"
@@ -514,9 +657,9 @@ export default {
                                                 class="block mb-2 text-sm font-medium text-gray-900"
                                                 >Bank Transfer</label
                                             >
-                                           
+
                                             <div class="mb-4">
-                                                
+
                                                 <span
                                                     class="text-xs text-gray-500"
                                                     >Submit a proof of payment</span
@@ -539,10 +682,9 @@ export default {
                                                     class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
                                                 >
                                                     <img
-                                                        v-if="
-                                                            src=''
-                                                        "
-                                                        alt="Selfie with Valid ID"
+                                                        v-if="!!proof_of_payment"
+                                                        alt="Proof of Payment"
+                                                        :src="proof_of_payment"
                                                         class="h-48 w-auto rounded-lg"
                                                     />
                                                     <span v-else
@@ -553,20 +695,19 @@ export default {
 
                                             <InputError
                                                 class="mt-2"
-                                              
+
                                             />
                                         </div>
-                                        
-                                        
+
+
                                     </div>
 
                                     <button
-                                        type="submit"
-                                        class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        class="text-white float-right bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-3 mb-5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mr-8"
+                                        @click="reserveRoom()"
                                     >
                                         Proceed to Payment
                                     </button>
-                                </form>
                             </div>
                         </div>
                     </div>

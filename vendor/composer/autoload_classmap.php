@@ -45,8 +45,6 @@ return array(
     'App\\Models\\Payment' => $baseDir . '/app/Models/Payment.php',
     'App\\Models\\Room' => $baseDir . '/app/Models/Room.php',
     'App\\Models\\Rule' => $baseDir . '/app/Models/Rule.php',
-    'App\\Models\\TenantPayments' => $baseDir . '/app/Models/TenantPayments.php',
-    'App\\Models\\TenantRoom' => $baseDir . '/app/Models/TenantRoom.php',
     'App\\Models\\Thread' => $baseDir . '/app/Models/Thread.php',
     'App\\Models\\ThreadMember' => $baseDir . '/app/Models/ThreadMember.php',
     'App\\Models\\ThreadMessage' => $baseDir . '/app/Models/ThreadMessage.php',

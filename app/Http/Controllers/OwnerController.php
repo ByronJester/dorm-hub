@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{ Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, Notification };
+use App\Models\{ Dorm, Room, Amenity, Rule, Payment, Notification };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\RoomRule;
 use Carbon\Carbon;
@@ -24,15 +24,15 @@ class OwnerController extends Controller
             'dorms' => $dorms,
         ]);
     }
-    
+
     public function applications()
     {
         $user = Auth::user();
 
-        $applications = TenantRoom::with('payments')->where('owner_id', $user->id)->where('is_active', true)->get();
+        // $applications = TenantRoom::with('payments')->where('owner_id', $user->id)->where('is_active', true)->get();
 
         return Inertia::render('Owner/ApplicationModule', [
-            'applications' => $applications,
+
         ]);
     }
 
@@ -40,7 +40,7 @@ class OwnerController extends Controller
     {
 
         return Inertia::render('Owner/Tenants', [
-            
+
         ]);
     }
 
@@ -48,7 +48,7 @@ class OwnerController extends Controller
     {
 
         return Inertia::render('Owner/Maintenance', [
-            
+
         ]);
     }
 
@@ -313,34 +313,34 @@ class OwnerController extends Controller
     {
         $user = Auth::user();
 
-        $applications = TenantRoom::with('payments')->where('owner_id', $user->id);
+        // $applications = TenantRoom::with('payments')->where('owner_id', $user->id);
 
-        $currentMonth = Carbon::now()->month;
-        $paidAmount = 0;
-        $unpaidAmount = 0;
+        // $currentMonth = Carbon::now()->month;
+        // $paidAmount = 0;
+        // $unpaidAmount = 0;
 
-        foreach($applications->where('is_approved', true)->where('is_active', true)->get() as $application) {
-            $application = (object) $application;
+        // foreach($applications->where('is_approved', true)->where('is_active', true)->get() as $application) {
+        //     $application = (object) $application;
 
-            foreach($application->payments as $payment) {
-                $paymentMonth = Carbon::parse($payment->date)->month;
+        //     foreach($application->payments as $payment) {
+        //         $paymentMonth = Carbon::parse($payment->date)->month;
 
-                if($currentMonth == $paymentMonth) {
-                    if($payment->is_paid) {
-                        $paidAmount += $payment->amount_to_pay;
-                    } else {
-                        $balance = $payment->amount_paid != null ? $payment->amount_to_pay - $payment->amount_paid : $payment->amount_to_pay;
-                        $unpaidAmount += $balance;
-                    }
-                }
-            }
-        }
+        //         if($currentMonth == $paymentMonth) {
+        //             if($payment->is_paid) {
+        //                 $paidAmount += $payment->amount_to_pay;
+        //             } else {
+        //                 $balance = $payment->amount_paid != null ? $payment->amount_to_pay - $payment->amount_paid : $payment->amount_to_pay;
+        //                 $unpaidAmount += $balance;
+        //             }
+        //         }
+        //     }
+        // }
 
         return Inertia::render('Owner/Dashboard', [
-            'paidAmount' => $paidAmount,
-            'unpaidAmount' => $unpaidAmount,
-            'totalTenants' => $applications->where('is_approved', true)->where('is_active', true)->count(),
-            'totalApplications' => $applications->count()
+            'paidAmount' => 1000,
+            'unpaidAmount' => 1000,
+            'totalTenants' => 3,
+            'totalApplications' => 5
         ]);
     }
 

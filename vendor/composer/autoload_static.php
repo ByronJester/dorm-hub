@@ -613,8 +613,6 @@ class ComposerStaticInitc8c4f721b4a735433ab4497e833e5b18
         'App\\Models\\Payment' => __DIR__ . '/../..' . '/app/Models/Payment.php',
         'App\\Models\\Room' => __DIR__ . '/../..' . '/app/Models/Room.php',
         'App\\Models\\Rule' => __DIR__ . '/../..' . '/app/Models/Rule.php',
-        'App\\Models\\TenantPayments' => __DIR__ . '/../..' . '/app/Models/TenantPayments.php',
-        'App\\Models\\TenantRoom' => __DIR__ . '/../..' . '/app/Models/TenantRoom.php',
         'App\\Models\\Thread' => __DIR__ . '/../..' . '/app/Models/Thread.php',
         'App\\Models\\ThreadMember' => __DIR__ . '/../..' . '/app/Models/ThreadMember.php',
         'App\\Models\\ThreadMessage' => __DIR__ . '/../..' . '/app/Models/ThreadMessage.php',
