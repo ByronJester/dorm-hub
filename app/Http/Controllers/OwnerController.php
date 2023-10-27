@@ -51,6 +51,13 @@ class OwnerController extends Controller
 
         ]);
     }
+    public function addDorm()
+    {
+
+        return Inertia::render('Owner/AddDorm', [
+
+        ]);
+    }
 
 
 

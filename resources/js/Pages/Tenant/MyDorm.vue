@@ -1,12 +1,17 @@
 <script>
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import {ref} from 'vue'
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 export default {
     components: {
+        VueDatePicker,
         AuthenticatedLayout,
     },
     setup() {
         const headers = ["Subject", "Message", "Status"];
+        const options = ["E-Wallet", "Cash", "Bank Transfer"];
         const data = [
             {
                 Subject: "Broken",
@@ -25,11 +30,41 @@ export default {
 
             modal.style.display = "none";
         };
+        const openLeaveModal = () => {
+            var modal = document.getElementById("leaveModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeLeaveModal = () => {
+            var modal = document.getElementById("leaveModal");
+
+            modal.style.display = "none";
+        };
+
+        const selectedPaymentMethod = ref('');
+        const showBankTransfer = ref(false);
+        const showEwallet = ref(false);
+        const toggleTransfer = () => {
+            showBankTransfer.value = selectedPaymentMethod.value === 'Bank Transfer';
+            showEwallet.value = selectedPaymentMethod.value === 'E-Wallet';
+        };
+
+       
+        const date = ref(new Date());
         return {
             headers,
+            date,
             data,
+            options,
             openComplainModal,
             closeComplainModal,
+            openLeaveModal,
+            closeLeaveModal,
+            selectedPaymentMethod,
+            showBankTransfer,
+            showEwallet,
+            toggleTransfer
         };
     },
 };
@@ -74,8 +109,9 @@ export default {
                         <h3 class="text-2xl font-bold">De La Rea's Dorm</h3>
                         <button
                             class="py-1 px-4 text-white rounded-md bg-red-600 hover:bg-opacity-25"
+                            @click="openLeaveModal()"
                         >
-                            Leave
+                            Moved-out
                         </button>
                     </div>
                     <p>Brgy.Caloocan Balayan Batangas</p>
@@ -355,6 +391,7 @@ export default {
                     </div>
                 </div>
             </div>
+            <!--Complain Modal-->
             <div
                     id="complainModal"
                     tabindex="-1"
@@ -444,6 +481,150 @@ export default {
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Submit
+                                    </button>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    id="leaveModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Moved-Out
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeLeaveModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <div>
+                                        <label for="movedoutdate" class="block mb-2 text-base font-medium text-black">Move-out Date:</label>
+                                        <VueDatePicker
+                                                v-model="date"
+                                                :min-date="new Date()"
+                                                :enable-time-picker="false"
+                                            />
+                                    </div>
+                                    
+                                    <form>
+                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Reason:</label>
+                                            <select id="subject" class="block w-full px-4 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                <option selected>Choose a Reason:</option>
+                                                <option value="Maintenance">Relocation</option>
+                                                <option value="Cleanliness">End of Lease</option>
+                                                <option value="Noise">Housing Change</option>
+                                                <option value="Safety and Security">Financial Reasons</option>
+                                                <option value="Bill Concerns">Personal Preference</option>
+                                                <option value="General Inquiries">Family Circumstances</option>
+                                                <option value="Others">Others</option>
+                                                
+                                            </select>
+                                            <div class=" py-2 bg-white rounded-b-lg dark:bg-gray-800">
+                                            <label for="complainmessage" class="sr-only">Complain</label>
+                                            <textarea id="complainmessage" rows="3" class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a Reason..." required></textarea>
+                                            </div>
+                                    </form>
+                                    <div>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit Refund Information:</p>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room 101</p>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit: P2,000.00</p>
+                                        <form class="mt-4">
+                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
+                                            <select
+                                                id="subject"
+                                                v-model="selectedPaymentMethod"
+                                                 @change="toggleTransfer"
+                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            >
+                                                <option
+                                                    v-for="option in options"
+                                                    :key="option"
+                                                >
+                                                    {{ option }}
+                                                </option>
+                                            </select>
+                                            <div class=" py-2 mt-2 bg-white rounded-b-lg" v-if="showEwallet">
+                                                
+                                                <form class="flex flex-col gap-1 ">
+                                                    <div class="mb-3">
+                                                        <label for="EWalletName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
+                                                        <input type="text" id="EWalletName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
+                                                        <input type="text" id="accName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
+                                                        <input type="text" id="accName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class=" py-2 mt-4 bg-white rounded-b-lg" v-if="showBankTransfer">
+                                                <form class="flex flex-col gap-1">
+                                                    <div class="mb-3">
+                                                        <label for="BankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
+                                                        <input type="text" id="BankName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accbankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
+                                                        <input type="text" id="accbankName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accbankNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
+                                                        <input type="text" id="accbankNumber" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                    </form>
+                                    </div>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="w-full border-t  border-gray-200"
+                                >
+                                    <button
+                                        @click=""
+                                        type="button"
+                                        class="text-white rounded-b-lg bg-red-600 hover:bg-opacity-25 font-medium w-full text-sm px-5 py-2.5"
+                                    >
+                                        "Move-Out & Deposit Refund Request"
                                     </button>
                                     
                                 </div>

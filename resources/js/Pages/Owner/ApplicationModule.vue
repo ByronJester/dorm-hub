@@ -8,10 +8,16 @@
     import { ref, computed, reactive, watch, onMounted, defineProps } from 'vue';
     import { usePage, useForm } from '@inertiajs/vue3'
     import axios from 'axios';
+    import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
+    import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
+    import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 
     export default {
         components: {
             AuthenticatedLayout,
+            AppDropdown,
+            AppDropdownContent,
+            AppDropdownItem,
             VueGoodTable
         },
         setup() {
@@ -184,8 +190,49 @@
                 });
 
             }
+            const headersRent=["Dorm Name", "Room Name", "Applicant Name", "Source of Income", "Salary", "Move-In Date", "Status"]
+            //dito pre nilalagayn yung data
+            const dataRent = [
+                {
+                    "Dorm Name": "Jear Dorm",
+                    "Room Name": "Room 101",
+                    "Applicant Name": "Jear",
+                    "Source of Income": "Salary",
+                    "Salary": "1000",
+                    "Moved-In Date": "11/01/23",
+                    "Status": "pending"
+                },
+            ]
+            const headersReserve=["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"]
+            //dito pre nilalagayn yung data
+            const dataReserve = [
+                {
+                    "Dorm Name": "Jear Dorm",
+                    "Room Name": "Room 101",
+                    "Applicant Name": "Jear",
+                    "Date Visit": "11/12/23",
+                    "Time Visit": "15:00pm",
+                    "Payment Method":"Bank",
+                    "Status":"pending"
+                },
+            ]
+            const openProofModal = () => {
+            var modal = document.getElementById("proofModal");
+
+            modal.style.display = "block";
+            };
+
+            const closeProofModal = () => {
+                var modal = document.getElementById("proofModal");
+
+                modal.style.display = "none";
+            };
 
             return {
+                headersRent,
+                dataRent,
+                headersReserve,
+                dataReserve,
                 isMobileView,
                 columns,
                 rows,
@@ -198,7 +245,9 @@
                 closeModal,
                 changeStatus,
                 moneyFormat,
-                markAsPaid
+                markAsPaid,
+                openProofModal,
+                closeProofModal
             }
         }
     }
@@ -215,55 +264,419 @@
                 <h3 class="text-3xl">Applicants</h3>
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+            
+            <div class="w-full mt-5">
+                <div class="w-full mb-5 ">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class=" text-lg mb-5">Rent Applicants</p>
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                            <div
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+                                            >
+                                                <svg
+                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 18 20"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                id="simple-search"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                placeholder="Search in table..."
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        >
+                                            <svg
+                                                class="w-4 h-4"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                />
+                                            </svg>
+                                            <span class="sr-only">Search</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headersRent"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                        <th
+                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                        >
+                                            Proof of income
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in dataRent"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in item"
+                                            :key="colIndex"
+                                        >
+                                            {{ value }}
+                                        </td>
+                                        <td
+                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
+                                        >
+                                            <AppDropdown class="">
+                                                <button >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                                                </button>
+                                                <AppDropdownContent class="bg-white z-50">
+                                                    
+                                                    <AppDropdownItem>
+                                                        <button class="w-full"  @click="openProofModal()">View</button>
+                                                    </AppDropdownItem>
+                                                </AppDropdownContent>
+                                            </AppDropdown>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                            >
+                                <div
+                                    class="justify-between items-center block md:flex"
+                                >
+                                    <div
+                                        class="flex items-center justify-center mb-6 md:mb-0"
+                                    >
+                                        <div
+                                            class="flex items-center justify-start flex-wrap -mb-3"
+                                        >
+                                            <button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >1</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >2</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >3</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >4</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <small>Page 1 of 4</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full mt-5">
+                <div class="w-full mb-5 ">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class=" text-lg mb-5">Reservation Applicants</p>
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                            <div
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+                                            >
+                                                <svg
+                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 18 20"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                id="simple-search"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                placeholder="Search in table..."
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        >
+                                            <svg
+                                                class="w-4 h-4"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                />
+                                            </svg>
+                                            <span class="sr-only">Search</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headersReserve"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                        <th
+                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                        >
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in dataReserve"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in item"
+                                            :key="colIndex"
+                                        >
+                                            {{ value }}
+                                        </td>
+                                        <td
+                                            class="border-t-0 px-6 flex text-center justify-center hover:bg-opacity-25 flex-row gap-2 border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                        >
+                                        <i @click="" class="fa-solid fa-circle-check fa-xl" style="color: #1f8118; cursor: pointer;"></i>
+                                        <i @click="" class="fa-solid fa-circle-xmark fa-xl" style="color: #c20000; cursor: pointer;"></i>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                            >
+                                <div
+                                    class="justify-between items-center block md:flex"
+                                >
+                                    <div
+                                        class="flex items-center justify-center mb-6 md:mb-0"
+                                    >
+                                        <div
+                                            class="flex items-center justify-start flex-wrap -mb-3"
+                                        >
+                                            <button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >1</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >2</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >3</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >4</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <small>Page 1 of 4</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--Proof of income View Modal-->
             <div
-                class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-4 text-gray-400 dark:text-white"
-            >
-                <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                    id="proofModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
                 >
-                    <div class="text-center p-4">
-                        <p class="text-2xl mb-2">
-                            
-                        </p>
-                        <p class="text-xs">TOTAL NO. OF Applicants</p>
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-lg max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Proof of Income
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeProofModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    Palagayn na lang dio pre ng image
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        @click=""
+                                        type="button"
+                                        class="text-white bg-red-600 hover:bg-opacity-25 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Decline
+                                    </button>
+                                    <button
+                                        @click=""
+                                        type="button"
+                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Approve
+                                    </button>
+                                    
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
-                >
-                    <div class="text-center p-4">
-                        <p class="text-2xl mb-2">
-                            <!--
-                            {{
-                                props.rows.status =='pending'
-                            }}-->
-                        </p>
-                        <p class="text-xs">TOTAL NO. OF Approved Applicants</p>
-                    </div>
-                </div>
-
-                <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
-                >
-                    <div class="text-center p-4">
-                        <p class="text-2xl mb-2">
-                         
-                        </p>
-                        <p class="text-xs">TOTAL NO. OF Declined Applicants</p>
-                    </div>
-                </div>
-            </div>
-            <div class="my-10">
-                <select
-                class="w-40 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                
-                >
-                <option value="Pending">All</option>
-                <option value="Approved">Approved</option>
-                <option value="Declined">Declined</option>
-                </select>
-            </div>
+            <!-- Pre eto yung dating table 
             <div class="w-full">
                 <vue-good-table
                     styleClass="vgt-table condensed"
@@ -309,9 +722,10 @@
                         </div>
                     </template>
                 </vue-good-table>
-            </div>
-
-            `<div class="w-full">
+            </div>-->
+            
+            <!-- eto yung mga modal
+            <div class="w-full">
                 <div id="tenantModal" class="tenantModal mt-10 md:mt-0">
                     <div class="tenant-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}" v-if="!viewPayment">
                         <div class="w-full">
@@ -440,60 +854,10 @@
                         </vue-good-table>
                     </div>
                 </div>
-            </div>`
+            </div>`-->
 
         </div>
     </AuthenticatedLayout>
 </template>
 
-<style>
-    .main {
-        height: 100%;
-        min-height: 92vh;
-        background-color: #E5E8E8;
-    }
 
-    .tenantModal {
-        display: none;
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 20px; /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .tenant-modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-    }
-
-    /* The Close Button */
-    .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent; /* make scrollbar transparent */
-    }
-
-</style>

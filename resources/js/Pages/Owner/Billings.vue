@@ -311,6 +311,9 @@ export default {
                                                     <AppDropdownItem>
                                                         Notice
                                                     </AppDropdownItem>
+                                                    <AppDropdownItem>
+                                                        View Payments
+                                                    </AppDropdownItem>
                                                 </AppDropdownContent>
                                             </AppDropdown>
                                         </td>
