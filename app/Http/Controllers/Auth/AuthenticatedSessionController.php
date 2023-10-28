@@ -42,11 +42,11 @@ class AuthenticatedSessionController extends Controller
             $redirect = RouteServiceProvider::OWNER;
         }
 
-        if($user->user_type == 'tenant') {
+        else if($user->user_type == 'tenant') {
             $redirect = RouteServiceProvider::TENANT;
         }
 
-        if($user->user_type == 'admin') {
+        else if($user->user_type == 'admin') {
             $redirect = RouteServiceProvider::ADMIN;
         }
 

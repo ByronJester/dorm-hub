@@ -29,6 +29,7 @@ import TextInput from "@/Components/TextInput.vue";
 import InputError from "@/Components/InputError.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Terms from "@/Components/Terms.vue"; //dinagdag ko pati nasa component
+import VsToast from '@vuesimple/vs-toast';
 
 export default {
     components: {
@@ -41,6 +42,7 @@ export default {
         InputError,
         Terms,
         Checkbox,
+        VsToast
     },
     setup() {
         const openRegisterModal = () => {
@@ -177,8 +179,22 @@ export default {
             remember: false,
         });
 
-        const login = () => {
-            loginForm.post(route("login"), {});
+        const login =  () => {
+            loginForm.post(route("login"), {
+                onSuccess: () =>{
+                    VsToast.show({
+                    title: 'Logged In',
+                    message: "You've login successfuly",
+                    variant: 'success',
+                    });
+                },
+                onError: (error) =>{
+                    VsToast.show({
+                        title: 'Invalid Credentials',
+                        variant: 'error',
+                        });
+                }
+            });
         };
 
         return {
@@ -993,9 +1009,9 @@ export default {
                                         </div>
                                         <button
                                             :class="{
-                                                'opacity-25': form.processing,
+                                                'opacity-25': loginForm.processing,
                                             }"
-                                            :disabled="form.processing"
+                                            :disabled="loginForm.processing"
                                             class="w-full text-white bg-orange-500 hover:bg-orange-400 focus:ring-4 focus:outline-none focus:ring-orange-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center0"
                                         >
                                             Signin
@@ -1012,8 +1028,11 @@ export default {
                                                 class="hover:underline text-orange-500"
                                                 >Create an account</a
                                             >
+                                            <div class="text-center">
+                                           
                                         </div>
-                                    </form>
+                                        </div>
+                                    </form>                                   
                                 </div>
                             </div>
                         </div>
