@@ -16,16 +16,11 @@ export default {
         VueDatePicker,
     },
     setup() {
-        const page = usePage();
-        const user = page.props.auth.user;
         const date = ref();
-        const options = ["Jear dorm", "Dorm 2"];
         const numoptions = ["5", "10", "15", "20"];
-        const header=["Room Name", "Tenant Name", "Move-in Date", "Monthly Rent", "Other Charges", "Total Income"]
+        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
         const data = [
-            ["Bedroom 1", "John Doe", "2023-01-15", 1000, 50, 1050],
-            ["Bedroom 2", "Jane Smith", "2023-02-10", 1100, 60, 1160],
-            ["Total", "", "", "", "", 2210]
+            ["Jear Dorm","2023-02-10", "12", "10", "2", "P10,000", "120,000"],
 
         ];
 
@@ -61,10 +56,11 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+        const page = usePage();
+        const user = page.props.auth.user;
         return {
             date,
             presetDates,
-            options,
             numoptions,
             header,
             data,
@@ -78,23 +74,9 @@ export default {
         <button @click="back()" class="border-2 border-gray-500 px-3 py-1  text-gray-500 hover:text-white hover:border-orange-400 rounded-md hover:bg-orange-400 "><span>
             <i class="fa-solid fa-arrow-left fa-lg" ></i>
         </span></button>
-        <p class="text-2xl font-semibold my-4">Income Report</p>
+        <p class="text-2xl font-semibold my-4">Dorm Report</p>
     </div>
-    <div class="flex flex-row items-center justify-between gap-2 w-full">
-        <div class="flex flex-row w-full items-center gap-2">
-            <div>
-                <p class="text-sm">Dorm:</p>
-                <select
-                    id="subject"
-                    class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                >
-                    <option v-for="option in options" :key="option">
-                        {{ option }}
-                    </option>
-                </select>
-            </div>
-        </div>
-    </div>
+    
     <div class="w-[278px] mt-5">
         <p class="text-sm">Date Range:</p>
         <VueDatePicker

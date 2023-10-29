@@ -16,16 +16,12 @@ export default {
         VueDatePicker,
     },
     setup() {
-        const page = usePage();
-        const user = page.props.auth.user;
         const date = ref();
         const options = ["Jear dorm", "Dorm 2"];
         const numoptions = ["5", "10", "15", "20"];
-        const header=["Room Name", "Tenant Name", "Move-in Date", "Monthly Rent", "Other Charges", "Total Income"]
+        const header=["Subject", "Message", "Status", "Request Date", "Date Finish"]
         const data = [
-            ["Bedroom 1", "John Doe", "2023-01-15", 1000, 50, 1050],
-            ["Bedroom 2", "Jane Smith", "2023-02-10", 1100, 60, 1160],
-            ["Total", "", "", "", "", 2210]
+            ["Internet", "Slow Internat", "Finished", "2023-10-15", "2023-10-17"],
 
         ];
 
@@ -61,6 +57,8 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+        const page = usePage();
+        const user = page.props.auth.user;
         return {
             date,
             presetDates,
@@ -78,7 +76,7 @@ export default {
         <button @click="back()" class="border-2 border-gray-500 px-3 py-1  text-gray-500 hover:text-white hover:border-orange-400 rounded-md hover:bg-orange-400 "><span>
             <i class="fa-solid fa-arrow-left fa-lg" ></i>
         </span></button>
-        <p class="text-2xl font-semibold my-4">Income Report</p>
+        <p class="text-2xl font-semibold my-4">Request Report</p>
     </div>
     <div class="flex flex-row items-center justify-between gap-2 w-full">
         <div class="flex flex-row w-full items-center gap-2">

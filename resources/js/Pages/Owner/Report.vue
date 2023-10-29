@@ -2,6 +2,11 @@
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import IncomeReport from "@/Pages/Owner/Reports/IncomeReport.vue";
 import OccupancyReport from "@/Pages/Owner/Reports/OccupancyReport.vue"
+import RentRollReport from "@/Pages/Owner/Reports/RentRollReport.vue"
+import RequestReport from "@/Pages/Owner/Reports/RequestReport.vue"
+import ReservationReport from "@/Pages/Owner/Reports/ReservationReport.vue"
+import TenantReport from "@/Pages/Owner/Reports/TenantReport.vue"
+import DormReport from "@/Pages/Owner/Reports/DormReport.vue"
 import { ref} from 'vue';
 
 export default {
@@ -22,6 +27,26 @@ export default {
                 activeReport.value = 'OccupancyReport';
                 activeReportComponent.value = OccupancyReport;
             }
+            else if (reportName === 'RentRollReport') {
+                activeReport.value = 'RentRollReport';
+                activeReportComponent.value = RentRollReport;
+            }
+            else if (reportName === 'RequestReport') {
+                activeReport.value = 'RequestReport';
+                activeReportComponent.value = RequestReport;
+            }
+            else if (reportName === 'ReservationReport') {
+                activeReport.value = 'RequestReport';
+                activeReportComponent.value = ReservationReport;
+            }
+            else if (reportName === 'TenantReport') {
+                activeReport.value = 'TenantReport';
+                activeReportComponent.value = TenantReport;
+            }
+            else if (reportName === 'DormReport') {
+                activeReport.value = 'DormReport';
+                activeReportComponent.value = DormReport;
+            }
             // You can add more conditions for other reports here
         }
 
@@ -37,7 +62,7 @@ export default {
     <AuthenticatedLayout>
         <div class="p-4 mt-16 lg:ml-64">
             
-            <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
+            <div class="">
             <div class="flex items-center gap-2 justify-start">
                 <svg
                     class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -130,7 +155,7 @@ export default {
                         <p>-Generate occupancy reports for dormitory insights.</p>
                     </div>
                     <div class="w-full mt-3">
-                        <button class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
+                        <button @click="changeActiveReport('OccupancyReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
                             View
                         </button>
                     </div>
@@ -165,7 +190,7 @@ export default {
                         <p>-Streamline rent collection and record-keeping.</p>
                     </div>
                     <div class="w-full mt-3">
-                        <button class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
+                        <button @click="changeActiveReport('RentRollReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
                             View
                         </button>
                     </div>
@@ -190,17 +215,17 @@ export default {
                             </svg>
                         </span>
                         <p class="text-xl">
-                            Maintenance Report
+                            Request Report
                         </p>
                     </div>
                     <hr class="my-3"/>
                     <div class="flex flex-col gap-1 text-gray-400 ml-3 ">
-                        <p>-Generate maintenance task lists.</p>
+                        <p>-Generate request task lists report.</p>
                         <p>-Monitor request status for efficiency.</p>
-                        <p>-Record maintenance history for tracking.</p>
+                        <p>-Record request history for tracking.</p>
                     </div>
                     <div class="w-full mt-3">
-                        <button class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
+                        <button @click="changeActiveReport('RequestReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
                             View
                         </button>
                     </div>
@@ -235,7 +260,7 @@ export default {
                         <p>-Generate and update tenant records.</p>
                     </div>
                     <div class="w-full mt-3">
-                        <button class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
+                        <button @click="changeActiveReport('TenantReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
                             View
                         </button>
                     </div>
@@ -270,7 +295,7 @@ export default {
                         <p>-Track reservation history for future planning.</p>
                     </div>
                     <div class="w-full mt-3">
-                        <button class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
+                        <button @click="changeActiveReport('ReservationReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
                             View
                         </button>
                     </div>
@@ -305,7 +330,7 @@ export default {
                         <p>-Plan and optimize dormitory operations</p>
                     </div>
                     <div class="w-full mt-3">
-                        <button class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
+                        <button @click="changeActiveReport('DormReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
                             View
                         </button>
                     </div>
