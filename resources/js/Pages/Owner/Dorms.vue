@@ -291,10 +291,7 @@ export default {
                     data.append("floors_total", floors_total.value);
                     data.append("rooms_total", rooms_total.value);
                     data.append("dorm_image", dorm_image.value);
-                    data.append(
-                        "business_permit_image",
-                        business_permit_image.value
-                    );
+                    data.append("business_permit_image_src", business_permit_image_src.value);
 
                     // Rooms Table
                     data.append("rooms", JSON.stringify(rooms.value));
@@ -344,7 +341,7 @@ export default {
         onMounted(() => {
             dorms.value = page.props.dorms;
         });
-        const selectedStatus = ref('Approved'); 
+        const selectedStatus = ref('Approved');
 
         const filteredDorms = computed(() => {
       if (selectedStatus.value === 'Approved') {
@@ -355,9 +352,9 @@ export default {
         return dorms.value.filter(x => x.status === 'pending');
       }
     });
-        
-            
-       
+
+
+
 
 
         return {
@@ -489,7 +486,7 @@ export default {
                         <p class="text-xs">TOTAL NO. OF Pending Dorm</p>
                     </div>
                 </div>
-                
+
             </div>
 
             <div class="my-10">
@@ -1175,7 +1172,7 @@ export default {
                                 </div>
                             </div>
                             </div>
-                           
+
 
 
                         </div>

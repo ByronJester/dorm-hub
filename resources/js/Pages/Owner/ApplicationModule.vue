@@ -23,6 +23,7 @@
         setup() {
             const isMobileView = ref(false)
             isMobileView.value = screen.width < 600;
+
             const page = usePage()
             const rows = ref([])
             const columns = ref([
@@ -190,36 +191,61 @@
                 });
 
             }
-            const headersRent=["Dorm Name", "Room Name", "Applicant Name", "Source of Income", "Salary", "Move-In Date", "Status"]
-            //dito pre nilalagayn yung data
-            const dataRent = [
-                {
-                    "Dorm Name": "Jear Dorm",
-                    "Room Name": "Room 101",
-                    "Applicant Name": "Jear",
-                    "Source of Income": "Salary",
-                    "Salary": "1000",
-                    "Moved-In Date": "11/01/23",
-                    "Status": "pending"
-                },
-            ]
-            const headersReserve=["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"]
-            //dito pre nilalagayn yung data
-            const dataReserve = [
-                {
-                    "Dorm Name": "Jear Dorm",
-                    "Room Name": "Room 101",
-                    "Applicant Name": "Jear",
-                    "Date Visit": "11/12/23",
-                    "Time Visit": "15:00pm",
-                    "Payment Method":"Bank",
-                    "Status":"pending"
-                },
-            ]
-            const openProofModal = () => {
-            var modal = document.getElementById("proofModal");
 
-            modal.style.display = "block";
+
+
+            var dataRent = [];
+
+            const headersRent=["Dorm Name", "Room Name", "Applicant Name", "Source of Income", "Income", "Move-In Date", "Move-Out Date", "Status"]
+
+            const applications = page.props.applications
+
+            for(let y = 0; y < applications.length; y++){
+                dataRent.push(
+                    {
+                        dorm_name: applications[y].dorm.property_name,
+                        room_name: applications[y].room.name,
+                        tenant_name: applications[y].tenant.name,
+                        source_of_income: applications[y].tenant.income_information.source_of_income,
+                        monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
+                        move_in: !applications[y].move_in ? 'N/A' : applications[x].move_in,
+                        move_out: !applications[y].move_out ? 'N/A' : applications[x].move_out,
+                        status: applications[y].status,
+                        action: applications[y]
+                    }
+                )
+            }
+
+
+            var dataReserve = [];
+
+            const headersReserve=["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"]
+
+            const reservations = page.props.reservations
+
+            for(let x = 0; x < reservations.length; x++){
+                dataReserve.push(
+                    {
+                        dorm_name: reservations[x].dorm.property_name,
+                        room_name: reservations[x].room.name,
+                        tenant_name: reservations[x].tenant.name,
+                        visit_date: reservations[x].check_date,
+                        time_visit: reservations[x].check_time,
+                        payment_method: reservations[x].reservation_payment.payment_method,
+                        status: reservations[x].status,
+                        action: reservations[x]
+                    }
+                )
+            }
+
+            const selectedApplication = ref(null)
+
+            const openProofModal = (arg) => {
+                selectedApplication.value = arg
+
+                var modal = document.getElementById("proofModal");
+
+                modal.style.display = "block";
             };
 
             const closeProofModal = () => {
@@ -227,6 +253,122 @@
 
                 modal.style.display = "none";
             };
+
+            const approveReservation = (arg) => {
+                const data = {
+                    tenant_id: arg.tenant_id,
+                    tenant_application_id: arg.id,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    phone_number: user.phone_number,
+                    room_id: arg.room_id,
+                    reservation_id: arg.reservation.id
+                }
+
+                swal({
+                    title: `Are you sure to approve this reservation?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('approve.reservation', arg.id), data)
+                        .then(response => {
+                            swal("Success!", `You successfully approved this reservation.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                });
+            }
+
+            const declineReservation = (arg) => {
+                swal({
+                    title: `Are you sure to decline this reservation?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('decline.reservation', arg.id), {reservation_id: arg.reservation.id})
+                        .then(response => {
+                            swal("Success!", `You successfully declined this reservation.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                });
+            }
+
+            const approveApplication = (arg) => {
+                const data = {
+                    tenant_id: arg.tenant_id,
+                    tenant_application_id: arg.id,
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    phone_number: user.phone_number,
+                    room_id: arg.room_id
+                }
+
+                swal({
+                    title: `Are you sure to approve this application?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('approve.application', arg.id), data)
+                        .then(response => {
+                            console.log(response)
+                            swal("Success!", `You successfully approved this application.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                });
+            }
+
+            const declineApplication = (arg) => {
+                swal({
+                    title: `Are you sure to decline this application?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('decline.application', arg.id), {})
+                        .then(response => {
+                            swal("Success!", `You successfully declined this application.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                });
+            }
 
             return {
                 headersRent,
@@ -247,7 +389,14 @@
                 moneyFormat,
                 markAsPaid,
                 openProofModal,
-                closeProofModal
+                closeProofModal,
+                applications,
+                reservations,
+                selectedApplication,
+                approveReservation,
+                declineReservation,
+                approveApplication,
+                declineApplication
             }
         }
     }
@@ -264,7 +413,7 @@
                 <h3 class="text-3xl">Applicants</h3>
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
-            
+
             <div class="w-full mt-5">
                 <div class="w-full mb-5 ">
                     <div
@@ -365,23 +514,24 @@
                                             v-for="(value, colIndex) in item"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
-                                        </td>
-                                        <td
-                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
-                                        >
-                                            <AppDropdown class="">
+                                            <p v-if="colIndex != 'action'">
+                                                {{ value }}
+                                            </p>
+
+                                            <AppDropdown v-else class="flex justify-center items-center">
                                                 <button >
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
                                                 <AppDropdownContent class="bg-white z-50">
-                                                    
+
                                                     <AppDropdownItem>
-                                                        <button class="w-full"  @click="openProofModal()">View</button>
+                                                        <button class="w-full"  @click="openProofModal(value)">View</button>
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
                                             </AppDropdown>
+
                                         </td>
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -539,14 +689,22 @@
                                             v-for="(value, colIndex) in item"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
+                                            <p v-if="colIndex != 'action'">
+                                                {{ value }}
+                                            </p>
+
+                                            <p v-else>
+                                                <i @click="approveReservation(value)" class="fa-solid fa-circle-check fa-xl" style="color: #1f8118; cursor: pointer;"></i>
+                                                <i @click="declineReservation(value)" class="fa-solid fa-circle-xmark fa-xl float-right mt-2" style="color: #c20000; cursor: pointer;"></i>
+                                            </p>
+
                                         </td>
-                                        <td
+                                        <!-- <td
                                             class="border-t-0 px-6 flex text-center justify-center hover:bg-opacity-25 flex-row gap-2 border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                         >
                                         <i @click="" class="fa-solid fa-circle-check fa-xl" style="color: #1f8118; cursor: pointer;"></i>
                                         <i @click="" class="fa-solid fa-circle-xmark fa-xl" style="color: #c20000; cursor: pointer;"></i>
-                                        </td>
+                                        </td> -->
                                     </tr>
                                 </tbody>
                             </table>
@@ -649,34 +807,36 @@
                                     </button>
                                 </div>
                                 <!-- Modal body -->
-                                <div class="p-6 space-y-6">
-                                    Palagayn na lang dio pre ng image
+                                <div class="p-6 space-y-6" v-if="selectedApplication">
+                                    <img :src="selectedApplication.tenant.income_information.proof" class="w-full h-[300px]"/>
                                 </div>
                                 <!-- Modal footer -->
                                 <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
-                                        @click=""
+                                        @click="declineApplication(selectedApplication)"
                                         type="button"
+                                        v-if="selectedApplication && selectedApplication.status == 'pending'"
                                         class="text-white bg-red-600 hover:bg-opacity-25 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Decline
                                     </button>
                                     <button
-                                        @click=""
+                                        @click="approveApplication(selectedApplication)"
                                         type="button"
+                                        v-if="selectedApplication && selectedApplication.status == 'pending'"
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Approve
                                     </button>
-                                    
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            <!-- Pre eto yung dating table 
+            <!-- Pre eto yung dating table
             <div class="w-full">
                 <vue-good-table
                     styleClass="vgt-table condensed"
@@ -723,7 +883,7 @@
                     </template>
                 </vue-good-table>
             </div>-->
-            
+
             <!-- eto yung mga modal
             <div class="w-full">
                 <div id="tenantModal" class="tenantModal mt-10 md:mt-0">

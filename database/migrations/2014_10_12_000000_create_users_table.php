@@ -33,6 +33,7 @@ return new class extends Migration
             $table->string('account_number', 100)->nullable();
             $table->boolean('is_approved')->default(true);
             $table->boolean('is_active')->default(true);
+            $table->boolean('first_logged_in')->default(true);
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
