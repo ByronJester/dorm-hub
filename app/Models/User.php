@@ -34,7 +34,8 @@ class User extends Authenticatable
         'sk',
         'bank_name',
         'account_name',
-        'account_number'
+        'account_number',
+        'first_logged_in'
     ];
 
     /**

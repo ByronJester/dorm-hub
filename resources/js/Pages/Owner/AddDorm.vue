@@ -59,7 +59,13 @@ export default {
         const dorm_image = ref("");
         const dorm_image_src = ref(null);
         const business_permit_image = ref("");
-        const business_permit_image_src = ref(null);
+        const business_permit_image_src = ref("");
+        const sk = ref("")
+        const pk = ref("")
+        const bank_name = ref("")
+        const account_name = ref("")
+        const account_number = ref("")
+
 
         const getCoordinates = async (a) => {
             const url = `https://api.tomtom.com/search/2/geocode/${a}.json?key=wjvWAT9KJyQfZepSiABAgsa8idqpcLlG`;
@@ -154,6 +160,8 @@ export default {
 
             reader.onload = (e) => {
                 business_permit_image_src.value = e.target.result;
+
+                console.log(business_permit_image_src.value)
             };
         };
 
@@ -240,10 +248,7 @@ export default {
                     data.append("floors_total", floors_total.value);
                     data.append("rooms_total", rooms_total.value);
                     data.append("dorm_image", dorm_image.value);
-                    data.append(
-                        "business_permit_image",
-                        business_permit_image.value
-                    );
+                    data.append("business_permit_image_src", business_permit_image_src.value);
 
                     // Rooms Table
                     data.append("rooms", JSON.stringify(rooms.value));
@@ -259,6 +264,12 @@ export default {
                     data.append("minimum_stay", minimum_stay.value);
                     data.append("rules", JSON.stringify(rules.value));
 
+                    data.append("pk", pk.value);
+                    data.append("sk", sk.value);
+                    data.append("bank_name", bank_name.value);
+                    data.append("account_number", account_number.value);
+                    data.append("account_name", account_name.value);
+
                     axios
                         .post(route("save.dorm"), data)
                         .then((response) => {
@@ -271,7 +282,7 @@ export default {
                             );
 
                             setTimeout(function () {
-                                location.reload();
+                                router.get(route('owner.dashboard'));
                             }, 1500);
                         })
                         .catch((error) => {
@@ -307,6 +318,17 @@ export default {
             var modal = document.getElementById("defaultModal");
 
             modal.style.display = "none";
+        };
+
+        const logOut = () => {
+            axios
+                .post(route("logout"), {})
+                .then((response) => {
+                    location.reload();
+                })
+                .catch((error) => {
+                    errors.value = error.response.data.errors;
+                });
         };
 
         return {
@@ -355,7 +377,14 @@ export default {
             saveDorm,
             validationError,
             openTermsModal,
-            closeTermsModal
+            closeTermsModal,
+            logOut,
+            pk,
+            sk,
+            bank_name,
+            account_name,
+            account_number
+
         };
     },
 };
@@ -1186,10 +1215,7 @@ export default {
                 <p class="text-xs mt-1 ml-3">
                     Set up your payment method to receive payments.
                 </p>
-                <form
-                    @submit.prevent="updateProfile"
-                    class="rounded-2xl flex-col flex"
-                >
+
                     <div class="w-full">
                         <div
                             class="flex-1 pl-6 pr-6 lg:pt-6"
@@ -1231,7 +1257,7 @@ export default {
                                     <div class="relative">
                                         <input
                                             id="pk"
-                                            v-model="form.pk"
+                                            v-model="pk"
                                             required=""
                                             placeholder="Paymongo Public Key"
                                             type="text"
@@ -1250,11 +1276,14 @@ export default {
                                                     d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"
                                                 /></svg></span>
                                     </div>
+                                    <span class="text-xs text-red-500 ml-2"
+                                        >{{ validationError("pk", errors) }}
+                                    </span>
                                     <!--SK-->
                                     <div class="relative">
                                         <input
                                             id="sk"
-                                            v-model="form.sk"
+                                            v-model="sk"
                                             required=""
                                             placeholder="Paymongo Secret Key"
                                             type="text"
@@ -1273,6 +1302,9 @@ export default {
                                                     d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"
                                                 /></svg></span>
                                     </div>
+                                    <span class="text-xs text-red-500 ml-2"
+                                        >{{ validationError("sk", errors) }}
+                                    </span>
                                 </div>
                                 <div
                                     class="text-xs text-gray-500 dark:text-slate-400 mt-1"
@@ -1301,7 +1333,7 @@ export default {
                                     <div class="relative">
                                         <input
                                             id="bank_name"
-                                            v-model="form.bank_name"
+                                            v-model="bank_name"
                                             placeholder="Bank Name"
                                             type="text"
                                             class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
@@ -1323,7 +1355,7 @@ export default {
                                     <div class="relative">
                                         <input
                                             id="acc_name"
-                                            v-model="form.account_name"
+                                            v-model="account_name"
                                             placeholder="Account Name"
                                             type="text"
                                             class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
@@ -1345,7 +1377,7 @@ export default {
                                     <div class="relative">
                                         <input
                                             id="acc_number"
-                                            v-model="form.account_number"
+                                            v-model="account_number"
                                             placeholder="Account Number"
                                             type="text"
                                             class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
@@ -1372,7 +1404,6 @@ export default {
                             </div>
                         </div>
                     </div>
-                </form>
             </div>
             <!--Button-->
             <div
@@ -1421,7 +1452,7 @@ export default {
                     <button
                         data-modal-hide="defaultModal"
                         v-if="active == 7"
-                        @click=""
+                        @click="saveDorm()"
                         type="button"
                         :disabled="loading"
                         :class="{ 'cursor-not-allowed': loading }"

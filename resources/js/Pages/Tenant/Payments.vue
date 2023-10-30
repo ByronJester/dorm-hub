@@ -13,7 +13,7 @@ export default {
     setup() {
         const page = usePage();
         const user = computed(() => page.props.auth.user);
-        const payments = ref([]);
+        const payments = page.props.payments;
         const application = ref({});
         const owner = ref({});
         const methods = ref([]);
@@ -22,9 +22,12 @@ export default {
         const receipt = ref(null);
         const payment_id = ref();
         const imageError = ref(null);
+        const nexPayment = page.props.nexPayment
+        const lastBilled = page.props.lastBilled
+        const balance = page.props.balance
+        const totalAmountPaid = page.props.totalAmountPaid
 
         onMounted(() => {
-            payments.value = page.props.payments;
             application.value = page.props.application;
             owner.value = page.props.owner;
             methods.value = page.props.methods;
@@ -129,35 +132,49 @@ export default {
         };
 
         const headers = ["Payment ID", "Payment Date" , "Payment Method", "Amount", "Description", "Status", "Receipt"];
-        const data = [
-            {
-                "Payment ID": 1,
-                "Payment Date": "2023-01-15",
-                "Payment Method": "Cash",
-                "Amount": "P300,00",
-                "Description": "Reservation",
-                "Status": "Paid",
-                "Receipt": "",
-            },
-            {
-                "Payment ID": 2,
-                "Payment Date": "2023-01-19",
-                "Payment Method": "Gcash",
-                "Amount": "P2000,00",
-                "Description": "Rent payment",
-                "Status": "Paid",
-                "Receipt": "",
-            },
-            {
-                "Payment ID": 3,
-                "Payment Date": "2023-02-15",
-                "Payment Method": "Cash",
-                "Amount": "1000,00",
-                "Description": "Monthly Rent Payment",
-                "Status": "Unpaid",
-                "Receipt": "",
-            },
-            ];
+
+
+        var data = [];
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+
+        for(let p = 0; p < payments.length; p++) {
+            data.push(
+                {
+                    id: payments[p].id,
+                    date: payments[p].display_date,
+                    payment_method: payments[p].payment_method,
+                    amount: payments[p].amount,
+                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].category),
+                    status: payments[p].status,
+                    receipt: payments[p].proof_of_payment,
+                    action: payments[p]
+                }
+            )
+        }
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
 
         return {
             user,
@@ -176,6 +193,12 @@ export default {
             closeModal,
             imageClick,
             imageChange,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            nexPayment,
+            lastBilled,
+            moneyFormat,
+            balance,
+            totalAmountPaid
         };
     },
 };
@@ -188,7 +211,7 @@ export default {
         >
             <div
                 className="
-                        max-w-screen-lg 
+                        max-w-screen-lg
                         mx-auto
                         "
             >
@@ -216,7 +239,7 @@ export default {
                             class="flex-col dark:bg-slate-900/70 bg-white flex"
                         >
                             <div class="flex-1 p-6">
-                                
+
                                 <div class="justify-between items-center flex">
                                     <div
                                         class="flex items-center justify-center"
@@ -231,7 +254,7 @@ export default {
                                             <h1
                                                 class="text-3xl leading-tight font-semibold"
                                             >
-                                                <div>P6000.00</div>
+                                                <div>{{moneyFormat(nexPayment.amount)}}</div>
                                             </h1>
                                         </div>
                                     </div>
@@ -246,7 +269,7 @@ export default {
                             class="flex-col dark:bg-slate-900/70 bg-white flex"
                         >
                             <div class="flex-1 p-6">
-                                
+
                                 <div class="justify-between items-center flex">
                                     <div
                                         class="flex items-center justify-center"
@@ -260,7 +283,7 @@ export default {
                                             <h1
                                                 class="text-3xl leading-tight font-semibold"
                                             >
-                                                <div>P3000.00</div>
+                                                <div>{{moneyFormat(balance)}}</div>
                                             </h1>
                                         </div>
                                     </div>
@@ -275,7 +298,7 @@ export default {
                             class="flex-col dark:bg-slate-900/70 bg-white flex"
                         >
                             <div class="flex-1 p-6">
-                                
+
                                 <div class="justify-between items-center flex">
                                     <div
                                         class="flex items-center justify-center"
@@ -289,7 +312,7 @@ export default {
                                             <h1
                                                 class="text-3xl leading-tight font-semibold"
                                             >
-                                                <div>P6000.00</div>
+                                                <div>{{moneyFormat(totalAmountPaid)}}</div>
                                             </h1>
                                         </div>
                                     </div>
@@ -298,7 +321,7 @@ export default {
                             <!---->
                         </div>
                     </div>
-                   
+
                 </div>
 
                 <div class="flex-1 shadow-lg rounded-lg p-6">
@@ -350,22 +373,22 @@ export default {
                                 <!--Date kung kelan yung billing-->
                                 <p class="text-gray-500">Next payment on</p>
                                 <h1 class="text-xl font-semibold">
-                                    Wed, Nov 1, 2023
+                                    {{nexPayment.display_date}}
                                 </h1>
                             </div>
                             <div class="mb-6 text-center md:mb-0 md:text-left">
                                 <p class="text-gray-500">Last billed on</p>
-                                <h1 class="text-xl">Sun, Oct 1, 2023</h1>
+                                <h1 class="text-xl">{{lastBilled.display_created_date}}</h1>
                             </div>
                         </div>
                         <div class="text-center md:text-right">
                             <p class="text-gray-500">Amount due</p>
                             <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
-                            <h1 class="text-2xl font-semibold">P6000.00</h1>
+                            <h1 class="text-2xl font-semibold">{{ moneyFormat(nexPayment.amount) }}</h1>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center mt-5 justify-start">
                     <span
                         class="inline-flex justify-center items-center w-6 h-6 mr-2"
@@ -396,7 +419,7 @@ export default {
                                             <div
                                                 class="relative w-full px-4 max-w-full flex-grow flex-1"
                                             >
-                                            <form class="flex items-center">   
+                                            <form class="flex items-center">
                                                 <label for="simple-search" class="sr-only">Search</label>
                                                 <div class="relative w-full">
                                                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -450,18 +473,27 @@ export default {
                                                         ) in item"
                                                         :key="colIndex"
                                                     >
-                                                        {{ value }}
-                                                    </td>
-                                                    <!--Disable if paid na-->
-                                                    <td
-                                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs content-center whitespace-nowrap p-4"
+                                                        <p v-if="colIndex != 'receipt' && colIndex != 'action'">
+                                                            {{value}}
+                                                        </p>
 
-                                                    >
-                                                        <button @click="pay()" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5">Pay</button>
+                                                        <div v-if="colIndex == 'receipt'">
+                                                            <img v-if="value != null"
+                                                                class="w-[100px] h-[100px]"
+                                                            />
+                                                        </div>
+
+                                                        <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
+                                                            v-if="colIndex == 'action'" :disabled="value.status == 'paid'"
+                                                            :class="{'cursor-not-allowed': value.status == 'paid'}"
+                                                        >
+                                                            Pay
+                                                        </button>
                                                     </td>
+
                                                 </tr>
                                             </tbody>
-                                            
+
                                         </table>
                                         <div class="my-5 ml-5 border-t pt-5 ">
                                                 <nav aria-label="Page navigation example">
@@ -554,7 +586,7 @@ export default {
                             <div
                                 class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
                             >
-                              
+
                                 <p class="text-gray-500 mr-6">
                                     Sun, Sep 1, 2023
                                 </p>
@@ -563,7 +595,7 @@ export default {
                                 >
                                    <span>Paid</span>
                                 </div>
-                               
+
                                 <h2 class="text-2xl font-semibold">P3000.00</h2>
                             </div>
                         </div>
@@ -603,7 +635,7 @@ export default {
                         </div>
                     </div>
 
-                   
+
                     <div
                         class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
                     >
@@ -648,9 +680,9 @@ export default {
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>-->
-                
+
             </div>
         </div>
         <!--Eto yung dati-->

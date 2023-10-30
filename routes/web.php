@@ -92,7 +92,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
         Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');
-
+        Route::post('/application/decline/{id}', [OwnerController::class, 'declineApplication'])->name('decline.application');
+        Route::post('/reservation/decline/{id}', [OwnerController::class, 'declineReservation'])->name('decline.reservation');
+        Route::post('/application/approve/{id}', [OwnerController::class, 'approveApplication'])->name('approve.application');
+        Route::post('/reservation/approve/{id}', [OwnerController::class, 'approveReservation'])->name('approve.reservation');
     });
 
     Route::prefix('tenant')->group(function () {

@@ -38,7 +38,26 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        return Inertia::render('Tenant/Payments', []);
+        $payments = TenantPayment::where('tenant_id', $auth->id)->get();
+        $nexPayment = TenantPayment::where('status', 'pending')->first();
+        $lastBilled = TenantPayment::orderBy('updated_at', 'desc')->where('status', 'paid')->first();
+        $totalAmountPaid = TenantPayment::where('status', 'paid')->get();
+
+        $balance = 0;
+
+        foreach($payments as $payment) {
+            if($payment->status == 'pending') {
+                $balance += $payment->amount;
+            }
+        }
+
+        return Inertia::render('Tenant/Payments', [
+            'payments' => $payments,
+            'nexPayment' => $nexPayment,
+            'lastBilled' => $lastBilled,
+            'balance' => $balance,
+            'totalAmountPaid' => $totalAmountPaid->sum('amount')
+        ]);
     }
 
     public function viewBillingInfo($param)
