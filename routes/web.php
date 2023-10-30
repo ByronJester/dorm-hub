@@ -74,6 +74,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     Route::prefix('admin')->group(function () {
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
         Route::get('/tenants', [AdminController::class, 'tenantList'])->name('admin.tenants');
+        Route::get('/dashboard', [AdminController:: class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/maintenance', [AdminController:: class, 'maintenance'])->name('admin.maintenance');
+        Route::get('/reports', [AdminController:: class, 'reports'])->name('admin.reports');
+        Route::get('/utilities', [AdminController:: class, 'utilities'])->name('admin.utilities');
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
         Route::post('/tenant/change-staus', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');

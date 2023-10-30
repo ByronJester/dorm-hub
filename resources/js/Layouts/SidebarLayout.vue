@@ -335,20 +335,19 @@ export default {
     >
         <div class="h-full p-6 overflow-y-auto bg-white dark:bg-gray-800">
             <ul class="space-y-5 font-medium" v-if="user.user_type == 'admin'">
-                <!--
                 <li>
                     <a
                         :class="{
                             'text-white':
-                                route().current() == '#',
+                                route().current() == 'admin.dashboard',
                             'bg-gradient-to-r':
-                                route().current() == '#',
+                                route().current() == 'admin.dashboard',
                             'from-orange-400':
-                                route().current() == '#',
+                                route().current() == 'admin.dashboard',
                             'to-red-600':
-                                route().current() == '#',
+                                route().current() == 'admin.dashboard',
                         }"
-                        :href="route('#')"
+                        :href="route('admin.dashboard')"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                     >
                         <svg
@@ -367,7 +366,7 @@ export default {
                         </svg>
                         <span class="ml-3">Dashboard</span>
                     </a>
-                </li>-->
+                </li>
                 <li>
                     <a
                         :class="{
@@ -432,20 +431,20 @@ export default {
                         <span class="ml-3">User Verification</span>
                     </a>
                 </li>
-                <!--
+                
                 <li>
                     <a
                         :class="{
                             'text-white':
-                                route().current() == '#',
+                                route().current() == 'admin.reports',
                             'bg-gradient-to-r':
-                                route().current() == '#',
+                                route().current() == 'admin.reports',
                             'from-orange-400':
-                                route().current() == '#',
+                                route().current() == 'admin.reports',
                             'to-red-600':
-                                route().current() == '#',
+                                route().current() == 'admin.reports',
                         }"
-                        :href="route('#')"
+                        :href="route('admin.reports')"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                     >
                         <svg
@@ -470,15 +469,48 @@ export default {
                     <a
                         :class="{
                             'text-white':
-                                route().current() == '#',
+                                route().current() == 'admin.maintenance',
                             'bg-gradient-to-r':
-                                route().current() == '#',
+                                route().current() == 'admin.maintenance',
                             'from-orange-400':
-                                route().current() == '#',
+                                route().current() == 'admin.maintenance',
                             'to-red-600':
-                                route().current() == '#',
+                                route().current() == 'admin.maintenance',
                         }"
-                        :href="route('#')"
+                        :href="route('admin.maintenance')"
+                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                    >
+                        <svg
+                            class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 22 21"
+                        >
+                            <path
+                                d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"
+                            />
+                            <path
+                                d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"
+                            />
+                        </svg>
+                        <span class="ml-3">Maintenance</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a
+                        :class="{
+                            'text-white':
+                                route().current() == 'admin.utilities',
+                            'bg-gradient-to-r':
+                                route().current() == 'admin.utilities',
+                            'from-orange-400':
+                                route().current() == 'admin.utilities',
+                            'to-red-600':
+                                route().current() == 'admin.utilities',
+                        }"
+                        :href="route('admin.utilities')"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                     >
                         <svg
@@ -497,7 +529,7 @@ export default {
                         </svg>
                         <span class="ml-3">Utilities</span>
                     </a>
-                </li>-->
+                </li>
             </ul>
             <ul class="space-y-5 font-medium" v-if="user.user_type == 'owner'">
                 <li>

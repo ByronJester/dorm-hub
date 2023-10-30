@@ -27,6 +27,32 @@ class AdminController extends Controller
         ]);
     }
 
+    public function dashboard() {
+        return Inertia::render('Admin/Dashboard',[
+
+        ]);
+    }
+
+    public function maintenance() {
+        return Inertia::render('Admin/Maintenance',[
+
+        ]);
+        
+    }
+
+    public function utilities() {
+        return Inertia::render('Admin/Utilities',[
+
+        ]);
+
+    }
+
+    public function reports(){
+        return Inertia::render('Admin/Reports',[
+
+        ]);
+    }
+
     public function tenantList()
     {
         $users = User::where('user_type', 'tenant')->get();
