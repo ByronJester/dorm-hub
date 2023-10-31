@@ -30,6 +30,7 @@ import InputError from "@/Components/InputError.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Terms from "@/Components/Terms.vue"; //dinagdag ko pati nasa component
 import VsToast from '@vuesimple/vs-toast';
+import Hero from '@/Components/Hero.vue'
 
 export default {
     components: {
@@ -40,6 +41,7 @@ export default {
         TextInput,
         PrimaryButton,
         InputError,
+        Hero,
         Terms,
         Checkbox,
         VsToast
@@ -224,12 +226,12 @@ export default {
 </script>
 
 <template>
-    <div>
+    <div class="mb-20">
         <div class="h-full">
             <nav
-                class="fixed top-0 z-40 w-full bg-white shadow-md border-gray-200"
+                class="fixed top-0 z-40 w-full bg-white"
             >
-                <div class="py-4 border-b-[1px]">
+                <div class="py-4 ">
                     <div
                         class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
                     >
@@ -264,10 +266,12 @@ export default {
                     </div>
                 </div>
             </nav>
+            <Hero />
+            
             <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
+                <h1 class="text-3xl text-gray-900 mb-2">Featured Domitories</h1>
                 <div
                     className="
-                        pt-24
                         grid
                         grid-cols-1
                         sm:grid-cols-2
@@ -492,14 +496,13 @@ export default {
                                             <InputLabel
                                                 for="email-login"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                                value="Your Email"
+                                                value="Your Username"
                                             />
 
                                             <TextInput
                                                 id="email-login"
                                                 type="text"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                                placeholder="name@company.com"
                                                 v-model="form.email"
                                                 required
                                                 autofocus
@@ -946,14 +949,13 @@ export default {
                                             <InputLabel
                                                 for="email-login"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                                value="Your Email"
+                                                value="Your Username"
                                             />
 
                                             <TextInput
                                                 id="email-login"
                                                 type="text"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                                placeholder="name@company.com"
                                                 v-model="loginForm.email"
                                                 required
                                                 autofocus
@@ -1040,6 +1042,38 @@ export default {
                 </div>
 
         </div>
+        <footer
+        class="fixed bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
+    >
+        <div
+            class="mx-auto p-4 md:flex md:items-center md:justify-between"
+        >
+            <span
+                class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+                >© 2023
+                <a href="https://flowbite.com/" class="hover:underline"
+                    >Dormhub™</a
+                >. All Rights Reserved.</span
+            >
+            <ul
+                class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
+            >
+                <li>
+                    <a href="#" class="mr-4 hover:underline md:mr-6"
+                        >About us</a
+                    >
+                </li>
+                <li>
+                    <a href="#" class="mr-4 hover:underline md:mr-6"
+                        >Privacy Policy</a
+                    >
+                </li>
+                <li>
+                    <a href="#" class="hover:underline">Contact us</a>
+                </li>
+            </ul>
+        </div>
+    </footer>
     </div>
 </template>
 

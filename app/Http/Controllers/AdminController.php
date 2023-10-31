@@ -40,15 +40,27 @@ class AdminController extends Controller
         
     }
 
-    public function utilities() {
-        return Inertia::render('Admin/Utilities',[
-
-        ]);
-
-    }
 
     public function reports(){
         return Inertia::render('Admin/Reports',[
+
+        ]);
+    }
+
+    public function addUser(){
+        return Inertia::render('Admin/Utilities/AddUser',[
+
+        ]);
+    }
+
+    public function archive(){
+        return Inertia::render('Admin/Utilities/Archive',[
+
+        ]);
+    }
+
+    public function backUp(){
+        return Inertia::render('Admin/Utilities/BackUpAndRestore',[
 
         ]);
     }

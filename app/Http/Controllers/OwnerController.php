@@ -91,6 +91,13 @@ class OwnerController extends Controller
 
         ]);
     }
+    public function tenantHistory()
+    {
+
+        return Inertia::render('Owner/TenantsPaymentHistory', [
+
+        ]);
+    }
     public function addDorm()
     {
 

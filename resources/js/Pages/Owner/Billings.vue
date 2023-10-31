@@ -8,17 +8,23 @@ import axios from "axios";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import { router } from "@inertiajs/vue3";
 
 export default {
     components: {
         AuthenticatedLayout,
         AppDropdown,
         AppDropdownContent,
-        AppDropdownItem
-        
+        AppDropdownItem,
+        VueDatePicker,
     },
     setup() {
-        const options = ["Jear Dorm's", "Dorm2"];
+        const options = ["M.D.R Apartment", "Dorm2"];
+        const selectedDay = ref(1); // Default to the 1st day of the month
+         const days = Array.from({ length: 30 }, (_, index) => index + 1); // Create an array of days from 1 to 30
+
         const dates = [
             "All time",
             "Current month",
@@ -114,6 +120,28 @@ export default {
                 "Moved-IN Date": "2023-03-10",
             },
         ];
+        const openAutoBill = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeAutoBill = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "none";
+        };
+        const openManualBill = () => {
+            var modal = document.getElementById("manualModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeManualBill = () => {
+            var modal = document.getElementById("manualModal");
+
+            modal.style.display = "none";
+        };
 
         return {
             options,
@@ -122,6 +150,13 @@ export default {
             dataHistory,
             headersBill,
             dataBill,
+            selectedDay,
+            days,
+            openAutoBill,
+            closeAutoBill,
+            closeManualBill,
+            openManualBill
+            
         };
     },
 };
@@ -146,7 +181,7 @@ export default {
             <div class="flex flex-row gap-2 float-right">
                 <select
                     id="subject"
-                    class="block w-36 px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    class="block w-52 px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
                     <option v-for="option in options" :key="option">
                         {{ option }}
@@ -168,7 +203,7 @@ export default {
                     class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
                 >
                     <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-orange-500">P12,000.00</p>
+                        <p class="text-2xl mb-2 text-orange-500">0</p>
                         <p class="text-xs">Outstanding</p>
                     </div>
                 </div>
@@ -177,7 +212,7 @@ export default {
                     class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
                 >
                     <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-green-500">P2,000.00</p>
+                        <p class="text-2xl mb-2 text-green-500">0</p>
                         <p class="text-xs">Paid</p>
                     </div>
                 </div>
@@ -186,7 +221,7 @@ export default {
                     class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
                 >
                     <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-red-500">P10,000.00</p>
+                        <p class="text-2xl mb-2 text-red-500">0</p>
                         <p class="text-xs">Unpaid</p>
                     </div>
                 </div>
@@ -302,16 +337,13 @@ export default {
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem>
+                                                    <AppDropdownItem @click="openAutoBill()">
                                                         Auto Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem>
+                                                    <AppDropdownItem @click="openManualBill()">
                                                         Manual Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem>
-                                                        Notice
-                                                    </AppDropdownItem>
-                                                    <AppDropdownItem>
+                                                    <AppDropdownItem :href="route('owner.tenantshistory')">
                                                         View Payments
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
@@ -321,7 +353,7 @@ export default {
                                 </tbody>
                             </table>
                             <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800 mt-3"
                             >
                                 <div
                                     class="justify-between items-center block md:flex"
@@ -478,6 +510,272 @@ export default {
                     </div>
                 </div>
             </div>
+
+            <!--AutoBillingModal-->
+            <div
+                    id="defaultModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-md max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Auto Billing
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeAutoBill()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <div class="flex flex-row gap-3">
+                                    <div>
+                                        <label
+                                                for="dorm_owner_name"
+                                                class="block mb-2 text-sm font-medium text-gray-900"
+                                                >Tenant Name:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                disabled
+                                                id="dorm_name"
+                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                placeholder="Matic malalagyan ng data"
+                                                required
+                                            />
+                                    </div>
+                                    <div class="flex-grow">
+                                        <label
+                                                for="dorm_owner_name"
+                                                class="block mb-2 text-sm font-medium text-gray-900"
+                                                >Room Name:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                disabled
+                                                id="dorm_name"
+                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                placeholder="Matic malalagyan ng data"
+                                                required
+                                            />
+                                    </div></div>
+                                    
+                                    <div>
+                                        <label
+                                                for="dorm_owner_name"
+                                                class="block mb-2 text-sm font-medium text-gray-900"
+                                                >Monthly Rent:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                disabled
+                                                id="dorm_name"
+                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                placeholder="Matic malalagyan ng data"
+                                                required
+                                            />
+                                    </div>
+                                    <!--Select Date-->
+                                    <div>
+                                        <label for="daySelect" class="mr-2">Select a day:</label>
+                                        <select id="daySelect" v-model="selectedDay" class="border-none rounded-md py-1 bg-gray-200 mb-1 text-sm text-gray-900">
+                                        <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+                                        </select>
+                                        <p>You selected the {{ selectedDay }} day of the month.</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" value="" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                        <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Auto Bill</span>
+                                    </label>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        @click="closeTermsModal()"
+                                        type="button"
+                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Okay
+                                    </button>
+                                    <button
+                                        @click="closeTermsModal()"
+                                        type="button"
+                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            
+                <!--ManualBillingModal-->
+            <div
+                    id="manualModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-md max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Manual Billing
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeManualBill()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-4">
+                                    <div class="flex flex-row gap-3">
+                                    <div>
+                                        <label
+                                                for="tenant_name"
+                                                class="block mb-2 text-sm font-medium text-gray-900"
+                                                >Tenant Name:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                disabled
+                                                id="tenant_name"
+                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                placeholder="Matic malalagyan ng data"
+                                                required
+                                            />
+                                    </div>
+                                    <div class="flex-grow">
+                                        <label
+                                                for="room_name"
+                                                class="block mb-2 text-sm font-medium text-gray-900"
+                                                >Room Name:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                disabled
+                                                id="room_name"
+                                                class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                placeholder="Matic malalagyan ng data"
+                                                required
+                                            />
+                                    </div>
+                                </div>
+                                    
+                                    <div>
+                                        <label
+                                                for="dorm_owner_name"
+                                                class="block text-sm font-medium text-gray-900"
+                                                >Billing Subject:</label
+                                            >
+                                            <select id="subject" class="block w-full px-2 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                <option selected>Choose a Billing for:</option>
+                                                <option value="Maintenance">Electricity</option>
+                                                <option value="Cleanliness">Water</option>
+                                                <option value="Noise">Internet</option>
+                                                <option value="Safety and Security">Others</option>
+                                            </select>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <label
+                                                for="room_name"
+                                                class="block text-sm font-medium text-gray-900"
+                                                >Amount:</label
+                                            >
+                                            <input
+                                                type="text"
+                                                id="room_name"
+                                                class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                                required
+                                            />
+                                    </div>
+                                    <div>
+                                            <label for="complainmessage" class="block text-sm font-medium text-gray-900">Description:</label>
+                                            <textarea id="complainmessage" rows="3" class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a description..." required></textarea>
+                                    </div>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        @click=""
+                                        type="button"
+                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Bill
+                                    </button>
+                                    <button
+                                        @click=""
+                                        type="button"
+                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
         </div>
     </AuthenticatedLayout>
 </template>

@@ -126,6 +126,7 @@ export default {
 <template>  
       <div>
         <TenantLayout v-if="user.user_type == 'tenant'">
+            <div class="px-4 pt-14 lg:ml-64">
             <div class="w-full flex flex-col mt-16 overflow-y-hidden main">
                 <div class="flex flex-row" v-if="!isMobileView">
                     <div class="w-3/12 border-r flex flex-col main">
@@ -232,9 +233,11 @@ export default {
                     </div>
                 </div>
             </div>
+        </div>
         </TenantLayout>
 
         <OtherLayout v-else>
+            <div class="px-4 pt-14 lg:ml-64">
             <div class="w-full flex flex-col overflow-y-hidden main">
                 <div class="flex flex-row" v-if="!isMobileView">
                     <div class="w-3/12 border-r flex flex-col main">
@@ -341,6 +344,7 @@ export default {
                     </div>
                 </div>
             </div>
+        </div>
         </OtherLayout>
       </div>
 </template>

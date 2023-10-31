@@ -1,60 +1,113 @@
 <script>
-import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
+import { ref } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
-import { ref} from 'vue';
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
+import {
+    endOfMonth,
+    endOfYear,
+    startOfMonth,
+    startOfYear,
+    subMonths,
+} from "date-fns";
 
 export default {
-    components: {
-        AuthenticatedLayout,
-    },setup(){
+    component: {
+        VueDatePicker,
+    },
+    setup() {
         const page = usePage();
         const user = page.props.auth.user;
+        const date = ref();
         const options = ["Jear dorm", "Dorm 2"];
         const numoptions = ["5", "10", "15", "20"];
-        const header=["Page Name", "Description"]
+        const header=["Dorm Name", "Owner Name", "Address", "Room Total", "Storey Total", "Status"]
         const data = [
-            ["About us", "About us"],
-            ["Contact us", "Contact us"],
-            ["Privacy policy", "Privacy Policy"],
-            ["Terms & Condition Tenants", "Terms & Condition Tenants"],
-            ["Terms & Condition Owner", "Terms & Condition Owner"],
-            
+            ["Panganiban's Dorm", "Pastora Panganiban", "Caloocan, Balayan", "8", "2", "Approved"],
+            ["Roxas Dorm", "Ronnel Roxas", "Caloocan, Balayan", "6","2", "Approved"],
+            ["M.D.R Apartment", "Marife De Guzman", "Caloocan, Balayan", "32","3", "Approved"],
+            ["M.D.R Apartment 2", "Marife De Guzman", "Caloocan, Balayan", "8","2", "Approved"],
             
 
         ];
-        
 
-        return{
+        const presetDates = ref([
+            { label: "Today", value: [new Date(), new Date()] },
+            {
+                label: "Today (Slot)",
+                value: [new Date(), new Date()],
+                slot: "preset-date-range-button",
+            },
+            {
+                label: "This month",
+                value: [startOfMonth(new Date()), endOfMonth(new Date())],
+            },
+            {
+                label: "Last month",
+                value: [
+                    startOfMonth(subMonths(new Date(), 1)),
+                    endOfMonth(subMonths(new Date(), 1)),
+                ],
+            },
+            {
+                label: "This year",
+                value: [startOfYear(new Date()), endOfYear(new Date())],
+            },
+        ]);
+        const back = () => {
+            var url = null;
+
+            if (user) {
+                router.get(route("admin.reports"));
+            } else {
+                router.get(route("landing.page"));
+            }
+        };
+        return {
+            date,
+            presetDates,
             options,
             numoptions,
             header,
             data,
-            user
+            back
         };
-},
+    },
 };
 </script>
 <template>
-    <AuthenticatedLayout>
-        <div class="p-4 mt-16 lg:ml-64">
-            
-            <div class="">
-            <div class="flex items-center gap-2 justify-start">
-                <svg
-                    class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                    viewBox="0 0 384 512"
-                    fill="currentColor"
+    <div class="flex flex-row gap-2 items-center">
+        <button @click="back()" class="border-2 border-gray-500 px-3 py-1  text-gray-500 hover:text-white hover:border-orange-400 rounded-md hover:bg-orange-400 "><span>
+            <i class="fa-solid fa-arrow-left fa-lg" ></i>
+        </span></button>
+        <p class="text-2xl font-semibold my-4">Dormitories Report</p>
+    </div>
+    <div class="w-[278px] mt-5">
+        <p class="text-sm">Date Range:</p>
+        <VueDatePicker
+            v-model="date"
+            range
+            :preset-dates="presetDates"
+            :enable-time-picker="false"
+        >
+            <template #preset-date-range-button="{ label, value, presetDate }">
+                <span
+                    class=""
+                    role="button"
+                    :tabindex="0"
+                    @click="presetDate(value)"
+                    @keyup.enter.prevent="presetDate(value)"
+                    @keyup.space.prevent="presetDate(value)"
                 >
-                    <path
-                        d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V288H216c-13.3 0-24 10.7-24 24s10.7 24 24 24H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM384 336V288H494.1l-39-39c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l80 80c9.4 9.4 9.4 24.6 0 33.9l-80 80c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l39-39H384zm0-208H256V0L384 128z"
-                    />
-                </svg>
-                <h3 class="text-3xl font-bold">Maintenance</h3>
-            </div>
-            <hr class="my-5" />
-            
-        </div>
-        
+                    {{ label }}
+                </span>
+            </template>
+        </VueDatePicker>
+    </div>
+    <!--Button-->
+    <div class="mt-5">
+        <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+    </div>
     <div class="w-full mb-5 mt-5">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -64,7 +117,35 @@ export default {
                                 <div
                                     class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
                                 >
-                                    <div class="w-full"> <form class="flex items-center">
+                                <div class="mb-3 sm:flex-row flex-col flex gap-3">
+                                    <div class="flex flex-row items-center gap-2">
+                                        <p class="text-sm font-bold">Show</p>
+                                        <select
+                                            id="subject"
+                                            class="block w-16 px-5 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        >
+                                            <option v-for="option in numoptions" :key="option">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                        <p class="text-sm font-bold">entries</p>
+                                    </div>
+                                    <div class="flex flex-row gap-2">
+                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
+                                        Copy
+                                    </button>
+                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
+                                        Excel
+                                    </button>
+                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
+                                        PDF
+                                    </button>
+                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
+                                        Print
+                                    </button>
+                                    </div>
+                                </div>
+                                    <form class="flex items-center">
                                         
                                         <label
                                             for="simple-search"
@@ -122,8 +203,6 @@ export default {
                                         </button>
                                     </form>
                                 </div>
-                                   
-                                </div>
                             </div>
                         </div>
                         <div class="block w-full overflow-x-auto">
@@ -139,12 +218,6 @@ export default {
                                         >
                                             {{ header }}
                                         </th>
-                                        <th
-                                        class="px-6 border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-
-                                        >
-                                            Command
-                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -159,18 +232,7 @@ export default {
                                         >
                                             {{ value }}
                                         </td>
-                                        <td 
-                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        >
-                                            <div class="flex flex-row items-center gap-2">
-                                                <span>
-                                                    <i class="fa-solid fa-pen-to-square" style="color: #03a800;"></i>
-                                                </span>
-                                                <span>
-                                                    <i class="fa-solid fa-trash" style="color: #cc0000;"></i>
-                                                </span>
-                                            </div>
-                                        </td>
+                                        
                                     </tr>
                                 </tbody>    
                             </table>
@@ -227,7 +289,4 @@ export default {
                         </div>
                     </div>
                 </div>
-    
-    </div>
-    </AuthenticatedLayout>
 </template>

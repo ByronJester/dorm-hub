@@ -20,7 +20,7 @@ export default {
         const numoptions = ["5", "10", "15", "20"];
         const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
         const data = [
-            ["Jear Dorm","2023-02-10", "12", "10", "2", "P10,000", "120,000"],
+            ["M.D.R Apartment","2023-10-30", "32", "0", "32", "0", "0"],
 
         ];
 

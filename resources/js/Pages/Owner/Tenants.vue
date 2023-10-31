@@ -13,7 +13,7 @@ export default {
             AppDropdownItem,
         },
         setup(){
-            const options=["Jear Dorm", "Dorm 2"];
+            const options=["M.D.R Apartment", "Dorm 2"];
             const headerTenants=["Room Name", "Tenant Name", "Room Price", "Move-In Date", "Move-Out Date", "Balance"];
             
             return{
@@ -234,9 +234,6 @@ export default {
                 </div>
             </div>
         </div>
-            <!--Title-->
-        
-        
     </div>
         
     </AuthenticatedLayout>

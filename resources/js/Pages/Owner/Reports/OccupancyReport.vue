@@ -17,7 +17,7 @@ export default {
     },
     setup() {
         const date = ref();
-        const options = ["Jear dorm", "Dorm 2"];
+        const options = ["M.D.R Apartment", "Dorm2"];
         const numoptions = ["5", "10", "15", "20"];
         const header=["Room Name", "Tenant Name", "Move-in Date", "Status"]
         const data = [

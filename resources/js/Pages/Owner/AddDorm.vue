@@ -396,7 +396,10 @@ export default {
     >
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center px-10 justify-between">
-                <ApplicationLogo />
+                <a href="/">
+                     <ApplicationLogo />
+                </a>
+               
                 <div class="flex items-center">
                     <div class="flex items-center ml-3">
                         <AppDropdown>

@@ -77,7 +77,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/dashboard', [AdminController:: class, 'dashboard'])->name('admin.dashboard');
         Route::get('/maintenance', [AdminController:: class, 'maintenance'])->name('admin.maintenance');
         Route::get('/reports', [AdminController:: class, 'reports'])->name('admin.reports');
-        Route::get('/utilities', [AdminController:: class, 'utilities'])->name('admin.utilities');
+        Route::get('/addUser', [AdminController:: class, 'addUser'])->name('admin.addUser');
+        Route::get('/backUp', [AdminController:: class, 'backUp'])->name('admin.backUp');
+        Route::get('/archive', [AdminController:: class, 'archive'])->name('admin.archive');
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
         Route::post('/tenant/change-staus', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
@@ -92,7 +94,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/addDorm', [OwnerController::class, 'addDorm'])->name('owner.addDorm');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
-        Route::get('/maintenance', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
+        Route::get('/tenantspaymenthistory', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
+        Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
         Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');

@@ -13,7 +13,7 @@ export default{
     },
     setup(){
         //mga sample data lang to
-        const options=["Jear Dorm", "Dorm2"]
+        const options=["M.D.R Apartment", "Dorm2"]
         const headerComplaints=["Subject", "Message", "Status", "Complain Date", "Date Finish"]
         const dataComplaints = [
             {
@@ -48,7 +48,6 @@ export default{
             return{
                 options,
                 headerComplaints,
-                dataComplaints
             }
     }
 }
