@@ -39,9 +39,9 @@ class TenantController extends Controller
         $auth = Auth::user();
 
         $payments = TenantPayment::where('tenant_id', $auth->id)->get();
-        $nexPayment = TenantPayment::where('status', 'pending')->first();
-        $lastBilled = TenantPayment::orderBy('updated_at', 'desc')->where('status', 'paid')->first();
-        $totalAmountPaid = TenantPayment::where('status', 'paid')->get();
+        $nexPayment = TenantPayment::where('status', 'pending')->where('tenant_id', $auth->id)->first();
+        $lastBilled = TenantPayment::orderBy('updated_at', 'desc')->where('status', 'paid')->where('tenant_id', $auth->id)->first();
+        $totalAmountPaid = TenantPayment::where('status', 'paid')->where('tenant_id', $auth->id)->get();
 
         $balance = 0;
 

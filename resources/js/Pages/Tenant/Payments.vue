@@ -33,84 +33,24 @@ export default {
             methods.value = page.props.methods;
         });
 
-        const pay = (id, method) => {
-            if (method == "GCash Payment") {
-                swal(
-                    {
-                        title: `Are you sure to pay rent?`,
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Yes",
-                        closeOnConfirm: false,
-                    },
-                    function () {
-                        axios
-                            .post(route("pay.rent", id), { method: method })
-                            .then((response) => {
-                                window.location.href =
-                                    response.data.redirect.checkout_url;
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                            });
-                    }
-                );
-            }
+        const selectedBill = ref();
 
-            if (method == "Bank Payment") {
-                if (receipt.value == null) {
-                    imageError.value = "Bank transfer receipt is required";
+        const pay = (arg) => {
+            openModal()
+            console.log(arg)
 
-                    return;
-                }
-
-                imageError.value = null;
-
-                swal(
-                    {
-                        title: `Are you sure to upload this receipt?`,
-                        type: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#DD6B55",
-                        confirmButtonText: "Yes",
-                        closeOnConfirm: false,
-                    },
-                    function () {
-                        axios
-                            .post(route("pay.rent", id), {
-                                method: method,
-                                receipt: receipt.value,
-                            })
-                            .then((response) => {
-                                swal(
-                                    "Success!",
-                                    `Please wait for the dorm owner to verify you receipt.`,
-                                    "success"
-                                );
-
-                                setTimeout(function () {
-                                    location.reload();
-                                }, 1500);
-                            })
-                            .catch((error) => {
-                                console.log(error);
-                            });
-                    }
-                );
-            }
+            selectedBill.value = arg
         };
 
-        const openModal = (arg) => {
-            payment_id.value = arg;
+        const openModal = () => {
 
-            var modal = document.getElementById("bankModal");
+            var modal = document.getElementById("payModal");
 
             modal.style.display = "block";
         };
 
         const closeModal = () => {
-            var modal = document.getElementById("bankModal");
+            var modal = document.getElementById("payModal");
 
             modal.style.display = "none";
         };
@@ -198,7 +138,8 @@ export default {
             lastBilled,
             moneyFormat,
             balance,
-            totalAmountPaid
+            totalAmountPaid,
+            selectedBill
         };
     },
 };
@@ -254,7 +195,9 @@ export default {
                                             <h1
                                                 class="text-3xl leading-tight font-semibold"
                                             >
-                                                <div>{{moneyFormat(nexPayment.amount)}}</div>
+                                                <div>
+                                                    {{ !!nextPayment ?  moneyFormat(nexPayment.amount) : 0.00 }}
+                                                </div>
                                             </h1>
                                         </div>
                                     </div>
@@ -373,18 +316,18 @@ export default {
                                 <!--Date kung kelan yung billing-->
                                 <p class="text-gray-500">Next payment on</p>
                                 <h1 class="text-xl font-semibold">
-                                    {{nexPayment.display_date}}
+                                    {{ !!nexPayment ? nexPayment.display_date : '' }}
                                 </h1>
                             </div>
                             <div class="mb-6 text-center md:mb-0 md:text-left">
                                 <p class="text-gray-500">Last billed on</p>
-                                <h1 class="text-xl">{{lastBilled.display_created_date}}</h1>
+                                <h1 class="text-xl">{{ !! lastBilled ? lastBilled.display_created_date : ''}}</h1>
                             </div>
                         </div>
                         <div class="text-center md:text-right">
                             <p class="text-gray-500">Amount due</p>
                             <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
-                            <h1 class="text-2xl font-semibold">{{ moneyFormat(nexPayment.amount) }}</h1>
+                            <h1 class="text-2xl font-semibold">{{ !!nextPayment ? moneyFormat(nexPayment.amount) : 0.00 }}</h1>
                         </div>
                     </div>
                 </div>
@@ -524,6 +467,37 @@ export default {
                                             </div>
                                     </div>
                                 </div>
+                        </div>
+                    </div>
+
+                    <div id="payModal" class="payModal mt-10 md:mt-0">
+                        <div class="pay-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
+                            <div class="w-full">
+                                <span>
+                                    {{ selectedBill ? removeUnderscoreAndCapitalizeAfterSpace(selectedBill.category) : 'Payment'}}
+                                </span>
+
+                                <span class="float-right cursor-pointer"
+                                    @click="closeModal()"
+                                >
+                                    <i class="fa-solid fa-xmark"></i>
+                                </span>
+                            </div>
+
+                            <div class="w-full h-[200px] flex justify-center items-center my-3"
+                                style="border: 1px solid black"
+                            >
+                                <span class="text-2xl">
+                                    {{ selectedBill ? moneyFormat(selectedBill.amount) : 0.00 }}
+                                </span>
+                            </div>
+
+                            <div class="w-full">
+                                <button class="rounded-md px-3 py-2 bg-cyan-300 float-right">
+                                    Proceed Payment
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 <!--
@@ -837,11 +811,11 @@ export default {
     background-color: #e5e8e8;
 }
 
-.bankModal {
+.payModal {
     display: none;
     position: fixed; /* Stay in place */
     z-index: 1; /* Sit on top */
-    padding-top: 20px; /* Location of the box */
+    padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
     width: 100%; /* Full width */
@@ -852,7 +826,7 @@ export default {
 }
 
 /* Modal Content */
-.bank-modal-content {
+.pay-modal-content {
     background-color: #fefefe;
     margin: auto;
     padding: 20px;
