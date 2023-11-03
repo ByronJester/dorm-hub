@@ -14,6 +14,7 @@ use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Str;
+use App\Rules\CodeExists;
 
 class RegisteredUserController extends Controller
 {
@@ -47,8 +48,9 @@ class RegisteredUserController extends Controller
             'user_type' => 'required',
             'id_picture' => 'required',
             'selfie_id_picture' => 'required',
-            'email' => 'required|string|email|max:255|unique:'.User::class,
+            'username' => 'required|string|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'code' => ['required', new CodeExists('codes', 'code')]
         ]);
 
         $id_picture = Str::random(10) . '_id_picture';
@@ -63,31 +65,33 @@ class RegisteredUserController extends Controller
             'last_name' => $request->last_name,
             'phone_number' => $request->phone_number,
             'user_type' => $request->user_type,
-            'email' => $request->email,
+            'username' => $request->username,
             'password' => Hash::make($request->password),
             'id_picture' => $id_picture,
             'selfie_id_picture' => $selfie_picture,
-            'is_approved' => $request->user_type == 'tenant' ? false : true
+            'is_approved' => false
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        // Auth::login($user);
 
-        $redirect = null;
+        // $redirect = null;
 
-        if($user->user_type == 'owner') {
-            $redirect = RouteServiceProvider::OWNER;
-        }
+        // if($user->user_type == 'owner') {
+        //     $redirect = RouteServiceProvider::OWNER;
+        // }
 
-        if($user->user_type == 'tenant') {
-            $redirect = RouteServiceProvider::TENANT;
-        }
+        // if($user->user_type == 'tenant') {
+        //     $redirect = RouteServiceProvider::TENANT;
+        // }
 
-        if($user->user_type == 'admin') {
-            $redirect = RouteServiceProvider::ADMIN;
-        }
+        // if($user->user_type == 'admin') {
+        //     $redirect = RouteServiceProvider::ADMIN;
+        // }
 
-        return redirect($redirect);
+        // return redirect($redirect);
+
+        return redirect()->back();
     }
 }

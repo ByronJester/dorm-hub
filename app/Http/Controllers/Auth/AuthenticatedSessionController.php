@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\{ User };
 
 class AuthenticatedSessionController extends Controller
 {
@@ -28,8 +29,19 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
+        $user = User::where('username', $request->username)->first();
+
+        if($user) {
+            if($user->user_type == "tenant" || $user->user_type == 'owner') {
+                if(!$user->is_approved) {
+                    return redirect()->back()
+                        ->withErrors(['not_approved' => 'Your account is not yet verfied.']);
+                }
+            }
+        }
+
         $request->authenticate();
 
         $request->session()->regenerate();

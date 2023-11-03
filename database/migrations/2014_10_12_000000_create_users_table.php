@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
             $table->string('phone_number', 20);
-            $table->string('email')->unique();
+            $table->string('username')->unique();
             $table->string('password');
             $table->string('id_picture', 100)->nullable();
             $table->string('selfie_id_picture', 100)->nullable();

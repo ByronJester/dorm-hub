@@ -56,6 +56,8 @@ Route::get('/alive', function () {
 
 Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
 
+Route::post('/send-otp', [SharedController::class, 'sendOTP'])->name('send.otp');
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

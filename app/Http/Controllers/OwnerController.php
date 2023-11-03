@@ -479,46 +479,25 @@ class OwnerController extends Controller
             'status' => 'approved',
         ]);
 
-        $advanceBilling1 = TenantBilling::create([
+        $billing = TenantBilling::create([
             'tenant_id' => $request->tenant_id,
             'tenant_application_id' => $request->tenant_application_id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'phone_number' => $request->phone_number,
-            'amount' => $room->deposit,
-            'description' => 'deposit_fee',
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'description' => 'advance_and_deposit_fee',
             'date' => $now,
         ]);
 
         TenantPayment::create([
             'tenant_id' => $request->tenant_id,
-            'tenant_billing_id' => $advanceBilling1->id,
+            'tenant_billing_id' => $billing->id,
             'dorm_id' => $room->dorm_id,
             'room_id' => $room->id,
-            'amount' => $room->deposit,
-            'category' => 'deposit_fee',
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'category' => 'advance_and_deposit_fee',
             'date' => $now
-        ]);
-
-        $advanceBilling2 = TenantBilling::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_application_id' => $request->tenant_application_id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone_number' => $request->phone_number,
-            'amount' => $room->advance,
-            'description' => 'advance_fee',
-            'date' => Carbon::now()->addMonthsNoOverflow(1)
-        ]);
-
-        TenantPayment::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_billing_id' => $advanceBilling2->id,
-            'dorm_id' => $room->dorm_id,
-            'room_id' => $room->id,
-            'amount' => $room->advance,
-            'category' => 'advance_fee',
-            'date' => Carbon::now()->addMonthsNoOverflow(1)
         ]);
 
         return true;
@@ -550,46 +529,25 @@ class OwnerController extends Controller
             'status' => 'paid'
         ]);
 
-        $advanceBilling1 = TenantBilling::create([
+        $billing = TenantBilling::create([
             'tenant_id' => $request->tenant_id,
             'tenant_application_id' => $request->tenant_application_id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'phone_number' => $request->phone_number,
-            'amount' => $room->deposit,
-            'description' => 'deposit_fee',
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'description' => 'advance_and_deposit_fee',
             'date' => $now,
         ]);
 
         TenantPayment::create([
             'tenant_id' => $request->tenant_id,
-            'tenant_billing_id' => $advanceBilling1->id,
+            'tenant_billing_id' => $billing->id,
             'dorm_id' => $room->dorm_id,
             'room_id' => $room->id,
-            'amount' => $room->deposit,
-            'category' => 'deposit_fee',
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'category' => 'advance_and_deposit_fee',
             'date' => $now
-        ]);
-
-        $advanceBilling2 = TenantBilling::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_application_id' => $request->tenant_application_id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone_number' => $request->phone_number,
-            'amount' => $room->advance,
-            'description' => 'advance_fee',
-            'date' => Carbon::now()->addMonthsNoOverflow(1)
-        ]);
-
-        TenantPayment::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_billing_id' => $advanceBilling2->id,
-            'dorm_id' => $room->dorm_id,
-            'room_id' => $room->id,
-            'amount' => $room->advance,
-            'category' => 'advance_fee',
-            'date' => Carbon::now()->addMonthsNoOverflow(1)
         ]);
 
         return true;

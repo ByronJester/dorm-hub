@@ -124,13 +124,14 @@ export default {
             middle_name: "",
             last_name: "",
             phone_number: "",
-            email: "",
+            username: "",
             user_type: "",
             password: "",
             password_confirmation: "",
             id_picture: "",
             selfie_id_picture: "",
             terms: false,
+            code: ""
         });
 
         const idPictureClick = () => {
@@ -169,32 +170,67 @@ export default {
         };
         //hanggagn dito
 
-        const submit = () => {
-            form.post(route("user.register"), {
-                // onFinish: () => form.reset('password', 'password_confirmation'),
-            });
+        const openModal = () => {
+            var modal = document.getElementById("otpModal");
+
+            modal.style.display = "block";
         };
 
+        const closeModal = () => {
+            var modal = document.getElementById("otpModal");
+
+            modal.style.display = "none";
+        };
+
+        const submit = () => {
+            openModal()
+            // form.post(route("user.register"), {
+
+            // });
+
+            axios.post(route('send.otp'), {phone_number: form.phone_number})
+                .then(response => {
+                    console.log(response.data)
+                    form.code = response.data
+                })
+                .catch(error => {
+
+                })
+        };
+
+        const confirmSubmit = () => {
+            form.post(route("user.register"), {
+                onSuccess: () =>{
+                    location.reload()
+                },
+                onError: (error) =>{
+
+                }
+            });
+        }
+
         const loginForm = useForm({
-            email: "",
+            username: "",
             password: "",
             remember: false,
         });
 
+        const not_approved = ref(null);
+
         const login =  () => {
+            not_approved.value = null
+
             loginForm.post(route("login"), {
-                onSuccess: () =>{
-                    VsToast.show({
-                    title: 'Logged In',
-                    message: "You've login successfuly",
-                    variant: 'success',
-                    });
+                onSuccess: (res) =>{
+                    // console.log(res)
+                    // VsToast.show({
+                    // title: 'Logged In',
+                    // message: "You've login successfuly",
+                    // variant: 'success',
+                    // });
                 },
                 onError: (error) =>{
-                    VsToast.show({
-                        title: 'Invalid Credentials',
-                        variant: 'error',
-                        });
+                    not_approved.value = error.not_approved
                 }
             });
         };
@@ -220,6 +256,10 @@ export default {
             SelfieidPictureChange,
             submit,
             login,
+            openModal,
+            closeModal,
+            confirmSubmit,
+            not_approved
         };
     },
 };
@@ -267,7 +307,7 @@ export default {
                 </div>
             </nav>
             <Hero />
-            
+
             <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
                 <h1 class="text-3xl text-gray-900 mb-2">Featured Domitories</h1>
                 <div
@@ -290,7 +330,7 @@ export default {
               <!--New UI register modal-->
                 <div
                     id="registerModal"
-      
+
                     aria-hidden="true"
                     style="background-color: rgba(0, 0, 0, 0.7)"
                     class="registerModal fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
@@ -323,6 +363,39 @@ export default {
                                     </svg>
                                     <span class="sr-only">Close modal</span>
                                 </button>
+
+                                <div id="otpModal" class="otpModal mt-10 md:mt-0">
+                                    <div class="otp-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
+                                        <div class="w-full">
+                                            <span>
+                                                OTP
+                                            </span>
+
+                                            <span class="float-right cursor-pointer"
+                                                @click="closeModal()"
+                                            >
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </span>
+                                        </div>
+
+                                        <div class="w-full mt-5">
+                                            <input type="text" class="w-full rounded-md h-[40px]" placeholder="Code"
+                                                v-model="form.code"
+                                            >
+                                        </div>
+
+                                        <div class="w-full mt-5">
+                                            <button
+                                                class="float-right rounded-md px-4 py-2 bg-cyan-300"
+                                                @click="confirmSubmit()"
+                                            >
+                                                Submit
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+
                                 <div class="px-6 py-6 lg:px-8">
                                     <div class="mb-4">
                                         <h3
@@ -337,10 +410,7 @@ export default {
                                     </div>
 
                                     <hr class="mb-4" />
-                                    <form
-                                        class="space-y-6"
-                                        @submit.prevent="submit"
-                                    >
+                                    <!-- Sign Up -->
                                         <div class="mb-4">
                                             <InputLabel
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -503,15 +573,15 @@ export default {
                                                 id="email-login"
                                                 type="text"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                                v-model="form.email"
+                                                v-model="form.username"
                                                 required
                                                 autofocus
-                                                autocomplete="email"
+                                                autocomplete="username"
                                             />
 
                                             <InputError
                                                 class="mt-2"
-                                                :message="form.errors.email"
+                                                :message="form.errors.username"
                                             />
                                         </div>
 
@@ -731,6 +801,7 @@ export default {
                                             }"
                                             :disabled="form.processing"
                                             class="w-full text-white bg-orange-500 hover:bg-orange-400 focus:ring-4 focus:outline-none focus:ring-orange-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center0"
+                                            @click="submit()"
                                         >
                                             Sign up
                                         </button>
@@ -747,7 +818,6 @@ export default {
                                                 >Signin Now</a
                                             >
                                         </div>
-                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -956,7 +1026,7 @@ export default {
                                                 id="email-login"
                                                 type="text"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                                v-model="loginForm.email"
+                                                v-model="loginForm.username"
                                                 required
                                                 autofocus
                                                 autocomplete="email"
@@ -1018,6 +1088,12 @@ export default {
                                         >
                                             Signin
                                         </button>
+
+                                        <div class="w-full" v-if="not_approved">
+                                            <span class="text-xs text-rose-500">
+                                                {{ not_approved }}
+                                            </span>
+                                        </div>
                                         <div
                                             class="text-sm font-medium text-gray-500 dark:text-gray-300"
                                         >
@@ -1031,10 +1107,10 @@ export default {
                                                 >Create an account</a
                                             >
                                             <div class="text-center">
-                                           
+
                                         </div>
                                         </div>
-                                    </form>                                   
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -1112,5 +1188,48 @@ export default {
     color: #000;
     text-decoration: none;
     cursor: pointer;
+}
+
+.otpModal {
+    display: none;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 150px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.otp-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
 }
 </style>

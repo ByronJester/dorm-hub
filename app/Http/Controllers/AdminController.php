@@ -37,7 +37,7 @@ class AdminController extends Controller
         return Inertia::render('Admin/Maintenance',[
 
         ]);
-        
+
     }
 
 
@@ -67,7 +67,7 @@ class AdminController extends Controller
 
     public function tenantList()
     {
-        $users = User::where('user_type', 'tenant')->get();
+        $users = User::whereIn('user_type', ['tenant', 'owner'])->get();
 
         return Inertia::render('Admin/Users', [
             'users' => $users,
@@ -83,10 +83,12 @@ class AdminController extends Controller
         $notification = new Notification;
 
         $status = $request->status ? 'approved' : 'declined';
-        $message = $status == 'approved' ? 'Your account has been approved you can reserve/rent room now.' : 'Your account has been declined';
+        $message = $status == 'approved' ? 'Your account has been approved you can logged in your account now.' : 'Your account has been declined';
 
         if($status == 'approved') {
             $notification->redirection = 'tenant.dorms';
+
+            $this->sendSMS($user->phone_number, $message);
         }
 
 
