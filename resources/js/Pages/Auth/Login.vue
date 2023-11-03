@@ -1,11 +1,11 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import Checkbox from "@/Components/Checkbox.vue";
+import GuestLayout from "@/Layouts/GuestLayout.vue";
+import InputError from "@/Components/InputError.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import TextInput from "@/Components/TextInput.vue";
+import { Head, Link, useForm } from "@inertiajs/vue3";
 
 defineProps({
     canResetPassword: Boolean,
@@ -13,29 +13,29 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
     remember: false,
 });
 
 const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+    form.post(route("login"), {
+        onFinish: () => form.reset("password"),
     });
 };
 </script>
 
 <template>
-    <GuestLayout style="background-color: #EB984E;">
-        <Head title="Log in" />
+    <GuestLayout class="bg-white">
+        <Head title="Log" />
 
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
 
-        <form @submit.prevent="submit" >
+        <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Aimel" />
 
                 <TextInput
                     id="email"
@@ -70,10 +70,10 @@ const submit = () => {
                     <Link
                         :href="route('landing.page')"
                         class="font-semibold focus:rounded-sm"
-                        >
-                        <i class="fa-solid fa-arrow-left mr-1"></i> GO BACK TO LANDING PAGE
-                    </Link
                     >
+                        <i class="fa-solid fa-arrow-left mr-1"></i> GO BACK TO
+                        LANDING PAGE
+                    </Link>
                 </span>
             </div>
 
@@ -93,8 +93,12 @@ const submit = () => {
                     Forgot your password?
                 </Link> -->
 
-                <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Login
+                <PrimaryButton
+                    class="ml-4"
+                    :class="{ 'opacity-25': form.processing }"
+                    :disabled="form.processing"
+                >
+                    Log
                 </PrimaryButton>
             </div>
         </form>

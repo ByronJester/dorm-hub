@@ -21,7 +21,36 @@ class UserSeeder extends Seeder
             'last_name' => 'Admin',
             'phone_number' => '0977000000',
             'password' => Hash::make('password'),
-            'email' => 'admin@gmail.com',
+            'username' => 'admin1',
+            'user_type' => 'admin',
+        ]);
+
+
+        User::create([
+            'first_name' => 'Admin',
+            'last_name' => 'Admin',
+            'phone_number' => '0977000000',
+            'password' => Hash::make('password'),
+            'username' => 'admin2',
+            'user_type' => 'admin',
+        ]);
+
+
+        User::create([
+            'first_name' => 'Admin',
+            'last_name' => 'Admin',
+            'phone_number' => '0977000000',
+            'password' => Hash::make('password'),
+            'username' => 'admin3',
+            'user_type' => 'admin',
+        ]);
+
+        User::create([
+            'first_name' => 'Admin',
+            'last_name' => 'Admin',
+            'phone_number' => '0977000000',
+            'password' => Hash::make('password'),
+            'username' => 'admin4',
             'user_type' => 'admin',
         ]);
     }

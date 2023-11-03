@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\{ Dorm, Notification, Thread, ThreadMessage };
+use App\Models\{ Dorm, Notification, Thread, ThreadMessage, Code };
 use Illuminate\Support\Facades\Auth;
 
 class SharedController extends Controller
@@ -97,5 +97,23 @@ class SharedController extends Controller
 
         // return response()->json(['threads' => $threads->get()], 200);
         return $threads->get();
+    }
+
+    public function sendOTP(Request $request)
+    {
+        $length = 8;
+        $message = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $message .= rand(0, 9);
+        }
+
+        Code::create([
+            'code' => $message
+        ]);
+
+        $this->sendSMS($request->phone_number, $message);
+
+        return $message;
     }
 }

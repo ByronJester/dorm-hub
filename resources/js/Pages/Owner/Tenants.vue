@@ -1,443 +1,241 @@
 <script>
-    import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
-    // import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-    import { Head } from '@inertiajs/vue3';
-    import 'vue-good-table-next/dist/vue-good-table-next.css'
-    import { VueGoodTable } from 'vue-good-table-next';
-    import { ref, computed, reactive, watch, onMounted, defineProps } from 'vue';
-    import { usePage, useForm } from '@inertiajs/vue3'
-    import axios from 'axios';
+import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
+import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
+import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
+import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 
-    export default {
+
+export default {
         components: {
             AuthenticatedLayout,
-            VueGoodTable
+            AppDropdown,
+            AppDropdownContent,
+            AppDropdownItem,
         },
-        setup() {
-            const isMobileView = ref(false)
-            isMobileView.value = screen.width < 600;
-            const page = usePage()
-            const rows = ref([])
-            const columns = ref([
-                {
-                    label: 'Name',
-                    field: 'name',
-                },
-                {
-                    label: 'Source of Income',
-                    field: 'source_of_income',
-                },
-                {
-                    label: 'Monthly Income',
-                    field: 'monthly_income',
-                },
-                {
-                    label: 'Monthly Expenses',
-                    field: 'monthly_expenses',
-                },
-                {
-                    label: 'Status',
-                    field: 'status',
-                },
-                {
-                    label: 'Actions',
-                    field: 'action',
-                },
-            ])
-
-            onMounted(() => {
-                rows.value = page.props.applications
-            });
-
-            const user = page.props.auth.user;
-
-            const paymentColumns = ref([
-                {
-                    label: 'Amount To Pay',
-                    field: 'amount_to_pay',
-                },
-                {
-                    label: 'Amount Paid',
-                    field: 'amount_paid',
-                },
-                {
-                    label: 'Partial Payment',
-                    field: 'partial',
-                },
-                {
-                    label: 'Balance',
-                    field: 'balance',
-                },
-                {
-                    label: 'Mode of Payment',
-                    field: 'mode_of_payment',
-                },
-                {
-                    label: 'Status',
-                    field: 'status',
-                },
-                {
-                    label: 'Date',
-                    field: 'display_date',
-                },
-                {
-                    label: 'Partial Payment Receipt',
-                    field: 'partial_receipt',
-                },
-                {
-                    label: 'Receipt',
-                    field: 'receipt',
-                },
-                {
-                    label: 'Actions',
-                    field: 'action',
-                },
-            ])
-
-            const application = ref();
-            const payments = ref([])
-            const viewPayment = ref(false)
-
-            const openModal = (arg, isViewPayment = false) => {
-                viewPayment.value = isViewPayment
-
-                if(!isViewPayment) {
-                    application.value = arg
-
-                    var modal = document.getElementById("tenantModal");
-
-                    modal.style.display = "block";
-                } else {
-                    payments.value = arg
-
-                    var modal = document.getElementById("tenantModal");
-
-                    modal.style.display = "block";
-                }
-            }
-
-            const closeModal = () => {
-                var modal = document.getElementById("tenantModal");
-
-                modal.style.display = "none";
-            }
-
-            const changeStatus = (status, id) => {
-                swal({
-                    title: `Are you sure to ${!status ? 'deny' : 'approve'} the rental application of this tenant?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false
-                },
-                function(){
-                    axios.post(route('change.application.status', status), {id: id, status: status})
-                        .then(response => {
-                            swal("Success!", `You successfully ${!status ? 'denied' : 'approved'} the rental application of this tenant.`, "success");
-
-                            setTimeout(function () {
-                                location.reload()
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            errors.value = error.response.data.errors
-                        })
-                });
-
-
-            }
-
-            const moneyFormat = (amount) => {
-                if(amount == null || amount == '') {
-                    amount = 0;
-                }
-
-                amount = parseFloat(amount).toFixed(2)
-
-                return '₱ ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
-            }
-
-            const markAsPaid = (id) => {
-
-                swal({
-                    title: `Are you sure to mark as paid this payment?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false
-                },
-                function(){
-                    axios.post(route('payment.mark-as-paid'), {id: id})
-                        .then(response => {
-                            swal("Success!", `You successfully mark as paid this payment.`, "success");
-
-                            setTimeout(function () {
-                                location.reload()
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            errors.value = error.response.data.errors
-                        })
-                });
-
-            }
-
-            return {
-                isMobileView,
-                columns,
-                rows,
-                user,
-                application,
-                payments,
-                paymentColumns,
-                viewPayment,
-                openModal,
-                closeModal,
-                changeStatus,
-                moneyFormat,
-                markAsPaid
+        setup(){
+            const options=["M.D.R Apartment", "Dorm 2"];
+            const headerTenants=["Room Name", "Tenant Name", "Room Price", "Move-In Date", "Move-Out Date", "Balance"];
+            
+            return{
+                options,
+                headerTenants
             }
         }
-    }
-
+}
 </script>
-
 <template>
     <AuthenticatedLayout>
-        <div class="main">
-            <div class="w-full pt-2 md:pt-20">
-                <vue-good-table
-                    styleClass="vgt-table condensed"
-                    style="padding: 0vw 5vw; width: 100%"
-                    :columns="columns"
-                    :rows="rows"
-                    :pagination-options="{ enabled: true }"
-                    :select-options="{ enabled: false }"
-                    :search-options="{ enabled: true }"
-                >
-                    <template #table-row="props">
-                        <div v-if="props.column.field == 'name'" class="mt-2">
-                            {{ props.row.tenant.name }}
-                        </div>
-
-                        <div v-if="props.column.field == 'source_of_income'" class="mt-2">
-                            {{ props.row.tenant.income_information.source_of_income }}
-                        </div>
-
-                        <div v-if="props.column.field == 'monthly_income'" class="mt-2">
-                            {{ moneyFormat(props.row.tenant.income_information.monthly_income) }}
-                        </div>
-
-                        <div v-if="props.column.field == 'status'" class="mt-2">
-                            {{ props.row.is_approved ? 'Approved' : props.row.created_at != props.row.updated_at ? 'Declined' :'Pending' }}
-                        </div>
-
-                        <div v-if="props.column.field == 'monthly_expenses'" class="mt-2">
-                            {{ moneyFormat(props.row.tenant.income_information.monthly_expenses) }}
-                        </div>
-
-                        <div v-if="props.column.field == 'action'">
-                            <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
-                                @click="openModal(props.row, false)"
-                            >
-                                View
-                            </button>
-
-                            <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
-                            @click="openModal(props.row.payments, true)"
-                            >
-                                Payments
-                            </button>
-                        </div>
-                    </template>
-                </vue-good-table>
-            </div>
-
-            `<div class="w-full">
-                <div id="tenantModal" class="tenantModal mt-10 md:mt-0">
-                    <div class="tenant-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}" v-if="!viewPayment">
-                        <div class="w-full">
-                            <span class="text-lg font-bold">
-                                Source of Income Proof
-                            </span>
-                            <span class="float-right cursor-pointer"
-                                @click="closeModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
-
-                        <div class="w-full mt-5" v-if="application">
-                            <img :src="application.tenant.income_information.proof" alt="proof"
-                                style="width: 100%; height: 250px;"
-                            >
-                        </div>
-
-                        <div class="w-full mt-5"  v-if="application">
-                            <button class="bg-cyan-900 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                @click="changeStatus('approved', application.id)"
-                                :disabled="application.is_approved"
-                                :class="{'cursor-not-allowed': application.is_approved}"
-                            >
-                                Approve
-                            </button>
-
-                            <button class="bg-rose-500 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                @click="changeStatus('declined', application.id)"
-                                :disabled="application.is_approved"
-                                :class="{'cursor-not-allowed': application.is_approved}"
-                            >
-                                Decline
-                            </button>
-                        </div>
-
+    <div class="px-4 pt-20 lg:ml-64">
+        <div class="w-full">
+                <div class="flex items-center justify-start">
+                        <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 640 512"><path d="M335.5 4l288 160c15.4 8.6 21 28.1 12.4 43.5s-28.1 21-43.5 12.4L320 68.6 47.5 220c-15.4 8.6-34.9 3-43.5-12.4s-3-34.9 12.4-43.5L304.5 4c9.7-5.4 21.4-5.4 31.1 0zM320 160a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM144 256a40 40 0 1 1 0 80 40 40 0 1 1 0-80zm312 40a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM226.9 491.4L200 441.5V480c0 17.7-14.3 32-32 32H120c-17.7 0-32-14.3-32-32V441.5L61.1 491.4c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l37.9-70.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c16.3 0 31.9 4.5 45.4 12.6l33.6-62.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c32.4 0 62.1 17.8 77.5 46.3l33.6 62.3c13.5-8.1 29.1-12.6 45.4-12.6h19.5c32.4 0 62.1 17.8 77.5 46.3l37.9 70.3c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8L552 441.5V480c0 17.7-14.3 32-32 32H472c-17.7 0-32-14.3-32-32V441.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l36.3-67.5c-1.7-1.7-3.2-3.6-4.3-5.8L376 345.5V400c0 17.7-14.3 32-32 32H296c-17.7 0-32-14.3-32-32V345.5l-26.9 49.9c-1.2 2.2-2.6 4.1-4.3 5.8l36.3 67.5c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8z"/></svg>                </span>
+                        <h3 class="text-3xl">Manage Tenants</h3>
                     </div>
-
-                    <div class="tenant-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '97%'}" v-else>
-                        <div class="w-full">
-                            <span class="text-lg font-bold">
-                                Payments
-                            </span>
-                            <span class="float-right cursor-pointer"
-                                @click="closeModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
-
-                        <vue-good-table
-                            class="mt-5"
-                            styleClass="vgt-table condensed"
-                            style="width: 100%"
-                            :columns="paymentColumns"
-                            :rows="payments"
-                            :select-options="{ enabled: false }"
-                            :search-options="{ enabled: true }"
-                            :pagination-options="{
-                                enabled: true,
-                                perPage: 3,
-                                perPageDropdown: [3],
-                                jumpFirstOrLast : true,
-                            }"
+                
+                <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+                <div>
+                        <p class="text-sm font-bold">Dorm:</p>
+                        <select
+                            id="subject"
+                            class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
-                            <template #table-row="props">
-                                <div v-if="props.column.field == 'amount_to_pay'" class="mt-2">
-                                    {{ moneyFormat(props.row.amount_to_pay) }}
-                                </div>
+                            <option v-for="option in options" :key="option">
+                                {{ option }}
+                            </option>
+                        </select>
+                </div>
+                <div class="w-full mt-2">
+                <div class="w-full mb-5 mt-5">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                        <div class="mb-3">
+                                            <button
+                                            class="flex items-center justify-start bg-orange-400 py-2 px-2 gap-2 rounded-md h-8 text-white"
+                                            @click=""
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                            </svg>
 
-                                <div v-if="props.column.field == 'amount_paid'" class="mt-2">
-                                    {{ moneyFormat(props.row.amount_paid) }}
+                                                    Add Tenant
+                                            </button>
+                                        </div>
+                                    <form class="flex items-center">
+                                        
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                            <div
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+                                            >
+                                                <svg
+                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 18 20"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                id="simple-search"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                placeholder="Search in table..."
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        >
+                                            <svg
+                                                class="w-4 h-4"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                />
+                                            </svg>
+                                            <span class="sr-only">Search</span>
+                                        </button>
+                                    </form>
                                 </div>
-
-                                <div v-if="props.column.field == 'partial'" class="mt-2">
-                                    {{ moneyFormat(props.row.partial) }}
-                                </div>
-
-                                <div v-if="props.column.field == 'balance'" class="mt-2">
-                                    {{ moneyFormat(props.row.amount_to_pay - props.row.amount_paid) }}
-                                </div>
-
-                                <div v-if="props.column.field == 'mode_of_payment'" class="mt-2">
-                                    {{ props.row.mode_of_payment }}
-                                </div>
-
-                                <div v-if="props.column.field == 'status'" class="mt-2">
-                                    <button class="bg-cyan-500 py-1 px-3 mx-1 text-white rounded-md text-xs"
-                                        v-if="!!props.row.is_paid"
-                                        :disabled="true"
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headerTenants"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                        <th
+                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                        >
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in dataTenants"
+                                        :key="rowIndex"
                                     >
-                                        PAID
-                                    </button>
-
-                                    <button class="bg-rose-500 py-1 px-3 mx-1 text-white rounded-md text-xs"
-                                        v-if="!props.row.is_paid"
-                                        :disabled="true"
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in item"
+                                            :key="colIndex"
+                                        >
+                                            {{ value }}
+                                        </td>
+                                        <td
+                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
+                                        >
+                                            <AppDropdown class="">
+                                                <button >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                                                </button>
+                                                <AppDropdownContent class="bg-white z-50 ">
+                                                    <AppDropdownItem>
+                                                        Edit Tenant
+                                                    </AppDropdownItem>
+                                                    <AppDropdownItem>
+                                                        Remove Tenant
+                                                    </AppDropdownItem>
+                                                </AppDropdownContent>
+                                            </AppDropdown>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                            >
+                                <div
+                                    class="justify-between items-center block md:flex"
+                                >
+                                    <div
+                                        class="flex items-center justify-center mb-6 md:mb-0"
                                     >
-                                        NOT PAID
-                                    </button>
-                                </div>
-
-                                <div v-if="props.column.field == 'partial_receipt'" class="mt-2">
-                                    <img :src="props.row.partial_receipt ?? '/images/upload_image.png'" class="rounded-md"
-                                        style="width: 150px; height: 200px; border: 1px solid gray;"
-                                    />
-                                </div>
-
-                                <div v-if="props.column.field == 'receipt'" class="mt-2">
-                                    <img :src="props.row.receipt ?? '/images/upload_image.png'" class="rounded-md"
-                                        style="width: 150px; height: 200px; border: 1px solid gray;"
-                                    />
-                                </div>
-
-                                <div v-if="props.column.field == 'action'" class="mt-2">
-                                    <button class="bg-cyan-500 p-3 mx-1 text-white rounded-md text-xs"
-                                        :disabled="!!props.row.is_paid"
-                                        :class="{'cursor-not-allowed' : !!props.row.is_paid}"
-                                        @click="markAsPaid(props.row.id)"
+                                        <div
+                                            class="flex items-center justify-start flex-wrap -mb-3"
+                                        >
+                                            <button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >1</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >2</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >3</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >4</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center"
                                     >
-                                        MARK AS PAID
-                                    </button>
+                                        <small>Page 1 of 4</small>
+                                    </div>
                                 </div>
-                            </template>
-                        </vue-good-table>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>`
-
+            </div>
         </div>
+    </div>
+        
     </AuthenticatedLayout>
+
 </template>
-
-<style>
-    .main {
-        height: 100%;
-        min-height: 92vh;
-        background-color: #E5E8E8;
-    }
-
-    .tenantModal {
-        display: none;
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 20px; /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
-
-    /* Modal Content */
-    .tenant-modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-    }
-
-    /* The Close Button */
-    .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent; /* make scrollbar transparent */
-    }
-
-</style>

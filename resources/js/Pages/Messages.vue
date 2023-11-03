@@ -1,127 +1,133 @@
 <script>
-    import TenantLayout from '@/Layouts/AuthenticatedLayout.vue';
-    import OtherLayout from '@/Layouts/SidebarLayout.vue';
-    import { usePage, Head, Link, router, useForm  } from '@inertiajs/vue3'
-    import Dorm from '@/Components/Dorm.vue';
-    import { ref, onMounted } from 'vue';
-    import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-    import InputLabel from '@/Components/InputLabel.vue';
-    import PrimaryButton from '@/Components/PrimaryButton.vue';
-    import TextInput from '@/Components/TextInput.vue';
-    import InputError from '@/Components/InputError.vue';
-    import Checkbox from '@/Components/Checkbox.vue';
+import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
+import OtherLayout from "@/Layouts/SidebarLayout.vue";
+import { usePage, Head, Link, router, useForm } from "@inertiajs/vue3";
+import Dorm from "@/Components/Dorm.vue";
+import { ref, onMounted } from "vue";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import InputLabel from "@/Components/InputLabel.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import TextInput from "@/Components/TextInput.vue";
+import InputError from "@/Components/InputError.vue";
+import Checkbox from "@/Components/Checkbox.vue";
 
-    export default {
-        components: {
-            TenantLayout,
-            OtherLayout
-        },
-        setup() {
-            const page = usePage()
-            const user = page.props.auth.user;
-            const threads = ref([])
-            const selectedThread = ref(null)
-            const isMobileView = ref(false)
-            const messageToSend = ref(null)
+export default {
+    components: {
+        TenantLayout,
+        OtherLayout,
+    },
+    setup() {
+        const showSidebar = ref(false);
 
-            isMobileView.value = screen.width < 600;
+        const clickShowSideBar = () => {
+            showSidebar.value = !showSidebar.value;
+        };
+        const page = usePage();
+        const user = page.props.auth.user;
+        const threads = ref([]);
+        const selectedThread = ref(null);
+        const isMobileView = ref(false);
+        const messageToSend = ref(null);
 
-            if(!isMobileView.value) {
-                selectedThread.value = page.props.threads.length ?  page.props.threads[0] : null
-            }
+        isMobileView.value = screen.width < 600;
 
-            threads.value = page.props.threads
-
-            const selectThread = (thread) =>{
-                selectedThread.value = thread
-
-                setTimeout(() => {
-                    const lastChildElement = messageDiv.value.lastElementChild
-
-                    lastChildElement?.scrollIntoView({
-                        behavior: 'smooth',
-                    })
-                }, 50);
-            }
-
-            const sendMessage = () => {
-                const data = {
-                    thread_id: selectedThread.value.id,
-                    message: messageToSend.value
-                }
-
-                axios.post(route('send.message', data))
-                    .then(response => {
-                        selectedThread.value = response.data
-                        messageToSend.value = null
-
-                        setTimeout(() => {
-                            const lastChildElement = messageDiv.value.lastElementChild
-
-                            lastChildElement?.scrollIntoView({
-                                behavior: 'smooth',
-                            })
-                        }, 50);
-                    })
-            }
-
-            const timer = ref(null)
-
-            const fetchMessages = () => {
-                axios.get(route('fetch.messages'))
-                    .then(response => {
-                        threads.value = response.data
-                        selectedThread.value = response.data.filter(x => { return x.id == selectedThread.value.id } )[0]
-
-                        setTimeout(() => {
-                            const lastChildElement = messageDiv.value.lastElementChild
-
-                            lastChildElement?.scrollIntoView({
-                                behavior: 'smooth',
-                            })
-                        }, 50);
-                    })
-            }
-
-            const messageDiv = ref()
-
-            onMounted(() => {
-                clearInterval(timer.value)
-
-                timer.value = setInterval(() => {
-                    fetchMessages()
-                }, 3000)
-
-
-                setTimeout(() => {
-                    const lastChildElement = messageDiv.value.lastElementChild
-
-                    lastChildElement?.scrollIntoView({
-                        behavior: 'smooth',
-                    })
-                }, 50);
-
-            })
-
-            return {
-                user,
-                isMobileView,
-                threads,
-                selectedThread,
-                messageToSend,
-                messageDiv,
-                selectThread,
-                sendMessage
-            }
+        if (!isMobileView.value) {
+            selectedThread.value = page.props.threads.length
+                ? page.props.threads[0]
+                : null;
         }
-    }
+
+        threads.value = page.props.threads;
+
+        const selectThread = (thread) => {
+            selectedThread.value = thread;
+
+            setTimeout(() => {
+                const lastChildElement = messageDiv.value.lastElementChild;
+
+                lastChildElement?.scrollIntoView({
+                    behavior: "smooth",
+                });
+            }, 50);
+        };
+
+        const sendMessage = () => {
+            const data = {
+                thread_id: selectedThread.value.id,
+                message: messageToSend.value,
+            };
+
+            axios.post(route("send.message", data)).then((response) => {
+                selectedThread.value = response.data;
+                messageToSend.value = null;
+
+                setTimeout(() => {
+                    const lastChildElement = messageDiv.value.lastElementChild;
+
+                    lastChildElement?.scrollIntoView({
+                        behavior: "smooth",
+                    });
+                }, 50);
+            });
+        };
+
+        const timer = ref(null);
+
+        const fetchMessages = () => {
+            axios.get(route("fetch.messages")).then((response) => {
+                threads.value = response.data;
+                selectedThread.value = response.data.filter((x) => {
+                    return x.id == selectedThread.value.id;
+                })[0];
+
+                setTimeout(() => {
+                    const lastChildElement = messageDiv.value.lastElementChild;
+
+                    lastChildElement?.scrollIntoView({
+                        behavior: "smooth",
+                    });
+                }, 50);
+            });
+        };
+
+        const messageDiv = ref();
+
+        onMounted(() => {
+            clearInterval(timer.value);
+
+            timer.value = setInterval(() => {
+                fetchMessages();
+            }, 3000);
+
+            setTimeout(() => {
+                const lastChildElement = messageDiv.value.lastElementChild;
+
+                lastChildElement?.scrollIntoView({
+                    behavior: "smooth",
+                });
+            }, 50);
+        });
+
+        return {
+            user,
+            isMobileView,
+            threads,
+            selectedThread,
+            messageToSend,
+            messageDiv,
+            selectThread,
+            sendMessage,
+            clickShowSideBar,
+        };
+    },
+};
 </script>
 
-
-<template>
-    <div>
+<template>  
+      <div>
         <TenantLayout v-if="user.user_type == 'tenant'">
-            <div class="w-full flex flex-col overflow-y-hidden main">
+            <div class="px-4 pt-14 lg:ml-64">
+            <div class="w-full flex flex-col mt-16 overflow-y-hidden main">
                 <div class="flex flex-row" v-if="!isMobileView">
                     <div class="w-3/12 border-r flex flex-col main">
                         <div class="w-full border-b py-5" v-for="thread in threads"
@@ -160,7 +166,7 @@
                         </div>
 
                         <div class="w-full px-2" style="height: 10%;" v-if="selectedThread">
-                            <input type="text" placeholder="Type your message here..."
+                            <input type="text" placeholder="Type your message hawdere..."
                                 class="message-input py-2"
                                 style="width: 90%;"
                                 v-model="messageToSend"
@@ -227,9 +233,11 @@
                     </div>
                 </div>
             </div>
+        </div>
         </TenantLayout>
 
         <OtherLayout v-else>
+            <div class="px-4 pt-14 lg:ml-64">
             <div class="w-full flex flex-col overflow-y-hidden main">
                 <div class="flex flex-row" v-if="!isMobileView">
                     <div class="w-3/12 border-r flex flex-col main">
@@ -336,42 +344,40 @@
                     </div>
                 </div>
             </div>
+        </div>
         </OtherLayout>
-    </div>
+      </div>
 </template>
 
 <style>
-    .main {
-        height: 100%;
-        min-height: 92vh;
-        background-color: #E5E8E8;
-    }
+.main {
+    height: 100%;
+    min-height: 92vh;
+    background-color: #e5e8e8;
+}
 
-    .border-r {
-        border-right: 1px solid gray;
-    }
+.border-r {
+    border-right: 1px solid gray;
+}
 
-    .border-b {
-        border-bottom: 1px solid gray;
-    }
+.border-b {
+    border-bottom: 1px solid gray;
+}
 
-    .message-input {
-        height: 80%;
-        border: none;
-        border-radius: 5px;
-    }
+.message-input {
+    height: 80%;
+    border: none;
+    border-radius: 5px;
+}
 
-    .send-btn {
-        border: 1px solid gray;
-        height: 80%;
-    }
+.send-btn {
+    border: 1px solid gray;
+    height: 80%;
+}
 
-    .message {
-        min-width: none;
-        width: 400px;
-        border-radius: 10px;
-    }
-
-
-
+.message {
+    min-width: none;
+    width: 400px;
+    border-radius: 10px;
+}
 </style>

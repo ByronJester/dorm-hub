@@ -19,16 +19,21 @@ return new class extends Migration
             $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
             $table->string('phone_number', 20);
-            $table->string('email')->unique();
+            $table->string('username')->unique();
             $table->string('password');
             $table->string('id_picture', 100)->nullable();
+            $table->string('selfie_id_picture', 100)->nullable();
             $table->string('image', 100)->nullable();
             $table->longText('bio')->nullable();
             $table->string('user_type', 10)->default('tenant');
             $table->string('sk', 100)->nullable();
             $table->string('pk', 100)->nullable();
+            $table->string('bank_name', 100)->nullable();
+            $table->string('account_name', 100)->nullable();
+            $table->string('account_number', 100)->nullable();
             $table->boolean('is_approved')->default(true);
             $table->boolean('is_active')->default(true);
+            $table->boolean('first_logged_in')->default(true);
 
             $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();

@@ -1,108 +1,63 @@
 <script>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { usePage, useForm, router } from '@inertiajs/vue3'
-import { ref, reactive, watch, onMounted, computed } from 'vue';
-import { MapboxMap, MapboxMarker } from '@studiometa/vue-mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import axios from 'axios';
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import { usePage, useForm, router } from "@inertiajs/vue3";
+import { ref, reactive, watch, onMounted, computed } from "vue";
+import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import axios from "axios";
 
 export default {
     components: {
         AuthenticatedLayout,
     },
-    setup(){
-        const page = usePage()
+    setup() {
+        const page = usePage();
         const user = computed(() => page.props.auth.user);
-        const payments = ref([])
-        const application = ref({})
-        const owner = ref({})
-        const methods = ref([])
-        const isMobileView = ref(false)
+        const payments = page.props.payments;
+        const application = ref({});
+        const owner = ref({});
+        const methods = ref([]);
+        const isMobileView = ref(false);
         isMobileView.value = screen.width < 600;
         const receipt = ref(null);
-        const payment_id = ref()
-        const imageError = ref(null)
+        const payment_id = ref();
+        const imageError = ref(null);
+        const nexPayment = page.props.nexPayment
+        const lastBilled = page.props.lastBilled
+        const balance = page.props.balance
+        const totalAmountPaid = page.props.totalAmountPaid
 
         onMounted(() => {
-            payments.value = page.props.payments
-            application.value = page.props.application
-            owner.value = page.props.owner
-            methods.value = page.props.methods
+            application.value = page.props.application;
+            owner.value = page.props.owner;
+            methods.value = page.props.methods;
         });
 
-        const pay = (id, method) => {
-            if(method == 'GCash Payment') {
-                swal({
-                    title: `Are you sure to pay rent?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false
-                },
-                function(){
-                    axios.post(route('pay.rent', id), {method: method})
-                        .then(response => {
-                            window.location.href = response.data.redirect.checkout_url
-                        })
-                        .catch(error => {
-                            console.log(error)
-                        })
-                });
-            }
+        const selectedBill = ref();
 
-            if(method == 'Bank Payment') {
-                if(receipt.value == null) {
-                    imageError.value = 'Bank transfer receipt is required';
+        const pay = (arg) => {
+            openModal()
+            console.log(arg)
 
-                    return;
-                }
+            selectedBill.value = arg
+        };
 
-                imageError.value = null
+        const openModal = () => {
 
-                swal({
-                    title: `Are you sure to upload this receipt?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false
-                },
-                function(){
-                    axios.post(route('pay.rent', id), {method: method, receipt: receipt.value})
-                        .then(response => {
-                            swal("Success!", `Please wait for the dorm owner to verify you receipt.`, "success");
-
-                            setTimeout(function () {
-                                location.reload()
-                            }, 1500);
-                        })
-                        .catch(error => {
-                            console.log(error)
-                        })
-                });
-            }
-
-        }
-
-        const openModal = (arg) => {
-            payment_id.value = arg
-
-            var modal = document.getElementById("bankModal");
+            var modal = document.getElementById("payModal");
 
             modal.style.display = "block";
-
-        }
+        };
 
         const closeModal = () => {
-            var modal = document.getElementById("bankModal");
+            var modal = document.getElementById("payModal");
 
             modal.style.display = "none";
-        }
+        };
 
         const imageClick = () => {
-            document.getElementById('bank_receipt').click()
-        }
+            document.getElementById("bank_receipt").click();
+        };
 
         const imageChange = (e) => {
             const image = e.target.files[0];
@@ -111,10 +66,55 @@ export default {
 
             reader.readAsDataURL(image);
 
-            reader.onload = e => {
-                receipt.value = e.target.result
-            }
+            reader.onload = (e) => {
+                receipt.value = e.target.result;
+            };
+        };
+
+        const headers = ["Payment ID", "Payment Date" , "Payment Method", "Amount", "Description", "Status", "Receipt"];
+
+
+        var data = [];
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
         }
+
+        for(let p = 0; p < payments.length; p++) {
+            data.push(
+                {
+                    id: payments[p].id,
+                    date: payments[p].display_date,
+                    payment_method: payments[p].payment_method,
+                    amount: payments[p].amount,
+                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].category),
+                    status: payments[p].status,
+                    receipt: payments[p].proof_of_payment,
+                    action: payments[p]
+                }
+            )
+        }
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
 
         return {
             user,
@@ -123,6 +123,8 @@ export default {
             owner,
             methods,
             isMobileView,
+            headers,
+            data,
             receipt,
             payment_id,
             imageError,
@@ -130,14 +132,535 @@ export default {
             openModal,
             closeModal,
             imageClick,
-            imageChange
-        }
-    }
-}
+            imageChange,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            nexPayment,
+            lastBilled,
+            moneyFormat,
+            balance,
+            totalAmountPaid,
+            selectedBill
+        };
+    },
+};
 </script>
 
 <template>
     <AuthenticatedLayout>
+        <div
+            class="max-w-[2520px] mt-16 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
+        >
+            <div
+                className="
+                        max-w-screen-lg
+                        mx-auto
+                        "
+            >
+                <section class="pt-6 mb-6 flex items-center justify-between">
+                    <div class="flex items-center justify-start">
+                        <span
+                            class="inline-flex justify-center items-center w-6 h-6 mr-2"
+                            ><svg
+                                viewBox="0 0 24 24"
+                                width="20"
+                                height="20"
+                                class="inline-block"
+                            >
+                                <path
+                                    fill="currentColor"
+                                    d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
+                                ></path></svg></span>
+                        <h1 class="text-3xl leading-tight">Billing overview</h1>
+                    </div>
+                </section>
+                <div class="grid grid-cols-12 gap-6 mb-6">
+                    <!--Eto yung amount para sa upcoming payment-->
+                    <div class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
+                        <div
+                            class="flex-col dark:bg-slate-900/70 bg-white flex"
+                        >
+                            <div class="flex-1 p-6">
+
+                                <div class="justify-between items-center flex">
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <div>
+                                            <h3
+                                                class="text-lg leading-tight text-green-500 dark:text-slate-400"
+                                            >
+                                                Upcoming Payment
+                                            </h3>
+                                            <!--Dito kasama na din yung balance pero pag nabayaran ni tenant ahead yung balance yung bill lang every month-->
+                                            <h1
+                                                class="text-3xl leading-tight font-semibold"
+                                            >
+                                                <div>
+                                                    {{ !!nextPayment ?  moneyFormat(nexPayment.amount) : 0.00 }}
+                                                </div>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!---->
+                        </div>
+                    </div>
+                    <!--Dito lalabas yung balance ni user-->
+                    <div class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
+                        <div
+                            class="flex-col dark:bg-slate-900/70 bg-white flex"
+                        >
+                            <div class="flex-1 p-6">
+
+                                <div class="justify-between items-center flex">
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <div>
+                                            <h3
+                                                class="text-lg leading-tight text-red-500 dark:text-slate-400"
+                                            >
+                                                Balance
+                                            </h3>
+                                            <h1
+                                                class="text-3xl leading-tight font-semibold"
+                                            >
+                                                <div>{{moneyFormat(balance)}}</div>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!---->
+                        </div>
+                    </div>
+                    <!--Dito yung total na nabayad na ni user-->
+                    <div class="col-span-12 rounded-2xl shadow-lg sm:col-span-6 xl:col-span-3">
+                        <div
+                            class="flex-col dark:bg-slate-900/70 bg-white flex"
+                        >
+                            <div class="flex-1 p-6">
+
+                                <div class="justify-between items-center flex">
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <div>
+                                            <h3
+                                                class="text-lg leading-tight text-orange-500 dark:text-slate-400"
+                                            >
+                                                Total Amount Paid
+                                            </h3>
+                                            <h1
+                                                class="text-3xl leading-tight font-semibold"
+                                            >
+                                                <div>{{moneyFormat(totalAmountPaid)}}</div>
+                                            </h1>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!---->
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="flex-1 shadow-lg rounded-lg p-6">
+                    <div
+                        class="bg-blue-500 border-blue-500 text-white px-3 py-6 md:py-3 mb-6 last:mb-0 border rounded-lg transition-colors duration-150"
+                    >
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-center mb-6 md:mb-0"
+                            >
+                                <div
+                                    class="flex flex-col md:flex-row items-center"
+                                >
+                                    <span
+                                        class="inline-flex justify-center items-center w-10 md:w-5 h-10 md:h-5 md:mr-2"
+                                        ><svg
+                                            viewBox="0 0 24 24"
+                                            width="24"
+                                            height="24"
+                                            class="inline-block"
+                                        >
+                                            <path
+                                                fill="currentColor"
+                                                d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+                                            ></path></svg></span
+                                    ><span
+                                        class="text-center md:text-left md:py-2"
+                                        ><b>Payment date</b> is approaching
+                                        soon.
+                                    </span>
+                                </div>
+                            </div>
+                            <!--Button Para makita yung details ng billing-->
+                            <div class="flex items-center justify-center">
+                                <button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded-full border-white ring-gray-200 dark:ring-gray-500 bg-white text-black hover:bg-gray-100 text-sm px-3 py-1"
+                                    type="button"
+                                >
+                                    <!----><span class="px-2">See details</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="md:flex md:justify-between md:items-center">
+                        <div class="md:flex md:items-center">
+                            <div
+                                class="mb-6 text-center md:mr-6 md:mb-0 md:text-left"
+                            >
+                                <!--Date kung kelan yung billing-->
+                                <p class="text-gray-500">Next payment on</p>
+                                <h1 class="text-xl font-semibold">
+                                    {{ !!nexPayment ? nexPayment.display_date : '' }}
+                                </h1>
+                            </div>
+                            <div class="mb-6 text-center md:mb-0 md:text-left">
+                                <p class="text-gray-500">Last billed on</p>
+                                <h1 class="text-xl">{{ !! lastBilled ? lastBilled.display_created_date : ''}}</h1>
+                            </div>
+                        </div>
+                        <div class="text-center md:text-right">
+                            <p class="text-gray-500">Amount due</p>
+                            <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
+                            <h1 class="text-2xl font-semibold">{{ !!nextPayment ? moneyFormat(nexPayment.amount) : 0.00 }}</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center mt-5 justify-start">
+                    <span
+                        class="inline-flex justify-center items-center w-6 h-6 mr-2"
+                        ><svg
+                            viewBox="0 0 24 24"
+                            width="20"
+                            height="20"
+                            class="inline-block"
+                        >
+                            <path
+                                fill="currentColor"
+                                d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
+                            ></path></svg></span>
+                    <h1 class="text-3xl leading-tight">Payment(s)</h1>
+                </div>
+                <!--Payments-->
+                <div class="w-full mt-2 mb-5">
+                        <div class="w-full mb-12 mt-5">
+                            <div
+                                    class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                                >
+                                    <div
+                                        class="rounded-t mb-0 px-4 py-3 border-0"
+                                    >
+                                        <div
+                                            class="flex flex-wrap items-center"
+                                        >
+                                            <div
+                                                class="relative w-full px-4 max-w-full flex-grow flex-1"
+                                            >
+                                            <form class="flex items-center">
+                                                <label for="simple-search" class="sr-only">Search</label>
+                                                <div class="relative w-full">
+                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"/>
+                                                        </svg>
+                                                    </div>
+                                                    <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search in table..." required>
+                                                </div>
+                                                <button type="submit" class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                                    </svg>
+                                                    <span class="sr-only">Search</span>
+                                                </button>
+                                            </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="block w-full overflow-x-auto">
+                                        <table
+                                            class="items-center w-full bg-transparent border-collapse"
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th
+                                                        class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                                        v-for="header in headers"
+                                                        :key="header"
+                                                    >
+                                                        {{ header }}
+                                                    </th>
+                                                    <th
+                                                        class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                                    >
+                                                        Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr
+                                                    v-for="(
+                                                        item, rowIndex
+                                                    ) in data"
+                                                    :key="rowIndex"
+                                                >
+                                                    <td
+                                                        class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                                        v-for="(
+                                                            value, colIndex
+                                                        ) in item"
+                                                        :key="colIndex"
+                                                    >
+                                                        <p v-if="colIndex != 'receipt' && colIndex != 'action'">
+                                                            {{value}}
+                                                        </p>
+
+                                                        <div v-if="colIndex == 'receipt'">
+                                                            <img v-if="value != null"
+                                                                class="w-[100px] h-[100px]"
+                                                            />
+                                                        </div>
+
+                                                        <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
+                                                            v-if="colIndex == 'action'" :disabled="value.status == 'paid'"
+                                                            :class="{'cursor-not-allowed': value.status == 'paid'}"
+                                                        >
+                                                            Pay
+                                                        </button>
+                                                    </td>
+
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                        <div class="my-5 ml-5 border-t pt-5 ">
+                                                <nav aria-label="Page navigation example">
+                                                    <ul class="inline-flex -space-x-px text-sm">
+                                                        <li>
+                                                        <a href="#" class="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+                                                        </li>
+                                                        <li>
+                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+                                                        </li>
+                                                        <li>
+                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+                                                        </li>
+                                                        <li>
+                                                        <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+                                                        </li>
+                                                        <li>
+                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+                                                        </li>
+                                                        <li>
+                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+                                                        </li>
+                                                        <li>
+                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+                                                        </li>
+                                                    </ul>
+                                                    </nav>
+                                            </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+
+                    <div id="payModal" class="payModal mt-10 md:mt-0">
+                        <div class="pay-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
+                            <div class="w-full">
+                                <span>
+                                    {{ selectedBill ? removeUnderscoreAndCapitalizeAfterSpace(selectedBill.category) : 'Payment'}}
+                                </span>
+
+                                <span class="float-right cursor-pointer"
+                                    @click="closeModal()"
+                                >
+                                    <i class="fa-solid fa-xmark"></i>
+                                </span>
+                            </div>
+
+                            <div class="w-full h-[200px] flex justify-center items-center my-3"
+                                style="border: 1px solid black"
+                            >
+                                <span class="text-2xl">
+                                    {{ selectedBill ? moneyFormat(selectedBill.amount) : 0.00 }}
+                                </span>
+                            </div>
+
+                            <div class="w-full">
+                                <button class="rounded-md px-3 py-2 bg-cyan-300 float-right">
+                                    Proceed Payment
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                <!--
+                <div
+                    class="rounded-2xl flex-col shadow-lg mt-5 dark:bg-slate-900/70 bg-white flex mb-6"
+                >
+                    <div class="flex-1 p-6">
+                        <div class="md:flex md:justify-between md:items-center">
+                            <div
+                                class="flex items-center justify-center md:justify-start flex-wrap -mb-3"
+                            >
+                                <button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                    type="button"
+                                >
+                                    <span class="px-2"
+                                        >View invoice</span
+                                    ></button
+                                ><button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                    type="button"
+                                >
+                                   <span class="px-2">PDF</span>
+                                </button>
+                            </div>
+                            <div
+                                class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
+                            >
+                                <p class="text-gray-500 mr-6">
+                                    Sun, Oct 1, 2023
+                                </p>
+                                <div
+                                    class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-red-500 border-red-500 text-white mr-6"
+                                >
+                                    <span>Unpaid</span>
+                                </div>
+                                <h2 class="text-2xl font-semibold">P3000.00</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 p-6">
+                        <div class="md:flex md:justify-between md:items-center">
+                            <div
+                                class="flex items-center justify-center md:justify-start flex-wrap -mb-3"
+                            >
+                                <button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                    type="button"
+                                >
+                                   <span class="px-2"
+                                        >View invoice</span
+                                    ></button
+                                ><button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                    type="button"
+                                >
+                                   <span class="px-2">PDF</span>
+                                </button>
+                            </div>
+                            <div
+                                class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
+                            >
+
+                                <p class="text-gray-500 mr-6">
+                                    Sun, Sep 1, 2023
+                                </p>
+                                <div
+                                    class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 text-white mr-6"
+                                >
+                                   <span>Paid</span>
+                                </div>
+
+                                <h2 class="text-2xl font-semibold">P3000.00</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-1 p-6">
+                        <div class="md:flex md:justify-between md:items-center">
+                            <div
+                                class="flex items-center justify-center md:justify-start flex-wrap -mb-3"
+                            >
+                                <button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                    type="button"
+                                >
+                                   <span class="px-2"
+                                        >View invoice</span
+                                    ></button
+                                ><button
+                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                    type="button"
+                                >
+                                    <span class="px-2">PDF</span>
+                                </button>
+                            </div>
+                            <div
+                                class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
+                            >
+                                <p class="text-gray-500 mr-6">
+                                    Sun, Aug 1, 2023
+                                </p>
+                                <div
+                                    class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 text-white mr-6"
+                                >
+                                   <span>Paid</span>
+                                </div>
+                                <h2 class="text-2xl font-semibold">P3000.00</h2>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div
+                        class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                    >
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-center mb-6 md:mb-0"
+                            >
+                                <div
+                                    class="flex items-center justify-start flex-wrap -mb-3"
+                                >
+                                    <button
+                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                        type="button"
+                                    >
+                                       <span class="px-2"
+                                            >1</span
+                                        ></button
+                                    ><button
+                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                        type="button"
+                                    >
+                                      <span class="px-2"
+                                            >2</span
+                                        ></button
+                                    ><button
+                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                        type="button"
+                                    >
+                                       <span class="px-2"
+                                            >3</span
+                                        ></button
+                                    ><button
+                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                        type="button"
+                                    >
+                                        <span class="px-2">4</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page 1 of 4</small>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>-->
+
+            </div>
+        </div>
+        <!--Eto yung dati-->
+        <!--
         <div class="main w-full">
             <div class="w-full md:flex md:justify-center md:items-center" v-if="payments.length > 0">
                 <div v-if="payments.length > 0"
@@ -277,57 +800,57 @@ export default {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
     </AuthenticatedLayout>
 </template>
 
 <style>
-    .main {
-        height: 100%;
-        min-height: 92vh;
-        background-color: #E5E8E8;
-    }
+.main {
+    height: 100%;
+    min-height: 92vh;
+    background-color: #e5e8e8;
+}
 
-    .bankModal {
-        display: none;
-        position: fixed; /* Stay in place */
-        z-index: 1; /* Sit on top */
-        padding-top: 20px; /* Location of the box */
-        left: 0;
-        top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgb(0,0,0); /* Fallback color */
-        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-    }
+.payModal {
+    display: none;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
 
-    /* Modal Content */
-    .bank-modal-content {
-        background-color: #fefefe;
-        margin: auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-    }
+/* Modal Content */
+.pay-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 100%;
+}
 
-    /* The Close Button */
-    .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-    }
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
 
-    .close:hover,
-    .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-    }
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
 
-    ::-webkit-scrollbar {
-        width: 0px;
-        background: transparent; /* make scrollbar transparent */
-    }
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent; /* make scrollbar transparent */
+}
 </style>

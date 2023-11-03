@@ -17,10 +17,6 @@ class Room extends Model
         'src'
     ];
 
-    protected $with = [
-        'tenant'
-    ];
-
     public function getImageAttribute($value)
     {
         return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
@@ -29,10 +25,5 @@ class Room extends Model
     public function getSrcAttribute()
     {
         return $this->image;
-    }
-
-    public function tenant()
-    {
-        return $this->hasOne(TenantRoom::class, 'room_id', 'room_id');
     }
 }

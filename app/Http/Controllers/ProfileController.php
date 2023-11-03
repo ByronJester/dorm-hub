@@ -34,6 +34,11 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function paymentSettings(Request $request): Response
+    {
+        return Inertia::render('Profile/PaymentSettings');
+    }
+
 
     /**
      * Update the user's profile information.
@@ -52,6 +57,9 @@ class ProfileController extends Controller
         $data["bio"] = $request->bio;
         $data["pk"] = $request->pk;
         $data["sk"] = $request->sk;
+        $data["bank_name"] = $request->bank_name;
+        $data["account_name"] = $request->account_name;
+        $data["account_number"] = $request->account_number;
 
         $request->user()->fill($data);
 
@@ -60,6 +68,10 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        if(!!$request->payment_settings) {
+            return Redirect::route('profile.payment-settings');
+        }
 
         return Redirect::route('profile.edit');
     }

@@ -27,9 +27,47 @@ class AdminController extends Controller
         ]);
     }
 
+    public function dashboard() {
+        return Inertia::render('Admin/Dashboard',[
+
+        ]);
+    }
+
+    public function maintenance() {
+        return Inertia::render('Admin/Maintenance',[
+
+        ]);
+
+    }
+
+
+    public function reports(){
+        return Inertia::render('Admin/Reports',[
+
+        ]);
+    }
+
+    public function addUser(){
+        return Inertia::render('Admin/Utilities/AddUser',[
+
+        ]);
+    }
+
+    public function archive(){
+        return Inertia::render('Admin/Utilities/Archive',[
+
+        ]);
+    }
+
+    public function backUp(){
+        return Inertia::render('Admin/Utilities/BackUpAndRestore',[
+
+        ]);
+    }
+
     public function tenantList()
     {
-        $users = User::where('user_type', 'tenant')->get();
+        $users = User::whereIn('user_type', ['tenant', 'owner'])->get();
 
         return Inertia::render('Admin/Users', [
             'users' => $users,
@@ -45,10 +83,12 @@ class AdminController extends Controller
         $notification = new Notification;
 
         $status = $request->status ? 'approved' : 'declined';
-        $message = $status == 'approved' ? 'Your account has been approved you can reserve/rent room now.' : 'Your account has been declined';
+        $message = $status == 'approved' ? 'Your account has been approved you can logged in your account now.' : 'Your account has been declined';
 
         if($status == 'approved') {
             $notification->redirection = 'tenant.dorms';
+
+            $this->sendSMS($user->phone_number, $message);
         }
 
 

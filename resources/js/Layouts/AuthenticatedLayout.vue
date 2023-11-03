@@ -1,347 +1,303 @@
-<script setup>
-import { ref } from 'vue';
-import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import NavLink from '@/Components/NavLink.vue';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
-import { usePage, router } from '@inertiajs/vue3'
+<script>
+import { ref } from "vue";
+import Dropdown from "@/Components/Dropdown.vue";
+import DropdownLink from "@/Components/DropdownLink.vue";
+import NavLink from "@/Components/NavLink.vue";
+import ResponsiveNavLink from "@/Components/ResponsiveNavLink.vue";
+import { Link } from "@inertiajs/vue3";
+import { usePage, router } from "@inertiajs/vue3";
+import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
+import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
+import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue"
 
-const showingNavigationDropdown = ref(false);
+export default {
+    components: {
+        AppDropdown,
+        AppDropdownContent,
+        AppDropdownItem,
+        ApplicationLogo,
+    },
+    setup() {
+        const showSidebar = ref(false);
 
-const page = usePage()
+        const page = usePage();
 
-const isMobileView = ref(false)
-isMobileView.value = screen.width < 600;
+        const clickShowSideBar = () =>{
+            showSidebar.value = !showSidebar.value
+        }
 
-const notifications = page.props.notifications
+        const user = page.props.auth.user;
 
-var userPages = [];
+        const redirectPage = (r) => {
+            router.get(route(r));
+        };
+        const notifications = page.props.notifications;
 
-if(page.props.auth.user.user_type == 'owner') {
-    userPages = [
-        {
-            label: 'Dorms',
-            route: 'owner.dorms'
-        },
+        const openModal = () => {
+            var modal = document.getElementById("notificationModal");
 
-        {
-            label: 'Tenants',
-            route: 'owner.tenants.application'
-        },
-    ]
-}
+            modal.style.display = "block";
+        };
 
-if(page.props.auth.user.user_type == 'admin') {
-    userPages = [
-        {
-            label: 'Dorms',
-            route: 'admin.dorms'
-        },
-        {
-            label: 'Tenants',
-            route: 'admin.tenants'
-        },
-    ]
-}
+        const closeModal = () => {
+            var modal = document.getElementById("notificationModal");
 
-if(page.props.auth.user.user_type == 'tenant') {
-    userPages = [
-        {
-            label: 'Dorms',
-            route: 'tenant.dorms'
-        },
-    ]
-}
+            modal.style.display = "none";
+        };
 
-const logOut = () => {
-    axios.post(route('logout'), {})
-        .then(response => {
-            location.reload()
-        })
-        .catch(error => {
-            errors.value = error.response.data.errors
-        })
-}
+        const markAsRead = (id) => {
+            router.get(route("notification.mark-as-read", id));
+        };
 
-const openModal = () => {
-    var modal = document.getElementById("notificationModal");
+        const viewNotification = (r) => {
+            router.get(route(r));
+        };
 
-    modal.style.display = "block";
-
-}
-
-const closeModal = () => {
-    var modal = document.getElementById("notificationModal");
-
-    modal.style.display = "none";
-}
-
-const markAsRead = (id) => {
-    router.get(route('notification.mark-as-read', id))
-}
-
-const viewNotification = (r) => {
-    router.get(route(r))
-}
-
+        const logOut = () => {
+            axios
+                .post(route("logout"), {})
+                .then((response) => {
+                    location.reload();
+                })
+                .catch((error) => {
+                    errors.value = error.response.data.errors;
+                });
+        };
+        return {
+            showSidebar,
+            user,
+            notifications,
+            redirectPage,
+            openModal,
+            closeModal,
+            clickShowSideBar,
+            markAsRead,
+            viewNotification,
+            logOut,
+        };
+    },
+};
 </script>
+
 
 <template>
     <div>
-        <div class="h-full">
-            <nav class="bg-white border-b border-gray-300">
-                <!-- Primary Navigation Menu -->
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex justify-between nav-bar-h">
-                        <div class="flex">
-                            <!-- Logo -->
-                            <div class="shrink-0 flex items-center">
-                                <Link href="/">
-                                    <ApplicationLogo
-                                        class="block h-9 w-auto fill-current text-gray-800"
-                                    />
-                                </Link>
-                            </div>
-
-                            <!-- Navigation Links -->
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <NavLink :href="route(p.route)" :active="route().current(p.route)"
-                                    v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
-                                >
-                                    <span class="px-3"> {{ p.label }} </span>
-                                </NavLink>
-                            </div>
-
-                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                                <p class="absolute md:right-12 top-5 cursor-pointer mr-1"
-                                    @click="openModal()"
-                                >
-                                    <i class="fa-solid fa-globe"> </i>
-                                </p>
-
-                                <p class="absolute md:right-10 top-3 text-xs cursor-pointer text-red-500 font-bold"
-                                    @click="openModal()"
-                                    v-if="notifications.filter(x => { return !x.is_read }).length > 0"
-                                >
-                                    {{ notifications.filter(x => { return !x.is_read }).length }}
-                                </p>
-
-                            </div>
+        <div class="min-h-screen flex flex-col">
+            <nav
+                class="fixed top-0 z-50 w-full bg-white shadow-md border-gray-200 "
+            >
+                <div class="py-4 border-b-[1px]">
+                    <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
+                        <div class="flex flex-row items-center justify-between gap-3 md:gap-0">
+                        <div class="flex items-center justify-start">
+                            <a href="/">
+                                <ApplicationLogo />
+                            </a>   
                         </div>
+                        <div class="flex items-center">
+                            <div class="flex items-center ml-3">
+                                <AppDropdown>
+                                    <button
+                                        type="button"
+                                        class="flex text-sm text-black  hover:text-gray-400"
+                                        aria-expanded="false"
+                                    >
+                                        {{ $page.props.auth.user.first_name }}
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            class="ml-1 h-5 w-5 fill-current"
+                                        >
+                                            <path
+                                                d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
+                                            ></path>
+                                        </svg>
+                                    </button>
 
-                        <div class="hidden sm:flex sm:items-center sm:ml-6">
-                            <!-- Settings Dropdown -->
-                            <div class="ml-3 relative">
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <span class="inline-flex rounded-md">
-                                            <button
-                                                type="button"
-                                                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
-                                            >
-                                                {{ $page.props.auth.user.first_name  }}
+                                    <AppDropdownContent class="">
+                                        <AppDropdownItem
+                                            :href="route('profile.edit')"
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                        >
+                                            Profile
+                                        </AppDropdownItem>
+                                        <AppDropdownItem
+                                            :href="route('view.user.messages')"
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                        >
+                                            Message
+                                        </AppDropdownItem>
+                                        <AppDropdownItem
+                                            v-if="user.user_type == 'owner'"
+                                            :href="
+                                                route(
+                                                    'profile.payment-settings'
+                                                )
+                                            "
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                            role="menuitem"
+                                        >
+                                            Payment Setting
+                                        </AppDropdownItem>
+                                        <AppDropdownItem
+                                            v-if="user.user_type == 'tenant'"
+                                            :href="
+                                                route(
+                                                    'tenant.mydorm'
+                                                )
+                                            "
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                            role="menuitem"
+                                        >
+                                            My Dorm
+                                        </AppDropdownItem>
 
-                                                <svg
-                                                    class="ml-2 -mr-0.5 h-4 w-4"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 20 20"
-                                                    fill="currentColor"
+                                        <AppDropdownItem
+                                            v-if="user.user_type == 'tenant'"
+                                            :href="route('tenant.payments')"
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                            role="menuitem"
+                                        >
+                                            Payments
+                                        </AppDropdownItem>
+                                        <hr />
+                                        <AppDropdownItem
+                                            @click="logOut()"
+                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                            role="menuitem"
+                                        >
+                                            Logout
+                                        </AppDropdownItem>
+                                    </AppDropdownContent>
+                                </AppDropdown>
+                            </div>
+
+                            <AppDropdown>
+                                <button>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke-width="1.5"
+                                        stroke="currentColor"
+                                        class="w-6 h-6"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
+                                        />
+                                    </svg>
+                                    <span
+                                        class="absolute right-4 cursor-pointer text-white font-bold"
+                                        style="font-size: 8px"
+                                        v-if="
+                                            notifications.filter((x) => {
+                                                return !x.is_read;
+                                            }).length > 0
+                                        "
+                                    >
+                                        {{
+                                            notifications.filter((x) => {
+                                                return !x.is_read;
+                                            }).length
+                                        }}
+                                    </span>
+                                </button>
+
+                                <AppDropdownContent class="w-100%">
+                                    <div
+                                        class="block px-4 py-2 w-auto font-medium text-center"
+                                    >
+                                        Notifications
+                                    </div>
+                                    <hr />
+                                    <div
+                                        class="w-ful mt-3 text-center py-5 rounded-md"
+                                        v-if="notifications.length == 0"
+                                    >
+                                        There's no notification.
+                                    </div>
+
+                                    <div
+                                        class="w-full flex flex-col bg-gray-300 mt-3"
+                                        style="border-radius: 5px"
+                                        v-for="notification in notifications"
+                                        :key="notification.id"
+                                    >
+                                        <div class="px-3 my-3">
+                                            <p class="text-xs font-bold mt-1">
+                                                {{ notification.type }}
+                                            </p>
+
+                                            <p class="text-xs mt-2">
+                                                {{ notification.message }}
+                                            </p>
+
+                                            <p class="text-xs mt-5">
+                                                <span
+                                                    class="cursor-pointer mr-3"
+                                                    v-if="
+                                                        !!notification.redirection
+                                                    "
+                                                    @click="
+                                                        viewNotification(
+                                                            notification.redirection
+                                                        )
+                                                    "
                                                 >
-                                                    <path
-                                                        fill-rule="evenodd"
-                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                        clip-rule="evenodd"
-                                                    />
-                                                </svg>
-                                            </button>
-                                        </span>
-                                    </template>
+                                                    View
+                                                </span>
 
-                                    <template #content>
-                                        <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
-                                        <DropdownLink :href="route('tenant.payments')"> Payments </DropdownLink>
-                                        <DropdownLink :href="route('view.user.messages')"> Messages </DropdownLink>
-                                        <!-- <DropdownLink :href="route('profile.change.password')"> Change Password </DropdownLink> -->
-                                        <DropdownLink as="button" @click="logOut()">
-                                            Log Out
-                                        </DropdownLink>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-
-                        <!-- Hamburger -->
-                        <div class="-mr-2 flex items-center sm:hidden">
-                            <button
-                                @click="showingNavigationDropdown = !showingNavigationDropdown"
-                                class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out"
-                            >
-                                <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                                    <path
-                                        :class="{
-                                            hidden: showingNavigationDropdown,
-                                            'inline-flex': !showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 6h16M4 12h16M4 18h16"
-                                    />
-                                    <path
-                                        :class="{
-                                            hidden: !showingNavigationDropdown,
-                                            'inline-flex': showingNavigationDropdown,
-                                        }"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12"
-                                    />
-                                </svg>
-                            </button>
+                                                <span
+                                                    class="cursor-pointer"
+                                                    v-if="!notification.is_read"
+                                                    @click="
+                                                        markAsRead(
+                                                            notification.id
+                                                        )
+                                                    "
+                                                >
+                                                    Mark as Read
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </AppDropdownContent>
+                            </AppDropdown>
                         </div>
                     </div>
-                </div>
-
-
-                <!-- Responsive Navigation Menu -->
-                <div
-                    :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }"
-                    class="sm:hidden"
-                >
-                    <div class="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink :href="route(p.route)" :active="route().current(p.route)"
-                            v-for="p in userPages" :key="p.label" :class="route().current(p.route) ? 'active-bg' : ''"
-                        >
-                            <span class="px-3"> {{ p.label }} </span>
-                        </ResponsiveNavLink>
-
-                        <div class="w-full">
-                            <span class="cursor-pointer ml-7"
-                             @click="openModal()"
-                            >
-                                <i class="fa-solid fa-globe"></i>
-                                <span v-if="notifications.filter(x => { return !x.is_read }).length > 0"
-                                    class="text-xs text-red-500 absolute"
-                                >
-                                    {{ notifications.filter(x => { return !x.is_read }).length }}
-                                </span>
-
-                            </span>
-
-
-                        </div>
-                    </div>
-
-                    <!-- Responsive Settings Options -->
-                    <div class="pt-4 pb-1 border-t border-gray-200">
-                        <div class="px-4">
-                            <div class="font-medium text-base text-gray-800">
-                                {{ $page.props.auth.user.first_name }}
-                            </div>
-                            <div class="font-medium text-sm text-gray-500">{{ $page.props.auth.user.email }}</div>
-                        </div>
-
-                        <div class="mt-3 space-y-1">
-                            <ResponsiveNavLink :href="route('profile.edit')"> Profile </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('tenant.payments')"> Payments </ResponsiveNavLink>
-                            <ResponsiveNavLink :href="route('view.user.messages')"> Messages </ResponsiveNavLink>
-                            <!-- <ResponsiveNavLink :href="route('profile.change.password')"> Change Password </ResponsiveNavLink> -->
-                            <ResponsiveNavLink :href="route('logout')" method="post" as="button">
-                                Log Out
-                            </ResponsiveNavLink>
-                        </div>
                     </div>
                 </div>
             </nav>
 
-            <div class="w-full">
-                <div id="notificationModal" class="notificationModal mt-10 md:mt-0"
-                    :style="{'top': isMobileView ? '0px' : '3vw !important'}"
-                >
-                    <div class="notification-modal-content flex flex-col"
-                        :style="{
-                            width: isMobileView ? '97%' : '30%',
-                            'margin-right': isMobileView ? 'none' : '4vw',
-                        }"
-                    >
-                        <div class="w-full">
-                            <span class="text-lg font-bold">
-                                Notifications
-                            </span>
-                            <span class="float-right cursor-pointer"
-                                @click="closeModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
-
-                        <div class="w-full bg-gray-300 mt-3 text-center py-5 rounded-md"
-                            v-if="notifications.length == 0"
-                        >
-                            There's no notification.
-                        </div>
-
-                        <div class="w-full flex flex-col bg-gray-300 mt-3"
-                            style="border-radius: 5px;"
-                            v-for="notification in notifications" :key="notification.id"
-                        >
-                            <div class="px-3 my-3">
-                                <p class="text-xs font-bold mt-1">
-                                    {{ notification.type }}
-                                </p>
-
-                                <p class="text-xs mt-2">
-                                    {{ notification.message }}
-                                </p>
-
-                                <p class="text-xs mt-5">
-                                    <span class="cursor-pointer mr-3" v-if="!!notification.redirection"
-                                        @click="viewNotification(notification.redirection)"
-                                    >
-                                        View
-                                    </span>
-
-                                    <span class="cursor-pointer" v-if="!notification.is_read"
-                                        @click="markAsRead(notification.id)"
-                                    >
-                                        Mark as Read
-                                    </span>
-                                </p>
-                            </div>
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-
-            <main class="main">
+            <main class="bg-white flex-grow mb-16">
                 <slot />
             </main>
+                        
+            <footer class="fixed bottom-0 w-full bg-white rounded-lg border dark:bg-gray-800">
+            <div class="w-full mx-auto max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
+                <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="/" class="hover:underline">Dormhub™</a>. All Rights Reserved.</span>
+                <ul class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
+                <li>
+                    <a href="#" class="mr-4 hover:underline md:mr-6">About us</a>
+                </li>
+                <li>
+                    <a href="#" class="mr-4 hover:underline md:mr-6">Privacy Policy</a>
+                </li>
+                <li>
+                    <a href="#" class="hover:underline">Contact us</a>
+                </li>
+                </ul>
+            </div>
+            </footer>
+
         </div>
     </div>
 </template>
 
 <style>
-.nav-bar-h {
-    height: 8vh;
-}
-
-.main-bg {
-    background-color: #E5E8E8;
-}
-
-.active-bg {
-    background-color: #F8C471;
-    border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
 .notificationModal {
     display: none;
     position: fixed; /* Stay in place */

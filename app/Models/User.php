@@ -23,14 +23,19 @@ class User extends Authenticatable
         'last_name',
         'phone_number',
         'user_type',
-        'email',
+        'username',
         'password',
         'id_picture',
+        'selfie_id_picture',
         'is_approved',
         'image',
         'bio',
         'pk',
-        'sk'
+        'sk',
+        'bank_name',
+        'account_name',
+        'account_number',
+        'first_logged_in'
     ];
 
     /**

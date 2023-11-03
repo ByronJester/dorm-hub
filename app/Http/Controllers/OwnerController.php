@@ -9,7 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\{ Dorm, Room, Amenity, Rule, Payment, TenantRoom, TenantPayments, Notification };
+use App\Models\
+    {
+        Dorm, Room, Amenity, Rule, Payment, Notification,
+        TenantApplication, TenantBilling, TenantPayment, TenantReservation
+};
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\RoomRule;
 use Carbon\Carbon;
@@ -18,6 +22,12 @@ class OwnerController extends Controller
 {
     public function dormList()
     {
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
+
         $dorms = Dorm::where('user_id', Auth::user()->id)->get();
 
         return Inertia::render('Owner/Dorms', [
@@ -25,21 +35,84 @@ class OwnerController extends Controller
         ]);
     }
 
-    public function tenantApplications()
+    public function applications()
     {
-        $user = Auth::user();
+        $auth = Auth::user();
 
-        $applications = TenantRoom::with('payments')->where('owner_id', $user->id)->where('is_active', true)->get();
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
 
-        return Inertia::render('Owner/Tenants', [
+        $applications = TenantApplication::where('is_active', true)
+            ->whereNotIn('status', ['declined', 'expired'])
+            ->where(function ($query) {
+                $query->whereDoesntHave('reservation')
+                    ->orWhereHas('reservation', function ($subQuery) {
+                        $subQuery->where('is_approved', true);
+                    });
+            })
+            ->get();
+
+        $reservations = TenantApplication::with('reservation')
+            ->whereHas('reservation', function($query) {
+                $query->where('is_approved', false)->whereColumn('created_at', '=', 'updated_at');
+            })->get();
+
+
+        return Inertia::render('Owner/ApplicationModule', [
             'applications' => $applications,
+            'reservations' => $reservations
+
         ]);
     }
 
+    public function tenants()
+    {
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
+
+        return Inertia::render('Owner/Tenants', [
+
+        ]);
+    }
+
+    public function maintenance()
+    {
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
+
+        return Inertia::render('Owner/Maintenance', [
+
+        ]);
+    }
+    public function tenantHistory()
+    {
+
+        return Inertia::render('Owner/TenantsPaymentHistory', [
+
+        ]);
+    }
+    public function addDorm()
+    {
+
+        return Inertia::render('Owner/AddDorm', [
+
+        ]);
+    }
+
+
+
     public function saveDorm(Request $request)
     {
-        // return json_decode($request->rooms);
-        $validator = Validator::make($request->all(), [
+        $auth = Auth::user();
+
+        $req = [
             'map_address' => 'required',
             'lat' => 'required',
             'long' => 'required',
@@ -49,22 +122,47 @@ class OwnerController extends Controller
             'floors_total' => 'required',
             'rooms_total' => 'required',
             'dorm_image' => 'required',
-            'business_permit_image' => 'required',
+            'business_permit_image_src' => 'required',
             // 'rooms' => ['required', new RoomRule],
             // 'amenities' => 'required|array|between:1,8',
             'short_term' => 'required',
             'mix_gender' => 'required',
             'curfew' => 'required',
-            'curfew_hours' => 'required',
-            'minimum_stay' => 'required',
             // 'rules' => 'required|array|between:1,20',
-            'range_from' => 'required',
-            'range_to' => 'required',
-            'payments' => 'required|array'
-        ]);
+            // 'range_from' => 'required',
+            // 'range_to' => 'required',
+            // 'payments' => 'required|array'
+        ];
+
+        if($request->curfew == 'Yes') {
+            $req['curfew_hours'] = 'required';
+        }
+
+        if($request->short_term == 'Yes') {
+            $req['minimum_stay'] = 'required';
+        }
+
+        if($auth->first_logged_in) {
+            $req['sk'] = 'required';
+            $req['pk'] = 'required';
+
+        }
+
+        $validator = Validator::make($request->all(), $req);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
+        }
+
+        if($auth->first_logged_in) {
+            auth()->user()->update([
+                'sk' => $request->sk,
+                'pk' => $request->pk,
+                'bank_name' => $request->bank_name,
+                'account_name' => $request->account_name,
+                'account_number' => $request->account_number,
+                'first_logged_in' => false
+            ]);
         }
 
         $dorm = null;
@@ -75,7 +173,7 @@ class OwnerController extends Controller
             if($dorm) {
                 Amenity::where('dorm_id', $id)->delete();
                 Rule::where('dorm_id', $id)->delete();
-                Payment::where('dorm_id', $id)->delete();
+                // Payment::where('dorm_id', $id)->delete();
             }
         } else {
             $dorm = new Dorm;
@@ -99,12 +197,12 @@ class OwnerController extends Controller
             $dorm->dorm_image = $filename;
         }
 
-        if($business_permit_image = $request->business_permit_image) {
-            $business_permit_image = $request->business_permit_image;
+        if($business_permit_src = $request->business_permit_image_src) {
+            $business_permit_src = $request->business_permit_image_src;
 
             $filename = Str::random(10) . '_business_permit' ;
 
-            $uploadFile = $this->uploadFile($business_permit_image, $filename);
+            $uploadFile = $this->uploadFile($business_permit_src, $filename);
             $dorm->business_permit_image = $filename;
         }
 
@@ -166,14 +264,14 @@ class OwnerController extends Controller
 
             $rule->save();
 
-            $payment = new Payment;
+            // $payment = new Payment;
 
-            $payment->dorm_id = $dorm->id;
-            $payment->range_from = $request->range_from;
-            $payment->range_to = $request->range_to;
-            $payment->methods = implode(',', $request->payments);
+            // $payment->dorm_id = $dorm->id
+            // $payment->range_from = $request->range_from;
+            // $payment->range_to = $request->range_to;
+            // $payment->methods = implode(',', $request->payments);
 
-            $payment->save();
+            // $payment->save();
 
             return response()->json(['message' => 'Your dorm succesfully registered.', 'status' => 200], 200);
 
@@ -286,50 +384,172 @@ class OwnerController extends Controller
 
     public function dashboard()
     {
-        $user = Auth::user();
+        $auth = Auth::user();
 
-        $applications = TenantRoom::with('payments')->where('owner_id', $user->id);
-
-        $currentMonth = Carbon::now()->month;
-        $paidAmount = 0;
-        $unpaidAmount = 0;
-
-        foreach($applications->where('is_approved', true)->where('is_active', true)->get() as $application) {
-            $application = (object) $application;
-
-            foreach($application->payments as $payment) {
-                $paymentMonth = Carbon::parse($payment->date)->month;
-
-                if($currentMonth == $paymentMonth) {
-                    if($payment->is_paid) {
-                        $paidAmount += $payment->amount_to_pay;
-                    } else {
-                        $balance = $payment->amount_paid != null ? $payment->amount_to_pay - $payment->amount_paid : $payment->amount_to_pay;
-                        $unpaidAmount += $balance;
-                    }
-                }
-            }
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
         }
 
+        // $applications = TenantRoom::with('payments')->where('owner_id', $user->id);
+
+        // $currentMonth = Carbon::now()->month;
+        // $paidAmount = 0;
+        // $unpaidAmount = 0;
+
+        // foreach($applications->where('is_approved', true)->where('is_active', true)->get() as $application) {
+        //     $application = (object) $application;
+
+        //     foreach($application->payments as $payment) {
+        //         $paymentMonth = Carbon::parse($payment->date)->month;
+
+        //         if($currentMonth == $paymentMonth) {
+        //             if($payment->is_paid) {
+        //                 $paidAmount += $payment->amount_to_pay;
+        //             } else {
+        //                 $balance = $payment->amount_paid != null ? $payment->amount_to_pay - $payment->amount_paid : $payment->amount_to_pay;
+        //                 $unpaidAmount += $balance;
+        //             }
+        //         }
+        //     }
+        // }
+
         return Inertia::render('Owner/Dashboard', [
-            'paidAmount' => $paidAmount,
-            'unpaidAmount' => $unpaidAmount,
-            'totalTenants' => $applications->where('is_approved', true)->where('is_active', true)->count(),
-            'totalApplications' => $applications->count()
+            'paidAmount' => 1000,
+            'unpaidAmount' => 1000,
+            'totalTenants' => 3,
+            'totalApplications' => 5
         ]);
     }
 
     public function reports()
     {
-        return Inertia::render('Owner/Reports', [
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
+
+        return Inertia::render('Owner/Report', [
 
         ]);
     }
 
     public function billings()
     {
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
+
         return Inertia::render('Owner/Billings', [
 
         ]);
+    }
+
+    public function declineApplication($id, Request $request)
+    {
+        return TenantApplication::where('id', $id)->update([
+            'status' => 'declined',
+            'is_active' => false
+        ]);
+    }
+
+    public function declineReservation($id, Request $request)
+    {
+        TenantApplication::where('id', $id)->update([
+            'status' => 'declined',
+            'is_active' => false
+        ]);
+
+        TenantReservation::where('id', $request->reservation_id)->update([
+            'is_approved' => false
+        ]);
+
+        return true;
+    }
+
+    public function approveApplication($id, Request $request)
+    {
+        $now = Carbon::now();
+
+        $room = Room::where('id', $request->room_id)->first();
+
+        TenantApplication::where('id', $id)->update([
+            'status' => 'approved',
+        ]);
+
+        $billing = TenantBilling::create([
+            'tenant_id' => $request->tenant_id,
+            'tenant_application_id' => $request->tenant_application_id,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_number' => $request->phone_number,
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'description' => 'advance_and_deposit_fee',
+            'date' => $now,
+        ]);
+
+        TenantPayment::create([
+            'tenant_id' => $request->tenant_id,
+            'tenant_billing_id' => $billing->id,
+            'dorm_id' => $room->dorm_id,
+            'room_id' => $room->id,
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'category' => 'advance_and_deposit_fee',
+            'date' => $now
+        ]);
+
+        return true;
+    }
+
+    public function approveReservation($id, Request $request)
+    {
+        $now = Carbon::now();
+
+        $room = Room::where('id', $request->room_id)->first();
+
+        TenantApplication::where('id', $id)->update([
+            'status' => 'approved',
+        ]);
+
+        TenantReservation::where('id', $request->reservation_id)->update([
+            'is_approved' => true
+        ]);
+
+        $reservationBill = TenantBilling::where('id', $request->tenant_application_id)
+            ->where('description', 'reservation_fee')
+            ->first();
+
+        $reservationBill->is_paid = true;
+
+        $reservationBill->save();
+
+        TenantPayment::where('tenant_billing_id', $reservationBill->id)->update([
+            'status' => 'paid'
+        ]);
+
+        $billing = TenantBilling::create([
+            'tenant_id' => $request->tenant_id,
+            'tenant_application_id' => $request->tenant_application_id,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'phone_number' => $request->phone_number,
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'description' => 'advance_and_deposit_fee',
+            'date' => $now,
+        ]);
+
+        TenantPayment::create([
+            'tenant_id' => $request->tenant_id,
+            'tenant_billing_id' => $billing->id,
+            'dorm_id' => $room->dorm_id,
+            'room_id' => $room->id,
+            'amount' => (int) $room->deposit + (int) $room->advance,
+            'category' => 'advance_and_deposit_fee',
+            'date' => $now
+        ]);
+
+        return true;
     }
 }

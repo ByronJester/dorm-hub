@@ -1,0 +1,255 @@
+<script>
+import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
+import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
+import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
+import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+
+export default{
+    components:{
+        AuthenticatedLayout,
+        AppDropdown,
+        AppDropdownContent,
+        AppDropdownItem,
+    },
+    setup(){
+        //mga sample data lang to
+        const options=["M.D.R Apartment", "Dorm2"]
+        const headerComplaints=["Subject", "Message", "Status", "Complain Date", "Date Finish"]
+        const dataComplaints = [
+            {
+                "Subject": "Internet Connectivity",
+                "Message": "Experiencing slow internet in my room.",
+                "Status": "Open",
+                "Complain Date": "2023-10-15",
+                "Date Finish": "",
+            },
+            {
+                "Subject": "Heating Issue",
+                "Message": "The heating system is not working in the common area.",
+                "Status": "Open",
+                "Complain Date": "2023-10-20",
+                "Date Finish": "",
+            },
+            {
+                "Subject": "Billing Discrepancy",
+                "Message": "I received an incorrect bill for this month.",
+                "Status": "Open",
+                "Complain Date": "2023-10-25",
+                "Date Finish": "",
+            },
+            {
+                "Subject": "Room Cleaning",
+                "Message": "My room hasn't been cleaned for a week.",
+                "Status": "Open",
+                "Complain Date": "2023-10-30",
+                "Date Finish": "",
+            }
+            ];
+            return{
+                options,
+                headerComplaints,
+            }
+    }
+}
+</script>
+<template>
+    <AuthenticatedLayout>
+    <div class="p-4 mt-16 lg:ml-64">
+        <div class="flex items-center justify-start">
+                        <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 640 512"><path d="M335.5 4l288 160c15.4 8.6 21 28.1 12.4 43.5s-28.1 21-43.5 12.4L320 68.6 47.5 220c-15.4 8.6-34.9 3-43.5-12.4s-3-34.9 12.4-43.5L304.5 4c9.7-5.4 21.4-5.4 31.1 0zM320 160a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM144 256a40 40 0 1 1 0 80 40 40 0 1 1 0-80zm312 40a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM226.9 491.4L200 441.5V480c0 17.7-14.3 32-32 32H120c-17.7 0-32-14.3-32-32V441.5L61.1 491.4c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l37.9-70.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c16.3 0 31.9 4.5 45.4 12.6l33.6-62.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c32.4 0 62.1 17.8 77.5 46.3l33.6 62.3c13.5-8.1 29.1-12.6 45.4-12.6h19.5c32.4 0 62.1 17.8 77.5 46.3l37.9 70.3c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8L552 441.5V480c0 17.7-14.3 32-32 32H472c-17.7 0-32-14.3-32-32V441.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l36.3-67.5c-1.7-1.7-3.2-3.6-4.3-5.8L376 345.5V400c0 17.7-14.3 32-32 32H296c-17.7 0-32-14.3-32-32V345.5l-26.9 49.9c-1.2 2.2-2.6 4.1-4.3 5.8l36.3 67.5c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8z"/></svg>                </span>
+                        <h3 class="text-3xl">Manage Requests</h3>
+                    </div>
+                
+                <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+                <div>
+                        <p class="text-sm font-bold">Dorm:</p>
+                        <select
+                            id="subject"
+                            class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        >
+                            <option v-for="option in options" :key="option">
+                                {{ option }}
+                            </option>
+                        </select>
+                </div>
+            <div class="mt-5">
+                <p class="text-lg font-bold">Complaints Request</p>
+                <div class="w-full mb-5 mt-5">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                    <form class="flex items-center">
+                                        
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                            <div
+                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+                                            >
+                                                <svg
+                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                    aria-hidden="true"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none"
+                                                    viewBox="0 0 18 20"
+                                                >
+                                                    <path
+                                                        stroke="currentColor"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                                                    />
+                                                </svg>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                id="simple-search"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                placeholder="Search in table..."
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        >
+                                            <svg
+                                                class="w-4 h-4"
+                                                aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 20 20"
+                                            >
+                                                <path
+                                                    stroke="currentColor"
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                />
+                                            </svg>
+                                            <span class="sr-only">Search</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headerComplaints"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                        <th
+                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                        >
+                                            Change Status
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in dataComplaints"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in item"
+                                            :key="colIndex"
+                                        >
+                                            {{ value }}
+                                        </td>
+                                        <td
+                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
+                                        >
+                                            <AppDropdown class="">
+                                                <button >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                                                </button>
+                                                <AppDropdownContent class="bg-white z-50 ">
+                                                    <AppDropdownItem>
+                                                        In Progress
+                                                    </AppDropdownItem>
+                                                    <AppDropdownItem>
+                                                        Finished
+                                                    </AppDropdownItem>
+                                                </AppDropdownContent>
+                                            </AppDropdown>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                            >
+                                <div
+                                    class="justify-between items-center block md:flex"
+                                >
+                                    <div
+                                        class="flex items-center justify-center mb-6 md:mb-0"
+                                    >
+                                        <div
+                                            class="flex items-center justify-start flex-wrap -mb-3"
+                                        >
+                                            <button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >1</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >2</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >3</span
+                                                ></button
+                                            ><button
+                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
+                                                type="button"
+                                            >
+                                                <!----><span class="px-2"
+                                                    >4</span
+                                                >
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-center"
+                                    >
+                                        <small>Page 1 of 4</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    </AuthenticatedLayout>
+</template>

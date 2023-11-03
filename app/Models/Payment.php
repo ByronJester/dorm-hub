@@ -10,7 +10,7 @@ class Payment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'dorm_id', 'deposit', 'advance', 'fee', 'methods'
+        'dorm_id', 'methods'
     ];
 
     public function getMethodsAttribute($value)

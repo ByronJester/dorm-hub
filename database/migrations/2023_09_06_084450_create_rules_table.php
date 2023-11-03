@@ -19,8 +19,8 @@ return new class extends Migration
             $table->string('short_term', 20);
             $table->string('mix_gender', 20);
             $table->string('curfew', 20);
-            $table->string('curfew_hours', 100);
-            $table->string('minimum_stay', 100);
+            $table->string('curfew_hours', 100)->nullable();
+            $table->string('minimum_stay', 100)->nullable();
             $table->longText('rules')->nullable();
 
             $table->foreign('dorm_id')->references('id')->on('dorms');
