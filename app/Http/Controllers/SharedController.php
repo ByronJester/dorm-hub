@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Models\{ Dorm, Notification, Thread, ThreadMessage, Code };
+use App\Models\{ Dorm, Notification, Thread, ThreadMessage, Code , PrivacyPolicy, AboutUs, ContactUs};
 use Illuminate\Support\Facades\Auth;
 
 class SharedController extends Controller
@@ -115,5 +115,29 @@ class SharedController extends Controller
         $this->sendSMS($request->phone_number, $message);
 
         return $message;
+    }
+    
+    public function show()
+    {
+        // Fetch the single About Us record (assuming it's the only one)
+        $aboutUs = AboutUs::first();
+
+        return Inertia::render('AboutUs', ['aboutUs' => $aboutUs]);
+    }
+
+    public function showContact()
+    {
+        $contactUs = ContactUs::first();
+        return Inertia::render('ContactUs', [
+            'contactUs' => $contactUs
+        ]);
+    }
+
+    public function showPolicy()
+    {
+        $policy = PrivacyPolicy::first();
+        return Inertia::render('PrivacyPolicy', [
+            'policy' => $policy
+        ]);
     }
 }

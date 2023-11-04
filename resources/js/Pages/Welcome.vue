@@ -234,8 +234,13 @@ export default {
                 }
             });
         };
+        const terms= page.props.terms;
+        const hero= page.props.hero;
 
+        console.log(page.props)
         return {
+            terms,
+            hero,
             selectUserType,
             dorms,
             showingNavigationDropdown,
@@ -306,7 +311,7 @@ export default {
                     </div>
                 </div>
             </nav>
-            <Hero />
+            <Hero :title="hero.title" :subtitle="hero.subtitle" :description="hero.description" :heroImage="hero.image_path"/>
 
             <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
                 <h1 class="text-3xl text-gray-900 mb-2">Featured Domitories</h1>
@@ -843,7 +848,7 @@ export default {
                                     <h3
                                         class="text-xl font-semibold text-black"
                                     >
-                                        Terms and Condition
+                                        {{ terms.title }}
                                     </h3>
                                     <button
                                         type="button"
@@ -870,7 +875,7 @@ export default {
                                 </div>
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6">
-                                    <Terms />
+                                    <Terms :content="terms.content" />
                                 </div>
                                 <!-- Modal footer -->
                                 <div
@@ -1034,7 +1039,7 @@ export default {
 
                                             <InputError
                                                 class="mt-2"
-                                                :message="form.errors.email"
+                                                :message="form.errors.username"
                                             />
                                         </div>
                                         <div>

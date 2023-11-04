@@ -133,9 +133,8 @@ export default {
                     </div>
                     <hr class="my-3"/>
                     <div class="flex flex-col gap-1 text-gray-400 ml-3 ">
-                        <p>-Review room occupancy and identify vacant rooms.</p>
-                        <p>-Track tenant assignments and move-in/move-out dates.</p>
-                        <p>-Generate occupancy reports for dormitory insights.</p>
+                        <p>-Generate User's Report</p>
+                        <p>-View list of users in the platform</p>
                     </div>
                     <div class="w-full mt-3">
                         <button @click="changeActiveReport('UsersReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
@@ -168,9 +167,9 @@ export default {
                     </div>
                     <hr class="my-3"/>
                     <div class="flex flex-col gap-1 text-gray-400 ml-3 ">
-                        <p>-Generate Rent Roll Reports for income tracking.</p>
-                        <p>-Analyze rental income by room and tenant.</p>
-                        <p>-Streamline rent collection and record-keeping.</p>
+                        <p>-Generate dorm performance reports.</p>
+                        <p>-Assess dorms' income and occupancy.</p>
+                        <p>-Plan and optimize dormitory operations</p>
                     </div>
                     <div class="w-full mt-3">
                         <button @click="changeActiveReport('DormitoriesReports')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
