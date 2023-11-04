@@ -34,4 +34,11 @@ class TenantPayment extends Model
 
         return $date->isoFormat('LL');
     }
+
+    public function getProofOfPaymentAttribute($value)
+    {
+        if(!$value) return null;
+
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
 }

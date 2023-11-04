@@ -11,6 +11,6 @@ class TenantBilling extends Model
 
     protected $fillable = [
         'tenant_id', 'tenant_application_id', 'first_name', 'last_name', 'phone_number', 'amount',
-        'description', 'date', 'is_paid'
+        'description', 'date', 'is_paid', 'subject'
     ];
 }

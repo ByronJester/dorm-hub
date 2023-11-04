@@ -126,43 +126,43 @@
             modal.style.display = "block";
         };
 
-        const closeTermsModal = () => {
-            var modal = document.getElementById("defaultModal");
+            const closeTermsModal = () => {
+                var modal = document.getElementById("defaultModal");
 
-            modal.style.display = "none";
-        };
-
-        const openTutModal = () => {
-            var modal = document.getElementById("tutModal");
-
-            modal.style.display = "block";
-        };
-
-        const closeTutModal = () => {
-            var modal = document.getElementById("tutModal");
-
-            modal.style.display = "none";
-        };
-
-        const selectUserType = (userType) => {
-            form.user_type = userType;
-        };
-        const SelfieidPictureClick = () => {
-            document.getElementById("selfie_id_picture").click();
-        };
-
-        const SelfieidPictureChange = (e) => {
-            const image = e.target.files[0];
-
-            const reader = new FileReader();
-
-            reader.readAsDataURL(image);
-
-            reader.onload = (e) => {
-                console.log(e);
-                form.selfie_id_picture = e.target.result;
+                modal.style.display = "none";
             };
-        };
+
+            const openTutModal = () => {
+                var modal = document.getElementById("tutModal");
+
+                modal.style.display = "block";
+            };
+
+            const closeTutModal = () => {
+                var modal = document.getElementById("tutModal");
+
+                modal.style.display = "none";
+            };
+
+            const selectUserType = (userType) => {
+                form.user_type = userType;
+            };
+            const SelfieidPictureClick = () => {
+                document.getElementById("selfie_id_picture").click();
+            };
+
+            const SelfieidPictureChange = (e) => {
+                const image = e.target.files[0];
+
+                const reader = new FileReader();
+
+                reader.readAsDataURL(image);
+
+                reader.onload = (e) => {
+                    console.log(e);
+                    form.selfie_id_picture = e.target.result;
+                };
+            };
 
             return {
                 user,
@@ -199,9 +199,9 @@
         <div class="w-full" v-if="user">
             <TenantLayout v-if="user.user_type == 'tenant'">
                 <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
-                    <div 
+                    <div
                         className="
-                        max-w-screen-lg 
+                        max-w-screen-lg
                         mx-auto
                         "
                     >
@@ -221,9 +221,9 @@
 
             <OtherLayout v-else>
                 <div class="p-4 lg:ml-64">
-                    <div 
+                    <div
                         className="
-                        max-w-screen-lg 
+                        max-w-screen-lg
                         mx-auto
                         "
                     >
@@ -267,14 +267,14 @@
                                         Signin
                                     </button>
 
-  
+
                                     <button
                                         @click.prevent="openRegisterModal()"
                                         class="bg-orange-400 hover:bg-transparent text-white font-semibold hover:text-orange-400 py-2 px-4 border border-transparent hover:border-orange-400 rounded"
                                     >
                                         Signup
                                     </button>
-                                
+
                                 </div>
                             </div>
                         </div>

@@ -191,6 +191,8 @@ export default {
             },
         ];
 
+        console.log(props.user.reservation)
+
         return {
             props,
             isMobileView,

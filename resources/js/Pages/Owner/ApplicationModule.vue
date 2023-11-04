@@ -208,8 +208,8 @@
                         tenant_name: applications[y].tenant.name,
                         source_of_income: applications[y].tenant.income_information.source_of_income,
                         monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
-                        move_in: !applications[y].move_in ? 'N/A' : applications[x].move_in,
-                        move_out: !applications[y].move_out ? 'N/A' : applications[x].move_out,
+                        move_in: !applications[y].move_in ? 'N/A' : applications[y].move_in,
+                        move_out: !applications[y].move_out ? 'N/A' : applications[y].move_out,
                         status: applications[y].status,
                         action: applications[y]
                     }
@@ -817,15 +817,15 @@
                                     <button
                                         @click="declineApplication(selectedApplication)"
                                         type="button"
-                                        v-if="selectedApplication && selectedApplication.status == 'pending'"
-                                        class="text-white bg-red-600 hover:bg-opacity-25 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        v-if="selectedApplication && selectedApplication.status == 'rent' && !selectedApplication.is_approved"
+                                        class="text-white bg-red-600 hover:bg-opacity-25 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-rose-500 dark:hover:bg-rose-700 dark:focus:ring-rose-800"
                                     >
                                         Decline
                                     </button>
                                     <button
                                         @click="approveApplication(selectedApplication)"
                                         type="button"
-                                        v-if="selectedApplication && selectedApplication.status == 'pending'"
+                                        v-if="selectedApplication && selectedApplication.status == 'rent' && !selectedApplication.is_approved"
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Approve

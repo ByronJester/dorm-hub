@@ -20,6 +20,7 @@ export default {
         const room = page.props.room;
         const action = page.props.action
         const hasExistingApplication = page.props.hasExistingApplication
+        const hasExistingReservation = page.props.hasExistingReservation
 
         onMounted(() => {
             const startDate = new Date();
@@ -91,13 +92,16 @@ export default {
             };
         };
 
+        const move_in = ref()
+
         const submitApplication = () => {
             const request = {
                 owner_id : dorm.user_id,
                 tenant_id : user.id,
                 dorm_id: dorm.id,
                 room_id: room.id,
-                status: 'pending',
+                status: 'rent',
+                move_in: move_in.value
             }
 
             swal({
@@ -134,7 +138,7 @@ export default {
                 tenant_id : user.id,
                 dorm_id: dorm.id,
                 room_id: room.id,
-                status: 'pending',
+                status: 'reserve',
                 amount: amount_to_paid.value,
                 check_date: date.value,
                 check_time: time.value.hours + ':' + time.value.minutes,
@@ -199,7 +203,9 @@ export default {
             proof_of_payment,
             hasExistingApplication,
             submitApplication,
-            reserveRoom
+            reserveRoom,
+            hasExistingReservation,
+            move_in
         };
     },
 };
@@ -426,16 +432,25 @@ export default {
                                                 }}</span>
                                             </div>
                                         </div>
-                                        <div class="mt-5" v-if="action == 'rent' && !hasExistingApplication">
+                                        <div class="mt-5" v-if="(!!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent') || (!hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent') || (!hasExistingApplication && action == 'rent')">
+                                            <input type="date" v-model="move_in" class="rounded-md"/>
+                                        </div>
+                                        <div class="mt-5" v-if="(!!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent') || (!hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent') || (!hasExistingApplication && action == 'rent')">
                                             <button class="py-2 px-3 bg-cyan-400 rounded-md"
                                                 @click="submitApplication()"
                                             >
                                                 Submit Application
                                             </button>
                                         </div>
-                                        <div v-if="!!hasExistingApplication">
+                                        <div v-if="!!hasExistingApplication && !hasExistingApplication.is_approved && !hasExistingReservation">
                                             <span class="text-[8px] font-bold text-rose-500">
-                                                YOU HAVE PENDING APPLICATION TO THIS ROOM
+                                                You have pending application to this room, wait for dorm owner approval.
+                                            </span>
+                                        </div>
+
+                                        <div v-if="!!hasExistingReservation && !hasExistingApplication">
+                                            <span class="text-[8px] font-bold text-rose-500">
+                                                You have pending reservation to this room, wait for dorm owner approval.
                                             </span>
                                         </div>
 
@@ -451,7 +466,7 @@ export default {
                         </div>
                     </div>
                     <hr class="h-px my-5 mx-5 bg-gray-200 border-0" />
-                    <div class="flex-1 p-6" v-if="action == 'reserve' && !hasExistingApplication">
+                    <div class="flex-1 p-6" v-if="(!hasExistingApplication && !hasExistingReservation) && action == 'reserve'">
                         <div class="grid grid-cols-1 gap-2 md:grid-cols-2">
                             <div
                                 class="rounded-lg border border-gray-300 shadow-sm"

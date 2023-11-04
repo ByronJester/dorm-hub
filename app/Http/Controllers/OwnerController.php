@@ -44,19 +44,17 @@ class OwnerController extends Controller
         }
 
         $applications = TenantApplication::where('is_active', true)
-            ->whereNotIn('status', ['declined', 'expired'])
-            ->where(function ($query) {
-                $query->whereDoesntHave('reservation')
-                    ->orWhereHas('reservation', function ($subQuery) {
-                        $subQuery->where('is_approved', true);
-                    });
-            })
+            ->where('status', 'rent')
+            // ->where(function ($query) {
+            //     $query->whereDoesntHave('reservation')
+            //         ->orWhereHas('reservation', function ($subQuery) {
+            //             $subQuery->where('is_approved', true);
+            //         });
+            // })
             ->get();
 
         $reservations = TenantApplication::with('reservation')
-            ->whereHas('reservation', function($query) {
-                $query->where('is_approved', false)->whereColumn('created_at', '=', 'updated_at');
-            })->get();
+            ->where('status', 'reserve')->get();
 
 
         return Inertia::render('Owner/ApplicationModule', [
@@ -476,7 +474,7 @@ class OwnerController extends Controller
         $room = Room::where('id', $request->room_id)->first();
 
         TenantApplication::where('id', $id)->update([
-            'status' => 'approved',
+            'is_approved' => true
         ]);
 
         $billing = TenantBilling::create([
@@ -510,14 +508,14 @@ class OwnerController extends Controller
         $room = Room::where('id', $request->room_id)->first();
 
         TenantApplication::where('id', $id)->update([
-            'status' => 'approved',
+            'status' => 'rent',
         ]);
 
         TenantReservation::where('id', $request->reservation_id)->update([
             'is_approved' => true
         ]);
 
-        $reservationBill = TenantBilling::where('id', $request->tenant_application_id)
+        $reservationBill = TenantBilling::where('tenant_application_id', $request->tenant_application_id)
             ->where('description', 'reservation_fee')
             ->first();
 
@@ -529,26 +527,26 @@ class OwnerController extends Controller
             'status' => 'paid'
         ]);
 
-        $billing = TenantBilling::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_application_id' => $request->tenant_application_id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone_number' => $request->phone_number,
-            'amount' => (int) $room->deposit + (int) $room->advance,
-            'description' => 'advance_and_deposit_fee',
-            'date' => $now,
-        ]);
+        // $billing = TenantBilling::create([
+        //     'tenant_id' => $request->tenant_id,
+        //     'tenant_application_id' => $request->tenant_application_id,
+        //     'first_name' => $request->first_name,
+        //     'last_name' => $request->last_name,
+        //     'phone_number' => $request->phone_number,
+        //     'amount' => (int) $room->deposit + (int) $room->advance,
+        //     'description' => 'advance_and_deposit_fee',
+        //     'date' => $now,
+        // ]);
 
-        TenantPayment::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_billing_id' => $billing->id,
-            'dorm_id' => $room->dorm_id,
-            'room_id' => $room->id,
-            'amount' => (int) $room->deposit + (int) $room->advance,
-            'category' => 'advance_and_deposit_fee',
-            'date' => $now
-        ]);
+        // TenantPayment::create([
+        //     'tenant_id' => $request->tenant_id,
+        //     'tenant_billing_id' => $billing->id,
+        //     'dorm_id' => $room->dorm_id,
+        //     'room_id' => $room->id,
+        //     'amount' => (int) $room->deposit + (int) $room->advance,
+        //     'category' => 'advance_and_deposit_fee',
+        //     'date' => $now
+        // ]);
 
         return true;
     }
