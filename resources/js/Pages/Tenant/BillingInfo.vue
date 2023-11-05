@@ -432,17 +432,20 @@ export default {
                                                 }}</span>
                                             </div>
                                         </div>
-                                        <div class="mt-5" v-if="(!!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent') || (!hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent') || (!hasExistingApplication && action == 'rent')">
+                                        <div class="mt-5" v-if="(!!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent') || (!hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent') || (!hasExistingApplication && !hasExistingReservation && action == 'rent')">
                                             <input type="date" v-model="move_in" class="rounded-md"/>
+                                            <!-- {{ !!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent' }}
+                                            {{ !hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent' }}
+                                            {{ !hasExistingApplication && !hasExistingReservation && action == 'rent' }} -->
                                         </div>
-                                        <div class="mt-5" v-if="(!!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent') || (!hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent') || (!hasExistingApplication && action == 'rent')">
+                                        <div class="mt-5" v-if="(!!hasExistingApplication && !hasExistingApplication.move_in && action == 'rent') || (!hasExistingApplication && hasExistingReservation && hasExistingReservation.is_approved  && action == 'rent') || (!hasExistingApplication && !hasExistingReservation && action == 'rent')">
                                             <button class="py-2 px-3 bg-cyan-400 rounded-md"
                                                 @click="submitApplication()"
                                             >
                                                 Submit Application
                                             </button>
                                         </div>
-                                        <div v-if="!!hasExistingApplication && !hasExistingApplication.is_approved && !hasExistingReservation">
+                                        <!-- <div v-if="!!hasExistingApplication && !hasExistingReservation">
                                             <span class="text-[8px] font-bold text-rose-500">
                                                 You have pending application to this room, wait for dorm owner approval.
                                             </span>
@@ -452,7 +455,7 @@ export default {
                                             <span class="text-[8px] font-bold text-rose-500">
                                                 You have pending reservation to this room, wait for dorm owner approval.
                                             </span>
-                                        </div>
+                                        </div> -->
 
                                     </div>
                                 </div>
