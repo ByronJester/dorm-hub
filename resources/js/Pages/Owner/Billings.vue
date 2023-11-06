@@ -23,16 +23,14 @@ export default {
     setup() {
         const options = ["M.D.R Apartment", "Dorm2"];
         const selectedDay = ref(1); // Default to the 1st day of the month
-         const days = Array.from({ length: 30 }, (_, index) => index + 1); // Create an array of days from 1 to 30
+        const days = Array.from({ length: 30 }, (_, index) => index + 1); // Create an array of days from 1 to 30
 
-        const dates = [
-            "All time",
-            "Current month",
-            "Previous month",
-            "Last 12 months",
-            "Last 30 days",
-            "Previous Year",
-        ];
+        const page = usePage()
+
+        const selectedDorm = ref(null)
+        selectedDorm.value = page.props.dorms[0].id
+
+
         const headersHistory = [
             "Room Name",
             "Tenant Name",
@@ -43,53 +41,12 @@ export default {
             "Status",
         ];
 
-        const dataHistory = [
-            {
-                "Room Name": "Living Room",
-                "Tenant Name": "John Doe",
-                Description: "Monthly rent",
-                Amount: 1000,
-                "Invoice #": "INV-001",
-                "Payment method": "Credit Card",
-                Status: "Paid",
-            },
-            {
-                "Room Name": "Bedroom",
-                "Tenant Name": "Alice Johnson",
-                Description: "Security deposit",
-                Amount: 500,
-                "Invoice #": "INV-002",
-                "Payment method": "Bank Transfer",
-                Status: "Paid",
-            },
-            {
-                "Room Name": "Kitchen",
-                "Tenant Name": "Bob Smith",
-                Description: "Appliance repair",
-                Amount: 75,
-                "Invoice #": "INV-003",
-                "Payment method": "PayPal",
-                Status: "Pending",
-            },
-            {
-                "Room Name": "Bathroom",
-                "Tenant Name": "Ella Davis",
-                Description: "Cleaning service",
-                Amount: 50,
-                "Invoice #": "INV-004",
-                "Payment method": "Cash",
-                Status: "Paid",
-            },
-            {
-                "Room Name": "Dining Room",
-                "Tenant Name": "Michael Wilson",
-                Description: "Furniture rental",
-                Amount: 200,
-                "Invoice #": "INV-005",
-                "Payment method": "Credit Card",
-                Status: "Pending",
-            },
-        ];
+        const dataHistory = ref([])
+        dataHistory.value = page.props.billingHistory
+            .filter(x => {
+                return x.dorm_id == selectedDorm.value;
+            })
+
         const headersBill = [
             "Room Name",
             "Tenant Name",
@@ -97,51 +54,230 @@ export default {
             "Balance",
             "Moved-IN Date",
         ];
-        const dataBill = [
-            {
-                "Room Name": "Living Room",
-                "Tenant Name": "John Doe",
-                "Monthly Rent": 1000,
-                "Balance": 2000,
-                "Moved-IN Date": "2023-01-01",
-            },
-            {
-                "Room Name": "Bedroom",
-                "Tenant Name": "Alice Johnson",
-                "Monthly Rent": 800,
-                "Balance": 2000,
-                "Moved-IN Date": "2023-02-15",
-            },
-            {
-                "Room Name": "Kitchen",
-                "Tenant Name": "Bob Smith",
-                "Monthly Rent": 1200,
-                "Balance": 2000,
-                "Moved-IN Date": "2023-03-10",
-            },
-        ];
-        const openAutoBill = () => {
+
+        const dataBill = ref([]);
+        dataBill.value = page.props.billTenants
+            .filter(x => {
+                return x.dorm_id == selectedDorm.value;
+            })
+
+        const outstandingCount = ref(0)
+        const paidCount = ref(0)
+        const unpaidCount = ref(0)
+
+        outstandingCount.value = page.props.billingHistory.filter(x => {
+            return x.status == 'Unpaid' && x.dorm_id == selectedDorm.value;
+        }).length
+
+        paidCount.value = page.props.billingHistory.filter(x => {
+            return x.status == 'Paid' && x.dorm_id == selectedDorm.value;
+        }).length
+
+        unpaidCount.value = page.props.billingHistory.filter(x => {
+            return x.status == 'Unpaid' && x.dorm_id == selectedDorm.value;
+        }).length
+
+        const selectedBill = ref(null)
+        const autoBillingForm = ref({
+            tenant_application_id: null,
+            auto_bill: false,
+        })
+
+        const openAutoBill = (arg) => {
             var modal = document.getElementById("defaultModal");
 
             modal.style.display = "block";
+
+            selectedBill.value = arg
+
+            autoBillingForm.value.tenant_application_id = arg.application_id
+            autoBillingForm.value.auto_bill = arg.auto_bill
+
+            console.log(arg)
         };
 
         const closeAutoBill = () => {
             var modal = document.getElementById("defaultModal");
 
             modal.style.display = "none";
+
+            autoBillingForm.value = {
+                tenant_application_id: null,
+                auto_bill: false,
+            }
         };
-        const openManualBill = () => {
+
+        const submitAutoBill = () => {
+            swal({
+                title: `Are you sure to proceed with this auto bill?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.auto-bill'), autoBillingForm.value)
+                    .then(response => {
+                        swal("Success!", `You successfully auto bill this application.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        const manualBillingForm = ref({
+            tenant_application_id: null,
+            subject: null,
+            amount: null,
+            description: null
+        })
+
+        const openManualBill = (arg) => {
             var modal = document.getElementById("manualModal");
 
             modal.style.display = "block";
+
+            selectedBill.value = arg
+
+            manualBillingForm.value.tenant_application_id = arg.application_id
         };
 
         const closeManualBill = () => {
             var modal = document.getElementById("manualModal");
 
             modal.style.display = "none";
+
+            manualBillingForm.value = {
+                tenant_application_id: null,
+                subject: null,
+                amount: null,
+                description: null
+            }
         };
+
+        const submitManualBill = () => {
+            swal({
+                title: `Are you sure to proceed with this manual bill?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.manual-bill'), manualBillingForm.value)
+                    .then(response => {
+                        swal("Success!", `You successfully create this manual bill.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        const dates = [
+            "All time",
+            "Current month",
+            "Previous month",
+            "Last 12 months",
+            "Last 30 days",
+            "Previous Year",
+        ];
+
+        const objectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.dorm_id;
+            delete newObject.application_id;
+            delete newObject.room_id
+            delete newObject.auto_bill
+
+            return newObject;
+        }
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+
+        const dorms = page.props.dorms
+
+        const dormChange = (e) => {
+            dataHistory.value = page.props.billingHistory
+                .filter(x => {
+                    return x.dorm_id == selectedDorm.value;
+                })
+
+            dataBill.value = page.props.billTenants
+                .filter(x => {
+                    return x.dorm_id == selectedDorm.value;
+                })
+
+            activeTab.value = 'all'
+
+            outstandingCount.value = page.props.billingHistory.filter(x => {
+                return x.status == 'Unpaid' && x.dorm_id == selectedDorm.value;
+            }).length
+
+            paidCount.value = page.props.billingHistory.filter(x => {
+                return x.status == 'Paid' && x.dorm_id == selectedDorm.value;
+            }).length
+
+            unpaidCount.value = page.props.billingHistory.filter(x => {
+                return x.status == 'Unpaid' && x.dorm_id == selectedDorm.value;
+            }).length
+        }
+
+        const activeTab = ref('all')
+
+        const changeActiveTab = (tab) => {
+            activeTab.value = tab
+
+            if(tab == 'paid') {
+                dataHistory.value = page.props.billingHistory.filter(x => {
+                    return x.status == 'Paid' && x.dorm_id == selectedDorm.value
+                })
+
+                return
+            }
+
+            if(tab == 'unpaid') {
+                dataHistory.value = page.props.billingHistory.filter(x => {
+                    return x.status == 'Unpaid' && x.dorm_id == selectedDorm.value
+                })
+
+                return
+            }
+
+            dataHistory.value = page.props.billingHistory.filter(x => {
+                return x.dorm_id == selectedDorm.value
+            })
+
+            return;
+
+        }
 
         return {
             options,
@@ -155,8 +291,22 @@ export default {
             openAutoBill,
             closeAutoBill,
             closeManualBill,
-            openManualBill
-            
+            openManualBill,
+            selectedDorm,
+            objectRemoveKey,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            dorms,
+            dormChange,
+            selectedBill,
+            submitManualBill,
+            manualBillingForm,
+            autoBillingForm,
+            activeTab,
+            changeActiveTab,
+            outstandingCount,
+            paidCount,
+            unpaidCount,
+            submitAutoBill,
         };
     },
 };
@@ -181,10 +331,12 @@ export default {
             <div class="flex flex-row gap-2 float-right">
                 <select
                     id="subject"
+                    v-model="selectedDorm"
+                    @change="dormChange($event)"
                     class="block w-52 px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                 >
-                    <option v-for="option in options" :key="option">
-                        {{ option }}
+                    <option v-for="dorm in dorms" :key="dorm.id" :value="dorm.id">
+                        {{ dorm.property_name }}
                     </option>
                 </select>
                 <select
@@ -203,7 +355,7 @@ export default {
                     class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
                 >
                     <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-orange-500">0</p>
+                        <p class="text-2xl mb-2 text-orange-500">{{ outstandingCount }}</p>
                         <p class="text-xs">Outstanding</p>
                     </div>
                 </div>
@@ -212,7 +364,7 @@ export default {
                     class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
                 >
                     <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-green-500">0</p>
+                        <p class="text-2xl mb-2 text-green-500">{{ paidCount }}</p>
                         <p class="text-xs">Paid</p>
                     </div>
                 </div>
@@ -221,7 +373,7 @@ export default {
                     class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
                 >
                     <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-red-500">0</p>
+                        <p class="text-2xl mb-2 text-red-500">{{ unpaidCount }}</p>
                         <p class="text-xs">Unpaid</p>
                     </div>
                 </div>
@@ -324,31 +476,31 @@ export default {
                                     >
                                         <td
                                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
+                                            v-for="(value, colIndex) in objectRemoveKey(item)"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
-                                        </td>
-                                        <td
-                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
-                                        >
-                                            <AppDropdown class="">
+                                            <span v-if="colIndex != 'action'">
+                                                {{ value }}
+                                            </span>
+
+                                            <AppDropdown class="flex justify-center items-center" v-else>
                                                 <button >
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem @click="openAutoBill()">
+                                                    <AppDropdownItem @click="openAutoBill(item)">
                                                         Auto Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem @click="openManualBill()">
+                                                    <AppDropdownItem @click="openManualBill(item)">
                                                         Manual Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem :href="route('owner.tenantshistory')">
+                                                    <AppDropdownItem :href="route('owner.tenantshistory', item.application_id)">
                                                         View Payments
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
                                             </AppDropdown>
                                         </td>
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -418,9 +570,26 @@ export default {
                                 <div
                                     class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-row flex"
                                 >
-                                    <a> All </a>
-                                    <a> Paid </a>
-                                    <a> Unpaid </a>
+                                    <span :class="{'bg-slate-300': activeTab == 'all'}"
+                                        class="w-[100px] text-center py-3 cursor-pointer"
+                                        @click="changeActiveTab('all')"
+                                    >
+                                        All
+                                    </span>
+
+                                    <span :class="{'bg-slate-300': activeTab == 'paid'}"
+                                        class="w-[100px] text-center py-3 cursor-pointer"
+                                        @click="changeActiveTab('paid')"
+                                    >
+                                        Paid
+                                    </span>
+
+                                    <span :class="{'bg-slate-300': activeTab == 'unpaid'}"
+                                        class="w-[100px] text-center py-3 cursor-pointer"
+                                        @click="changeActiveTab('unpaid')"
+                                    >
+                                        Unpaid
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -437,7 +606,7 @@ export default {
                                         >
                                             {{ header }}
                                         </th>
-                                        
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -447,12 +616,12 @@ export default {
                                     >
                                         <td
                                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
+                                            v-for="(value, colIndex) in objectRemoveKey(item)"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
+                                            {{colIndex == "description" ? removeUnderscoreAndCapitalizeAfterSpace(value) : value}}
                                         </td>
-                                        
+
                                     </tr>
                                 </tbody>
                             </table>
@@ -522,7 +691,7 @@ export default {
                     <div class="h-screen flex justify-center items-center">
                         <div class="relative w-full max-w-md max-h-full">
                             <!-- Modal content -->
-                            <div class="relative bg-white rounded-lg shadow">
+                            <div class="relative bg-white rounded-lg shadow" v-if="selectedBill">
                                 <!-- Modal header -->
                                 <div
                                     class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
@@ -571,6 +740,7 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="selectedBill.tenant"
                                             />
                                     </div>
                                     <div class="flex-grow">
@@ -586,9 +756,10 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="selectedBill.room"
                                             />
                                     </div></div>
-                                    
+
                                     <div>
                                         <label
                                                 for="dorm_owner_name"
@@ -602,18 +773,20 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="selectedBill.monthly_fee"
                                             />
                                     </div>
                                     <!--Select Date-->
-                                    <div>
+                                    <!-- <div>
                                         <label for="daySelect" class="mr-2">Select a day:</label>
                                         <select id="daySelect" v-model="selectedDay" class="border-none rounded-md py-1 bg-gray-200 mb-1 text-sm text-gray-900">
                                         <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
                                         </select>
                                         <p>You selected the {{ selectedDay }} day of the month.</p>
-                                    </div>
+                                    </div> -->
+
                                     <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" value="" class="sr-only peer">
+                                        <input type="checkbox" v-model="autoBillingForm.auto_bill" class="sr-only peer">
                                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                                         <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">Auto Bill</span>
                                     </label>
@@ -623,14 +796,14 @@ export default {
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
-                                        @click="closeTermsModal()"
+                                        @click="submitAutoBill()"
                                         type="button"
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Okay
                                     </button>
                                     <button
-                                        @click="closeTermsModal()"
+                                        @click="closeAutoBill()"
                                         type="button"
                                         class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                                     >
@@ -641,7 +814,7 @@ export default {
                         </div>
                     </div>
                 </div>
-            
+
                 <!--ManualBillingModal-->
             <div
                     id="manualModal"
@@ -653,7 +826,7 @@ export default {
                     <div class="h-screen flex justify-center items-center">
                         <div class="relative w-full max-w-md max-h-full">
                             <!-- Modal content -->
-                            <div class="relative bg-white rounded-lg shadow">
+                            <div class="relative bg-white rounded-lg shadow" v-if="selectedBill">
                                 <!-- Modal header -->
                                 <div
                                     class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
@@ -702,6 +875,7 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="selectedBill.tenant"
                                             />
                                     </div>
                                     <div class="flex-grow">
@@ -717,18 +891,19 @@ export default {
                                                 class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 placeholder="Matic malalagyan ng data"
                                                 required
+                                                v-model="selectedBill.room"
                                             />
                                     </div>
                                 </div>
-                                    
+
                                     <div>
                                         <label
                                                 for="dorm_owner_name"
                                                 class="block text-sm font-medium text-gray-900"
                                                 >Billing Subject:</label
                                             >
-                                            <select id="subject" class="block w-full px-2 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                                <option selected>Choose a Billing for:</option>
+                                            <select id="subject" v-model="manualBillingForm.subject" class="block w-full px-2 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                <option selected :value="null">Choose a Billing for:</option>
                                                 <option value="Maintenance">Electricity</option>
                                                 <option value="Cleanliness">Water</option>
                                                 <option value="Noise">Internet</option>
@@ -746,11 +921,19 @@ export default {
                                                 id="room_name"
                                                 class=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                                 required
+                                                v-model="manualBillingForm.amount"
                                             />
                                     </div>
                                     <div>
                                             <label for="complainmessage" class="block text-sm font-medium text-gray-900">Description:</label>
-                                            <textarea id="complainmessage" rows="3" class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a description..." required></textarea>
+                                            <textarea v-model="manualBillingForm.description"
+                                                id="complainmessage"
+                                                rows="3"
+                                                class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a description..."
+                                                required
+                                            >
+
+                                            </textarea>
                                     </div>
                                 </div>
                                 <!-- Modal footer -->
@@ -758,14 +941,14 @@ export default {
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
-                                        @click=""
+                                        @click="submitManualBill()"
                                         type="button"
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Bill
                                     </button>
                                     <button
-                                        @click=""
+                                        @click="closeManualBill()"
                                         type="button"
                                         class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                                     >

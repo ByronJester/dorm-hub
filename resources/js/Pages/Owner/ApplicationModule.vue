@@ -333,7 +333,6 @@
                 function(){
                     axios.post(route('approve.application', arg.id), data)
                         .then(response => {
-                            console.log(response)
                             swal("Success!", `You successfully approved this application.`, "success");
 
                             setTimeout(function () {

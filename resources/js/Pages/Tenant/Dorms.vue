@@ -36,16 +36,16 @@ export default {
 
 <template>
     <AuthenticatedLayout>
-        <Hero :title="hero.title" :subtitle="hero.subtitle" :description="hero.description" :heroImage="hero.image_path"/>
+        <Hero :title="hero ? hero.title: null" :subtitle="hero ? hero.subtitle : null" :description="hero ? hero.description : null" :heroImage="hero ? hero.image_path : null"/>
         <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
 
-            
+
             <div
                 className="
-            grid 
-            grid-cols-1 
-            sm:grid-cols-2 
-            md:grid-cols-3 
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            md:grid-cols-3
             lg:grid-cols-4
             xl:grid-cols-4
             2xl:grid-cols-6
@@ -55,7 +55,7 @@ export default {
                 <!--
             -->
                 <DormList :dorms.sync="dorms" :user.sync="user"/>
-                
+
             </div>
         </div>
     </AuthenticatedLayout>
