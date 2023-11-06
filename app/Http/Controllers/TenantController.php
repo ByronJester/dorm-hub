@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
     Thread, ThreadMember, ThreadMessage, TenantApplication,
-    TenantBilling, TenantReservation, TenantPayment
+    TenantBilling, TenantReservation, TenantPayment, Hero
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -23,6 +23,7 @@ class TenantController extends Controller
 
         return Inertia::render('Tenant/Dorms', [
             'dorms' => $dorms,
+            'hero' => Hero::first(),
         ]);
     }
 

@@ -320,3 +320,30 @@ export default {
     </footer>
     </div>
 </template>
+<style>
+  h1 {
+    font-size: 36px;
+    font-weight: bold;
+  }
+  h2 {
+    font-size: 30px;
+    font-weight: bold;
+  }
+  h3 {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  h4{
+    font-size: 18px;
+    font-weight: bold;
+  }
+  h5{
+    font-size: 12px;
+    font-weight: bold;
+  }
+  h6{
+    font-size: 6px;
+    font-weight: bold;
+  }
+
+</style>

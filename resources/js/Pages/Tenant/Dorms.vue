@@ -19,8 +19,8 @@ export default {
         const page = usePage();
         const user = computed(() => page.props.auth.user);
         const dorms = ref([]);
-        const hero = page.props.hero
-
+        const hero = page.props.hero;
+        console.log(page.props);
         onMounted(() => {
             dorms.value = page.props.dorms;
         });
