@@ -180,10 +180,10 @@ export default {
                 .then(response => {
                     console.log(response.data)
                     form.code = response.data
-                    
+
                 })
                 .catch(error => {
-                    
+
                 })
         };
 
@@ -237,14 +237,14 @@ export default {
             });
         };
         const terms= page.props.terms;
-        
+
 
         console.log(page.props)
         return {
             terms,
-   
+
             selectUserType,
-          
+
             showingNavigationDropdown,
             isMobileView,
             form,
@@ -313,7 +313,7 @@ export default {
                     </div>
                 </div>
             </nav>
-            
+
 
               <!--New UI register modal-->
                 <div
@@ -353,7 +353,7 @@ export default {
                                 </button>
 
                                 <div id="otpModal" class="otpModal mt-10 md:mt-0">
-                                   
+
                                     <div class="otp-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
                                         <div class="w-full">
                                             <span>
@@ -832,7 +832,7 @@ export default {
                                     <h3
                                         class="text-xl font-semibold text-black"
                                     >
-                                        {{ terms.title }}
+                                        {{ terms ? terms.title : '' }}
                                     </h3>
                                     <button
                                         type="button"
@@ -859,7 +859,7 @@ export default {
                                 </div>
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6">
-                                    <Terms :content="terms.content" />
+                                    <Terms :content="terms ? terms.content : ''" />
                                 </div>
                                 <!-- Modal footer -->
                                 <div

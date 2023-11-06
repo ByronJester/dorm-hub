@@ -102,7 +102,7 @@ export default {
         const currentPage = ref(1); // Initialize to the first page
         const itemsPerPage = 10;
         const totalPages = computed(() => Math.ceil(rows.value.length / itemsPerPage));
-    
+
         const slicedRows = computed(() => {
         const startIndex = (currentPage.value - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -199,16 +199,16 @@ export default {
                                     class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
                                 >
                                 <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    
+
                                     <div class="flex flex-row gap-2">
                                     <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
                                         Csv
                                     </button>
-                                    
+
                                     </div>
                                 </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -280,8 +280,8 @@ export default {
                                                 {{ row.user.first_name }}
                                                 {{ row.user.last_name }}
                                             </div>
-                                            
-                                            
+
+
                                             <div
                                                 v-if="
                                                     value.field ===
@@ -340,7 +340,7 @@ export default {
                         <div class="block w-full overflow-x-auto">
                                 <div class="justify-between items-center block md:flex">
                                     <div class="flex items-center justify-start flex-wrap mb-3">
-                                    <button                                        
+                                    <button
                                         @click="changePage(-1)"
                                         :disabled="currentPage == 1"
                                         :class="{
@@ -366,7 +366,7 @@ export default {
                                     <small>Page {{ currentPage }}</small>
                                     </div>
                                 </div>
-                           
+
                             </div>
                         </div>
                     </div>
