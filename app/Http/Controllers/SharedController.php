@@ -209,7 +209,7 @@ class SharedController extends Controller
 
             if($is5DaysBeforeDue) {
                 $messageDate = $billingDate->isoFormat('LL');
-                $message = "Your due is on $messageDate with amount of $amount pesos.";
+                $message = "Your due is on $messageDate with amount of $amount pesos. Login your account https://dormhub.onrender.com";
                 $this->sendSMS($tenant->phone_number, $message);
             }
 
@@ -220,7 +220,7 @@ class SharedController extends Controller
             if($isAfterDue) {
                 $overDue = true;
                 $messageDate = $billingDate->isoFormat('LL');
-                $message = "Your due on $messageDate is overdue with amount of $amount pesos.";
+                $message = "Your due on $messageDate is overdue with amount of $amount pesos, please pay the overdue to avoid eviction. Login your account https://dormhub.onrender.com";
                 $this->sendSMS($tenant->phone_number, $message);
             }
         }

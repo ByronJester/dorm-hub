@@ -30,6 +30,7 @@ import Checkbox from "@/Components/Checkbox.vue";
 import Terms from "@/Components/Terms.vue"; //dinagdag ko pati nasa component
 import VsToast from '@vuesimple/vs-toast';
 
+
 export default {
     components: {
         ApplicationLogo,
@@ -175,17 +176,14 @@ export default {
 
         const submit = () => {
             openModal()
-            // form.post(route("user.register"), {
-
-            // });
-
             axios.post(route('send.otp'), {phone_number: form.phone_number})
                 .then(response => {
                     console.log(response.data)
                     form.code = response.data
+                    
                 })
                 .catch(error => {
-
+                    
                 })
         };
 
@@ -193,9 +191,18 @@ export default {
             form.post(route("user.register"), {
                 onSuccess: () =>{
                     location.reload()
+                    VsToast.show({
+                    title: 'Registered',
+                    message: "You've registered successfuly",
+                    variant: 'success',
+                    });
                 },
                 onError: (error) =>{
-
+                    VsToast.show({
+                    title: 'Error',
+                    message: error,
+                    variant: 'error',
+                    });
                 }
             });
         }
@@ -214,14 +221,18 @@ export default {
             loginForm.post(route("login"), {
                 onSuccess: (res) =>{
                     // console.log(res)
-                    // VsToast.show({
-                    // title: 'Logged In',
-                    // message: "You've login successfuly",
-                    // variant: 'success',
-                    // });
+                    VsToast.show({
+                    title: 'Logged In',
+                    message: "You've login successfuly",
+                    variant: 'success',
+                    });
                 },
                 onError: (error) =>{
-                    not_approved.value = error.not_approved
+                    VsToast.show({
+                     title: 'Error',
+                     message: error.not_approved,
+                     variant: 'error',
+                    });
                 }
             });
         };
@@ -342,6 +353,7 @@ export default {
                                 </button>
 
                                 <div id="otpModal" class="otpModal mt-10 md:mt-0">
+                                   
                                     <div class="otp-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
                                         <div class="w-full">
                                             <span>
@@ -433,7 +445,7 @@ export default {
                                             />
                                         </div>
                                         <hr class="mb-4" />
-                                        <div class="grid grid-cols-2 gap-2">
+                                        <div class="grid grid-cols-2 gap-2 mb-2">
                                             <div>
                                                 <InputLabel
                                                     for="first_name"
@@ -486,7 +498,7 @@ export default {
                                             </div>
                                         </div>
 
-                                        <div class="grid grid-cols-2 gap-2">
+                                        <div class="grid grid-cols-2 gap-2 mb-2">
                                             <div>
                                                 <InputLabel
                                                     for="last_name"
@@ -539,7 +551,7 @@ export default {
                                             </div>
                                         </div>
 
-                                        <div>
+                                        <div class="mb-2">
                                             <InputLabel
                                                 for="email-login"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -562,7 +574,7 @@ export default {
                                             />
                                         </div>
 
-                                        <div>
+                                        <div class="mb-2">
                                             <InputLabel
                                                 for="password-login"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -586,7 +598,7 @@ export default {
                                             />
                                         </div>
 
-                                        <div>
+                                        <div class="mb-2">
                                             <InputLabel
                                                 for="password_confirmation"
                                                 class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -750,8 +762,8 @@ export default {
                                             />
                                         </div>
                                         <hr class="mb-4" />
-                                        <div class="flex justify-between">
-                                            <div class="flex items-start">
+                                        <div class="flex justify-between mb-2">
+                                            <div class="flex items-start gap-2">
                                                 <Checkbox
                                                     name="terms"
                                                     v-model:checked="
@@ -783,7 +795,7 @@ export default {
                                             Sign up
                                         </button>
                                         <div
-                                            class="text-sm font-medium text-gray-500 dark:text-gray-300"
+                                            class="text-sm font-medium text-gray-500 mt-2 dark:text-gray-300"
                                         >
                                             Already registered?
                                             <a

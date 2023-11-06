@@ -42,8 +42,9 @@ class AdminController extends Controller
 
 
     public function reports(){
+        $dorms = Dorm::get();
         return Inertia::render('Admin/Reports',[
-
+            'dorms' => $dorms,
         ]);
     }
 

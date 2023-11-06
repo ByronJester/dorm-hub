@@ -19,7 +19,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue, Ziggy)
             .component('VueDatePicker', VueDatePicker)
-            .component('VsToast', VsToast) 
+            .component('VsToast', VsToast)
             .mount(el);
             
     },

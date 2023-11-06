@@ -21,11 +21,11 @@
     "dependencies": {
         "@mapbox/mapbox-gl-geocoder": "^5.0.1",
         "@studiometa/vue-mapbox-gl": "^2.1.1",
+        "@tinymce/tinymce-vue": "^5.1.1",
         "@vuepic/vue-datepicker": "^7.2.0",
         "@vuesimple/vs-toast": "^3.0.5",
         "lightvue": "^1.5.1",
         "mapbox-gl": "^2.15.0",
-        "@tinymce/tinymce-vue": "^5.1.1",
         "tinymce": "^5.10.8",
         "vue-good-table-next": "^0.2.1",
         "vue-spinner": "^1.0.4",
