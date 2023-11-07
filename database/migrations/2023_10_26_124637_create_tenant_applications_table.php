@@ -25,6 +25,7 @@ return new class extends Migration
             $table->date('check_date')->nullable();
             $table->time('check_time')->nullable();
             $table->longText('reason')->nullable();
+            $table->longText('reason_description')->nullable();
             $table->timestamp('expired_at')->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('auto_bill')->default(false);

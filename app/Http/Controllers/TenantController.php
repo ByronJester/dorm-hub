@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
     Thread, ThreadMember, ThreadMessage, TenantApplication,
-    TenantBilling, TenantReservation, TenantPayment, Hero
+    TenantBilling, TenantReservation, TenantPayment, Hero,
+    DormRating, TenantComplaint, TenantRefund
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -28,9 +29,18 @@ class TenantController extends Controller
     }
 
     public function mydorm()
-    {
-        return Inertia::render('Tenant/MyDorm', [
+    {   $auth = Auth::user();
 
+        $myDorm = TenantApplication::where('tenant_id', $auth->id)->where('is_active', true)
+            ->where('is_approved', true)->first();
+
+        $rating = DormRating::where('tenant_id', $auth->id)->first();
+        $complaints = TenantComplaint::where('tenant_application_id', $myDorm->id)->get();
+
+        return Inertia::render('Tenant/MyDorm', [
+            'myDorm' => $myDorm,
+            'rating' => $rating,
+            'complaints' => $complaints
         ]);
     }
 
@@ -541,4 +551,63 @@ class TenantController extends Controller
             'amount' => $amount
         ]);
     }
+
+    public function rateDorm(Request $request)
+    {
+        $auth = Auth::user();
+
+        $application = TenantApplication::where('tenant_id', $auth->id)
+            ->where('is_active', true)->where('is_approved', true)->first();
+
+        return DormRating::updateOrCreate(
+            ['tenant_id' => $auth->id],
+            [
+                'dorm_id' => $application->dorm_id,
+                'tenant_id' => $auth->id,
+                'rate' => $request->rating,
+                'comment' => $request->comment
+            ]
+        );
+    }
+
+    public function submitComplain(Request $request)
+    {
+        $auth = Auth::user();
+
+        $application = TenantApplication::where('tenant_id', $auth->id)
+            ->where('is_active', true)->where('is_approved', true)->first();
+
+        return TenantComplaint::create([
+            'tenant_application_id' => $application->id,
+            'subject' => $request->subject,
+            'complain' => $request->complain
+        ]);
+    }
+
+    public function tenantMoveOut(Request $request)
+    {
+        $auth = Auth::user();
+
+        $application = TenantApplication::where('tenant_id', $auth->id)
+            ->where('is_active', true)->where('is_approved', true)->first();
+
+        $room = (object) $application->room;
+        $application->move_out = Carbon::parse($request->move_out);
+        $application->reason = $request->reason;
+        $application->reason_description = $request->reason_description;
+        $application->status = 'pending_move_out';
+
+        TenantRefund::create([
+            'tenant_application_id' => $application->id,
+            'amount' => $room->deposit,
+            'tenant_id' => $auth->id,
+            'payment_method' => $request->payment_method,
+            'wallet_name' => $request->wallet_name,
+            'account_name' => $request->account_name,
+            'account_number' => $request->account_number,
+        ]);
+
+        return $application->save();
+    }
 }
+

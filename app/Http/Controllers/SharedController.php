@@ -162,7 +162,7 @@ class SharedController extends Controller
                 $date2 = Carbon::parse($application->auto_bill_date);
             }
 
-            $is30DaysDifference = $date1->diffInDays($date2) >= 30;
+            $is30DaysDifference = $date1->diffInDays($date2) == 30;
 
             if($is30DaysDifference) {
                 $application->auto_bill_date = $date1;

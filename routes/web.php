@@ -152,6 +152,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/application/apply', [TenantController::class, 'submitApplication'])->name('application.apply');
         Route::post('/reserve/room', [TenantController::class, 'submitRoomReservation'])->name('reserve.room');
         Route::post('/pay/billing', [TenantController::class, 'payBilling'])->name('pay.specific.billing');
+        Route::post('/rate/dorm', [TenantController::class, 'rateDorm'])->name('tenant.rate.dorm');
+        Route::post('/submit/complain', [TenantController::class, 'submitComplain'])->name('tenant.submit.complain');
+        Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
     });
 
     Route::prefix('shared')->group(function () {
