@@ -11,7 +11,8 @@ class TenantApplication extends Model
 
     protected $fillable = [
         'owner_id', 'tenant_id', 'dorm_id', 'room_id', 'status', 'move_in',
-        'move_out', 'check_date', 'check_time', 'reason', 'expired_at', 'is_active'
+        'move_out', 'check_date', 'check_time', 'reason', 'expired_at', 'is_active',
+        'auto_bill', 'auto_bill_date'
     ];
 
     protected $appends = [

@@ -22,26 +22,32 @@ export default {
         const user = page.props.auth.user;
         const date = ref();
         const numoptions = ["5", "10", "15", "20"];
+
+        console.log(page.props.payments)
         const header = [
             "Room Name",
             "Description",
-            "Invoice#",
+            "Invoice #",
             "Payment method",
             "Payment Date",
             "Amount",
             "Status",
+            'Proof Of Payment',
+            "Action"
         ];
-        const data = [
-            [
-                "Room 101",
-                "Reservation",
-                "INV-001",
-                "Online Payment",
-                "2023-10-01",
-                300,
-                "paid"
-            ],
-        ];
+
+        const data = ref([])
+        data.value = page.props.payments
+
+        const objectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.billing_id;
+            delete newObject.payment_id;
+            newObject.description = removeUnderscoreAndCapitalizeAfterSpace(newObject.description)
+
+            return newObject;
+        }
 
         const presetDates = ref([
             { label: "Today", value: [new Date(), new Date()] },
@@ -75,6 +81,48 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+
+        const markAsPaid = (payment_id, billing_id) => {
+            swal({
+                title: `Are you sure to mark as paid this payment?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('payment-history.mark-as-paid'), {payment_id: payment_id, billing_id: billing_id})
+                    .then(response => {
+                        swal("Success!", `You successfully mark this payment as paid.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
         return {
             date,
             presetDates,
@@ -82,6 +130,9 @@ export default {
             header,
             data,
             back,
+            objectRemoveKey,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            markAsPaid
         };
     },
 };
@@ -290,10 +341,27 @@ export default {
                                 >
                                     <td
                                         class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        v-for="(value, colIndex) in item"
+                                        v-for="(value, colIndex) in objectRemoveKey(item)"
                                         :key="colIndex"
                                     >
-                                        {{ value }}
+                                        <span v-if="colIndex != 'action' && colIndex != 'proof_of_payment'">
+                                            {{ value }}
+                                        </span>
+
+                                        <img v-if="colIndex == 'proof_of_payment' && value != null"
+                                            class="w-[300px] h-[100px]"
+                                            :src="value"
+                                            style="border: 1px solid black"
+                                        />
+
+                                        <button v-if="colIndex == 'action'"
+                                            class="px-3 py-2 bg-cyan-400 text-[8px] rounded-md"
+                                            :disabled="item.status == 'Paid'"
+                                            :class="{'cursor-not-allowed': item.status == 'Paid'}"
+                                            @click="markAsPaid(item.payment_id, item.billing_id)"
+                                        >
+                                            MARK AS PAID
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>

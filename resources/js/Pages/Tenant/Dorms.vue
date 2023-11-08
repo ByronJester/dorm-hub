@@ -7,17 +7,20 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import axios from "axios";
 import { router } from "@inertiajs/vue3";
 import DormList from "@/Components/DormList.vue";
+import Hero from "@/Components/Hero.vue";
 
 export default {
     components: {
         AuthenticatedLayout,
         DormList,
+        Hero
     },
     setup() {
         const page = usePage();
         const user = computed(() => page.props.auth.user);
         const dorms = ref([]);
-
+        const hero = page.props.hero;
+        console.log(page.props);
         onMounted(() => {
             dorms.value = page.props.dorms;
         });
@@ -25,6 +28,7 @@ export default {
         return {
             user,
             dorms,
+            hero,
         };
     },
 };
@@ -32,14 +36,16 @@ export default {
 
 <template>
     <AuthenticatedLayout>
+        <Hero :title="hero ? hero.title: null" :subtitle="hero ? hero.subtitle : null" :description="hero ? hero.description : null" :heroImage="hero ? hero.image_path : null"/>
         <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
+
+
             <div
                 className="
-            pt-24
-            grid 
-            grid-cols-1 
-            sm:grid-cols-2 
-            md:grid-cols-3 
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            md:grid-cols-3
             lg:grid-cols-4
             xl:grid-cols-4
             2xl:grid-cols-6
@@ -49,7 +55,7 @@ export default {
                 <!--
             -->
                 <DormList :dorms.sync="dorms" :user.sync="user"/>
-                
+
             </div>
         </div>
     </AuthenticatedLayout>

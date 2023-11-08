@@ -190,7 +190,9 @@ export default {
                 Status: "Available",
             },
         ];
-
+        
+        console.log(props.user.reservation)  
+              
         return {
             props,
             isMobileView,

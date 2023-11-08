@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Dorm extends Model
 {
@@ -94,5 +95,12 @@ class Dorm extends Model
         }
 
         return $fee;
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        $date = Carbon::parse($value);
+
+        return $date->isoFormat("LL");
     }
 }

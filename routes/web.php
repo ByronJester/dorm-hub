@@ -1,14 +1,15 @@
 <?php
 
 use App\Http\Controllers\{
-    ProfileController, AdminController, OwnerController, TenantController, SharedController, RegisteredUserController
+    ProfileController, AdminController, OwnerController, TenantController, SharedController, RegisteredUserController, AboutUsController, ContactUsController,
+    PrivacyPolicyController, TermsUserController, HeroController
 };
 
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
-use App\Models\{ Dorm };
+use App\Models\{ Dorm, TermsUser, Hero};
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,8 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
         "dorms" => $dorms,
+        "terms" => TermsUser::first(),
+        "hero" => Hero::first(),
     ]);
 })->name('landing.page');
 
@@ -52,6 +55,11 @@ Route::get('/admin', function () {
 
 Route::get('/alive', function () {
     return response()->json("Keep Alive!", 200);
+});
+
+Route::prefix('cron')->group(function () {
+    Route::get('/auto-bill', [SharedController::class, 'autoBill']);
+    Route::get('/due-reminder', [SharedController::class, 'dueReminder']);
 });
 
 Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
@@ -74,6 +82,26 @@ Route::middleware('auth')->group(function () {
 Route::group(['middleware' => ['auth', 'cors']], function() {
 
     Route::prefix('admin')->group(function () {
+        //eto doinagdagko
+        Route::get('/about-us', [AboutUsController::class, 'show'])->name('aboutUs.show');
+        Route::get('/about-us/edit', [AboutUsController::class, 'edit'])->name('aboutUs.edit');
+        Route::patch('/about-us/update', [AboutUsController::class, 'update'])->name('aboutUs.update');
+        //
+        Route::get('/contact-us', [ContactUsController::class, 'show'])->name('contactUs.show');
+        Route::get('/contact-us/edit', [ContactUsController::class, 'edit'])->name('contactUs.edit');
+        Route::patch('/contact-us/update', [ContactUsController::class, 'update'])->name('contactUs.update');
+        //
+        Route::get('/policy', [PrivacyPolicyController::class, 'show'])->name('policy.show');
+        Route::get('/policy/edit', [PrivacyPolicyController::class, 'edit'])->name('policy.edit');
+        Route::patch('/policy/update', [PrivacyPolicyController::class, 'update'])->name('policy.update');
+        //
+        Route::get('/terms', [TermsUserController::class, 'show'])->name('terms.show');
+        Route::get('/terms/edit', [TermsUserController::class, 'edit'])->name('terms.edit');
+        Route::patch('/terms/update', [TermsUserController::class, 'update'])->name('terms.update');
+        //
+        Route::get('/hero/edit', [HeroController::class, 'edit'])->name('hero.edit');
+        Route::patch('/hero/update', [HeroController::class, 'update'])->name('hero.update');
+        //
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
         Route::get('/tenants', [AdminController::class, 'tenantList'])->name('admin.tenants');
         Route::get('/dashboard', [AdminController:: class, 'dashboard'])->name('admin.dashboard');
@@ -96,7 +124,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/addDorm', [OwnerController::class, 'addDorm'])->name('owner.addDorm');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
-        Route::get('/tenantspaymenthistory', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
+        Route::get('/tenantspaymenthistory/{application_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
@@ -105,6 +133,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/reservation/decline/{id}', [OwnerController::class, 'declineReservation'])->name('decline.reservation');
         Route::post('/application/approve/{id}', [OwnerController::class, 'approveApplication'])->name('approve.application');
         Route::post('/reservation/approve/{id}', [OwnerController::class, 'approveReservation'])->name('approve.reservation');
+        Route::post('/payment-history/mark-as-paid', [OwnerController::class, 'paymentHistoryMarkAsPaid'])->name('payment-history.mark-as-paid');
+        Route::post('/bill/munual-bill', [OwnerController::class, 'submitManualBill'])->name('owner.manual-bill');
+        Route::post('/bill/auto-bill', [OwnerController::class, 'submitAutoBill'])->name('owner.auto-bill');
     });
 
     Route::prefix('tenant')->group(function () {
@@ -120,6 +151,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');
         Route::post('/application/apply', [TenantController::class, 'submitApplication'])->name('application.apply');
         Route::post('/reserve/room', [TenantController::class, 'submitRoomReservation'])->name('reserve.room');
+        Route::post('/pay/billing', [TenantController::class, 'payBilling'])->name('pay.specific.billing');
+        Route::post('/rate/dorm', [TenantController::class, 'rateDorm'])->name('tenant.rate.dorm');
+        Route::post('/submit/complain', [TenantController::class, 'submitComplain'])->name('tenant.submit.complain');
+        Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
     });
 
     Route::prefix('shared')->group(function () {
@@ -131,6 +166,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     });
 });
 
+Route::get('/aboutUs', [SharedController::class, 'show'])->name('about.us');
+Route::get('/policy', [SharedController::class, 'showPolicy'])->name('privacy.policy');
+Route::get('/contactUs', [SharedController::class, 'showContact'])->name('contact.us');
 Route::get('/view-dorm/{dorm_id}', [SharedController::class, 'viewDorm'])->name('view.dorm');
 
 require __DIR__.'/auth.php';

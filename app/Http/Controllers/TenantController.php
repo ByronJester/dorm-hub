@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
     Thread, ThreadMember, ThreadMessage, TenantApplication,
-    TenantBilling, TenantReservation, TenantPayment
+    TenantBilling, TenantReservation, TenantPayment, Hero,
+    DormRating, TenantComplaint, TenantRefund
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -23,13 +24,23 @@ class TenantController extends Controller
 
         return Inertia::render('Tenant/Dorms', [
             'dorms' => $dorms,
+            'hero' => Hero::first(),
         ]);
     }
 
     public function mydorm()
-    {
-        return Inertia::render('Tenant/MyDorm', [
+    {   $auth = Auth::user();
 
+        $myDorm = TenantApplication::where('tenant_id', $auth->id)->where('is_active', true)
+            ->where('is_approved', true)->first();
+
+        $rating = DormRating::where('tenant_id', $auth->id)->first();
+        $complaints = TenantComplaint::where('tenant_application_id', $myDorm->id)->get();
+
+        return Inertia::render('Tenant/MyDorm', [
+            'myDorm' => $myDorm,
+            'rating' => $rating,
+            'complaints' => $complaints
         ]);
     }
 
@@ -73,7 +84,11 @@ class TenantController extends Controller
         $expiredDate = Carbon::now()->addDay(7);
 
         $hasExistingApplication = TenantApplication::where('tenant_id', $auth->id)
-            ->where('room_id', $room->id)->where('status', 'pending')
+            ->where('room_id', $room->id)->where('status', 'rent')
+            ->where('is_active', true)->first();
+
+        $hasExistingReservation = TenantApplication::where('tenant_id', $auth->id)
+            ->where('room_id', $room->id)->where('status', 'reserve')
             ->where('is_active', true)->first();
 
         return Inertia::render('Tenant/BillingInfo', [
@@ -84,7 +99,8 @@ class TenantController extends Controller
             'expiredDate' => $expiredDate->isoFormat('LL'),
             'min' => $now,
             'max' => $expiredDate,
-            'hasExistingApplication' => !!$hasExistingApplication ? true : false
+            'hasExistingApplication' => $hasExistingApplication,
+            'hasExistingReservation' => $hasExistingReservation
         ]);
     }
 
@@ -307,7 +323,16 @@ class TenantController extends Controller
     {
         $data = $request->toArray();
 
-        return TenantApplication::create($data);
+        return TenantApplication::updateOrCreate(
+            [
+                "owner_id" => $request->owner_id,
+                "tenant_id" => $request->tenant_id,
+                "room_id" => $request->room_id,
+                "dorm_id" => $request->dorm_id,
+                "is_active" => true
+            ],
+            $data
+        );
     }
 
     public function submitRoomReservation(Request $request)
@@ -350,13 +375,14 @@ class TenantController extends Controller
             $billing = TenantBilling::create($billingRequest);
 
             $paymentRequest = $request->only([
-                'tenant_id', 'dorm_id', 'room_id', 'amount', 'payment_method', 'status'
+                'tenant_id', 'dorm_id', 'room_id', 'amount', 'payment_method'
             ]);
 
             $paymentRequest['tenant_billing_id'] = $billing->id;
             $paymentRequest['category'] = "reservation_fee";
             $paymentRequest['date'] = $now;
             $paymentRequest['proof_of_payment'] = null;
+            $paymentRequest['status'] = 'pending';
 
 
             if($request->payment_method == "Bank Transfer") {
@@ -385,7 +411,40 @@ class TenantController extends Controller
 
     }
 
-    public function payOnline($amount, $owner_id, $tenant_id)
+    public function payBilling(Request $request)
+    {
+        $billing = TenantBilling::where('id', $request->tenant_billing_id)->first();
+        $application = TenantApplication::where('id', $billing->tenant_application_id)->first();
+        $payment = TenantPayment::where('id', $request->id)->first();
+
+        $method = $request->payment_method;
+        $amount = $request->amount;
+
+        if($method == 'Online Payment') {
+            return [
+                "data" => $this->payOnline($amount, $application->owner_id, $application->tenant_id, $request->id)
+            ];
+        } else {
+            $filename = Str::random(10) . '_proof_of_payment';
+            $uploadFile = $this->uploadFile($request->proof_of_payment, $filename);
+
+            $payment->status = "waiting_for_approval";
+            $payment->proof_of_payment = $filename;
+            $payment->payment_method = $method;
+            $payment->save();
+
+            return [
+                "data" => $payment
+            ];
+
+        }
+
+        return [
+            "data" => null
+        ];
+    }
+
+    public function payOnline($amount, $owner_id, $tenant_id, $payment_id = null)
     {
         $tenant = User::where('id', $tenant_id)->first();
         $owner = User::where('id', $owner_id)->first();
@@ -429,6 +488,7 @@ class TenantController extends Controller
         session()->put('source', $source);
         session()->put('owner', $owner);
         session()->put('amount', $amount);
+        session()->put('payment_id', $payment_id);
 
         return $source;
 
@@ -440,6 +500,7 @@ class TenantController extends Controller
         $source = session()->get('source');
         $owner = session()->get('owner');
         $amount = session()->get('amount');
+        $payment_id = session()->get('payment_id');
 
         $client = new \GuzzleHttp\Client(['verify' => false]);
 
@@ -457,6 +518,18 @@ class TenantController extends Controller
         $notification->message = "You received GCash Payment of ₱$amount";
         $notification->type = 'Payment';
         $notification->save();
+
+        if($payment_id) {
+            $payment = TenantPayment::where('id', $payment_id)->first();
+            $billing = TenantBilling::where('id', $payment->tenant_billing_id)->first();
+
+            $payment->status = 'paid';
+            $payment->payment_method = "Online Payment";
+            $payment->save();
+
+            $billing->is_paid = true;
+            $billing->save();
+        }
 
         return Inertia::render('Paymongo/Success', [
             'source' => $source,
@@ -478,4 +551,63 @@ class TenantController extends Controller
             'amount' => $amount
         ]);
     }
+
+    public function rateDorm(Request $request)
+    {
+        $auth = Auth::user();
+
+        $application = TenantApplication::where('tenant_id', $auth->id)
+            ->where('is_active', true)->where('is_approved', true)->first();
+
+        return DormRating::updateOrCreate(
+            ['tenant_id' => $auth->id],
+            [
+                'dorm_id' => $application->dorm_id,
+                'tenant_id' => $auth->id,
+                'rate' => $request->rating,
+                'comment' => $request->comment
+            ]
+        );
+    }
+
+    public function submitComplain(Request $request)
+    {
+        $auth = Auth::user();
+
+        $application = TenantApplication::where('tenant_id', $auth->id)
+            ->where('is_active', true)->where('is_approved', true)->first();
+
+        return TenantComplaint::create([
+            'tenant_application_id' => $application->id,
+            'subject' => $request->subject,
+            'complain' => $request->complain
+        ]);
+    }
+
+    public function tenantMoveOut(Request $request)
+    {
+        $auth = Auth::user();
+
+        $application = TenantApplication::where('tenant_id', $auth->id)
+            ->where('is_active', true)->where('is_approved', true)->first();
+
+        $room = (object) $application->room;
+        $application->move_out = Carbon::parse($request->move_out);
+        $application->reason = $request->reason;
+        $application->reason_description = $request->reason_description;
+        $application->status = 'pending_move_out';
+
+        TenantRefund::create([
+            'tenant_application_id' => $application->id,
+            'amount' => $room->deposit,
+            'tenant_id' => $auth->id,
+            'payment_method' => $request->payment_method,
+            'wallet_name' => $request->wallet_name,
+            'account_name' => $request->account_name,
+            'account_number' => $request->account_number,
+        ]);
+
+        return $application->save();
+    }
 }
+

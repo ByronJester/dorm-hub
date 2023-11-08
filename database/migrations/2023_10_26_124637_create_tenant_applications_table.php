@@ -25,8 +25,12 @@ return new class extends Migration
             $table->date('check_date')->nullable();
             $table->time('check_time')->nullable();
             $table->longText('reason')->nullable();
+            $table->longText('reason_description')->nullable();
             $table->timestamp('expired_at')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('auto_bill')->default(false);
+            $table->date('auto_bill_date')->nullable();
+            $table->boolean('is_approved')->default(false);
 
             $table->foreign('owner_id')->references('id')->on('users');
             $table->foreign('tenant_id')->references('id')->on('users');

@@ -3,6 +3,7 @@ import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import DormitoriesReports from "@/Pages/Admin/Reports/DormitoriesReport.vue";
 import IncomeReport from "@/Pages/Admin/Reports/IncomeReports.vue";
 import UsersReport from "@/Pages/Admin/Reports/UsersReport.vue";
+import { usePage, router } from "@inertiajs/vue3";
 
 import { ref} from 'vue';
 
@@ -15,6 +16,10 @@ export default {
     },setup(){
         const activeReport = ref(''); // Initially, no report is active
         const activeReportComponent = ref(null);
+
+        const page = usePage();
+
+        console.log(page.props)
 
         const changeActiveReport = (reportName) => {
         // Set the active report and its component based on the selected report name
@@ -29,7 +34,7 @@ export default {
                 activeReport.value = 'UsersReport';
                 activeReportComponent.value = UsersReport;
             }
-            
+
             // You can add more conditions for other reports here
         }
 
@@ -44,7 +49,7 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div class="p-4 mt-16 lg:ml-64">
-            
+
             <div class="">
             <div class="flex items-center gap-2 justify-start">
                 <svg
@@ -61,12 +66,12 @@ export default {
             <hr class="my-5" />
             <main>
 
-         
-        
+
+
                 <component :is="activeReportComponent"></component>
 
 
-      
+
 
             <div
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 items-center w-full gap-8 mb-40 mt-5"
@@ -133,9 +138,8 @@ export default {
                     </div>
                     <hr class="my-3"/>
                     <div class="flex flex-col gap-1 text-gray-400 ml-3 ">
-                        <p>-Review room occupancy and identify vacant rooms.</p>
-                        <p>-Track tenant assignments and move-in/move-out dates.</p>
-                        <p>-Generate occupancy reports for dormitory insights.</p>
+                        <p>-Generate User's Report</p>
+                        <p>-View list of users in the platform</p>
                     </div>
                     <div class="w-full mt-3">
                         <button @click="changeActiveReport('UsersReport')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
@@ -168,9 +172,9 @@ export default {
                     </div>
                     <hr class="my-3"/>
                     <div class="flex flex-col gap-1 text-gray-400 ml-3 ">
-                        <p>-Generate Rent Roll Reports for income tracking.</p>
-                        <p>-Analyze rental income by room and tenant.</p>
-                        <p>-Streamline rent collection and record-keeping.</p>
+                        <p>-Generate dorm performance reports.</p>
+                        <p>-Assess dorms' income and occupancy.</p>
+                        <p>-Plan and optimize dormitory operations</p>
                     </div>
                     <div class="w-full mt-3">
                         <button @click="changeActiveReport('DormitoriesReports')" class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right">
@@ -181,7 +185,7 @@ export default {
             </div>
             </main>
         </div>
-    
+
     </div>
     </AuthenticatedLayout>
 </template>

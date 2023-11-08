@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('phone_number');
             $table->float('amount')->default(0);
+            $table->string('subject')->nullable();
             $table->longText('description')->nullable();
             $table->date('date')->nullable();
             $table->boolean('is_paid')->default(false);

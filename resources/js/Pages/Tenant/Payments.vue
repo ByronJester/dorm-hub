@@ -37,7 +37,6 @@ export default {
 
         const pay = (arg) => {
             openModal()
-            console.log(arg)
 
             selectedBill.value = arg
         };
@@ -71,7 +70,7 @@ export default {
             };
         };
 
-        const headers = ["Payment ID", "Payment Date" , "Payment Method", "Amount", "Description", "Status", "Receipt"];
+        const headers = ["Payment Date" , "Payment Method", "Amount", "Description", "Status", "Receipt"];
 
 
         var data = [];
@@ -96,12 +95,12 @@ export default {
         for(let p = 0; p < payments.length; p++) {
             data.push(
                 {
-                    id: payments[p].id,
+                    // id: payments[p].id,
                     date: payments[p].display_date,
                     payment_method: payments[p].payment_method,
                     amount: payments[p].amount,
                     category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].category),
-                    status: payments[p].status,
+                    status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
                     receipt: payments[p].proof_of_payment,
                     action: payments[p]
                 }
@@ -115,6 +114,59 @@ export default {
                 "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             );
         };
+
+        const payment_method = ref("Online Payment")
+        const proof_of_payment = ref(null);
+
+        const proofOfPyamentChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                proof_of_payment.value = e.target.result;
+            };
+        }
+
+        const proceedPayment = () => {
+            const data = {
+                id: selectedBill.value.id,
+                tenant_billing_id: selectedBill.value.tenant_billing_id,
+                amount: selectedBill.value.amount,
+                payment_method: payment_method.value,
+                proof_of_payment: proof_of_payment.value
+            }
+
+            console.log(data)
+
+            swal(
+                {
+                    title: `Are you sure to proceed payment?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("pay.specific.billing"), data)
+                        .then((response) => {
+                            if(payment_method.value == 'Online Payment') {
+                                window.location.href = response.data.data.redirect.checkout_url
+                            } else {
+                                location.reload();
+                            }
+
+                        })
+                        .catch((error) => {
+                            // errors.value = error.response.data.errors;
+                        });
+                }
+            );
+        }
 
         return {
             user,
@@ -139,7 +191,11 @@ export default {
             moneyFormat,
             balance,
             totalAmountPaid,
-            selectedBill
+            selectedBill,
+            payment_method,
+            proof_of_payment,
+            proofOfPyamentChange,
+            proceedPayment
         };
     },
 };
@@ -422,13 +478,14 @@ export default {
 
                                                         <div v-if="colIndex == 'receipt'">
                                                             <img v-if="value != null"
+                                                                :src="value"
                                                                 class="w-[100px] h-[100px]"
                                                             />
                                                         </div>
 
                                                         <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
-                                                            v-if="colIndex == 'action'" :disabled="value.status == 'paid'"
-                                                            :class="{'cursor-not-allowed': value.status == 'paid'}"
+                                                            v-if="colIndex == 'action'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval'"
+                                                            :class="{'cursor-not-allowed': value.status == 'paid' || value.status == 'waiting_for_approval'}"
                                                         >
                                                             Pay
                                                         </button>
@@ -492,8 +549,51 @@ export default {
                                 </span>
                             </div>
 
-                            <div class="w-full">
-                                <button class="rounded-md px-3 py-2 bg-cyan-300 float-right">
+                            <div class="w-full mt-3">
+                                <!-- <div>Payment Method:</div> -->
+
+                                <input type="radio" value="Online Payment" v-model="payment_method" />
+                                <label class="ml-1 mt-2">Online Payment</label>
+
+                                <input type="radio" value="Bank Transfer" class="ml-3" v-model="payment_method" />
+                                <label class="ml-1 mt-2">Bank Transfer</label>
+                            </div>
+
+                            <div class="w-full mt-3" v-if="payment_method == 'Bank Transfer'">
+                                <input
+                                    type="file"
+                                    id="id_picture"
+                                    class="hidden"
+                                    @change="
+                                        proofOfPyamentChange($event)
+                                    "
+                                    accept="image/*"
+                                />
+
+                                <label
+                                    for="id_picture"
+                                    class="relative cursor-pointer"
+                                >
+                                    <div
+                                        class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                    >
+                                        <img
+                                            v-if="proof_of_payment"
+                                            :src="proof_of_payment"
+                                            alt="Proof of Payment"
+                                            class="h-48 w-auto rounded-lg"
+                                        />
+                                        <span v-else
+                                            >Input</span
+                                        >
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="w-full mt-8">
+                                <button class="rounded-md px-3 py-2 bg-cyan-300 float-right"
+                                    @click="proceedPayment()"
+                                >
                                     Proceed Payment
                                 </button>
                             </div>
