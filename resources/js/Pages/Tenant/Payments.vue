@@ -324,46 +324,7 @@ export default {
                 </div>
 
                 <div class="flex-1 shadow-lg rounded-lg p-6">
-                    <div
-                        class="bg-blue-500 border-blue-500 text-white px-3 py-6 md:py-3 mb-6 last:mb-0 border rounded-lg transition-colors duration-150"
-                    >
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-center mb-6 md:mb-0"
-                            >
-                                <div
-                                    class="flex flex-col md:flex-row items-center"
-                                >
-                                    <span
-                                        class="inline-flex justify-center items-center w-10 md:w-5 h-10 md:h-5 md:mr-2"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="24"
-                                            height="24"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                fill="currentColor"
-                                                d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
-                                            ></path></svg></span
-                                    ><span
-                                        class="text-center md:text-left md:py-2"
-                                        ><b>Payment date</b> is approaching
-                                        soon.
-                                    </span>
-                                </div>
-                            </div>
-                            <!--Button Para makita yung details ng billing-->
-                            <div class="flex items-center justify-center">
-                                <button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded-full border-white ring-gray-200 dark:ring-gray-500 bg-white text-black hover:bg-gray-100 text-sm px-3 py-1"
-                                    type="button"
-                                >
-                                    <!----><span class="px-2">See details</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                   
                     <div class="md:flex md:justify-between md:items-center">
                         <div class="md:flex md:items-center">
                             <div
@@ -485,7 +446,7 @@ export default {
 
                                                         <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
                                                             v-if="colIndex == 'action'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval'"
-                                                            :class="{'cursor-not-allowed': value.status == 'paid' || value.status == 'waiting_for_approval'}"
+                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval'}"
                                                         >
                                                             Pay
                                                         </button>
@@ -495,33 +456,6 @@ export default {
                                             </tbody>
 
                                         </table>
-                                        <div class="my-5 ml-5 border-t pt-5 ">
-                                                <nav aria-label="Page navigation example">
-                                                    <ul class="inline-flex -space-x-px text-sm">
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
-                                                        </li>
-                                                    </ul>
-                                                    </nav>
-                                            </div>
                                     </div>
                                 </div>
                         </div>
