@@ -7,7 +7,7 @@ import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import { VueGoodTable } from "vue-good-table-next";
 
 export default {
-    props: ["dorm", "user"],
+    props: ["dorm", "user", "application"],
     components: {
         VueGoodTable,
         MapboxMap,
@@ -190,8 +190,8 @@ export default {
                 Status: "Available",
             },
         ];
-        
-              
+
+
         return {
             props,
             isMobileView,
@@ -947,9 +947,9 @@ export default {
                                 class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'reserve')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available,
+                                    'cursor-not-allowed': !room.is_available && props.application != null,
                                 }"
-                                :disabled="!room.is_available"
+                                :disabled="!room.is_available && props.application != null"
                                 v-if="user.is_approved"
                             >
                                 Reserve
@@ -959,9 +959,9 @@ export default {
                                 class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'rent')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available,
+                                    'cursor-not-allowed': !room.is_available && props.application != null,
                                 }"
-                                :disabled="!room.is_available"
+                                :disabled="!room.is_available && props.application != null"
                                 v-if="user.is_approved"
                             >
                                 Rent
