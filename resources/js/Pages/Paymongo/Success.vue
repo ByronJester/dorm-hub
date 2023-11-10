@@ -96,7 +96,7 @@ export default {
             </table>
             <hr class="my-1"/>
             <div class="text-gray-700 mb-2 mt-10 text-center">Thank you for your business!</div>
-            
+
         </div>
         <div class="flex item-center justify-center w-full mb-10">
                 <button @click="captureAsImage()" class="bg-orange-400 py-2 px-4 rounded-lg text-white font-bold text-md">
@@ -131,14 +131,14 @@ export default {
                     <div class="w-full flex flex-row mt-4 px-3" style="font-size: 15px" >
                         <div class="w-full">
                             <span>
-                                {{ billing.billing.name }} 
+                                {{ billing.billing.name }}
 
                             </span>
                         </div>
 
                         <div class="w-full">
                             <span class="float-right">
-                               {{ billing.billing.phone }} 
+                               {{ billing.billing.phone }}
                             </span>
                         </div>
                     </div>

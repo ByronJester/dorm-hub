@@ -164,7 +164,7 @@
                 };
             };
 
-            const application = page.props.application
+            const application = null
 
             return {
                 user,

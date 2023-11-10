@@ -1,6 +1,6 @@
 <script>
 import { ref, onMounted, reactive } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
@@ -60,7 +60,6 @@ export default {
 
         const redirectToBillingInfo = (arg, action) => {
             const routeParam = arg.id + "-" + action;
-            console.log(routeParam);
 
             router.get(route("tenant.billing_info", routeParam));
         };
@@ -191,7 +190,11 @@ export default {
             },
         ];
 
+        const page = usePage()
 
+        const hasApplication = page.props.hasApplication
+
+        console.log(hasApplication)
         return {
             props,
             isMobileView,
@@ -208,6 +211,7 @@ export default {
             closeReviewModal,
             openReviewModal,
             redirectToBillingInfo,
+            hasApplication
         };
     },
 };
@@ -947,10 +951,10 @@ export default {
                                 class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'reserve')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available && props.application != null,
+                                    'cursor-not-allowed': !room.is_available,
                                 }"
-                                :disabled="!room.is_available && props.application != null"
-                                v-if="user.is_approved"
+                                :disabled="!room.is_available"
+                                v-if="user.is_approved && !hasApplication"
                             >
                                 Reserve
                             </button>
@@ -959,10 +963,10 @@ export default {
                                 class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'rent')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available && props.application != null,
+                                    'cursor-not-allowed': !room.is_available ,
                                 }"
-                                :disabled="!room.is_available && props.application != null"
-                                v-if="user.is_approved"
+                                :disabled="!room.is_available"
+                                v-if="user.is_approved && !hasApplication"
                             >
                                 Rent
                             </button>

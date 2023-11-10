@@ -46,8 +46,7 @@ class SharedController extends Controller
 
         return Inertia::render('Dorm', [
             'dorm' => $dorm,
-            'auth' => $auth,
-            'application' => $application
+            'hasApplication' => !$application ? false : true
         ]);
     }
 

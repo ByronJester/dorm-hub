@@ -519,17 +519,17 @@ class TenantController extends Controller
         $notification->type = 'Payment';
         $notification->save();
 
-        if($payment_id) {
-            $payment = TenantPayment::where('id', $payment_id)->first();
-            $billing = TenantBilling::where('id', $payment->tenant_billing_id)->first();
+        // if($payment_id) {
+        //     $payment = TenantPayment::where('id', $payment_id)->first();
+        //     $billing = TenantBilling::where('id', $payment->tenant_billing_id)->first();
 
-            $payment->status = 'paid';
-            $payment->payment_method = "Online Payment";
-            $payment->save();
+        //     $payment->status = 'paid';
+        //     $payment->payment_method = "Online Payment";
+        //     $payment->save();
 
-            $billing->is_paid = true;
-            $billing->save();
-        }
+        //     $billing->is_paid = true;
+        //     $billing->save();
+        // }
 
         return Inertia::render('Paymongo/Success', [
             'source' => $source,
