@@ -20,6 +20,15 @@ export default {
     setup(props) {
         const isMobileView = ref(false);
         const room = ref(null);
+        const currentTab = ref('details'); // Default tab
+
+        const showDetails = () => {
+        currentTab.value = 'details';
+        };
+
+        const showTerms = () => {
+        currentTab.value = 'terms';
+        };
 
         isMobileView.value = screen.width < 600;
 
@@ -211,7 +220,10 @@ export default {
             closeReviewModal,
             openReviewModal,
             redirectToBillingInfo,
-            hasApplication
+            hasApplication,
+            currentTab,
+            showDetails,
+            showTerms,
         };
     },
 };
@@ -494,19 +506,44 @@ export default {
                     </div>
                 </div>
 
-                <hr class="h-px my-5 bg-gray-200 border-0 dark:bg-gray-700" />
+                <hr class="h-px mt-5 bg-gray-200 border-0 dark:bg-gray-700" />
+                <div class="flex w-full justify-start">
+                    <div class="flex flex-row gap-5 text-xl cursor-pointer font-bold">
+                        <button class="py-1 px-4" :class="{ 'bg-gray-400 text-white border-b border-black': currentTab === 'details' }" @click="showDetails()">Details</button>
+                        <button class="py-1 px-4" :class="{ 'bg-gray-400 text-white border-b border-black': currentTab === 'terms' }" @click="showTerms()">Owner Details</button>
+                    </div>
+                </div>
+                <div v-if="currentTab === 'terms'" class="
+                        w-full
+                    ">
+                   <div class="mt-5">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Non consectetur a erat nam at. Vitae congue eu consequat ac. Sed id semper risus in hendrerit gravida rutrum quisque non. Urna nunc id cursus metus aliquam eleifend mi. Purus faucibus ornare suspendisse sed. Eu feugiat pretium nibh ipsum consequat nisl vel pretium lectus. Felis imperdiet proin fermentum leo vel orci porta non pulvinar. Id interdum velit laoreet id donec ultrices tincidunt arcu. Viverra vitae congue eu consequat ac felis. Laoreet suspendisse interdum consectetur libero id faucibus nisl tincidunt eget.
 
+Aliquet porttitor lacus luctus accumsan tortor posuere ac ut. Enim nunc faucibus a pellentesque sit amet. Maecenas volutpat blandit aliquam etiam erat velit scelerisque. Rhoncus aenean vel elit scelerisque mauris pellentesque pulvinar. Amet nisl suscipit adipiscing bibendum est ultricies. Risus nullam eget felis eget nunc. Aliquet nec ullamcorper sit amet risus nullam eget felis eget. Vitae purus faucibus ornare suspendisse sed nisi. Pellentesque eu tincidunt tortor aliquam nulla facilisi cras fermentum odio. Lorem sed risus ultricies tristique. Varius sit amet mattis vulputate enim nulla aliquet. Urna nunc id cursus metus aliquam eleifend mi in nulla. Adipiscing enim eu turpis egestas pretium aenean. Amet tellus cras adipiscing enim eu. Malesuada fames ac turpis egestas integer eget. Suscipit adipiscing bibendum est ultricies integer. Dui vivamus arcu felis bibendum. Suspendisse interdum consectetur libero id faucibus. Iaculis eu non diam phasellus vestibulum lorem. Nulla facilisi cras fermentum odio eu.
+
+Vitae congue mauris rhoncus aenean. Eu sem integer vitae justo. Est sit amet facilisis magna. Amet nisl purus in mollis nunc sed id semper. Dictum fusce ut placerat orci nulla. Sit amet risus nullam eget. Facilisis leo vel fringilla est ullamcorper eget nulla. Non enim praesent elementum facilisis leo vel fringilla. Tristique senectus et netus et malesuada fames. Adipiscing elit duis tristique sollicitudin nibh sit amet. Mauris cursus mattis molestie a iaculis at. Interdum posuere lorem ipsum dolor sit amet consectetur. Pharetra vel turpis nunc eget lorem dolor. Proin libero nunc consequat interdum varius sit amet mattis.
+
+Suscipit tellus mauris a diam maecenas sed. Tempor id eu nisl nunc mi ipsum faucibus vitae. Massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada proin. Tortor condimentum lacinia quis vel eros donec ac odio tempor. Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi tristique. Aliquet porttitor lacus luctus accumsan tortor posuere. Blandit massa enim nec dui nunc. Aliquam ut porttitor leo a diam. Morbi leo urna molestie at. Sapien faucibus et molestie ac feugiat sed.
+
+Sollicitudin aliquam ultrices sagittis orci a scelerisque. Et netus et malesuada fames ac turpis egestas integer. Lacus vel facilisis volutpat est velit egestas dui. Ultrices tincidunt arcu non sodales neque sodales ut. Risus nec feugiat in fermentum posuere urna nec tincidunt. Libero justo laoreet sit amet cursus sit. Augue ut lectus arcu bibendum at. Congue mauris rhoncus aenean vel elit scelerisque mauris. Diam quam nulla porttitor massa id neque aliquam vestibulum morbi. Commodo odio aenean sed adipiscing diam donec adipiscing tristique. Ultrices in iaculis nunc sed augue lacus. Diam volutpat commodo sed egestas. Et netus et malesuada fames ac. Lacus vestibulum sed arcu non.
+
+Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus at augue eget arcu dictum varius duis. Erat nam at lectus urna duis convallis convallis tellus id. A erat nam at lectus urna duis convallis convallis tellus. Turpis tincidunt id aliquet risus feugiat in ante metus dictum. Leo in vitae turpis massa sed elementum tempus egestas. Dolor magna eget est lorem. Mollis aliquam ut porttitor leo a diam sollicitudin tempor. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada. Mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare massa eget. Elementum pulvinar etiam non quam lacus suspendisse faucibus. Velit ut tortor pretium viverra suspendisse potenti nullam ac tortor. Adipiscing enim eu turpis egestas. Orci a scelerisque purus semper eget duis. Sed viverra ipsum nunc aliquet bibendum enim facilisis gravida neque.
+                   </div>
+                </div>
                 <div
-                    className="
-              w-full
-              grid
-              grid-cols-1
-              md:grid-cols-7
-              md:gap-10
-            "
+                    v-if="currentTab === 'details'"
+                    class="
+                        w-full
+                        grid
+                        grid-cols-1
+                        md:grid-cols-7
+                        md:gap-10
+                        mt-5
+                    "
                 >
-                    <div className="col-span-4 flex flex-col gap-8">
-                        <div className="flex flex-col gap-2">
+                
+                    <div className="col-span-4 flex flex-col gap-6">
+                        <div  className="flex flex-col gap-2">
                             <div
                                 className="
                             text-xl
@@ -518,18 +555,18 @@ export default {
                             gap-2
                         "
                             >
+                            
                                 <div>{{ props.dorm.property_name }}</div>
                             </div>
                             <div
-                                className="
-                        flex flex-row items-center gap-1 "
+                                className="flex flex-row items-center gap-1 "
                             >
                                 <div
                                     className="text-md  text-neutral-600 font-semibold"
                                 ></div>
                                 <div className="font-light text-neutral-600">
-                                    {{ props.dorm.range_from }} -
-                                    {{ props.dorm.range_to }} a month
+                                    {{ moneyFormat(props.dorm.range_from)}} -
+                                    {{ moneyFormat(props.dorm.range_to) }} a months
                                 </div>
                             </div>
                             <div
@@ -640,11 +677,15 @@ export default {
                                 </span>
                             </div>
                         </div>
-                        <hr
-                            class="h-px bg-gray-200 border-0 dark:bg-gray-700"
-                        />
-                        <!--MapBox-->
-                        <div class="w-full">
+                        
+                        
+                    </div>
+
+                    <!--MapBox-->
+                    <div
+                        className="order-last my-10 sm:my-0 md:order-last sm:col-span-3"
+                    >
+                    <div class="w-full">
                             <p
                                 class="text-xl lg:text-3xl font-semibold flex flex-row mb-5 items-center gap-2"
                             >
@@ -654,7 +695,7 @@ export default {
                             <MapboxMap
                                 class="rounded-lg shadow-md lg:mb-8"
                                 :style="{
-                                    height: isMobileView ? '300px' : '425px',
+                                    height: isMobileView ? '300px' : '350px',
                                 }"
                                 access-token="pk.eyJ1IjoiYmFsb2dzeHh4IiwiYSI6ImNsbHA1dDN2MDAydGczZXFqZHprcW44dXIifQ.Z0dcyAB1W1B4-jcaqC_NKA"
                                 map-style="mapbox://styles/mapbox/streets-v11"
@@ -666,12 +707,7 @@ export default {
                                 />
                             </MapboxMap>
                         </div>
-                    </div>
-
-                    <!--Owner Information-->
-                    <div
-                        className="order-last my-10 sm:my-0 md:order-last sm:col-span-3"
-                    >
+                    <!--
                         <div
                             class="flex items-center cursor-pointer hover:text-orange-400 justify-center mb-8"
                             v-if="
@@ -687,7 +723,7 @@ export default {
                         <div
                             className="bg-white rounded-xl border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
                         >
-                            <!-- Common elements for all screen sizes -->
+                         
 
                             <div
                                 className="flex flex-row items-center justify-center gap-1  "
@@ -732,7 +768,7 @@ export default {
                                 </p>
                             </div>
 
-                            <!-- Conditional layout for sm screens (horizontal) -->
+               
 
                             <footer
                                 class="items-center justify-center flex mt-3"
@@ -745,121 +781,118 @@ export default {
                                     Message
                                 </button>
                             </footer>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
+                
+                <hr class="h-px mt-5 bg-gray-200 border-0 dark:bg-gray-700" />
+                <div class="w-full justify-start my-5">
+                
+                <table
+                            class="items-center w-full bg-transparent border-collapse"
+                        >
+                            <thead>
+                                <tr>
+                                    <th
+                                        class=" align-middle text-3xl  py-3 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                    >
+                                    <p>Reviews</p>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr
+                                >
+                                    <td
+                                        class="align-middle  whitespace-nowrap "
+                                    
+                                    >
+                                        <div class="bg-white w-full rounded-md shadow p-5">
+                                            <div class="flex flex-row gap-5 items-center">
+                                                <img src="your-image-source.jpg" alt="Your Image" class="rounded-full shadow bg-black h-16 w-16 object-cover" />
+                                                <div>
+                                                    <p class="uppercase font-semibold">Jear</p>
+                                                    <div class="flex flex-row gap-2">
+                                                        <div class="text-yellow-500">
+                                                            <i
+                                                                data-alt="1"
+                                                                class="fas fa-star active"
+                                                                title=""
+                                                                @click="rating = 1"
+                                                                :class="{'text-yellow-500': rating == 1}"
+                                                            ></i
+                                                            >&nbsp;<i
+                                                                data-alt="2"
+                                                                class="fas fa-star active"
+                                                                title=""
+                                                                @click="rating = 2"
+                                                                :class="{'text-yellow-500': rating == 2}"
+                                                            ></i
+                                                            >&nbsp;<i
+                                                                data-alt="3"
+                                                                class="fas fa-star active"
+                                                                title=""
+                                                                @click="rating = 3"
+                                                                :class="{'text-yellow-500': rating == 3}"
+                                                            ></i
+                                                            >&nbsp;<i
+                                                                data-alt="4"
+                                                                class="fas fa-star active"
+                                                                title=""
+                                                                @click="rating = 4"
+                                                                :class="{'text-yellow-500': rating == 4}"
+                                                            ></i
+                                                            >&nbsp;<i
+                                                                data-alt="5"
+                                                                class="fas fa-star active"
+                                                                title=""
+                                                                @click="rating = 5"
+                                                                :class="{'text-yellow-500': rating == 5}"
+                                                            ></i
+                                                            >
+                                                            <!-- <input name="rating" type="hidden" value="5" /> -->
+                                                        </div>
+                                                        <p>*</p>
+                                                        <div>
+                                                            11/19/2023
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-2 w-full mx-1 whitespace-normal">
+                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div
+                            class="pt-5 border-t border-gray-100 dark:border-slate-800"
+                        >
+                        <div class="block w-full overflow-x-auto">
+                                <div class="justify-between items-center block md:flex">
+                                    <div class="flex items-center justify-start flex-wrap mb-3">
+                                    <button
+                                        type="button"
+                                        class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
 
-                <!--rateReviewModal-->
-                <div
-                    id="rateReviewModal"
-                    tabindex="-1"
-                    aria-hidden="true"
-                    style="background-color: rgba(0, 0, 0, 0.7)"
-                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
-                    <div class="h-screen flex justify-center items-center">
-                        <div class="relative w-full max-w-xl max-h-full">
-                            <!-- Modal content -->
-                            <div
-                                class="relativerounded-lg shadow rounded-xl bg-white"
-                            >
-                                <!-- Modal header -->
-                                <div
-                                    class="flex items-start justify-between p-4 rounded-t dark:border-gray-600"
-                                >
-                                    <button
-                                        type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        @click="closeReviewModal()"
                                     >
-                                        <svg
-                                            class="w-3 h-3"
-                                            aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 14 14"
-                                        >
-                                            <path
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                            />
-                                        </svg>
-                                        <span class="sr-only">Close modal</span>
+                                        Previous
                                     </button>
-                                </div>
-                                <!-- Modal body -->
-                                <div class="p-10 flex flex-col gap-5">
-                                    <h3
-                                        class="text-2xl font-semibold text-black"
+                                    <button
+                                        class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+
                                     >
-                                        Write a review
-                                    </h3>
-                                    <p class="text-lg font-light text-gray-600">
-                                        Rating
-                                    </p>
-                                    <div style="cursor: pointer">
-                                        <i
-                                            data-alt="1"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="2"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="3"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="4"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="5"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        ><input
-                                            name="rating"
-                                            type="hidden"
-                                            value="5"
-                                        />
+                                        Next
+                                    </button>
                                     </div>
-                                    <label
-                                        for="message"
-                                        class="block mb-2 text-lg font-medium text-gray-900 dark:text-white"
-                                        >Review</label
-                                    >
-                                    <textarea
-                                        id="message"
-                                        rows="4"
-                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Write your thoughts here..."
-                                    ></textarea>
                                 </div>
-                                <!-- Modal footer -->
-                                <div
-                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
-                                >
-                                    <button
-                                        @click="closeTutModal()"
-                                        type="button"
-                                        class="text-white w-full rounded-2xl bg-orange-400 hover:bg-orange-300 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center"
-                                    >
-                                        Submit
-                                    </button>
-                                </div>
+                           
                             </div>
                         </div>
-                    </div>
                 </div>
+
                 <!--Room modal-->
                 <div class="w-full">
                     <div id="roomModal" class="roomModal mt-10 md:mt-0">
@@ -974,12 +1007,12 @@ export default {
                     </div>
                 </div>
             </div>
+            </div>
         </div>
-</div>
-</div>
+    </div>
 </template>
 
-<style>
+<style >
 .room-image {
     width: 100%;
     height: 200px;
@@ -1005,8 +1038,7 @@ hr {
 
 .roomModal {
     display: none;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    position: fixed;/* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
