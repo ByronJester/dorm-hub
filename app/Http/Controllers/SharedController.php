@@ -32,10 +32,21 @@ class SharedController extends Controller
 
     public function viewDorm($dorm_id)
     {
+        $auth = Auth::user();
+
         $dorm = Dorm::where('id', $dorm_id)->first();
 
+        $application = null;
+
+        if($auth) {
+            $application = TenantApplication::where('tenant_id', $auth->id)
+                ->where('is_approved', true)->where('is_active', true)->first();
+        }
+
+
         return Inertia::render('Dorm', [
-            'dorm' => $dorm
+            'dorm' => $dorm,
+            'hasApplication' => !$application ? false : true
         ]);
     }
 

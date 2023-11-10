@@ -175,11 +175,10 @@ export default {
         };
 
         const submit = () => {
-            openModal()
+
             axios.post(route('send.otp'), {phone_number: form.phone_number})
                 .then(response => {
-                    console.log(response.data)
-                    form.code = response.data
+                    openModal()
 
                 })
                 .catch(error => {

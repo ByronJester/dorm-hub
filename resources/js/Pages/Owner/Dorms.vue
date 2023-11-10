@@ -181,9 +181,9 @@ export default {
                 furnished_type: null,
                 image: null,
                 src: null,
-                fee: 0,
-                advance: 0,
-                deposit: 0,
+                fee: null,
+                advance: null,
+                deposit: null,
                 is_available: null,
             });
         };
@@ -417,11 +417,11 @@ export default {
     <AuthenticatedLayout>
         <div class="px-4 pt-14 lg:ml-64">
             <div class="flex items-center justify-start mt-4">
-                <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3">
+                <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black mr-3">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"/></svg>                </span>
                 <h3 class="text-3xl">Manage Dormitories</h3>
             </div>
-            <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+            <hr class="h-px my-5 bg-orange-400 border-1" />
 
             <div class="flex flex-col pr-5 pt-5">
                 <div class="w-full">
@@ -437,10 +437,10 @@ export default {
             </div>
 
             <div
-                class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-4 text-gray-400 dark:text-white"
+                class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-4 text-gray-400"
             >
                 <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 "
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
@@ -458,7 +458,7 @@ export default {
                 </div>
 
                 <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 "
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
@@ -473,7 +473,7 @@ export default {
                 </div>
 
                 <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
+                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 "
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
@@ -530,20 +530,20 @@ export default {
                 <div class="relative w-full max-w-2xl max-h-full">
                     <!-- Modal content -->
                     <div
-                        class="relative bg-white rounded-lg shadow dark:bg-gray-700"
+                        class="relative bg-white rounded-lg shadow"
                     >
                         <!-- Modal header -->
                         <div
-                            class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                            class="flex items-start justify-between p-4 border-b rounded-t "
                         >
                             <h3
-                                class="text-xl font-semibold text-gray-900 dark:text-white"
+                                class="text-xl font-semibold text-gray-900"
                             >
                                 Add New Dorm
                             </h3>
                             <button
                                 type="button"
-                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center "
                                 @click="closeFormModal()"
                             >
                                 <svg
@@ -567,7 +567,7 @@ export default {
 
 
                         <!-- Modal body -->
-                        <div class="p-6 space-y-6 dark:text-white">
+                        <div class="p-6 space-y-6">
                             <div
                                 class="w-full flex justify-center items-center"
                                 v-if="active == 0"
@@ -699,7 +699,7 @@ export default {
                             <!--Address-->
                             <div class="flex flex-col w-full" v-if="active == 3" >
                                 <div class="w-full p-2">
-                                <InputLabel class="dark:text-white text-black" for="address" value="Map Address" />
+                                <label class="text-black" for="address">Map Address</label>
 
                                 <TextInput
                                     id="address"
@@ -714,7 +714,7 @@ export default {
                             </div>
 
                             <div class="w-full p-2">
-                                <InputLabel class="dark:text-white text-black" for="detailed_address" value="Detailed Address" />
+                                <InputLabel class="text-black" for="detailed_address" value="Detailed Address" />
 
                                 <TextInput
                                     id="detailed_address"
@@ -744,7 +744,7 @@ export default {
                             <div class="flex flex-col w-full" v-if="active == 4">
                             <div class="w-full px-2 flex flex-row">
                                 <div class="w-full mx-1">
-                                    <InputLabel class="dark:text-white text-black" for="property_name" value="Dorm Name" />
+                                    <InputLabel class="text-black" for="property_name" value="Dorm Name" />
 
                                     <TextInput
                                         id="property_name"
@@ -759,7 +759,7 @@ export default {
                                 </div>
 
                                 <div class="w-full mx-1">
-                                    <InputLabel class="dark:text-white text-black" for="description" value="Describe your dorm ?" />
+                                    <InputLabel class="text-black" for="description" value="Describe your dorm ?" />
 
                                     <TextInput
                                         id="description"
@@ -777,7 +777,7 @@ export default {
 
                             <div class="w-full px-2 flex flex-row">
                                 <div class="w-full mx-1">
-                                    <InputLabel for="floors_total" class="dark:text-white text-black" value="How many floors in total ?" />
+                                    <InputLabel for="floors_total" class="text-black" value="How many floors in total ?" />
 
                                     <TextInput
                                         id="floors_total"
@@ -793,7 +793,7 @@ export default {
                                 </div>
 
                                 <div class="w-full mx-1">
-                                    <InputLabel class="dark:text-white text-black" for="rooms_total" value="How many rooms in total ?" />
+                                    <InputLabel class="text-black" for="rooms_total" value="How many rooms in total ?" />
 
                                     <TextInput
                                         id="rooms_total"
@@ -809,12 +809,11 @@ export default {
                                 </div>
                             </div>
 
-                            <div class="w-full px-3">
-                                <div class="w-ful flex flex-col p-2 mt-2"
-                                    style="border: 1px solid black; border-radius: 5px;"
+                            <div class="w-full px-3 ">
+                                <div class="w-ful flex flex-col p-3 mt-2 border rounded-xl border-gray-400 "
                                     v-for="(room, index) in rooms" :key="index"
-                                >
-                                    <div class="w-full">
+                                >   
+                                    <div class="w-full ">
                                     <span class="float-right cursor-pointer"
                                             @click="removeRoom(index)"
                                     >
@@ -822,22 +821,39 @@ export default {
                                     </span>
                                     </div>
 
-                                            <InputLabel value="Room Image" class="dark:text-white text-black"/>
+                                            <InputLabel value="Room Image" class="text-black"/>
 
-                                            <input type="file" :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
+                                            <input
+                                                type="file"
+                                                :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
                                                 @change="roomImageChange($event, 'room_image' + index, index)"
+                                                accept="image/*"
                                             />
 
-                                            <img :src="room.src ?? '/images/upload_image.png'" alt="upload_image"
-                                                class="cursor-pointer"
-                                                @click="roomImageClick('room_image' + index)"
-                                                style="border: 1px solid black; border-radius: 5px; height: 235px; width: 100%;"
+                                            <label
+                                                :for="'room_image' + index"
+                                                class="relative cursor-pointer"
                                             >
+                                                <div
+                                                    class="h-80 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                >
+                                                    <img
+                                                        v-if="room.src"
+                                                        :src="room.src"
+                                                        alt="room_image"
+                                                        class="h-80 w-full rounded-lg object-cover bg-no-repeat bg-center"
+                                                        @click="roomImageClick('room_image' + index)"
+                                                    />
+                                                    <span v-else
+                                                        >Click to Input Room Image</span
+                                                    >
+                                                </div>
+                                            </label>
 
-
-                                    <div class="w-full flex flex-row mt-3">
+                                    <div class="w-full mt-3">
+                                        <div class="flex flex-row mt-3">
                                             <div class="w-full mx-1">
-                                                <InputLabel class="dark:text-white text-black" for="name" value="Room Name" />
+                                                <InputLabel class="text-black" for="name" value="Room Name" />
 
                                                 <TextInput
                                                     id="name"
@@ -850,7 +866,7 @@ export default {
                                             </div>
 
                                             <div class="w-full mx-1">
-                                                <InputLabel class="dark:text-white text-black" for="type_of_room" value="Capacity" />
+                                                <InputLabel class="text-black" for="type_of_room" value="Capacity" />
 
                                                 <select v-model="room.type_of_room" class="w-full border-gray-300  text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Room for 1">Room for 1</option>
@@ -860,9 +876,10 @@ export default {
                                                     <option value="Room for 5">Room for 5</option>
                                                 </select>
                                             </div>
-
+                                        </div>
+                                        <div class="flex flex-row mt-3">
                                             <div class="w-full mx-1">
-                                                <InputLabel class="dark:text-white text-black" or="furnished_type" value="Fursnished Type" />
+                                                <InputLabel class="text-black" or="furnished_type" value="Fursnished Type" />
 
                                                 <select v-model="room.furnished_type" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Furnished">Furnished</option>
@@ -872,7 +889,7 @@ export default {
                                             </div>
 
                                             <div class="w-full mx-1">
-                                                <InputLabel for="is_aircon" class="dark:text-white text-black" value="Aircon" />
+                                                <InputLabel for="is_aircon" class="text-black" value="Aircon" />
 
                                                 <select v-model="room.is_aircon" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                     <option value="Yes">Yes</option>
@@ -880,38 +897,45 @@ export default {
                                                 </select>
                                             </div>
                                         </div>
+                                            
+
+                                            
+                                        </div>
 
                                     <div class="w-full flex flex-row mt-3">
-                                        <div class="w-full mr-1">
-                                            <InputLabel for="fee" class="dark:text-white text-black" value="Monthly Fee" />
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="fee" class="text-black" value="Monthly Fee" />
 
                                             <TextInput
                                                 id="fee"
                                                 type="number"
                                                 class="mt-1 block w-full text-black"
+                                                placeholder="0"
                                                 v-model="room.fee"
                                                 required
                                             />
                                         </div>
 
-                                        <div class="w-full mr-1">
-                                            <InputLabel for="deposit" class="dark:text-white text-black" value="Deposit Fee" />
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="deposit" class="text-black" value="Deposit Fee" />
 
                                             <TextInput
                                                 id="deposit"
                                                 type="number"
+                                                placeholder="0"
                                                 class="mt-1 block w-full text-black"
                                                 v-model="room.deposit"
                                                 required
                                             />
                                         </div>
 
-                                        <div class="w-full">
-                                            <InputLabel for="advance" class="dark:text-white text-black" value="Advance Fee" />
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="advance" class="text-black" value="Advance Fee" />
 
                                             <TextInput
                                                 id="advance"
                                                 type="number"
+                                                placeholder="0"
                                                 class="mt-1 block w-full text-black"
                                                 v-model="room.advance"
                                                 required
@@ -922,7 +946,7 @@ export default {
                             </div>
 
                             <div class="w-full mt-2">
-                                <button class="py-2 px-4 bg-orange-500 ml-3 mt-1 rounded-md"
+                                <button class="py-2 px-4 bg-orange-400 ml-3 mt-1 rounded-md text-white"
                                     @click="addRoom()"
                                 >
                                     Add Room
@@ -931,17 +955,17 @@ export default {
                             </div>
                             <!--Rules-->
                             <div class="w-full" v-if="active == 5">
-                            <p class="text-2xl font-bold mt-1 ml-2 dark:text-white text-black">
+                            <p class="text-2xl font-bold mt-1 ml-2 text-black">
                                 Rules
                             </p>
 
-                            <p class="text-xs mt-1 ml-2 dark:text-white text-black">
+                            <p class="text-xs mt-1 ml-2 text-black">
                                 Your house your rules. Define the dos and dont of your tenants.
                             </p>
 
                             <div class="w-full flex flex-col gap-3 mt-10">
                                 <div class="w-full px-1">
-                                    <InputLabel class="dark:text-white text-black" value="Is short-term stayed allowed ?" />
+                                    <InputLabel class="text-black" value="Is short-term stayed allowed ?" />
 
                                     <select v-model="short_term" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                         <option value="Yes">Yes</option>
@@ -951,7 +975,7 @@ export default {
                                     <span class="text-xs text-red-500 ml-2">{{validationError('short_term', errors)}} </span>
                                     <div class="my-4"
                                     v-if="short_term=='Yes'">
-                                        <InputLabel class="dark:text-white text-black" value="What is the minimum stayed allowed ?" />
+                                        <InputLabel class="text-black" value="What is the minimum stayed allowed ?" />
 
                                         <TextInput
                                             id="minimum_stay"
@@ -965,7 +989,7 @@ export default {
                                     </div>
                                     <div class="my-4 hidden"
                                     v-else>
-                                        <InputLabel class="dark:text-white text-black" value="What is the minimum stayed allowed ?"/>
+                                        <InputLabel class="text-black" value="What is the minimum stayed allowed ?"/>
 
                                         <TextInput
                                             id="minimum_stay"
@@ -980,7 +1004,7 @@ export default {
                                 </div>
 
                                 <div class="w-full px-1">
-                                    <InputLabel class="dark:text-white text-black" value="Is Co-ed mixed gender allowed ?" />
+                                    <InputLabel class="text-black" value="Is Co-ed mixed gender allowed ?" />
 
                                     <select v-model="mix_gender" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                         <option value="Yes">Yes</option>
@@ -992,7 +1016,7 @@ export default {
                                 </div>
 
                                 <div class="w-full px-1">
-                                    <InputLabel class="dark:text-white text-black" value="Do you have a curfew ?" />
+                                    <InputLabel class="text-black" value="Do you have a curfew ?" />
 
                                     <select v-model="curfew" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                         <option value="Yes">Yes</option>
@@ -1003,7 +1027,7 @@ export default {
 
                                     <div v-if="curfew=='Yes'"
                                     >
-                                        <InputLabel class="dark:text-white text-black" value="What is the curfew hours ?"/>
+                                        <InputLabel class="text-black" value="What is the curfew hours ?"/>
 
                                         <TextInput
                                             id="curfew_hours"
@@ -1037,7 +1061,7 @@ export default {
                                 <div class="w-full flex flex-row mt-2" v-for="(rule, index) in rules" :key="index">
 
                                     <div style="width: 95%">
-                                        <InputLabel class="dark:text-white text-black" value="Rule" />
+                                        <InputLabel class="text-black" value="Rule" />
 
                                         <TextInput
                                             id="rule"
@@ -1178,7 +1202,7 @@ export default {
                         </div>
                         <!-- Modal footer -->
                         <div
-                            class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                            class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b "
                         >
                             <div v-if="active == 0">
                                 <button

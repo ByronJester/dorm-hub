@@ -164,9 +164,12 @@
                 };
             };
 
+            const application = null
+
             return {
                 user,
                 dorm,
+                application,
                 showingNavigationDropdown,
                 isMobileView,
                 form,
@@ -212,7 +215,7 @@
                     </div>
 
                     <div class="w-full mt-5">
-                        <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
+                        <Dorm :dorm.sync="dorm" :user.sync="user" :application.sync="application" ></Dorm>
                     </div>
                     </div>
                 </div>
@@ -234,7 +237,7 @@
                     </div>
 
                     <div class="w-full mt-5">
-                        <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
+                        <Dorm :dorm.sync="dorm" :user.sync="user" :application.sync="application"></Dorm>
                     </div>
                 </div>
                 </div>
@@ -1042,7 +1045,7 @@
                         <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>
                     </p>
                 </div>
-                <Dorm :dorm.sync="dorm" :user.sync="user" ></Dorm>
+                <Dorm :dorm.sync="dorm" :user.sync="user" :application.sync="application"></Dorm>
             </div>
         </div>
     </div>

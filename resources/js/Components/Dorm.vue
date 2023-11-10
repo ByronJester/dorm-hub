@@ -1,13 +1,13 @@
 <script>
 import { ref, onMounted, reactive } from "vue";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import { VueGoodTable } from "vue-good-table-next";
 
 export default {
-    props: ["dorm", "user"],
+    props: ["dorm", "user", "application"],
     components: {
         VueGoodTable,
         MapboxMap,
@@ -60,7 +60,6 @@ export default {
 
         const redirectToBillingInfo = (arg, action) => {
             const routeParam = arg.id + "-" + action;
-            console.log(routeParam);
 
             router.get(route("tenant.billing_info", routeParam));
         };
@@ -119,7 +118,7 @@ export default {
 
             swal(
                 {
-                    title: `Are you sure to rent this room?`,
+                    title: `Are you sure you want to rent this room?`,
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55",
@@ -190,9 +189,12 @@ export default {
                 Status: "Available",
             },
         ];
-        
-        console.log(props.user.reservation)  
-              
+
+        const page = usePage()
+
+        const hasApplication = page.props.hasApplication
+
+        console.log(hasApplication)
         return {
             props,
             isMobileView,
@@ -209,6 +211,7 @@ export default {
             closeReviewModal,
             openReviewModal,
             redirectToBillingInfo,
+            hasApplication
         };
     },
 };
@@ -951,7 +954,7 @@ export default {
                                     'cursor-not-allowed': !room.is_available,
                                 }"
                                 :disabled="!room.is_available"
-                                v-if="user.is_approved"
+                                v-if="user.is_approved && !hasApplication"
                             >
                                 Reserve
                             </button>
@@ -960,10 +963,10 @@ export default {
                                 class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
                                 @click="redirectToBillingInfo(room, 'rent')"
                                 :class="{
-                                    'cursor-not-allowed': !room.is_available,
+                                    'cursor-not-allowed': !room.is_available ,
                                 }"
                                 :disabled="!room.is_available"
-                                v-if="user.is_approved"
+                                v-if="user.is_approved && !hasApplication"
                             >
                                 Rent
                             </button>
