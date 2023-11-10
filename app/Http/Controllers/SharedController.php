@@ -10,6 +10,8 @@ use App\Models\{
 };
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Rules\CodeExists;
+use Illuminate\Validation\Rules;
 
 class SharedController extends Controller
 {
