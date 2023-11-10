@@ -179,7 +179,6 @@ export default {
             axios.post(route('send.otp'), {phone_number: form.phone_number})
                 .then(response => {
                     openModal()
-
                 })
                 .catch(error => {
 
