@@ -591,6 +591,11 @@ class TenantController extends Controller
         $application = TenantApplication::where('tenant_id', $auth->id)
             ->where('is_active', true)->where('is_approved', true)->first();
 
+        $billing = TenantBilling::where('description', 'advance_and_deposit_fee')
+            ->where('tenant_application_id', $application->id)->first();
+
+        $payment = TenantPayment::where('tenant_billing_id', $billing->id)->first();
+
         $room = (object) $application->room;
         $application->move_out = Carbon::parse($request->move_out);
         $application->reason = $request->reason;
@@ -599,6 +604,7 @@ class TenantController extends Controller
 
         TenantRefund::create([
             'tenant_application_id' => $application->id,
+            'tenant_payment_id' => $payment->id,
             'amount' => $room->deposit,
             'tenant_id' => $auth->id,
             'payment_method' => $request->payment_method,
