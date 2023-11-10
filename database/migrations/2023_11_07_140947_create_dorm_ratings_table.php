@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
             $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table users');
-            $table->string('rate');
+            $table->string('rate')->nullable();
             $table->longText('comment')->nullable();
 
             $table->foreign('dorm_id')->references('id')->on('dorms');

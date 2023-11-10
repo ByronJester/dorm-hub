@@ -119,7 +119,7 @@ export default {
 
             swal(
                 {
-                    title: `Are you sure to rent this room?`,
+                    title: `Are you sure you want to rent this room?`,
                     type: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#DD6B55",
@@ -191,7 +191,6 @@ export default {
             },
         ];
         
-        console.log(props.user.reservation)  
               
         return {
             props,

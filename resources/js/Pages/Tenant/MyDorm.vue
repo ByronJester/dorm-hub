@@ -53,11 +53,11 @@ export default {
 
         const currentRating = ref()
         currentRating.value = page.props.rating
-
         const rating = ref(0)
         rating.value = currentRating.value.rate
         const comment = ref(null)
         comment.value = currentRating.value.comment
+
 
         const submitRatings = () => {
 
@@ -207,8 +207,6 @@ export default {
             showEwallet,
             toggleTransfer,
             myDorm,
-            rating,
-            comment,
             submitRatings,
             currentRating,
             subject,
@@ -305,7 +303,7 @@ export default {
                                     height="404"
                                 />
                                 <!--Price ng room-->
-                                <p class="mt-2">P3000.00 a month</p>
+                                <p class="mt-2">{{ myDorm.room.fee }}</p>
                                 <!--Features ng room-->
                                 <div class="flex flex-row mt-1 gap-2">
                                     <svg

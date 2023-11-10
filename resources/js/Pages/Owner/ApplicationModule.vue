@@ -20,6 +20,11 @@
             AppDropdownItem,
             VueGoodTable
         },
+        data(){
+            return{
+                selectedContent: 'applicants',
+            }
+        },
         setup() {
             const isMobileView = ref(false)
             isMobileView.value = screen.width < 600;
@@ -194,36 +199,13 @@
 
 
 
-            var dataRent = [];
-
-            const headersRent=["Dorm Name", "Room Name", "Applicant Name", "Source of Income", "Income", "Move-In Date", "Move-Out Date", "Status"]
-
-            const applications = page.props.applications
-
-            for(let y = 0; y < applications.length; y++){
-                dataRent.push(
-                    {
-                        dorm_name: applications[y].dorm.property_name,
-                        room_name: applications[y].room.name,
-                        tenant_name: applications[y].tenant.name,
-                        source_of_income: applications[y].tenant.income_information.source_of_income,
-                        monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
-                        move_in: !applications[y].move_in ? 'N/A' : applications[y].move_in,
-                        move_out: !applications[y].move_out ? 'N/A' : applications[y].move_out,
-                        status: applications[y].status,
-                        action: applications[y]
-                    }
-                )
-            }
-
-
             var dataReserve = [];
 
-            const headersReserve=["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"]
+            const headersReserve = ["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"];
 
-            const reservations = page.props.reservations
+            const reservations = page.props.reservations;
 
-            for(let x = 0; x < reservations.length; x++){
+            for (let x = 0; x < reservations.length; x++) {
                 dataReserve.push(
                     {
                         dorm_name: reservations[x].dorm.property_name,
@@ -235,8 +217,104 @@
                         status: reservations[x].status,
                         action: reservations[x]
                     }
-                )
+                );
             }
+
+            const searchQueryReserve = ref("");
+            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
+            const currentPageReserve = ref(1); // Initialize to the first page
+
+            
+            const filteredDataReserve = computed(() => {
+                const query = searchQueryReserve.value.toLowerCase().trim();
+                if (!query) {
+                    return dataReserve; // Return all data if the search query is empty.
+                }
+
+                return dataReserve.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.dorm_name.toLowerCase().includes(query) ||
+                        row.room_name.toLowerCase().includes(query) ||
+                        row.tenant_name.toLowerCase().includes(query) ||
+                        row.status.toLowerCase().includes(query)
+                        // Add more conditions for other columns as needed
+                    );
+                });
+            });
+
+            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
+
+            const c = computed(() => {
+                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
+                const endIndex = startIndex + itemsPerPageReserve;
+                return filteredDataReserve.value.slice(startIndex, endIndex);
+            });
+
+            const changePageReserve = (pageChange) => {
+                const newPage = currentPageReserve.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
+                    currentPageReserve.value = newPage;
+                }
+            };
+
+            //Rent
+            var dataRent = [];
+
+            const headersRent = ["Dorm Name", "Room Name", "Applicant Name", "Source of Income", "Income", "Move-In Date", "Move-Out Date", "Status"];
+
+            const applications = page.props.applications;
+
+            for (let y = 0; y < applications.length; y++) {
+                dataRent.push({
+                    dorm_name: applications[y].dorm.property_name,
+                    room_name: applications[y].room.name,
+                    tenant_name: applications[y].tenant.name,
+                    source_of_income: applications[y].tenant.income_information.source_of_income,
+                    monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
+                    move_in: !applications[y].move_in ? 'N/A' : applications[y].move_in,
+                    move_out: !applications[y].move_out ? 'N/A' : applications[y].move_out,
+                    status: applications[y].status,
+                    action: applications[y]
+                });
+            }
+
+            const searchQuery = ref("");
+            const itemsPerPage = 10; // Set the maximum number of items per page to 10
+            const currentPage = ref(1); // Initialize to the first page
+
+            const filteredDataRent = computed(() => {
+                const query = searchQuery.value.toLowerCase().trim();
+                if (!query) {
+                    return dataRent; // Return all data if the search query is empty.
+                }
+
+                return dataRent.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.dorm_name.toLowerCase().includes(query) ||
+                        row.room_name.toLowerCase().includes(query) ||
+                        row.tenant_name.toLowerCase().includes(query) ||
+                        row.status.toLowerCase().includes(query)
+                        // Add more conditions for other columns as needed
+                    );
+                });
+            });
+
+            const totalPages = computed(() => Math.ceil(filteredDataRent.value.length / itemsPerPage));
+
+            const slicedRows = computed(() => {
+                const startIndex = (currentPage.value - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                return filteredDataRent.value.slice(startIndex, endIndex);
+            });
+
+            const changePage = (pageChange) => {
+                const newPage = currentPage.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPages.value) {
+                    currentPage.value = newPage;
+                }
+            };
 
             const selectedApplication = ref(null)
 
@@ -370,6 +448,17 @@
             }
 
             return {
+                searchQueryReserve,
+                itemsPerPageReserve,
+                currentPageReserve,
+                filteredDataReserve,
+                totalPagesReserve,
+                changePageReserve,
+                searchQuery,
+                filteredDataRent,
+                itemsPerPage,
+                slicedRows,
+                changePage,
                 headersRent,
                 dataRent,
                 headersReserve,
@@ -412,8 +501,14 @@
                 <h3 class="text-3xl">Applicants</h3>
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
-
-            <div class="w-full mt-5">
+            <div>
+            <label for="divSelector">Select a table:</label>
+            <select v-model="selectedContent" id="divSelector" class="ml-4 rounded-md border-gray-200 cursor-pointer"> 
+                <option value="applicants">Rent Applicants</option>
+                <option value="reservations">Reservation Applicants</option>
+            </select>
+            </div>
+            <div v-if="selectedContent === 'applicants'" class="w-full mt-5">
                 <div class="w-full mb-5 ">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -453,6 +548,7 @@
                                             <input
                                                 type="text"
                                                 id="simple-search"
+                                                v-model="searchQuery"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                 placeholder="Search in table..."
                                                 required
@@ -485,7 +581,7 @@
                         </div>
                         <div class="block w-full overflow-x-auto">
                             <table
-                                class="items-center w-full bg-transparent border-collapse"
+                                class="table items-center w-full bg-transparent border-collapse"
                             >
                                 <thead>
                                     <tr>
@@ -505,7 +601,7 @@
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in dataRent"
+                                        v-for="(item, rowIndex) in slicedRows"
                                         :key="rowIndex"
                                     >
                                         <td
@@ -535,60 +631,45 @@
                                 </tbody>
                             </table>
                             <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
                             >
-                                <div
-                                    class="justify-between items-center block md:flex"
+                                <button
+                                    @click="changePage(-1)"
+                                    :disabled="currentPage == 1"
+                                    :class="{
+                                        hidden: currentPage == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    <div
-                                        class="flex items-center justify-center mb-6 md:mb-0"
-                                    >
-                                        <div
-                                            class="flex items-center justify-start flex-wrap -mb-3"
-                                        >
-                                            <button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >1</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >2</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >3</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >4</span
-                                                >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <small>Page 1 of 4</small>
-                                    </div>
-                                </div>
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePage(1)"
+                                    :disabled="currentPage === totalPages"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPage }}</small>
                             </div>
                         </div>
                     </div>
                 </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="w-full mt-5">
+            <!--Reservation-->
+            <div v-if="selectedContent === 'reservations'" class="w-full mt-5">
                 <div class="w-full mb-5 ">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -630,6 +711,7 @@
                                                 id="simple-search"
                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                 placeholder="Search in table..."
+                                                v-model="searchQueryReserve"
                                                 required
                                             />
                                         </div>
@@ -680,7 +762,7 @@
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in dataReserve"
+                                        v-for="(item, rowIndex) in filteredDataReserve"
                                         :key="rowIndex"
                                     >
                                         <td
@@ -708,55 +790,39 @@
                                 </tbody>
                             </table>
                             <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
                             >
-                                <div
-                                    class="justify-between items-center block md:flex"
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    <div
-                                        class="flex items-center justify-center mb-6 md:mb-0"
-                                    >
-                                        <div
-                                            class="flex items-center justify-start flex-wrap -mb-3"
-                                        >
-                                            <button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >1</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >2</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >3</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >4</span
-                                                >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <small>Page 1 of 4</small>
-                                    </div>
-                                </div>
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
                             </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                         </div>
                     </div>
                 </div>

@@ -233,7 +233,7 @@ export default {
                             </AppDropdown>
                         </div>
 
-                        <AppDropdown>
+                        <AppDropdown >
                             <button>
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -281,7 +281,7 @@ export default {
                                 </div>
 
                                 <div
-                                    class="w-full flex flex-col bg-gray-300 mt-3"
+                                    class="w-full flex flex-col bg-gray-300 mt-3 overflow-y-scroll"
                                     style="border-radius: 5px"
                                     v-for="notification in notifications"
                                     :key="notification.id"

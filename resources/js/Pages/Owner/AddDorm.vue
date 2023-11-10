@@ -622,293 +622,217 @@ export default {
                 </div>
             </div>
             <div class="flex flex-col w-full" v-if="active == 4">
-                <p class="text-2xl font-bold">Dorm Description & Add Rooms</p>
+                            <div class="w-full px-2 flex flex-row">
+                                <div class="w-full mx-1">
+                                    <InputLabel class="text-black" for="property_name" value="Dorm Name" />
 
-                <p class="text-xs mt-1">
-                    Describe your dorm & add the rooms of your dorm.
-                </p>
-                <div class="w-full gap-2 flex flex-row mt-5">
-                    <div class="w-full">
-                        <InputLabel
-                            class="dark:text-white text-black"
-                            for="property_name"
-                            value="Dorm Name"
-                        />
+                                    <TextInput
+                                        id="property_name"
+                                        type="text"
+                                        class="mt-1 block w-full text-black"
+                                        v-model="property_name"
+                                        required
+                                        autocomplete="name"
+                                        placeholder="Dorm Name"
+                                    />
+                                    <span class="text-xs text-red-500 ml-2">{{validationError('property_name', errors)}} </span>
+                                </div>
 
-                        <TextInput
-                            id="property_name"
-                            type="text"
-                            class="mt-1 block w-full text-black"
-                            v-model="property_name"
-                            required
-                            autocomplete="name"
-                            placeholder="Dorm Name"
-                        />
-                        <span class="text-xs text-red-500 ml-2"
-                            >{{ validationError("property_name", errors) }}
-                        </span>
-                    </div>
+                                <div class="w-full mx-1">
+                                    <InputLabel class="text-black" for="description" value="Describe your dorm ?" />
 
-                    <div class="w-full">
-                        <InputLabel
-                            class="dark:text-white text-black"
-                            for="description"
-                            value="Describe your dorm ?"
-                        />
+                                    <TextInput
+                                        id="description"
+                                        type="text"
+                                        class="mt-1 block w-full text-black"
+                                        v-model="description"
+                                        required
+                                        autocomplete="description"
+                                        placeholder="Describe your dorm ?"
+                                    />
 
-                        <TextInput
-                            id="description"
-                            type="text"
-                            class="mt-1 block w-full text-black"
-                            v-model="description"
-                            required
-                            autocomplete="description"
-                            placeholder="Describe your dorm ?"
-                        />
-
-                        <span class="text-xs text-red-500 ml-2"
-                            >{{ validationError("description", errors) }}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="w-full gap-2 flex flex-row">
-                    <div class="w-full">
-                        <InputLabel
-                            for="floors_total"
-                            class="dark:text-white text-black"
-                            value="How many floors in total ?"
-                        />
-
-                        <TextInput
-                            id="floors_total"
-                            type="number"
-                            class="mt-1 block w-full text-black"
-                            v-model="floors_total"
-                            required
-                            autocomplete="floors_total"
-                            placeholder="No. of Floors"
-                        />
-
-                        <span class="text-xs text-red-500 ml-2"
-                            >{{ validationError("floors_total", errors) }}
-                        </span>
-                    </div>
-
-                    <div class="w-full mx-1">
-                        <InputLabel
-                            class="dark:text-white text-black"
-                            for="rooms_total"
-                            value="How many rooms in total ?"
-                        />
-
-                        <TextInput
-                            id="rooms_total"
-                            type="number"
-                            class="mt-1 block w-full text-black"
-                            v-model="rooms_total"
-                            required
-                            autocomplete="rooms_total"
-                            placeholder="No. of Rooms"
-                        />
-
-                        <span class="text-xs text-red-500 ml-2"
-                            >{{ validationError("rooms_total", errors) }}
-                        </span>
-                    </div>
-                </div>
-                <div class="w-full mt-2">
-                    <button
-                        class="py-2 px-4 bg-orange-500 ml-3 mt-1 rounded-md"
-                        @click="addRoom()"
-                    >
-                        Add Room
-                    </button>
-                </div>
-
-                <div class="w-full px-3">
-                    <div
-                        class="w-ful flex flex-col p-2 mt-2"
-                        style="border: 1px solid black; border-radius: 5px"
-                        v-for="(room, index) in rooms"
-                        :key="index"
-                    >
-                        <div class="w-full">
-                            <span
-                                class="float-right cursor-pointer"
-                                @click="removeRoom(index)"
-                            >
-                                <i class="fa-solid fa-trash-can"></i>
-                            </span>
-                        </div>
-
-                        <InputLabel
-                            value="Room Image"
-                            class="dark:text-white text-black"
-                        />
-
-                        <input
-                            type="file"
-                            :id="'room_image' + index"
-                            :ref="'room_image_' + index"
-                            style="display: none"
-                            @change="
-                                roomImageChange(
-                                    $event,
-                                    'room_image' + index,
-                                    index
-                                )
-                            "
-                        />
-
-                        <img
-                            :src="room.src ?? '/images/upload_image.png'"
-                            alt="upload_image"
-                            class="cursor-pointer"
-                            @click="roomImageClick('room_image' + index)"
-                            style="
-                                border: 1px solid black;
-                                border-radius: 5px;
-                                height: 235px;
-                                width: 100%;
-                            "
-                        />
-
-                        <div class="w-full flex flex-row mt-3">
-                            <div class="w-full mx-1">
-                                <InputLabel
-                                    class="dark:text-white text-black"
-                                    for="name"
-                                    value="Room Name"
-                                />
-
-                                <TextInput
-                                    id="name"
-                                    type="text"
-                                    class="block w-full text-black"
-                                    v-model="room.name"
-                                    required
-                                    placeholder="Room Name"
-                                />
+                                    <span class="text-xs text-red-500 ml-2">{{validationError('description', errors)}} </span>
+                                </div>
                             </div>
 
-                            <div class="w-full mx-1">
-                                <InputLabel
-                                    class="dark:text-white text-black"
-                                    for="type_of_room"
-                                    value="Capacity"
-                                />
+                            <div class="w-full px-2 flex flex-row">
+                                <div class="w-full mx-1">
+                                    <InputLabel for="floors_total" class="text-black" value="How many floors in total ?" />
 
-                                <select
-                                    v-model="room.type_of_room"
-                                    class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    <TextInput
+                                        id="floors_total"
+                                        type="number"
+                                        class="mt-1 block w-full text-black"
+                                        v-model="floors_total"
+                                        required
+                                        autocomplete="floors_total"
+                                        placeholder="No. of Floors"
+                                    />
+
+                                    <span class="text-xs text-red-500 ml-2">{{validationError('floors_total', errors)}} </span>
+                                </div>
+
+                                <div class="w-full mx-1">
+                                    <InputLabel class="text-black" for="rooms_total" value="How many rooms in total ?" />
+
+                                    <TextInput
+                                        id="rooms_total"
+                                        type="number"
+                                        class="mt-1 block w-full text-black"
+                                        v-model="rooms_total"
+                                        required
+                                        autocomplete="rooms_total"
+                                        placeholder="No. of Rooms"
+                                    />
+
+                                    <span class="text-xs text-red-500 ml-2">{{validationError('rooms_total', errors)}} </span>
+                                </div>
+                            </div>
+
+                            <div class="w-full px-3 ">
+                                <div class="w-ful flex flex-col p-3 mt-2 border rounded-xl border-gray-400 "
+                                    v-for="(room, index) in rooms" :key="index"
+                                >   
+                                    <div class="w-full ">
+                                    <span class="float-right cursor-pointer"
+                                            @click="removeRoom(index)"
+                                    >
+                                            <i class="fa-solid fa-trash-can"></i>
+                                    </span>
+                                    </div>
+
+                                            <InputLabel value="Room Image" class="text-black"/>
+
+                                            <input
+                                                type="file"
+                                                :id="'room_image' + index" :ref="'room_image_' + index" style="display: none"
+                                                @change="roomImageChange($event, 'room_image' + index, index)"
+                                                accept="image/*"
+                                            />
+
+                                            <label
+                                                :for="'room_image' + index"
+                                                class="relative cursor-pointer"
+                                            >
+                                                <div
+                                                    class="h-80 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                >
+                                                    <img
+                                                        v-if="room.src"
+                                                        :src="room.src"
+                                                        alt="room_image"
+                                                        class="h-80 w-full rounded-lg object-cover bg-no-repeat bg-center"
+                                                        @click="roomImageClick('room_image' + index)"
+                                                    />
+                                                    <span v-else
+                                                        >Click to Input Room Image</span
+                                                    >
+                                                </div>
+                                            </label>
+
+                                    <div class="w-full mt-3">
+                                        <div class="flex flex-row mt-3">
+                                            <div class="w-full mx-1">
+                                                <InputLabel class="text-black" for="name" value="Room Name" />
+
+                                                <TextInput
+                                                    id="name"
+                                                    type="text"
+                                                    class="block w-full text-black"
+                                                    v-model="room.name"
+                                                    required
+                                                    placeholder="Room Name"
+                                                />
+                                            </div>
+
+                                            <div class="w-full mx-1">
+                                                <InputLabel class="text-black" for="type_of_room" value="Capacity" />
+
+                                                <select v-model="room.type_of_room" class="w-full border-gray-300  text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                    <option value="Room for 1">Room for 1</option>
+                                                    <option value="Room for 2">Room for 2</option>
+                                                    <option value="Room for 3">Room for 3</option>
+                                                    <option value="Room for 4">Room for 4</option>
+                                                    <option value="Room for 5">Room for 5</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-row mt-3">
+                                            <div class="w-full mx-1">
+                                                <InputLabel class="text-black" or="furnished_type" value="Fursnished Type" />
+
+                                                <select v-model="room.furnished_type" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                    <option value="Furnished">Furnished</option>
+                                                    <option value="Semifurnised">Semifurnised</option>
+                                                    <option value="Bare">Bare</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="w-full mx-1">
+                                                <InputLabel for="is_aircon" class="text-black" value="Aircon" />
+
+                                                <select v-model="room.is_aircon" class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                    <option value="Yes">Yes</option>
+                                                    <option value="No">No</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                            
+
+                                            
+                                        </div>
+
+                                    <div class="w-full flex flex-row mt-3">
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="fee" class="text-black" value="Monthly Fee" />
+
+                                            <TextInput
+                                                id="fee"
+                                                type="number"
+                                                class="mt-1 block w-full text-black"
+                                                placeholder="0"
+                                                v-model="room.fee"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="deposit" class="text-black" value="Deposit Fee" />
+
+                                            <TextInput
+                                                id="deposit"
+                                                type="number"
+                                                placeholder="0"
+                                                class="mt-1 block w-full text-black"
+                                                v-model="room.deposit"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div class="w-full mx-1">
+                                            <InputLabel for="advance" class="text-black" value="Advance Fee" />
+
+                                            <TextInput
+                                                id="advance"
+                                                type="number"
+                                                placeholder="0"
+                                                class="mt-1 block w-full text-black"
+                                                v-model="room.advance"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-full mt-2">
+                                <button class="py-2 px-4 bg-orange-400 ml-3 mt-1 rounded-md text-white"
+                                    @click="addRoom()"
                                 >
-                                    <option value="Room for 1">
-                                        Room for 1
-                                    </option>
-                                    <option value="Room for 2">
-                                        Room for 2
-                                    </option>
-                                    <option value="Room for 3">
-                                        Room for 3
-                                    </option>
-                                    <option value="Room for 4">
-                                        Room for 4
-                                    </option>
-                                    <option value="Room for 5">
-                                        Room for 5
-                                    </option>
-                                </select>
+                                    Add Room
+                                </button>
                             </div>
-
-                            <div class="w-full mx-1">
-                                <InputLabel
-                                    class="dark:text-white text-black"
-                                    or="furnished_type"
-                                    value="Fursnished Type"
-                                />
-
-                                <select
-                                    v-model="room.furnished_type"
-                                    class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                >
-                                    <option value="Furnished">Furnished</option>
-                                    <option value="Semifurnised">
-                                        Semifurnised
-                                    </option>
-                                    <option value="Bare">Bare</option>
-                                </select>
                             </div>
-
-                            <div class="w-full mx-1">
-                                <InputLabel
-                                    for="is_aircon"
-                                    class="dark:text-white text-black"
-                                    value="Aircon"
-                                />
-
-                                <select
-                                    v-model="room.is_aircon"
-                                    class="w-full border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                                >
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="w-full flex flex-row mt-3">
-                            <div class="w-full mr-1">
-                                <InputLabel
-                                    for="fee"
-                                    class="dark:text-white text-black"
-                                    value="Monthly Fee"
-                                />
-
-                                <TextInput
-                                    id="fee"
-                                    type="number"
-                                    class="mt-1 block w-full text-black"
-                                    v-model="room.fee"
-                                    required
-                                />
-                            </div>
-
-                            <div class="w-full mr-1">
-                                <InputLabel
-                                    for="deposit"
-                                    class="dark:text-white text-black"
-                                    value="Deposit Fee"
-                                />
-
-                                <TextInput
-                                    id="deposit"
-                                    type="number"
-                                    class="mt-1 block w-full text-black"
-                                    v-model="room.deposit"
-                                    required
-                                />
-                            </div>
-
-                            <div class="w-full">
-                                <InputLabel
-                                    for="advance"
-                                    class="dark:text-white text-black"
-                                    value="Advance Fee"
-                                />
-
-                                <TextInput
-                                    id="advance"
-                                    type="number"
-                                    class="mt-1 block w-full text-black"
-                                    v-model="room.advance"
-                                    required
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="w-full" v-if="active == 5">
                 <p
                     class="text-2xl font-bold mt-1 ml-2 dark:text-white text-black"

@@ -13,7 +13,6 @@ export default {
         AppDropdownContent,
         AppDropdownItem,
         ApplicationLogo,
-        Email
     },
     setup() {
         const page = usePage();

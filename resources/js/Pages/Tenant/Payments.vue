@@ -101,11 +101,51 @@ export default {
                     amount: payments[p].amount,
                     category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].category),
                     status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
-                    receipt: payments[p].proof_of_payment,
+                    receipt: '',
                     action: payments[p]
                 }
             )
         }
+        //
+        
+            const searchQuery = ref("");
+            const itemsPerPage = 5; // Set the maximum number of items per page to 10
+            const currentPage = ref(1); // Initialize to the first page
+
+            
+            const filteredData = computed(() => {
+                const query = searchQuery.value.toLowerCase().trim();
+                if (!query) {
+                    return data; // Return all data if the search query is empty.
+                }
+
+                return data.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.date.toLowerCase().includes(query) ||
+                        row.payment_method.toLowerCase().includes(query) ||
+                        row.category.toLowerCase().includes(query) ||
+                        row.status.toLowerCase().includes(query)
+                        // Add more conditions for other columns as needed
+                    );
+                });
+            });
+
+            const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
+
+            const slicedRows = computed(() => {
+                const startIndex = (currentPage.value - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                return filteredData.value.slice(startIndex, endIndex);
+            });
+
+            const changePage = (pageChange) => {
+                const newPage = currentPage.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPages.value) {
+                    currentPage.value = newPage;
+                }
+            };
+            //
 
         const moneyFormat = (amount) => {
             amount = parseFloat(amount).toFixed(2);
@@ -195,7 +235,14 @@ export default {
             payment_method,
             proof_of_payment,
             proofOfPyamentChange,
-            proceedPayment
+            proceedPayment,
+            searchQuery,
+            itemsPerPage,
+            currentPage,
+            filteredData,
+            totalPages,
+            slicedRows,
+            changePage,
         };
     },
 };
@@ -324,46 +371,7 @@ export default {
                 </div>
 
                 <div class="flex-1 shadow-lg rounded-lg p-6">
-                    <div
-                        class="bg-blue-500 border-blue-500 text-white px-3 py-6 md:py-3 mb-6 last:mb-0 border rounded-lg transition-colors duration-150"
-                    >
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-center mb-6 md:mb-0"
-                            >
-                                <div
-                                    class="flex flex-col md:flex-row items-center"
-                                >
-                                    <span
-                                        class="inline-flex justify-center items-center w-10 md:w-5 h-10 md:h-5 md:mr-2"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="24"
-                                            height="24"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                fill="currentColor"
-                                                d="M13,9H11V7H13M13,17H11V11H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
-                                            ></path></svg></span
-                                    ><span
-                                        class="text-center md:text-left md:py-2"
-                                        ><b>Payment date</b> is approaching
-                                        soon.
-                                    </span>
-                                </div>
-                            </div>
-                            <!--Button Para makita yung details ng billing-->
-                            <div class="flex items-center justify-center">
-                                <button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded-full border-white ring-gray-200 dark:ring-gray-500 bg-white text-black hover:bg-gray-100 text-sm px-3 py-1"
-                                    type="button"
-                                >
-                                    <!----><span class="px-2">See details</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                   
                     <div class="md:flex md:justify-between md:items-center">
                         <div class="md:flex md:items-center">
                             <div
@@ -426,7 +434,7 @@ export default {
                                                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"/>
                                                         </svg>
                                                     </div>
-                                                    <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search in table..." required>
+                                                    <input type="text" id="simple-search" v-model="searchQuery" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search in table..." required>
                                                 </div>
                                                 <button type="submit" class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                                                     <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -462,7 +470,7 @@ export default {
                                                 <tr
                                                     v-for="(
                                                         item, rowIndex
-                                                    ) in data"
+                                                    ) in slicedRows"
                                                     :key="rowIndex"
                                                 >
                                                     <td
@@ -485,7 +493,7 @@ export default {
 
                                                         <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
                                                             v-if="colIndex == 'action'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval'"
-                                                            :class="{'cursor-not-allowed': value.status == 'paid' || value.status == 'waiting_for_approval'}"
+                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval'}"
                                                         >
                                                             Pay
                                                         </button>
@@ -495,33 +503,41 @@ export default {
                                             </tbody>
 
                                         </table>
-                                        <div class="my-5 ml-5 border-t pt-5 ">
-                                                <nav aria-label="Page navigation example">
-                                                    <ul class="inline-flex -space-x-px text-sm">
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" aria-current="page" class="flex items-center justify-center px-3 h-8 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
-                                                        </li>
-                                                        <li>
-                                                        <a href="#" class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
-                                                        </li>
-                                                    </ul>
-                                                    </nav>
-                                            </div>
+                                        <div
+                            class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                        >
+                        <div class="block w-full overflow-x-auto">
+                                <div class="justify-between items-center block md:flex">
+                                    <div class="flex items-center justify-start flex-wrap mb-3">
+                                    <button                                        
+                                        @click="changePage(-1)"
+                                        :disabled="currentPage == 1"
+                                        :class="{
+                                            'hidden': currentPage == 1,
+                                        }"
+                                        type="button"
+                                        class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+
+                                    >
+                                        Previous
+                                    </button>
+                                    <button
+                                        @click="changePage(1)"
+                                        :disabled="currentPage === totalPages"
+                                        type="button"
+                                        class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+
+                                    >
+                                        Next
+                                    </button>
+                                    </div>
+                                    <div class="flex items-center justify-center">
+                                    <small>Page {{ currentPage }}</small>
+                                    </div>
+                                </div>
+                           
+                            </div>
+                        </div>
                                     </div>
                                 </div>
                         </div>
