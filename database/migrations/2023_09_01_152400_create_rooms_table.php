@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('fee', 100);
             $table->string('deposit', 100);
             $table->string('advance', 100);
+            $table->boolean('status')->nullable();
             $table->boolean('is_available')->default(true);
 
             $table->foreign('dorm_id')->references('id')->on('dorms');

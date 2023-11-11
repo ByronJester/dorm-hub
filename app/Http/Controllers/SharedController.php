@@ -38,17 +38,17 @@ class SharedController extends Controller
 
         $dorm = Dorm::where('id', $dorm_id)->first();
 
-        $application = null;
+        // $application = null;
 
-        if($auth) {
-            $application = TenantApplication::where('tenant_id', $auth->id)
-                ->where('is_approved', true)->where('is_active', true)->first();
-        }
+        // if($auth) {
+        //     $application = TenantApplication::where('tenant_id', $auth->id)
+        //         ->where('is_approved', true)->where('is_active', true)->first();
+        // }
 
 
         return Inertia::render('Dorm', [
             'dorm' => $dorm,
-            'hasApplication' => !$application ? false : true
+            'hasApplication' => false
         ]);
     }
 

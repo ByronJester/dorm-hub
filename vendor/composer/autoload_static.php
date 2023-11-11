@@ -627,6 +627,7 @@ class ComposerStaticInitc8c4f721b4a735433ab4497e833e5b18
         'App\\Models\\Rule' => __DIR__ . '/../..' . '/app/Models/Rule.php',
         'App\\Models\\TenantApplication' => __DIR__ . '/../..' . '/app/Models/TenantApplication.php',
         'App\\Models\\TenantBilling' => __DIR__ . '/../..' . '/app/Models/TenantBilling.php',
+        'App\\Models\\TenantComplaint' => __DIR__ . '/../..' . '/app/Models/TenantComplaint.php',
         'App\\Models\\TenantPayment' => __DIR__ . '/../..' . '/app/Models/TenantPayment.php',
         'App\\Models\\TenantRefund' => __DIR__ . '/../..' . '/app/Models/TenantRefund.php',
         'App\\Models\\TenantReservation' => __DIR__ . '/../..' . '/app/Models/TenantReservation.php',

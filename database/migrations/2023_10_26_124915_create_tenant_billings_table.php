@@ -15,19 +15,16 @@ return new class extends Migration
     {
         Schema::create('tenant_billings', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table users');
-            $table->bigInteger('tenant_application_id')->unsigned()->comment('Foreign key from table tenant_applications');
-            $table->string('first_name');
-            $table->string('last_name');
-            $table->string('phone_number');
+            $table->bigInteger('tenant')->unsigned()->comment('Foreign key from table users');
+            $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table tenants');
             $table->float('amount')->default(0);
             $table->string('subject')->nullable();
             $table->longText('description')->nullable();
             $table->date('date')->nullable();
             $table->boolean('is_paid')->default(false);
 
-            $table->foreign('tenant_id')->references('id')->on('users');
-            $table->foreign('tenant_application_id')->references('id')->on('tenant_applications');
+            $table->foreign('tenant')->references('id')->on('users');
+            $table->foreign('tenant_id')->references('id')->on('tenants');
             $table->timestamps();
         });
     }
