@@ -5,6 +5,7 @@ import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import { VueGoodTable } from "vue-good-table-next";
+import { format } from 'date-fns';
 
 export default {
     props: ["dorm", "user", "application"],
@@ -20,14 +21,14 @@ export default {
     setup(props) {
         const isMobileView = ref(false);
         const room = ref(null);
-        const currentTab = ref('details'); // Default tab
+        const currentTab = ref("details"); // Default tab
 
         const showDetails = () => {
-        currentTab.value = 'details';
+            currentTab.value = "details";
         };
 
         const showTerms = () => {
-        currentTab.value = 'terms';
+            currentTab.value = "terms";
         };
 
         isMobileView.value = screen.width < 600;
@@ -199,17 +200,22 @@ export default {
             },
         ];
 
-        const page = usePage()
+        const page = usePage();
 
-        const hasApplication = page.props.hasApplication
+        const hasApplication = page.props.hasApplication;
 
-        console.log(hasApplication)
+        console.log(hasApplication);
+
+        const formatDate = (date) => {
+         return format(new Date(date), 'MMMM dd, yyyy'); // Adjust the format as needed
+        }
         return {
             props,
             isMobileView,
             room,
             headers,
             data,
+            formatDate,
             moneyFormat,
             openModal,
             closeModal,
@@ -507,43 +513,87 @@ export default {
                 </div>
 
                 <hr class="h-px mt-5 bg-gray-200 border-0 dark:bg-gray-700" />
-                <div class="flex w-full justify-start">
-                    <div class="flex flex-row gap-5 text-xl cursor-pointer font-bold">
-                        <button class="py-1 px-4" :class="{ 'bg-gray-400 text-white border-b border-black': currentTab === 'details' }" @click="showDetails()">Details</button>
-                        <button class="py-1 px-4" :class="{ 'bg-gray-400 text-white border-b border-black': currentTab === 'terms' }" @click="showTerms()">Owner Details</button>
+                <div class="flex w-full justify-start border-b border-gray-200">
+                    <div
+                        class="flex flex-row gap-5 text-xl cursor-pointer font-bold"
+                    >
+                        <button
+                            class="py-3 px-4"
+                            :class="{
+                                ' text-orange-400 border-b-2 border-orange-400 ':
+                                    currentTab === 'details',
+                            }"
+                            @click="showDetails()"
+                        >
+                            Details
+                        </button>
+                        <button
+                            class="py-1 px-4"
+                            :class="{
+                                'text-orange-400 border-b-2 border-orange-400 ':
+                                    currentTab === 'terms',
+                            }"
+                            @click="showTerms()"
+                        >
+                            Owner Details
+                        </button>
                     </div>
                 </div>
-                <div v-if="currentTab === 'terms'" class="
-                        w-full
-                    ">
-                   <div class="mt-5">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Non consectetur a erat nam at. Vitae congue eu consequat ac. Sed id semper risus in hendrerit gravida rutrum quisque non. Urna nunc id cursus metus aliquam eleifend mi. Purus faucibus ornare suspendisse sed. Eu feugiat pretium nibh ipsum consequat nisl vel pretium lectus. Felis imperdiet proin fermentum leo vel orci porta non pulvinar. Id interdum velit laoreet id donec ultrices tincidunt arcu. Viverra vitae congue eu consequat ac felis. Laoreet suspendisse interdum consectetur libero id faucibus nisl tincidunt eget.
-
-Aliquet porttitor lacus luctus accumsan tortor posuere ac ut. Enim nunc faucibus a pellentesque sit amet. Maecenas volutpat blandit aliquam etiam erat velit scelerisque. Rhoncus aenean vel elit scelerisque mauris pellentesque pulvinar. Amet nisl suscipit adipiscing bibendum est ultricies. Risus nullam eget felis eget nunc. Aliquet nec ullamcorper sit amet risus nullam eget felis eget. Vitae purus faucibus ornare suspendisse sed nisi. Pellentesque eu tincidunt tortor aliquam nulla facilisi cras fermentum odio. Lorem sed risus ultricies tristique. Varius sit amet mattis vulputate enim nulla aliquet. Urna nunc id cursus metus aliquam eleifend mi in nulla. Adipiscing enim eu turpis egestas pretium aenean. Amet tellus cras adipiscing enim eu. Malesuada fames ac turpis egestas integer eget. Suscipit adipiscing bibendum est ultricies integer. Dui vivamus arcu felis bibendum. Suspendisse interdum consectetur libero id faucibus. Iaculis eu non diam phasellus vestibulum lorem. Nulla facilisi cras fermentum odio eu.
-
-Vitae congue mauris rhoncus aenean. Eu sem integer vitae justo. Est sit amet facilisis magna. Amet nisl purus in mollis nunc sed id semper. Dictum fusce ut placerat orci nulla. Sit amet risus nullam eget. Facilisis leo vel fringilla est ullamcorper eget nulla. Non enim praesent elementum facilisis leo vel fringilla. Tristique senectus et netus et malesuada fames. Adipiscing elit duis tristique sollicitudin nibh sit amet. Mauris cursus mattis molestie a iaculis at. Interdum posuere lorem ipsum dolor sit amet consectetur. Pharetra vel turpis nunc eget lorem dolor. Proin libero nunc consequat interdum varius sit amet mattis.
-
-Suscipit tellus mauris a diam maecenas sed. Tempor id eu nisl nunc mi ipsum faucibus vitae. Massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada proin. Tortor condimentum lacinia quis vel eros donec ac odio tempor. Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi tristique. Aliquet porttitor lacus luctus accumsan tortor posuere. Blandit massa enim nec dui nunc. Aliquam ut porttitor leo a diam. Morbi leo urna molestie at. Sapien faucibus et molestie ac feugiat sed.
-
-Sollicitudin aliquam ultrices sagittis orci a scelerisque. Et netus et malesuada fames ac turpis egestas integer. Lacus vel facilisis volutpat est velit egestas dui. Ultrices tincidunt arcu non sodales neque sodales ut. Risus nec feugiat in fermentum posuere urna nec tincidunt. Libero justo laoreet sit amet cursus sit. Augue ut lectus arcu bibendum at. Congue mauris rhoncus aenean vel elit scelerisque mauris. Diam quam nulla porttitor massa id neque aliquam vestibulum morbi. Commodo odio aenean sed adipiscing diam donec adipiscing tristique. Ultrices in iaculis nunc sed augue lacus. Diam volutpat commodo sed egestas. Et netus et malesuada fames ac. Lacus vestibulum sed arcu non.
-
-Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus at augue eget arcu dictum varius duis. Erat nam at lectus urna duis convallis convallis tellus id. A erat nam at lectus urna duis convallis convallis tellus. Turpis tincidunt id aliquet risus feugiat in ante metus dictum. Leo in vitae turpis massa sed elementum tempus egestas. Dolor magna eget est lorem. Mollis aliquam ut porttitor leo a diam sollicitudin tempor. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper malesuada. Mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare massa eget. Elementum pulvinar etiam non quam lacus suspendisse faucibus. Velit ut tortor pretium viverra suspendisse potenti nullam ac tortor. Adipiscing enim eu turpis egestas. Orci a scelerisque purus semper eget duis. Sed viverra ipsum nunc aliquet bibendum enim facilisis gravida neque.
-                   </div>
+                <div v-if="currentTab === 'terms'" class="w-full">
+                    <div class="mt-5 flex flex-col ">
+                        <div class="flex flex-row gap-2 items-center">
+                                <img     :src="
+                                            props.dorm.user.image ??
+                                            'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                        "
+                                        alt="Profile picture"
+                                        class="rounded-full w-32 h-32 bg-gray-100 dark:bg-slate-800"
+                                    />
+                                    <div>
+                                        <div class='mt-5 font-semibold text-lg text-gray-700'>
+                                            {{ props.dorm.user.first_name }}
+                                        </div>
+                                        <div class='mt-1 uppercase font-semibold text-sm text-gray-500'>
+                                            Memeber since: {{ formatDate(props.dorm.user.created_at) }}
+                                        </div>
+                                        <div class="flex flex-row gap-2">
+                                            <div class="flex justify-center md:block">
+                                            <div
+                                                class="inline-flex mt-2 items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 border-blue-500 text-white"
+                                            >
+                                                <span
+                                                    class="inline-flex justify-center items-center w-4 h-4 mr-2"
+                                                    ><svg
+                                                        viewBox="0 0 24 24"
+                                                        width="16"
+                                                        height="16"
+                                                        class="inline-block"
+                                                    >
+                                                        <path
+                                                            fill="currentColor"
+                                                            d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"
+                                                        ></path></svg></span
+                                                ><span>Verified</span>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                        
+                        </div>
+                        
+                        
+                        <div class="items-start justify-start mt-5">
+                            
+                        </div>
+                    </div>
                 </div>
+
                 <div
                     v-if="currentTab === 'details'"
-                    class="
-                        w-full
-                        grid
-                        grid-cols-1
-                        md:grid-cols-7
-                        md:gap-10
-                        mt-5
-                    "
+                    class="w-full grid grid-cols-1 md:grid-cols-7 md:gap-10 mt-5"
                 >
-                
                     <div className="col-span-4 flex flex-col gap-6">
-                        <div  className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2">
                             <div
                                 className="
                             text-xl
@@ -555,18 +605,16 @@ Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus a
                             gap-2
                         "
                             >
-                            
                                 <div>{{ props.dorm.property_name }}</div>
                             </div>
-                            <div
-                                className="flex flex-row items-center gap-1 "
-                            >
+                            <div className="flex flex-row items-center gap-1 ">
                                 <div
                                     className="text-md  text-neutral-600 font-semibold"
                                 ></div>
                                 <div className="font-light text-neutral-600">
-                                    {{ moneyFormat(props.dorm.range_from)}} -
-                                    {{ moneyFormat(props.dorm.range_to) }} a months
+                                    {{ moneyFormat(props.dorm.range_from) }} -
+                                    {{ moneyFormat(props.dorm.range_to) }} a
+                                    months
                                 </div>
                             </div>
                             <div
@@ -677,15 +725,172 @@ Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus a
                                 </span>
                             </div>
                         </div>
-                        
-                        
+
+                        <hr
+                            class="h-px bg-gray-200 border-0 dark:bg-gray-700"
+                        />
+                        <div class="w-full justify-start">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="align-middle text-3xl py-3 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                        >
+                                            <p>Reviews</p>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            class="align-middle whitespace-nowrap"
+                                        >
+                                            <div
+                                                class="bg-white w-full rounded-md shadow p-5"
+                                            >
+                                                <div
+                                                    class="flex flex-row gap-5 items-center"
+                                                >
+                                                    <img
+                                                        src="your-image-source.jpg"
+                                                        alt="Your Image"
+                                                        class="rounded-full shadow bg-black h-16 w-16 object-cover"
+                                                    />
+                                                    <div>
+                                                        <p
+                                                            class="uppercase font-semibold"
+                                                        >
+                                                            Jear
+                                                        </p>
+                                                        <div
+                                                            class="flex flex-row gap-2"
+                                                        >
+                                                            <div
+                                                                class="text-yellow-500"
+                                                            >
+                                                                <i
+                                                                    data-alt="1"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 1
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            1,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="2"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 2
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            2,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="3"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 3
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            3,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="4"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 4
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            4,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="5"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 5
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            5,
+                                                                    }"
+                                                                ></i>
+                                                                <!-- <input name="rating" type="hidden" value="5" /> -->
+                                                            </div>
+                                                            <p>*</p>
+                                                            <div>
+                                                                11/19/2023
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="mt-2 w-full mx-1 whitespace-normal"
+                                                >
+                                                    Lorem ipsum dolor sit amet,
+                                                    consectetur adipiscing elit,
+                                                    sed do eiusmod tempor
+                                                    incididunt ut labore et
+                                                    dolore magna aliqua.
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                                class="pt-5 border-t border-gray-100 dark:border-slate-800"
+                            >
+                                <div class="block w-full overflow-x-auto">
+                                    <div
+                                        class="justify-between items-center block md:flex"
+                                    >
+                                        <div
+                                            class="flex items-center justify-start flex-wrap mb-3"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!--MapBox-->
                     <div
                         className="order-last my-10 sm:my-0 md:order-last sm:col-span-3"
                     >
-                    <div class="w-full">
+                        <div class="w-full">
                             <p
                                 class="text-xl lg:text-3xl font-semibold flex flex-row mb-5 items-center gap-2"
                             >
@@ -707,7 +912,7 @@ Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus a
                                 />
                             </MapboxMap>
                         </div>
-                    <!--
+                        <!--
                         <div
                             class="flex items-center cursor-pointer hover:text-orange-400 justify-center mb-8"
                             v-if="
@@ -783,114 +988,6 @@ Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus a
                             </footer>
                         </div>-->
                     </div>
-                </div>
-                
-                <hr class="h-px mt-5 bg-gray-200 border-0 dark:bg-gray-700" />
-                <div class="w-full justify-start my-5">
-                
-                <table
-                            class="items-center w-full bg-transparent border-collapse"
-                        >
-                            <thead>
-                                <tr>
-                                    <th
-                                        class=" align-middle text-3xl  py-3 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                    >
-                                    <p>Reviews</p>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                >
-                                    <td
-                                        class="align-middle  whitespace-nowrap "
-                                    
-                                    >
-                                        <div class="bg-white w-full rounded-md shadow p-5">
-                                            <div class="flex flex-row gap-5 items-center">
-                                                <img src="your-image-source.jpg" alt="Your Image" class="rounded-full shadow bg-black h-16 w-16 object-cover" />
-                                                <div>
-                                                    <p class="uppercase font-semibold">Jear</p>
-                                                    <div class="flex flex-row gap-2">
-                                                        <div class="text-yellow-500">
-                                                            <i
-                                                                data-alt="1"
-                                                                class="fas fa-star active"
-                                                                title=""
-                                                                @click="rating = 1"
-                                                                :class="{'text-yellow-500': rating == 1}"
-                                                            ></i
-                                                            >&nbsp;<i
-                                                                data-alt="2"
-                                                                class="fas fa-star active"
-                                                                title=""
-                                                                @click="rating = 2"
-                                                                :class="{'text-yellow-500': rating == 2}"
-                                                            ></i
-                                                            >&nbsp;<i
-                                                                data-alt="3"
-                                                                class="fas fa-star active"
-                                                                title=""
-                                                                @click="rating = 3"
-                                                                :class="{'text-yellow-500': rating == 3}"
-                                                            ></i
-                                                            >&nbsp;<i
-                                                                data-alt="4"
-                                                                class="fas fa-star active"
-                                                                title=""
-                                                                @click="rating = 4"
-                                                                :class="{'text-yellow-500': rating == 4}"
-                                                            ></i
-                                                            >&nbsp;<i
-                                                                data-alt="5"
-                                                                class="fas fa-star active"
-                                                                title=""
-                                                                @click="rating = 5"
-                                                                :class="{'text-yellow-500': rating == 5}"
-                                                            ></i
-                                                            >
-                                                            <!-- <input name="rating" type="hidden" value="5" /> -->
-                                                        </div>
-                                                        <p>*</p>
-                                                        <div>
-                                                            11/19/2023
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mt-2 w-full mx-1 whitespace-normal">
-                                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div
-                            class="pt-5 border-t border-gray-100 dark:border-slate-800"
-                        >
-                        <div class="block w-full overflow-x-auto">
-                                <div class="justify-between items-center block md:flex">
-                                    <div class="flex items-center justify-start flex-wrap mb-3">
-                                    <button
-                                        type="button"
-                                        class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-
-                                    >
-                                        Previous
-                                    </button>
-                                    <button
-                                        class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-
-                                    >
-                                        Next
-                                    </button>
-                                    </div>
-                                </div>
-                           
-                            </div>
-                        </div>
                 </div>
 
                 <!--Room modal-->
@@ -977,42 +1074,46 @@ Rutrum tellus pellentesque eu tincidunt tortor aliquam nulla facilisi. Vivamus a
                                 </div>
                             </div>
 
-                        <div
-                            class="w-full flex justify-center items-center mt-10"
-                        >
-                            <button
-                                class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
-                                @click="redirectToBillingInfo(room, 'reserve')"
-                                :class="{
-                                    'cursor-not-allowed': !room.is_available,
-                                }"
-                                :disabled="!room.is_available"
-                                v-if="user.is_approved && !hasApplication"
+                            <div
+                                class="w-full flex justify-center items-center mt-10"
                             >
-                                Reserve
-                            </button>
+                                <button
+                                    class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
+                                    @click="
+                                        redirectToBillingInfo(room, 'reserve')
+                                    "
+                                    :class="{
+                                        'cursor-not-allowed':
+                                            !room.is_available,
+                                    }"
+                                    :disabled="!room.is_available"
+                                    v-if="user.is_approved && !hasApplication"
+                                >
+                                    Reserve
+                                </button>
 
-                            <button
-                                class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
-                                @click="redirectToBillingInfo(room, 'rent')"
-                                :class="{
-                                    'cursor-not-allowed': !room.is_available ,
-                                }"
-                                :disabled="!room.is_available"
-                                v-if="user.is_approved && !hasApplication"
-                            >
-                                Rent
-                            </button>
+                                <button
+                                    class="text-md bg-cyan-500 text-white mx-2 p-5 rounded-md"
+                                    @click="redirectToBillingInfo(room, 'rent')"
+                                    :class="{
+                                        'cursor-not-allowed':
+                                            !room.is_available,
+                                    }"
+                                    :disabled="!room.is_available"
+                                    v-if="user.is_approved && !hasApplication"
+                                >
+                                    Rent
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             </div>
         </div>
     </div>
 </template>
 
-<style >
+<style>
 .room-image {
     width: 100%;
     height: 200px;
@@ -1038,7 +1139,7 @@ hr {
 
 .roomModal {
     display: none;
-    position: fixed;/* Sit on top */
+    position: fixed; /* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;

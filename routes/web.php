@@ -119,6 +119,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     Route::prefix('owner')->group(function () {
         Route::get('/dorms', [OwnerController::class, 'dormList'])->name('owner.dorms');
         Route::get('/applicationmodule', [OwnerController::class, 'applications'])->name('owner.manage.application');
+        Route::get('/reservation', [OwnerController::class, 'reservation'])->name('owner.manage.reservation');
         Route::get('/tenants', [OwnerController::class, 'tenants'])->name('owner.manage.tenants');
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
@@ -144,6 +145,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/paymongo/success', [TenantController::class, 'successPage']);
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
         Route::get('/mydorm', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
+        Route::get('/myreservation', [TenantController::class, 'myreservation'])->name('tenant.reservation');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
         Route::get('/billing-info/{param}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
         // Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');

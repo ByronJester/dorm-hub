@@ -44,6 +44,14 @@ class TenantController extends Controller
         ]);
     }
 
+    public function myreservation()
+    {   $auth = Auth::user();
+
+
+        return Inertia::render('Tenant/MyReservation', [
+        ]);
+    }
+
 
     public function paymentList()
     {

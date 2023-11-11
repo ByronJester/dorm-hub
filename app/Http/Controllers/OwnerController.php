@@ -65,6 +65,23 @@ class OwnerController extends Controller
         ]);
     }
 
+    public function reservation()
+    {
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            return redirect()->route('owner.addDorm');
+        }
+        $reservations = TenantApplication::with('reservation')
+            ->where('status', 'reserve')->get();
+
+
+        return Inertia::render('Owner/Reservation', [
+            'reservations' => $reservations
+
+        ]);
+    }
+
     public function tenants()
     {
         $auth = Auth::user();
