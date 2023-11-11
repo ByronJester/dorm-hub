@@ -14,28 +14,25 @@ export default{
 <template>
     <AuthenticatedLayout>
         <div class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
-            <p class="font-bold text-gray-900 text-2xl">My Reservation</p>
-            <div class="mt-10" v-if="myDorm">
+            <div
+                className="
+                        max-w-screen-lg
+                        mx-auto
+                        "
+            ><p class="font-bold text-gray-900 text-2xl">My Reservation</p>
+            <div class="mt-10">
                     <!--Dorm name-->
                     <div class="flex justify-between items-center">
-                        <h3 class="text-2xl font-bold">{{ myDorm.dorm.property_name }}</h3>
-                        <button
-                            class="py-1 px-4 text-white rounded-md bg-red-600"
-                            @click="openLeaveModal()"
-                            :disabled="myDorm.status == 'pending_move_out'"
-                            :class="{'cursor-not-allowed': myDorm.status == 'pending_move_out'}"
-                        >
-                            Moved-out
-                        </button>
+                        <h3 class="text-2xl font-bold">Dorm 1</h3>
                     </div>
-                    <p>{{ myDorm.dorm.detailed_address }}</p>
+                    <p>Caloocan balayan</p>
                     <div
                         className="col-span-2 flex mt-5 flex-col md:flex-row gap-8"
                     >
                         <div>
                             <div class="md:col-span-3">
                                 <img
-                                    :src="myDorm.dorm.dorm_image"
+                                    alt="dormimage"
                                     style="
                                         display: block;
                                         box-sizing: border-box;
@@ -52,11 +49,11 @@ export default{
                             <div
                                 className="bg-white rounded-xl border-[1px] w-full h-full shadow-lg p-4 border-neutral-200 overflow-hidden"
                             >
-                                <h5 class="text-2xl font-bold">{{ myDorm.room.name }}</h5>
+                                <h5 class="text-2xl font-bold">Room 1</h5>
                                 <hr class="w-full my-2" />
                                 <!--Room Image-->
                                 <img
-                                    :src="myDorm.room.image"
+                                    alt="room1"
                                     style="
                                         display: block;
                                         box-sizing: border-box;
@@ -65,8 +62,7 @@ export default{
                                     width="882"
                                     height="404"
                                 />
-                                <!--Price ng room-->
-                                <p class="mt-2">{{ myDorm.room.fee }}</p>
+                                
                                 <!--Features ng room-->
                                 <div class="flex flex-row mt-1 gap-2">
                                     <svg
@@ -120,11 +116,11 @@ export default{
                                             stroke-linejoin="round"
                                         />
                                     </svg>
-                                    <p>{{ myDorm.room.is_aircon == "Yes" ? "Airconditioned" : "Aircon not Available" }}</p>
+                                    <p>Aircon</p>
                                 </div>
                                 <div class="flex flex-row mt-1 gap-2">
                                     <i class="fa-solid fa-users"></i>
-                                    <p>{{ myDorm.room.type_of_room }}</p>
+                                    <p>Room for 1</p>
                                 </div>
                                 <div class="flex flex-row mt-1 gap-2">
                                     <svg
@@ -180,12 +176,44 @@ export default{
                                             </g>
                                         </g>
                                     </svg>
-                                    <p>{{ myDorm.room.furnished_type }}</p>
+                                    <p>Bare</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 mt-5 gap-5 ">
+                    <div class="rounded-lg  border-[1px] bg-white shadow-lg p-5">
+                        <p class="text-xl font-bold text-gray-900 mb-3">Reservation Details</p>
+                        <div>
+                            <p>Reservation fee:</p>
+                            <p>Visit Date:</p>
+                            <p>Visit Time:</p>
+                            <p>Reservation ends:</p>
+                            <p>Days Remaining:</p>
+                        </div>
+                    </div>
+                    <div class="rounded-lg  border-[1px] bg-white shadow-lg p-5">
+                        <div class="flex flex-row items-center gap-3 mb-3">
+                            <p class="text-xl font-bold text-gray-900 ">Cancellation Policy</p>
+                            <p class="px-5 py-2 rounded-full text-xs text-gray-600 bg-gray-100">Non-refundable</p>
+                        </div>
+                        
+                        <div>
+                            <p>If you cancel your reservation you will not get a refund</p>
+                        </div>
+                        <button class="py-2 px-5 rounded-full bg-red-500 text-white font-semibold mt-5">
+                            Cancel Reservation
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="mt-10">
+                No reservation
+            </div>
+            
         </div>
     </AuthenticatedLayout>
 </template>
