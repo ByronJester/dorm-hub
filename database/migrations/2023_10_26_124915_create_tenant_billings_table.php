@@ -13,18 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tenant_billings', function (Blueprint $table) {
+        Schema::create('billings', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('tenant')->unsigned()->comment('Foreign key from table users');
-            $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table tenants');
+            $table->bigInteger('tenant_id')->nullable()->comment('Foreign key from table tenants');
+            $table->bigInteger('reservation_id')->nullable()->comment('Foreign key from table reservations');
+            $table->bigInteger('user_id')->nullable()->comment('Foreign key from table users');
             $table->float('amount')->default(0);
             $table->string('subject')->nullable();
             $table->longText('description')->nullable();
             $table->date('date')->nullable();
             $table->boolean('is_paid')->default(false);
 
-            $table->foreign('tenant')->references('id')->on('users');
-            $table->foreign('tenant_id')->references('id')->on('tenants');
             $table->timestamps();
         });
     }
@@ -36,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tenant_billings');
+        Schema::dropIfExists('billings');
     }
 };

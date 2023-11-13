@@ -10,7 +10,7 @@ class Room extends Model
     use HasFactory;
 
     protected $fillable = [
-        'dorm_id', 'type_of_room', 'is_aircon', 'furnished_type', 'image'
+        'dorm_id', 'type_of_room', 'is_aircon', 'furnished_type', 'image', 'status'
     ];
 
     protected $appends = [

@@ -14,13 +14,18 @@ export default {
     setup() {
         const page = usePage();
         const user = page.props.auth.user;
-        const options = ["Bank Transfer", "Online Payment"];
 
         const dorm = page.props.dorm;
         const room = page.props.room;
         const action = page.props.action;
         const hasExistingApplication = page.props.hasExistingApplication;
         const hasExistingReservation = page.props.hasExistingReservation;
+
+        const options = ref(["Bank Transfer", "Online Payment"]);
+
+        if(action == 'reserve') {
+            options.value = ["Online Payment"];
+        }
 
         onMounted(() => {
             const startDate = new Date();
@@ -125,11 +130,11 @@ export default {
                             );
 
                             setTimeout(function () {
-                                location.reload();
+                                router.get(route("landing.page"));
                             }, 3000);
                         })
                         .catch((error) => {
-                            errors.value = error.response.data.errors;
+
                         });
                 }
             );
@@ -165,7 +170,6 @@ export default {
                     axios
                         .post(route("reserve.room"), request)
                         .then((response) => {
-                            console.log(response.data.payment_method);
                             if (
                                 response.data.payment_method == "Online Payment"
                             ) {
@@ -179,7 +183,7 @@ export default {
                                 );
 
                                 setTimeout(function () {
-                                    location.reload();
+                                    router.get(route("landing.page"));
                                 }, 3000);
                             }
                         })

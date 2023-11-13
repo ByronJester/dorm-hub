@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TenantComplaint extends Model
+class Billing extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'subject', 'complain', 'tenant_id'
+        'tenant_id', 'reservation_id', 'amount', 'subject', 'description',
+        'date', 'is_paid', 'user_id'
     ];
 }

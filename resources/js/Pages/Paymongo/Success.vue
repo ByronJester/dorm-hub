@@ -22,6 +22,9 @@ export default {
         const owner = ref()
         const source = ref()
         const captureDiv = ref(null);
+        const tenant = ref(null)
+        const invoice = ref(null)
+        const description = ref(null)
 
         const captureAsImage = () => {
         if (captureDiv.value) {
@@ -41,6 +44,12 @@ export default {
             amount.value = page.props.amount
             owner.value = page.props.owner
             source.value = page.props.source
+            tenant.value = page.props.tenant
+            invoice.value = page.props.invoice
+            description.value = page.props.description
+
+
+            console.log(page.props)
         });
 
         return {
@@ -49,6 +58,9 @@ export default {
             amount,
             owner,
             source,
+            tenant,
+            invoice,
+            description,
             captureDiv,
             captureAsImage
         }
@@ -65,14 +77,13 @@ export default {
                 <h1 class="text-lg font-bold">Receipt</h1>
                 <div class="text-gray-700">
                     <div>Date: {{ new Date().toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) }}</div>
-                    <div>Invoice #: <span></span></div>
+                    <div>Invoice #: {{ invoice }}<span></span></div>
                 </div>
             </div>
             <div class="mb-8">
                 <h2 class="text-lg font-bold mb-4">Paid by:</h2>
-                <div class="text-gray-700 mb-2" v-if="owner">Tenant name</div>
-                <div class="text-gray-700 mb-2">Method</div>
-                <div class="text-gray-700">contact no.</div>
+                <div class="text-gray-700 mb-2">{{ tenant ? tenant.name : '' }}</div>
+                <div class="text-gray-700">{{ tenant ? tenant.phone_number : '' }}</div>
             </div>
             <table class="w-full mb-8">
                 <thead>
@@ -83,14 +94,14 @@ export default {
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="text-left text-gray-700">Monthly Rent</td>
+                        <td class="text-left text-gray-700">{{ description }}</td>
                         <td class="text-right text-gray-700">₱ {{ parseFloat(amount).toFixed(2) }}</td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
                         <td class="text-left font-bold text-gray-700">Total</td>
-                        <td class="text-right font-bold text-gray-700">P1,200.00</td>
+                        <td class="text-right font-bold text-gray-700">₱ {{ parseFloat(amount).toFixed(2) }}</td>
                     </tr>
                 </tfoot>
             </table>

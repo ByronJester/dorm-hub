@@ -53,10 +53,8 @@ export default {
 
         const currentRating = ref()
         currentRating.value = page.props.rating
-        const rating = ref(0)
-        rating.value = currentRating.value.rate
-        const comment = ref(null)
-        comment.value = currentRating.value.comment
+        const rating = ref(currentRating.value ? currentRating.value.rate : 0)
+        const comment = ref(currentRating.value ? currentRating.value.comment : null)
 
 
         const submitRatings = () => {
@@ -188,6 +186,10 @@ export default {
             });
         }
 
+        const rateDorm = (r) => {
+            rating.value = r
+        }
+
         return {
             headers,
             date,
@@ -213,7 +215,10 @@ export default {
             complain,
             submitComplain,
             complaints,
-            moveOut
+            moveOut,
+            rateDorm,
+            rating,
+            comment
         };
     },
 };
@@ -433,35 +438,35 @@ export default {
                                 data-alt="1"
                                 class="fas fa-star active"
                                 title=""
-                                @click="rating = 1"
+                                @click="rateDorm(1)"
                                 :class="{'text-yellow-500': rating == 1}"
                             ></i
                             >&nbsp;<i
                                 data-alt="2"
                                 class="fas fa-star active"
                                 title=""
-                                @click="rating = 2"
+                                @click="rateDorm(2)"
                                 :class="{'text-yellow-500': rating == 2}"
                             ></i
                             >&nbsp;<i
                                 data-alt="3"
                                 class="fas fa-star active"
                                 title=""
-                                @click="rating = 3"
+                                @click="rateDorm(3)"
                                 :class="{'text-yellow-500': rating == 3}"
                             ></i
                             >&nbsp;<i
                                 data-alt="4"
                                 class="fas fa-star active"
                                 title=""
-                                @click="rating = 4"
+                                @click="rateDorm(4)"
                                 :class="{'text-yellow-500': rating == 4}"
                             ></i
                             >&nbsp;<i
                                 data-alt="5"
                                 class="fas fa-star active"
                                 title=""
-                                @click="rating = 5"
+                                @click="rateDorm(5)"
                                 :class="{'text-yellow-500': rating == 5}"
                             ></i
                             >

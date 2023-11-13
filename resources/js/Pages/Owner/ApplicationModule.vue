@@ -197,11 +197,32 @@
 
             }
 
+            const formatDate = (d) => {
+                const date = new Date(d); // Your date object
+
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }
+
+                return date.toLocaleDateString('en-US', options);
+            }
+
+            const formatTime = (t) => {
+                // Creating a date object without specifying the date
+                const date = new Date(`2000-01-01T${t}`);
+
+                const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+
+                return date.toLocaleTimeString('en-US', options);
+            }
+
 
 
             var dataReserve = [];
 
-            const headersReserve = ["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"];
+            const headersReserve = ["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit"];
 
             const reservations = page.props.reservations;
 
@@ -210,12 +231,9 @@
                     {
                         dorm_name: reservations[x].dorm.property_name,
                         room_name: reservations[x].room.name,
-                        tenant_name: reservations[x].tenant.name,
-                        visit_date: reservations[x].check_date,
-                        time_visit: reservations[x].check_time,
-                        payment_method: reservations[x].reservation_payment.payment_method,
-                        status: reservations[x].status,
-                        action: reservations[x]
+                        tenant_name: reservations[x].tenant_user.name,
+                        visit_date: formatDate(reservations[x].check_date),
+                        time_visit: formatTime(reservations[x].check_time),
                     }
                 );
             }
@@ -224,7 +242,7 @@
             const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
             const currentPageReserve = ref(1); // Initialize to the first page
 
-            
+
             const filteredDataReserve = computed(() => {
                 const query = searchQueryReserve.value.toLowerCase().trim();
                 if (!query) {
@@ -272,8 +290,8 @@
                     tenant_name: applications[y].tenant.name,
                     source_of_income: applications[y].tenant.income_information.source_of_income,
                     monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
-                    move_in: !applications[y].move_in ? 'N/A' : applications[y].move_in,
-                    move_out: !applications[y].move_out ? 'N/A' : applications[y].move_out,
+                    move_in: !applications[y].move_in ? 'N/A' : formatDate(applications[y].move_in),
+                    move_out: !applications[y].move_out ? 'N/A' : formatDate(applications[y].move_out),
                     status: applications[y].status,
                     action: applications[y]
                 });
@@ -393,11 +411,10 @@
             const approveApplication = (arg) => {
                 const data = {
                     tenant_id: arg.tenant_id,
-                    tenant_application_id: arg.id,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    phone_number: user.phone_number,
-                    room_id: arg.room_id
+                    owner_id: arg.owner_id,
+                    dorm_id: arg.dorm_id,
+                    room_id: arg.room_id,
+                    move_in: arg.move_in
                 }
 
                 swal({
@@ -433,7 +450,7 @@
                     closeOnConfirm: false
                 },
                 function(){
-                    axios.post(route('decline.application', arg.id), {})
+                    axios.post(route('decline.application', arg.id), {room_id: arg.room_id})
                         .then(response => {
                             swal("Success!", `You successfully declined this application.`, "success");
 
@@ -484,7 +501,9 @@
                 approveReservation,
                 declineReservation,
                 approveApplication,
-                declineApplication
+                declineApplication,
+                formatDate,
+                formatTime
             }
         }
     }
@@ -503,7 +522,7 @@
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
             <div>
             <label for="divSelector">Select a table:</label>
-            <select v-model="selectedContent" id="divSelector" class="ml-4 rounded-md border-gray-200 cursor-pointer"> 
+            <select v-model="selectedContent" id="divSelector" class="ml-4 rounded-md border-gray-200 cursor-pointer">
                 <option value="applicants">Rent Applicants</option>
                 <option value="reservations">Reservation Applicants</option>
             </select>
@@ -595,7 +614,7 @@
                                         <th
                                             class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                         >
-                                            Proof of income
+                                            Action
                                         </th>
                                     </tr>
                                 </thead>
@@ -620,7 +639,15 @@
                                                 <AppDropdownContent class="bg-white z-50">
 
                                                     <AppDropdownItem>
-                                                        <button class="w-full"  @click="openProofModal(value)">View</button>
+                                                        <button class="w-full"  @click="openProofModal(value)">View Proof of Income</button>
+                                                    </AppDropdownItem>
+
+                                                    <AppDropdownItem v-if="!value.is_approved">
+                                                        <button class="w-full"  @click="approveApplication(value)">Approve Application</button>
+                                                    </AppDropdownItem>
+
+                                                    <AppDropdownItem v-if="!value.is_approved">
+                                                        <button class="w-full"  @click="declineApplication(value)">Decline Application</button>
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
                                             </AppDropdown>
@@ -753,11 +780,6 @@
                                         >
                                             {{ header }}
                                         </th>
-                                        <th
-                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                        >
-                                            Actions
-                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -876,7 +898,7 @@
                                     <img :src="selectedApplication.tenant.income_information.proof" class="w-full h-[300px]"/>
                                 </div>
                                 <!-- Modal footer -->
-                                <div
+                                <!-- <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
@@ -896,7 +918,7 @@
                                         Approve
                                     </button>
 
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>

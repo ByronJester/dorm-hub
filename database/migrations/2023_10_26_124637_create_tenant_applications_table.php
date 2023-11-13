@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tenant_applications', function (Blueprint $table) {
+        Schema::create('applications', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('owner_id')->unsigned()->comment('Foreign key from table users');
             $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table users');
@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('status');
             $table->date('move_in')->nullable();
             $table->boolean('is_approved')->default(false);
+            $table->boolean('is_active')->default(true);
 
             $table->foreign('owner_id')->references('id')->on('users');
             $table->foreign('tenant_id')->references('id')->on('users');
@@ -38,6 +39,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tenant_applications');
+        Schema::dropIfExists('applications');
     }
 };

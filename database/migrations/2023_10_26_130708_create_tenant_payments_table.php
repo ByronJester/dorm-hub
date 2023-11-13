@@ -13,26 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tenant_payments', function (Blueprint $table) {
+        Schema::create('user_payments', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('tenant')->unsigned()->comment('Foreign key from table users');
-            $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table tenants');
-            $table->bigInteger('tenant_billing_id')->unsigned()->comment('Foreign key from table tenant_billings');
-            $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
-            $table->bigInteger('room_id')->unsigned()->comment('Foreign key from table rooms');
-            $table->float('amount')->default(0);
-            $table->string('category', 100)->nullable();
+            $table->bigInteger('tenant_id')->nullable()->comment('Foreign key from table tenants');
+            $table->bigInteger('reservation_id')->nullable()->comment('Foreign key from table reservations');
+            $table->bigInteger('user_id')->nullable()->comment('Foreign key from table users');
+            $table->bigInteger('billing_id');
             $table->string('payment_method', 100)->nullable();
             $table->string('proof_of_payment', 100)->nullable();
             $table->string('status', 30)->default('pending');
-            $table->date('date')->nullable();
             $table->longText('description')->nullable();
+            $table->date('date')->nullable();
 
-            $table->foreign('tenant')->references('id')->on('users');
-            $table->foreign('tenant_id')->references('id')->on('tenants');
-            $table->foreign('tenant_billing_id')->references('id')->on('tenant_billings');
-            $table->foreign('dorm_id')->references('id')->on('dorms');
-            $table->foreign('room_id')->references('id')->on('rooms');
             $table->timestamps();
         });
     }
@@ -44,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tenant_payments');
+        Schema::dropIfExists('user_payments');
     }
 };
