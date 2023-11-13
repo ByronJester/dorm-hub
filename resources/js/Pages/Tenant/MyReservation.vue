@@ -1,12 +1,132 @@
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import { usePage, useForm, router } from '@inertiajs/vue3'
+import { ref, reactive, watch, onMounted, computed } from 'vue';
+import { MapboxMap, MapboxMarker } from '@studiometa/vue-mapbox-gl';
+import ApplicationLogo from '@/Components/ApplicationLogo.vue'
+import 'mapbox-gl/dist/mapbox-gl.css';
+import axios from 'axios';
+import html2canvas from 'html2canvas';
 
 export default{
     components:{
         AuthenticatedLayout,
     },
     setup(){
+        const page = usePage();
 
+        const reservation = page.props.reservation
+
+        console.log(reservation)
+
+        const formatDate = (d) => {
+            const date = new Date(d); // Your date object
+
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            }
+
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        const formatTime = (t) => {
+            // Creating a date object without specifying the date
+            const date = new Date(`2000-01-01T${t}`);
+
+            const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+
+            return date.toLocaleTimeString('en-US', options);
+        }
+
+        const getDaysRemaining = (reservation_date, expired_date) => {
+            const date1 = new Date(reservation_date);
+            const date2 = new Date(expired_date);
+
+            // To calculate the time difference
+            const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+
+            // Convert time difference to days
+            return Math.ceil(timeDiff / (1000 * 3600 * 24));
+        }
+
+        const cancelReservation = () => {
+            swal(
+                {
+                    title: `Are you sure to cancel this reservation?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("cancel.reservation"), {reservation_id: reservation.id})
+                        .then((response) => {
+                            swal(
+                                "Reservation",
+                                `You sucessfully cancel this reservation`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        }
+
+        const move_in = ref();
+
+        const rentNow = () => {
+            swal(
+                {
+                    title: `Are you sure to rent this room?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("rent.now"), {
+                            "owner_id" : reservation.owner,
+                            "tenant_id" : reservation.tenant,
+                            "dorm_id": reservation.dorm_id,
+                            "room_id": reservation.room_id,
+                            "move_in": move_in.value,
+                            "reservation_id" : reservation.id
+                        })
+                        .then((response) => {
+                            swal(
+                                "Rent",
+                                `You sucessfully rent this room.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        }
+
+        return {
+            reservation,
+            formatDate,
+            formatTime,
+            getDaysRemaining,
+            cancelReservation,
+            rentNow,
+            move_in
+        }
     }
 }
 
@@ -19,13 +139,13 @@ export default{
                         max-w-screen-lg
                         mx-auto
                         "
-            ><p class="font-bold text-gray-900 text-2xl">My Reservation</p>
-            <div class="mt-10">
+            ><p class="font-bold text-gray-900 text-2xl" v-if="reservation">My Reservation</p>
+            <div class="mt-10" v-if="reservation">
                     <!--Dorm name-->
                     <div class="flex justify-between items-center">
-                        <h3 class="text-2xl font-bold">Dorm 1</h3>
+                        <h3 class="text-2xl font-bold">{{ reservation.dorm.property_name }}</h3>
                     </div>
-                    <p>Caloocan balayan</p>
+                    <p>{{ reservation.dorm.detailed_address }}</p>
                     <div
                         className="col-span-2 flex mt-5 flex-col md:flex-row gap-8"
                     >
@@ -42,6 +162,7 @@ export default{
                                     class="rounded-md shadow-md"
                                     width="882"
                                     height="404"
+                                    :src="reservation.dorm.dorm_image"
                                 />
                             </div>
                         </div>
@@ -49,7 +170,7 @@ export default{
                             <div
                                 className="bg-white rounded-xl border-[1px] w-full h-full shadow-lg p-4 border-neutral-200 overflow-hidden"
                             >
-                                <h5 class="text-2xl font-bold">Room 1</h5>
+                                <h5 class="text-2xl font-bold">{{ reservation.room.name }}</h5>
                                 <hr class="w-full my-2" />
                                 <!--Room Image-->
                                 <img
@@ -61,8 +182,9 @@ export default{
                                     class="rounded-md shadow-md w-[350px] h-[200px]"
                                     width="882"
                                     height="404"
+                                    :src="reservation.room.image"
                                 />
-                                
+
                                 <!--Features ng room-->
                                 <div class="flex flex-row mt-1 gap-2">
                                     <svg
@@ -116,11 +238,11 @@ export default{
                                             stroke-linejoin="round"
                                         />
                                     </svg>
-                                    <p>Aircon</p>
+                                    <p>{{ reservation.room.is_aircon == 'Yes' ? 'Aircondition' : 'Not Aircondition'}}</p>
                                 </div>
                                 <div class="flex flex-row mt-1 gap-2">
                                     <i class="fa-solid fa-users"></i>
-                                    <p>Room for 1</p>
+                                    <p>{{reservation.room.type_of_room }}</p>
                                 </div>
                                 <div class="flex flex-row mt-1 gap-2">
                                     <svg
@@ -176,21 +298,31 @@ export default{
                                             </g>
                                         </g>
                                     </svg>
-                                    <p>Bare</p>
+                                    <p>{{reservation.room.furnished_type }}</p>
+                                </div>
+                                <div>
+                                    <input type="date" class="rounded-md mr-2" v-model="move_in"/>
+
+                                    <button class="py-2 px-5 rounded-md bg-orange-400 text-white font-semibold mt-5"
+                                        @click="rentNow()"
+                                    >
+                                        Rent Now
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="w-full grid grid-cols-1 md:grid-cols-2 mt-5 gap-5 ">
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 mt-5 gap-5 " v-if="reservation">
                     <div class="rounded-lg  border-[1px] bg-white shadow-lg p-5">
                         <p class="text-xl font-bold text-gray-900 mb-3">Reservation Details</p>
                         <div>
-                            <p>Reservation fee:</p>
-                            <p>Visit Date:</p>
-                            <p>Visit Time:</p>
-                            <p>Reservation ends:</p>
-                            <p>Days Remaining:</p>
+                            <p>Reservation Fee: ₱ 300</p>
+                            <p>Visit Date: {{ formatDate(reservation.check_date) }}</p>
+                            <p>Visit Time: {{ formatTime(reservation.check_time) }}</p>
+                            <p>Reservation Date: {{ formatDate(reservation.created_at) }}</p>
+                            <p>Reservation ends: {{ formatDate(reservation.expired_at) }}</p>
+                            <p>Remaining: {{ getDaysRemaining(reservation.created_at, reservation.expired_at) }} day(s)</p>
                         </div>
                     </div>
                     <div class="rounded-lg  border-[1px] bg-white shadow-lg p-5">
@@ -198,22 +330,24 @@ export default{
                             <p class="text-xl font-bold text-gray-900 ">Cancellation Policy</p>
                             <p class="px-5 py-2 rounded-full text-xs text-gray-600 bg-gray-100">Non-refundable</p>
                         </div>
-                        
+
                         <div>
                             <p>If you cancel your reservation you will not get a refund</p>
                         </div>
-                        <button class="py-2 px-5 rounded-full bg-red-500 text-white font-semibold mt-5">
+                        <button class="py-2 px-5 rounded-full bg-red-500 text-white font-semibold mt-5"
+                            @click="cancelReservation()"
+                        >
                             Cancel Reservation
                         </button>
                     </div>
-                    
+
                 </div>
             </div>
 
-            <div class="mt-10">
-                No reservation
+            <div class="pt-[15vw] text-center text-6xl" v-if="!reservation">
+                NO RESERVATION
             </div>
-            
+
         </div>
     </AuthenticatedLayout>
 </template>

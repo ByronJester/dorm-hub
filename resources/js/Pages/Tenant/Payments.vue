@@ -76,6 +76,10 @@ export default {
         var data = [];
 
         const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
+            }
+
             const stringWithSpaces = inputString.replace(/_/g, ' ');
 
             // Split the string by spaces
@@ -98,8 +102,8 @@ export default {
                     // id: payments[p].id,
                     date: payments[p].display_date,
                     payment_method: payments[p].payment_method,
-                    amount: payments[p].amount,
-                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].category),
+                    amount: payments[p].billing.amount,
+                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].description),
                     status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
                     receipt: '',
                     action: payments[p]
@@ -107,12 +111,12 @@ export default {
             )
         }
         //
-        
+
             const searchQuery = ref("");
             const itemsPerPage = 5; // Set the maximum number of items per page to 10
             const currentPage = ref(1); // Initialize to the first page
 
-            
+
             const filteredData = computed(() => {
                 const query = searchQuery.value.toLowerCase().trim();
                 if (!query) {
@@ -173,13 +177,11 @@ export default {
         const proceedPayment = () => {
             const data = {
                 id: selectedBill.value.id,
-                tenant_billing_id: selectedBill.value.tenant_billing_id,
-                amount: selectedBill.value.amount,
+                billing_id: selectedBill.value.billing_id,
+                amount: selectedBill.value.billing.amount,
                 payment_method: payment_method.value,
                 proof_of_payment: proof_of_payment.value
             }
-
-            console.log(data)
 
             swal(
                 {
@@ -371,7 +373,7 @@ export default {
                 </div>
 
                 <div class="flex-1 shadow-lg rounded-lg p-6">
-                   
+
                     <div class="md:flex md:justify-between md:items-center">
                         <div class="md:flex md:items-center">
                             <div
@@ -485,8 +487,8 @@ export default {
                                                         </p>
 
                                                         <div v-if="colIndex == 'receipt'">
-                                                            <img v-if="value != null"
-                                                                :src="value"
+                                                            <img v-if="value.proof_of_payment != null"
+                                                                :src="value.proof_of_payment"
                                                                 class="w-[100px] h-[100px]"
                                                             />
                                                         </div>
@@ -509,7 +511,7 @@ export default {
                         <div class="block w-full overflow-x-auto">
                                 <div class="justify-between items-center block md:flex">
                                     <div class="flex items-center justify-start flex-wrap mb-3">
-                                    <button                                        
+                                    <button
                                         @click="changePage(-1)"
                                         :disabled="currentPage == 1"
                                         :class="{
@@ -535,7 +537,7 @@ export default {
                                     <small>Page {{ currentPage }}</small>
                                     </div>
                                 </div>
-                           
+
                             </div>
                         </div>
                                     </div>
@@ -561,7 +563,7 @@ export default {
                                 style="border: 1px solid black"
                             >
                                 <span class="text-2xl">
-                                    {{ selectedBill ? moneyFormat(selectedBill.amount) : 0.00 }}
+                                    {{ selectedBill ? moneyFormat(selectedBill.billing.amount) : 0.00 }}
                                 </span>
                             </div>
 

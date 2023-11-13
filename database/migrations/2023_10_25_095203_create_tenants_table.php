@@ -13,19 +13,23 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('applications', function (Blueprint $table) {
+        Schema::create('tenants', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('owner_id')->unsigned()->comment('Foreign key from table users');
-            $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table users');
+            $table->bigInteger('owner')->unsigned()->comment('Foreign key from table users');
+            $table->bigInteger('tenant')->unsigned()->comment('Foreign key from table users');
             $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
             $table->bigInteger('room_id')->unsigned()->comment('Foreign key from table rooms');
             $table->string('status');
             $table->date('move_in')->nullable();
-            $table->boolean('is_approved')->default(false);
+            $table->date('move_out')->nullable();
+            $table->longText('reason')->nullable();
+            $table->longText('reason_description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('auto_bill')->default(false);
+            $table->date('auto_bill_date')->nullable();
 
-            $table->foreign('owner_id')->references('id')->on('users');
-            $table->foreign('tenant_id')->references('id')->on('users');
+            $table->foreign('owner')->references('id')->on('users');
+            $table->foreign('tenant')->references('id')->on('users');
             $table->foreign('dorm_id')->references('id')->on('dorms');
             $table->foreign('room_id')->references('id')->on('rooms');
             $table->timestamps();
@@ -39,6 +43,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('applications');
+        Schema::dropIfExists('tenants');
     }
 };

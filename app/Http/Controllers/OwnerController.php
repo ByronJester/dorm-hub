@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification,
-        TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
+        // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -44,18 +45,12 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
-        $applications = TenantApplication::where('is_active', true)
-            ->where('status', 'rent')
-            // ->where(function ($query) {
-            //     $query->whereDoesntHave('reservation')
-            //         ->orWhereHas('reservation', function ($subQuery) {
-            //             $subQuery->where('is_approved', true);
-            //         });
-            // })
-            ->get();
+        $applications = Application::with(['dorm', 'room', 'owner', 'tenant'])
+            ->where('owner_id', $auth->id)->where('is_active', true)->get();
 
-        $reservations = TenantApplication::with('reservation')
-            ->where('status', 'reserve')->get();
+        $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('owner', $auth->id)->where('is_active', true)->get();
+
 
 
         return Inertia::render('Owner/ApplicationModule', [
@@ -665,16 +660,16 @@ class OwnerController extends Controller
         $billTenants = [];
         $billingHistory = [];
 
-        $applications = TenantApplication::where('owner_id', $auth->id)
+        $applications = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('owner', $auth->id)
             ->where('is_active', true)
-            ->where('is_approved', true)
             ->get();
 
         foreach ($applications as $application) {
-            $tenant = (object) $application->tenant;
+            $tenant = (object) $application->tenant_user;
             $room = (object) $application->room;
-            $balance = TenantBilling::where('tenant_application_id', $application->id)->where('is_paid', false)->sum('amount');
-            $billings = TenantBilling::where('tenant_application_id', $application->id)->get();
+            $balance = Billing::where('tenant_id', $application->id)->where('is_paid', false)->sum('amount');
+            $billings = Billing::where('tenant_id', $application->id)->get();
 
             array_push($billTenants, [
                 "application_id" => $application->id,
@@ -690,7 +685,7 @@ class OwnerController extends Controller
             ]);
 
             foreach ($billings as $billing) {
-                $payment = TenantPayment::where('tenant_billing_id', $billing->id)->first();
+                $payment = UserPayment::where('billing_id', $billing->id)->first();
 
                 array_push($billingHistory, [
                     "application_id" => $application->id,
@@ -699,7 +694,7 @@ class OwnerController extends Controller
                     "tenant" => $tenant->name,
                     "description" => $billing->description,
                     "amount" => $billing->amount,
-                    "invoice_no" => $billing->invoice_no,
+                    "invoice_no" => $this->generateInvoice($application->tenant),
                     "payment_method" => $payment->payment_method,
                     "status" => $billing->is_paid ? 'Paid' : 'Unpaid',
                     "dorm_id" => $application->dorm_id,
@@ -719,9 +714,17 @@ class OwnerController extends Controller
 
     public function declineApplication($id, Request $request)
     {
-        return TenantApplication::where('id', $id)->update([
-            'status' => 'declined',
-            'is_active' => false
+        $application = Application::with(['tenant'])->where('id', $id)->first();
+        $application->status = 'declined';
+        $application->is_active = false;
+        $application->save();
+
+        $tenant = (object) $application->tenant;
+        $this->sendSMS($tenant->phone_number, "Your application has been declined.");
+
+        return Room::where('id', $request->room_id)->update([
+            'status' => null,
+            'is_available' => true
         ]);
     }
 
@@ -745,29 +748,39 @@ class OwnerController extends Controller
 
         $room = Room::where('id', $request->room_id)->first();
 
-        TenantApplication::where('id', $id)->update([
-            'is_approved' => true
+        $application = Application::with(['tenant'])->where('id', $id)->first();
+        $application->status = 'approved';
+        $application->is_approved = true;
+        $application->save();
+
+        $tenant = (object) $application->tenant;
+        $this->sendSMS($tenant->phone_number, "Your application has been approved.");
+
+        $tenant = Tenant::create([
+            'owner' => $request->owner_id,
+            'tenant' => $request->tenant_id,
+            'dorm_id' => $request->dorm_id,
+            'room_id' => $request->room_id,
+            'status' => 'approved',
+            'move_in' => $request->move_in
         ]);
 
-        $billing = TenantBilling::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_application_id' => $request->tenant_application_id,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'phone_number' => $request->phone_number,
+
+        $billing = Billing::create([
+            'tenant_id' => $tenant->id,
+            'user_id' => $request->tenant_id,
             'amount' => (int) $room->deposit + (int) $room->advance,
             'description' => 'advance_and_deposit_fee',
             'date' => $now,
         ]);
 
-        TenantPayment::create([
-            'tenant_id' => $request->tenant_id,
-            'tenant_billing_id' => $billing->id,
-            'dorm_id' => $room->dorm_id,
-            'room_id' => $room->id,
+        UserPayment::create([
+            'tenant_id' => $tenant->id,
+            'user_id' => $request->tenant_id,
             'amount' => (int) $room->deposit + (int) $room->advance,
-            'category' => 'advance_and_deposit_fee',
-            'date' => $now
+            'billing_id' => $billing->id,
+            'description' => 'advance_and_deposit_fee',
+            'date' => $now,
         ]);
 
         return true;

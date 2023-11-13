@@ -157,6 +157,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/pay/billing', [TenantController::class, 'payBilling'])->name('pay.specific.billing');
         Route::post('/rate/dorm', [TenantController::class, 'rateDorm'])->name('tenant.rate.dorm');
         Route::post('/submit/complain', [TenantController::class, 'submitComplain'])->name('tenant.submit.complain');
+        Route::post('/cancel/reservation', [TenantController::class, 'cancelReservation'])->name('cancel.reservation');
+        Route::post('/rent/now', [TenantController::class, 'rentNow'])->name('rent.now');
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
     });
 

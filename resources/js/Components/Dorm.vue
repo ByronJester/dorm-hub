@@ -202,9 +202,9 @@ export default {
 
         const page = usePage();
 
-        const hasApplication = page.props.hasApplication;
+        const notAllowedToRentReserve = page.props.notAllowedToRentReserve;
 
-        console.log(hasApplication);
+        console.log(notAllowedToRentReserve);
 
         const formatDate = (date) => {
          return format(new Date(date), 'MMMM dd, yyyy'); // Adjust the format as needed
@@ -226,10 +226,10 @@ export default {
             closeReviewModal,
             openReviewModal,
             redirectToBillingInfo,
-            hasApplication,
             currentTab,
             showDetails,
             showTerms,
+            notAllowedToRentReserve
         };
     },
 };
@@ -429,7 +429,7 @@ export default {
                             >
                                 <!--Room Card-->
                                 <div
-                                    class="w-64 lg:w-96 cursor-pointer bg-white rounded-lg"
+                                    class="w-64 lg:w-96 bg-white rounded-lg"
                                 >
                                     <div>
                                         <img
@@ -451,16 +451,18 @@ export default {
                                                 class="text-xs mx-12 bg-orange-500 p-3 w-auto rounded-md text-white"
                                             >
                                                 {{
-                                                    room.is_available
-                                                        ? "Available"
-                                                        : "Not Available"
+                                                    room.status == 'reserve'
+                                                        ? "Reserved"
+                                                        : room.status == 'rent'
+                                                        ? "Occupied"
+                                                        : "Available"
                                                 }}
                                             </p>
                                         </a>
                                     </div>
 
                                     <button
-                                        class="bg-cyan-500 items-center justify-center text-white text-sm py-4 w-full hover:bg-opacity-25 rounded-md"
+                                        class="bg-cyan-500 items-center justify-center text-white text-sm py-4 w-full hover:bg-opacity-25 rounded-md cursor-pointer"
                                         v-if="
                                             props.user &&
                                             props.user.user_type == 'tenant'
@@ -584,12 +586,12 @@ export default {
                                         </div>
                                         </div>
                                     </div>
-                        
+
                         </div>
-                        
-                        
+
+
                         <div class="items-start justify-start mt-5">
-                            
+
                         </div>
                     </div>
                 </div>
@@ -934,7 +936,7 @@ export default {
                         <div
                             className="bg-white rounded-xl border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
                         >
-                         
+
 
                             <div
                                 className="flex flex-row items-center justify-center gap-1  "
@@ -979,7 +981,7 @@ export default {
                                 </p>
                             </div>
 
-               
+
 
                             <footer
                                 class="items-center justify-center flex mt-3"
@@ -1090,10 +1092,10 @@ export default {
                                     "
                                     :class="{
                                         'cursor-not-allowed':
-                                            !room.is_available,
+                                            !room.is_available || notAllowedToRentReserve,
                                     }"
-                                    :disabled="!room.is_available"
-                                    v-if="user.is_approved && !hasApplication"
+                                    :disabled="!room.is_available || notAllowedToRentReserve"
+                                    v-if="user.is_approved && room.is_available"
                                 >
                                     Reserve
                                 </button>
@@ -1103,10 +1105,10 @@ export default {
                                     @click="redirectToBillingInfo(room, 'rent')"
                                     :class="{
                                         'cursor-not-allowed':
-                                            !room.is_available,
+                                            !room.is_available || notAllowedToRentReserve,
                                     }"
-                                    :disabled="!room.is_available"
-                                    v-if="user.is_approved && !hasApplication"
+                                    :disabled="!room.is_available || notAllowedToRentReserve"
+                                    v-if="user.is_approved && room.is_available"
                                 >
                                     Rent
                                 </button>

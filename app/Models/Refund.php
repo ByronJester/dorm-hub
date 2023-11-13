@@ -5,11 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TenantComplaint extends Model
+class Refund extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'subject', 'complain', 'tenant_id'
+        'user_payment_id', 'amount', 'payment_method', 'wallet_name',
+        'account_name', 'account_number'
     ];
 }

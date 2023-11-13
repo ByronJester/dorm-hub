@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\{
-    Dorm, Notification, Thread, ThreadMessage, Code , PrivacyPolicy, AboutUs, ContactUs,
-    TenantApplication, TenantBilling, TenantPayment, Room, User
+    Dorm, Notification, Thread, ThreadMessage, Code ,
+    PrivacyPolicy, AboutUs, ContactUs,Room, User,
+    // TenantApplication, TenantBilling, TenantPayment,
+    Reservation, Application
 };
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -38,17 +40,12 @@ class SharedController extends Controller
 
         $dorm = Dorm::where('id', $dorm_id)->first();
 
-        $application = null;
-
-        if($auth) {
-            $application = TenantApplication::where('tenant_id', $auth->id)
-                ->where('is_approved', true)->where('is_active', true)->first();
-        }
-
+        $reservation = Reservation::where('tenant', $auth->id)->where('is_active', true)->first();
+        $application = Application::where('tenant_id', $auth->id)->where('is_active', true)->first();
 
         return Inertia::render('Dorm', [
             'dorm' => $dorm,
-            'hasApplication' => !$application ? false : true
+            'notAllowedToRentReserve' => $reservation || $application ? true : false
         ]);
     }
 
