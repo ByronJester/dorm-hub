@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification,
-        // TenantApplication, TenantBilling, TenantPayment, TenantReservation
-        Reservation, Application, Billing, UserPayment, Tenant
+        // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas
 };
 use App\Http\Requests\{ SaveDorm };
-use App\Rules\RoomRule;
+use App\Rules\{RoomRule, CommonAreasRule};
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -160,15 +160,10 @@ class OwnerController extends Controller
             'rooms_total' => 'required',
             'dorm_image' => 'required',
             'business_permit_image_src' => 'required',
-            // 'rooms' => ['required', new RoomRule],
-            // 'amenities' => 'required|array|between:1,8',
             'short_term' => 'required',
             'mix_gender' => 'required',
             'curfew' => 'required',
-            // 'rules' => 'required|array|between:1,20',
-            // 'range_from' => 'required',
-            // 'range_to' => 'required',
-            // 'payments' => 'required|array'
+            'terms' => 'required',
         ];
 
         if($request->curfew == 'Yes') {
@@ -210,7 +205,6 @@ class OwnerController extends Controller
             if($dorm) {
                 Amenity::where('dorm_id', $id)->delete();
                 Rule::where('dorm_id', $id)->delete();
-                // Payment::where('dorm_id', $id)->delete();
             }
         } else {
             $dorm = new Dorm;
@@ -225,6 +219,7 @@ class OwnerController extends Controller
         $dorm->description = $request->description;
         $dorm->floors_total = $request->floors_total;
         $dorm->rooms_total = $request->rooms_total;
+        $dorm->terms = $request->terms;
 
         if($dorm_image = $request->dorm_image) {
 
@@ -271,6 +266,27 @@ class OwnerController extends Controller
                 $room->save();
             }
 
+            $commonAreas = json_decode($request->commonAreas);
+
+            foreach($commonAreas as $key => $b) {
+                $filename = Str::random(10) . '_areas_image';
+
+
+                if($b->id){
+                    $commonArea = CommonAreas::where('id', $id)->first();
+                } else {
+                    $commonArea = new CommonAreas;
+                }
+
+                $commonArea->dorm_id = $dorm->id;
+                $commonArea->name = $b->name;
+
+                $uploadFile = $this->uploadFile($b->src, $filename);
+                $commonArea->image = $filename;
+
+                $commonArea->save();
+            }
+
             $amenities = json_decode($request->amenities);
 
             foreach($amenities as $a) {
@@ -301,21 +317,183 @@ class OwnerController extends Controller
 
             $rule->save();
 
-            // $payment = new Payment;
-
-            // $payment->dorm_id = $dorm->id
-            // $payment->range_from = $request->range_from;
-            // $payment->range_to = $request->range_to;
-            // $payment->methods = implode(',', $request->payments);
-
-            // $payment->save();
-
             return response()->json(['message' => 'Your dorm succesfully registered.', 'status' => 200], 200);
 
         }
 
         return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 200);
     }
+
+    public function updateDorm(Request $request, $id){
+        $auth = Auth::user();
+
+        $req = [
+            'map_address' => 'required',
+            'lat' => 'required',
+            'long' => 'required',
+            'detailed_address' => 'required',
+            'property_name' => 'required',
+            'description' => 'required',
+            'floors_total' => 'required',
+            'rooms_total' => 'required',
+            'dorm_image' => 'required',
+            'business_permit_image_src' => 'required',
+            'short_term' => 'required',
+            'mix_gender' => 'required',
+            'curfew' => 'required',
+            'terms' => 'required',
+        ];
+
+        if($request->curfew == 'Yes') {
+            $req['curfew_hours'] = 'required';
+        }
+
+        if($request->short_term == 'Yes') {
+            $req['minimum_stay'] = 'required';
+        }
+
+        if($auth->first_logged_in) {
+            $req['sk'] = 'required';
+            $req['pk'] = 'required';
+
+        }
+
+        $validator = Validator::make($request->all(), $req);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
+        }
+    
+        $dorm = Dorm::find($id);
+    
+        if (!$dorm) {
+            return response()->json(['message' => 'Dorm not found', 'status' => 404], 404);
+        }
+
+        $dorm->map_address = $request->map_address;
+        $dorm->detailed_address = $request->detailed_address;
+        $dorm->lat = $request->lat;
+        $dorm->long = $request->long;
+        $dorm->property_name = $request->property_name;
+        $dorm->description = $request->description;
+        $dorm->floors_total = $request->floors_total;
+        $dorm->rooms_total = $request->rooms_total;
+        $dorm->terms = $request->terms;
+
+        if ($dorm->save()) {
+            $rooms = json_decode($request->rooms);
+
+            foreach ($rooms as $key => $r) {
+                $filename = Str::random(10) . '_room_image';
+
+            if ($r->id) {
+                $room = Room::find($r->id);
+
+                if ($room) {
+                    // Room with the given ID found, update its attributes
+                    $room->name = $r->name;
+                    $room->type_of_room = $r->type_of_room;
+                    $room->is_aircon = $r->is_aircon;
+                    $room->furnished_type = $r->furnished_type;
+                    $room->fee = $r->fee;
+                    $room->deposit = $r->deposit;
+                    $room->advance = $r->advance;
+
+                    // Update the room image if a new image is provided
+                    if ($r->src) {
+                        $uploadFile = $this->uploadFile($r->src, $filename);
+                        $room->image = $filename;
+                    }
+
+                    $room->save();
+                }
+            }else{
+                $room = new Room;
+
+                $room->dorm_id = $dorm->id;
+                $room->name = $r->name;
+                $room->type_of_room = $r->type_of_room;
+                $room->is_aircon = $r->is_aircon;
+                $room->furnished_type = $r->furnished_type;
+                $room->fee = $r->fee;
+                $room->deposit = $r->deposit;
+                $room->advance = $r->advance;
+        
+                // Upload room image if provided
+                if ($r->src) {
+                    $uploadFile = $this->uploadFile($r->src, $filename);
+                    $room->image = $filename;
+                }
+        
+                $room->save();
+             }
+            }
+
+            $commonAreas = json_decode($request->commonAreas);
+            CommonAreas::where('dorm_id', $dorm->id)->delete();
+
+            foreach ($commonAreas as $key => $b) {
+                $filename = Str::random(10) . '_areas_image';
+              
+                    $commonArea = new CommonAreas;
+
+                    $commonArea->dorm_id = $dorm->id;
+                    $commonArea->name = $b->name;
+            
+                    // Upload common area image if provided
+                    if ($b->src) {
+                        $uploadFile = $this->uploadFile($b->src, $filename);
+                        $commonArea->image = $filename;
+                    }
+            
+                    $commonArea->save();
+                
+            }
+    
+            // Update or create amenities
+            $amenities = json_decode($request->amenities);
+    
+            foreach ($amenities as $a) {
+                $amenity = new Amenity;
+
+                $amenity->dorm_id = $dorm->id;
+                $amenity->amenity = $a;
+
+                $amenity->save();
+            }
+    
+            // Update rules
+            $rule = Rule::where('dorm_id', $dorm->id)->first();
+    
+            if ($rule) {
+                $rule->short_term = $request->short_term;
+                $rule->mix_gender = $request->mix_gender;
+                $rule->curfew = $request->curfew;
+                $rule->curfew_hours = $request->curfew_hours;
+                $rule->minimum_stay = $request->minimum_stay;
+            
+                // Update rules array
+                $rules = [];
+            
+                foreach (json_decode($request->rules) as $r) {
+                    array_push($rules, $r->name);
+                }
+            
+                $rule->rules = implode(',', $rules);
+            
+                $rule->save();
+            }
+    
+    
+            return response()->json(['message' => 'Dorm updated successfully.', 'status' => 200], 200);
+        }
+    
+        return response()->json(['message' => 'Error updating dorm.', 'status' => 500], 500);
+    
+    
+    }
+    
+    
 
     public function applicationStatusChange(Request $request)
     {

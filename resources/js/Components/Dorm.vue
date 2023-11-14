@@ -389,21 +389,27 @@ export default {
                 <!--Header-->
                 <div class="w-full px-5">
                     <p class="w-full">
-                        <span class="text-xl">
-                            {{ props.dorm.detailed_address }}
+                        <span v-tooltip="'yow'" class="text-xl cursor-pointer">
+                            {{ props.dorm.map_address }}
                         </span>
                     </p>
 
-                    <p class="text-md w-full"></p>
+                    <p class="text-sm w-full text-gray-600">{{ props.dorm.detailed_address }}</p>
 
-                    <div class="w-full mt-5 flex justify-center items-center">
-                        <img
-                            :src="props.dorm.dorm_image"
-                            class="w-full rounded-lg shadow-lg"
-                            :style="{
-                                height: isMobileView ? '200px' : '500px',
-                            }"
-                        />
+                    <div class="grid gap-4 mt-4">
+                        <div>
+                            <img class="h-[450px] w-full rounded-lg" :src="props.dorm.dorm_image" alt="">
+                        </div>
+                        <p class="font-semibold text-lg ">Common Areas</p>
+                       
+                        <div class="grid md:grid-cols-5 grid-cols-2 gap-4">
+                            <div
+                                v-for="(commonArea, index) in props.dorm.common_areas"
+                                :key="index"
+                            >
+                                <img class="h-[150px] w-full rounded-lg" :src="commonArea.image" alt="">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr class="h-px my-5 bg-gray-200 border-0 dark:bg-gray-700" />
@@ -1180,4 +1186,15 @@ hr {
     width: 0px;
     background: transparent; /* make scrollbar transparent */
 }
+
+.zoomed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        z-index: 1000;
+        cursor: pointer;
+    }
 </style>

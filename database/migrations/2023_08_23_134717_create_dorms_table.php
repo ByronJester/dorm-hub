@@ -28,6 +28,8 @@ return new class extends Migration
             $table->string('business_permit_image', 100);
             $table->string('status', 20)->default('pending');
             $table->string('ratings', 20)->nullable();
+            $table->longText('terms')->nullable();
+
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
