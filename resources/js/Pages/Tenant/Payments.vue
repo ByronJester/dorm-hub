@@ -210,6 +210,8 @@ export default {
             );
         }
 
+        console.log(totalAmountPaid)
+
         return {
             user,
             payments,
@@ -301,7 +303,7 @@ export default {
                                                 class="text-3xl leading-tight font-semibold"
                                             >
                                                 <div>
-                                                    {{ !!nextPayment ?  moneyFormat(nexPayment.amount) : 0.00 }}
+                                                    {{ !!nexPayment ?  moneyFormat(nexPayment.billing.amount) : 0.00 }}
                                                 </div>
                                             </h1>
                                         </div>
@@ -393,7 +395,7 @@ export default {
                         <div class="text-center md:text-right">
                             <p class="text-gray-500">Amount due</p>
                             <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
-                            <h1 class="text-2xl font-semibold">{{ !!nextPayment ? moneyFormat(nexPayment.amount) : 0.00 }}</h1>
+                            <h1 class="text-2xl font-semibold">{{ !!nexPayment ? moneyFormat(nexPayment.billing.amount) : 0.00 }}</h1>
                         </div>
                     </div>
                 </div>

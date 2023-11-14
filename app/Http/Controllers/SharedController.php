@@ -8,7 +8,7 @@ use App\Models\{
     Dorm, Notification, Thread, ThreadMessage, Code ,
     PrivacyPolicy, AboutUs, ContactUs,Room, User,
     // TenantApplication, TenantBilling, TenantPayment,
-    Reservation, Application
+    Reservation, Application, Billing, UserPayment, Tenant
 };
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -168,45 +168,37 @@ class SharedController extends Controller
 
     public function autoBill()
     {
-        $applications = TenantApplication::where('auto_bill', true)->get();
+        $tenants = Tenant::where('auto_bill', true)->get();
 
-        foreach ($applications as $application) {
-            $application = (object) $application;
+        foreach ($tenants as $tenant) {
+            $tenant = (object) $tenant;
 
-            $room = Room::where('id', $application->room_id)->first();
-            $tenant = User::where('id', $application->tenant_id)->first();
+            $room = Room::where('id', $tenant->room_id)->first();
+            $tenantUser = User::where('id', $tenant->tenant)->first();
 
             $date1 = Carbon::now();
-            $date2 = Carbon::parse($application->move_in);
+            $date2 = Carbon::parse($tenant->auto_bill_date);
 
-            if($application->auto_bill_date) {
-                $date2 = Carbon::parse($application->auto_bill_date);
-            }
-
-            $is30DaysDifference = $date1->diffInDays($date2) == 30;
+            $is30DaysDifference = $date1->diffInDays($date2) == 0;
 
             if($is30DaysDifference) {
-                $application->auto_bill_date = $date1;
-                $application->save();
+                $tenant->auto_bill_date = Carbon::now()->addMonthsNoOverflow(1);
+                $tenant->save();
 
-                $billing = TenantBilling::create([
+                $billing = Billing::create([
                     'tenant_id' => $tenant->id,
-                    'tenant_application_id' => $application->id,
-                    'first_name' => $tenant->first_name,
-                    'last_name' => $tenant->last_name,
-                    'phone_number' => $tenant->phone_number,
+                    'user_id' => $tenant->tenant,
                     'amount' => $room->fee,
                     'description' => 'monthly_fee',
                     'date' => $date1
                 ]);
 
-                $payments = TenantPayment::create([
+                $payments = UserPayment::create([
                     'tenant_id' => $tenant->id,
-                    'tenant_billing_id' => $billing->id,
-                    'dorm_id' => $application->dorm_id,
-                    'room_id' => $application->room_id,
+                    'billing_id' => $billing->id,
+                    'user_id' => $tenant->tenant,
                     'amount' => $room->fee,
-                    'category' => 'monthly_fee',
+                    'description' => 'monthly_fee',
                     'date' => $date1
                 ]);
             }
@@ -217,12 +209,12 @@ class SharedController extends Controller
 
     public function dueReminder()
     {
-        $billings = TenantBilling::where('is_paid', false)->get();
+        $billings = Billing::where('is_paid', false)->get();
 
         $now = Carbon::today();
 
         foreach ($billings as $billing) {
-            $tenant = User::where('id', $billing->tenant_id)->first();
+            $tenant = User::where('id', $billing->user_id)->first();
             $billingDate = Carbon::parse($billing->date);
             $amount = $billing->amount;
 

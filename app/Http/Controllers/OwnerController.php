@@ -660,10 +660,40 @@ class OwnerController extends Controller
         $billTenants = [];
         $billingHistory = [];
 
+        $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('owner', $auth->id)->get();
+
+        foreach($reservations as $reservation) {
+            $room = (object) $reservation->room;
+            $tenant = (object) $reservation->tenant_user;
+            $billings = Billing::where('reservation_id', $reservation->id)->get();
+
+
+            foreach ($billings as $billing) {
+                $payment = UserPayment::where('billing_id', $billing->id)->first();
+
+                array_push($billingHistory, [
+                    "tenant_id" => $reservation->id,
+                    "room_id" => $room->id,
+                    "room" => $room->name,
+                    "tenant" => $tenant->name,
+                    "description" => $billing->description,
+                    "amount" => $billing->amount,
+                    "invoice_no" => $this->generateInvoice($reservation->tenant),
+                    "payment_method" => $payment->payment_method,
+                    "status" => $billing->is_paid ? 'Paid' : 'Unpaid',
+                    "dorm_id" => $reservation->dorm_id,
+                    "auto_bill" => false
+                ]);
+            }
+
+        }
+
         $applications = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('owner', $auth->id)
             ->where('is_active', true)
             ->get();
+
 
         foreach ($applications as $application) {
             $tenant = (object) $application->tenant_user;
@@ -702,7 +732,6 @@ class OwnerController extends Controller
                 ]);
             }
         }
-
 
         return Inertia::render('Owner/Billings', [
             'billTenants' => $billTenants,
@@ -891,8 +920,31 @@ class OwnerController extends Controller
     public function submitAutoBill(Request $request)
     {
         $tenant = Tenant::where('id', $request->tenant_id)->first();
+        $room = Room::where('id', $tenant->room_id)->first();
 
         $tenant->auto_bill = $request->auto_bill;
+
+        if(!!$request->auto_bill) {
+            if($tenant->auto_bill_date == null) {
+                $tenant->auto_bill_date = Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1);
+
+                $billing = Billing::create([
+                    'tenant_id' => $tenant->id,
+                    'user_id' => $tenant->tenant,
+                    'amount' => $room->fee,
+                    'description' => 'monthly_fee',
+                    'date' => Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1)
+                ]);
+
+                $payment = UserPayment::create([
+                    'tenant_id' => $tenant->id,
+                    'user_id' => $tenant->tenant,
+                    'billing_id' => $billing->id,
+                    'description' => 'monthly_fee',
+                    'date' => Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1)
+                ]);
+            }
+        }
 
         $tenant->save();
 
