@@ -13,7 +13,7 @@ use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -50,7 +50,7 @@ class OwnerController extends Controller
 
         return Inertia::render('Owner/ApplicationModule', [
             'applications' => $applications,
-            
+
 
         ]);
     }
@@ -96,7 +96,15 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
+        $dorms = DB::table('dorms')->where('user_id', $auth->id)->get(['id', 'property_name']);
+
+        $complaints = TenantComplaint::with(['tenant'])->whereHas('tenant', function($query) use ($auth) {
+            $query->where('owner', $auth->id);
+        })->get();
+
         return Inertia::render('Owner/Maintenance', [
+            'complaints' => $complaints,
+            'dorms' => $dorms
 
         ]);
     }
@@ -953,6 +961,13 @@ class OwnerController extends Controller
     {
         return Room::where('id', $request->id)->update([
             'is_available' => !$request->is_available
+        ]);
+    }
+
+    public function changeComplainStatus($id, Request $request)
+    {
+        return TenantComplaint::where('id', $id)->update([
+            'status' => $request->status
         ]);
     }
 }

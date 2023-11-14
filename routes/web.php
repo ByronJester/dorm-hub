@@ -60,6 +60,7 @@ Route::get('/alive', function () {
 Route::prefix('cron')->group(function () {
     Route::get('/auto-bill', [SharedController::class, 'autoBill']);
     Route::get('/due-reminder', [SharedController::class, 'dueReminder']);
+    Route::get('/reservation-expiration', [SharedController::class, 'reservationExpiration']);
 });
 
 Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
@@ -138,6 +139,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/bill/munual-bill', [OwnerController::class, 'submitManualBill'])->name('owner.manual-bill');
         Route::post('/bill/auto-bill', [OwnerController::class, 'submitAutoBill'])->name('owner.auto-bill');
         Route::post('/room/change-status', [OwnerController::class, 'changeRoomStatus'])->name('change.room.status');
+        Route::post('/complain/change-status/{id}', [OwnerController::class, 'changeComplainStatus'])->name('owner.complain.change.status');
     });
 
     Route::prefix('tenant')->group(function () {

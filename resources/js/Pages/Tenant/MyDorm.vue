@@ -434,28 +434,28 @@ export default {
                                 class="fas fa-star active"
                                 title=""
                                 @click="rateDorm(1)"
-                                :class="{'text-yellow-500': rating == 1}"
+                                :class="{'text-yellow-500': rating == 1 || rating > 1}"
                             ></i
                             >&nbsp;<i
                                 data-alt="2"
                                 class="fas fa-star active"
                                 title=""
                                 @click="rateDorm(2)"
-                                :class="{'text-yellow-500': rating == 2}"
+                                :class="{'text-yellow-500': rating == 2 || rating > 2}"
                             ></i
                             >&nbsp;<i
                                 data-alt="3"
                                 class="fas fa-star active"
                                 title=""
                                 @click="rateDorm(3)"
-                                :class="{'text-yellow-500': rating == 3}"
+                                :class="{'text-yellow-500': rating == 3 || rating > 3}"
                             ></i
                             >&nbsp;<i
                                 data-alt="4"
                                 class="fas fa-star active"
                                 title=""
                                 @click="rateDorm(4)"
-                                :class="{'text-yellow-500': rating == 4}"
+                                :class="{'text-yellow-500': rating == 4 || rating > 4}"
                             ></i
                             >&nbsp;<i
                                 data-alt="5"

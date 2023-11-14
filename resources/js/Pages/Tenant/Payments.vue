@@ -521,11 +521,17 @@ export default {
                                                             />
                                                         </div>
 
-                                                        <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
+                                                        <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5 mr-2"
                                                             v-if="colIndex == 'action'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval'"
                                                             :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval'}"
                                                         >
-                                                            Pay
+                                                            {{ value.status == 'paid' ? 'Paid' : 'Pay' }}
+                                                        </button>
+
+                                                        <button @click="refund(value)" class="bg-cyan-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
+                                                            v-if="(colIndex == 'action' && value.status == 'paid') && (value.description == 'monthly_fee' || value.billing.subject != null)"
+                                                        >
+                                                            Refund
                                                         </button>
                                                     </td>
 
