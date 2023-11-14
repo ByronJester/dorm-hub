@@ -251,12 +251,7 @@ export default {
                     </span>
                     <h3 class="text-3xl font-bold">My Dorm</h3>
                 </div>
-                <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
-                <!-- eto dapat pre mag didisplay kapag ka wala pang dorm
-                <div class="flex items-center justify-center mt-24">
-                    You do not have a dorm
-                </div>-->
-                <!--Tapos eto kapag may dorm na-->
+                <hr class="h-px mt-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div class="mt-10" v-if="myDorm">
                     <!--Dorm name-->
                     <div class="flex justify-between items-center">
@@ -475,7 +470,7 @@ export default {
                         <textarea
                             id="message"
                             rows="4"
-                            class="block p-2.5 w-full text-sm mt-2 text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            class="block p-2.5 w-full text-sm mt-2 text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-orange-500 focus:border-orange-500 "
                             placeholder="Write your thoughts here..."
                             v-model="comment"
                         ></textarea>
@@ -559,6 +554,9 @@ export default {
                         </div>
                     </div>
                 </div>
+                <div v-else class="p-5 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
+                    You dont have leasing yet
+                </div>
             </div>
             <!--Complain Modal-->
             <div
@@ -608,7 +606,7 @@ export default {
                                 <div class="p-6 space-y-6">
                                     <form>
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Select Subject</label>
-                                            <select id="subject" v-model="subject" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                            <select id="subject" v-model="subject" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
                                                 <option selected>Choose a Subject</option>
                                                 <option value="Maintenance">Maintenance Request</option>
                                                 <option value="Cleanliness">Cleanliness</option>
@@ -671,7 +669,7 @@ export default {
                             <div class="relative bg-white rounded-lg shadow">
                                 <!-- Modal header -->
                                 <div
-                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                    class="flex items-start justify-between p-4 border-b rounded-t "
                                 >
                                     <h3
                                         class="text-xl font-semibold text-black"
@@ -680,7 +678,7 @@ export default {
                                     </h3>
                                     <button
                                         type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
                                         @click="closeLeaveModal()"
                                     >
                                         <svg
@@ -714,7 +712,7 @@ export default {
 
                                     <form>
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Reason:</label>
-                                            <select id="subject" v-model="reason" class="block w-full px-4 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                            <select id="subject" v-model="reason" class="block w-full px-4 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
                                                 <option selected>Choose a Reason:</option>
                                                 <option value="Maintenance">Relocation</option>
                                                 <option value="Cleanliness">End of Lease</option>
@@ -727,7 +725,7 @@ export default {
                                             </select>
                                             <div class=" py-2 bg-white rounded-b-lg dark:bg-gray-800">
                                             <label for="complainmessage" class="sr-only">Complain</label>
-                                            <textarea id="complainmessage" v-model="reason_description" rows="3" class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400" placeholder="Write a Reason..." required></textarea>
+                                            <textarea id="complainmessage" v-model="reason_description" rows="3" class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 " placeholder="Write a Reason..." required></textarea>
                                             </div>
                                     </form>
                                     <div>
@@ -740,7 +738,7 @@ export default {
                                                 id="subject"
                                                 v-model="selectedPaymentMethod"
                                                  @change="toggleTransfer"
-                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 "
                                             >
                                                 <option
                                                     v-for="option in options"
@@ -754,15 +752,15 @@ export default {
                                                 <form class="flex flex-col gap-1 ">
                                                     <div class="mb-3">
                                                         <label for="EWalletName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
-                                                        <input type="text" id="EWalletName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <input type="text" id="EWalletName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
-                                                        <input type="text" id="accName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <input type="text" id="accName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
-                                                        <input type="text" id="accName" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <input type="text" id="accName" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                                     </div>
                                                 </form>
                                             </div>
@@ -770,15 +768,15 @@ export default {
                                                 <form class="flex flex-col gap-1">
                                                     <div class="mb-3">
                                                         <label for="BankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
-                                                        <input type="text" id="BankName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <input type="text" id="BankName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="accbankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
-                                                        <input type="text" id="accbankName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <input type="text" id="accbankName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="accbankNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
-                                                        <input type="text" id="accbankNumber" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                        <input type="text" id="accbankNumber" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                                     </div>
                                                 </form>
                                             </div>

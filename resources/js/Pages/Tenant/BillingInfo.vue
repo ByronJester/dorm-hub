@@ -5,11 +5,13 @@ import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
+import VsToast from '@vuesimple/vs-toast';
 
 export default {
     components: {
         VueDatePicker,
         TenantLayout,
+        VsToast
     },
     setup() {
         const page = usePage();
@@ -141,6 +143,8 @@ export default {
         };
 
         const reserveRoom = () => {
+            if(validateSelectPM())
+            {
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
@@ -190,9 +194,40 @@ export default {
                         .catch((error) => {});
                 }
             );
-        };
+            }else{
+                VsToast.show({
+                    title: 'Error',
+                    message: 'Please input all fields',
+                    variant: 'error',
+                });
+            }
 
+        }
+
+    
+        const errorMessages = ref({
+                    sm: '',
+                    dates: '',
+        });
+
+        const validateSelectPM = () =>{
+            let isValid = true;
+            errorMessages.value.sm = "";
+            errorMessages.value.dates = "";
+            if(date.value == null){
+                errorMessages.value.dates='Please input visiting date';
+                isValid = false;  
+            }
+            if(selectedPaymentMethod && selectedPaymentMethod.value.trim()===''){
+                errorMessages.value.sm='Please Select Payment Method';
+                isValid = false;
+            }
+            return isValid
+        }
+
+        
         return {
+            errorMessages,
             back,
             toggleBankTransfer,
             proofPaymentChange,
@@ -498,6 +533,7 @@ export default {
                                             placeholder="Select Date..."
                                             required
                                         />
+                                        <p class="text-red-500 text-xs">{{  errorMessages.dates }}</p>
                                     </div>
                                     <div class="flex-grow">
                                         <VueDatePicker
@@ -544,6 +580,7 @@ export default {
                                     <select
                                         id="subject"
                                         v-model="selectedPaymentMethod"
+                                        :class="{ 'border-red-500': !!errorMessages.sm }"
                                         @change="toggleBankTransfer"
                                         class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-300 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     >
@@ -557,6 +594,7 @@ export default {
                                             {{ option }}
                                         </option>
                                     </select>
+                                   <p class="text-red-500 text-xs">{{  errorMessages.sm }}</p>
                                 </div>
                                 <div id="bankpayment" v-if="showBankTransfer">
                                     <label

@@ -139,7 +139,15 @@ export default{
                         max-w-screen-lg
                         mx-auto
                         "
-            ><p class="font-bold text-gray-900 text-2xl" v-if="reservation">My Reservation</p>
+            ><div class="flex items-center justify-start">
+                    <span
+                        class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon" style="width: 40px; height: 40px;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1"><path d="M768 608a160 160 0 1 1-160 160 160 160 0 0 1 160-160z m0-32a192 192 0 1 0 192 192 192 192 0 0 0-192-192z" fill="#0070FF"/><path d="M864 768h-96v-64a16 16 0 0 0-32 0v80a16 16 0 0 0 16 16h112a16 16 0 0 0 0-32z" fill="#0070FF"/><path d="M933.12 502.4a24 24 0 0 1-33.92 0l-77.12-77.12v94.72a24 24 0 0 1-48 0v-142.72l-272-272-272 272V896a16 16 0 0 0 16 16h264a24 24 0 1 1 0 48h-264a64 64 0 0 1-64-64V425.28L104.96 502.4a24 24 0 0 1-33.92-33.92L456.8 82.72a64 64 0 0 1 90.56 0l385.76 385.76a24 24 0 0 1 0 33.92z" fill=""/><path d="M584 432v144h-144v-144z m0-32h-144a32 32 0 0 0-32 32v144a32 32 0 0 0 32 32h144a32 32 0 0 0 32-32v-144a32 32 0 0 0-32-32z" fill=""/></svg>
+                    </span>
+                    <h3 class="text-3xl font-bold">My Reservation</h3>
+                </div>
+                <hr class="h-px mt-5 bg-orange-400 border-1 dark:bg-gray-700" />
             <div class="mt-10" v-if="reservation">
                     <!--Dorm name-->
                     <div class="flex justify-between items-center">
@@ -343,11 +351,12 @@ export default{
                     </div>
 
                 </div>
+                <div v-if="!reservation" class="p-5 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
+                    You dont have reservation yet. Go to <a href="/" class="text-orange-400 underline mx-1"> Home Page </a>to make reservation
+                </div>
             </div>
 
-            <div class="pt-[15vw] text-center text-6xl" v-if="!reservation">
-                NO RESERVATION
-            </div>
+            
 
         </div>
     </AuthenticatedLayout>

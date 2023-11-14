@@ -26,6 +26,7 @@ export default {
         const lastBilled = page.props.lastBilled
         const balance = page.props.balance
         const totalAmountPaid = page.props.totalAmountPaid
+        const options = ["E-Wallet", "Cash", "Bank Transfer"];
 
         onMounted(() => {
             application.value = page.props.application;
@@ -52,6 +53,25 @@ export default {
             var modal = document.getElementById("payModal");
 
             modal.style.display = "none";
+        };
+
+        const openLeaveModal = () => {
+            var modal = document.getElementById("refundModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeLeaveModal = () => {
+            var modal = document.getElementById("refundModal");
+
+            modal.style.display = "none";
+        };
+
+        const showBankTransfer = ref(false);
+        const showEwallet = ref(false);
+        const toggleTransfer = () => {
+            showBankTransfer.value = selectedPaymentMethod.value === 'Bank Transfer';
+            showEwallet.value = selectedPaymentMethod.value === 'E-Wallet';
         };
 
         const imageClick = () => {
@@ -247,6 +267,12 @@ export default {
             totalPages,
             slicedRows,
             changePage,
+            openLeaveModal,
+            closeLeaveModal,
+            showBankTransfer,
+            showEwallet,
+            options,
+            toggleTransfer
         };
     },
 };
@@ -620,6 +646,126 @@ export default {
 
                         </div>
                     </div>
+
+                    <div
+                    id="refundModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t "
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Refund Request
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                        @click="closeLeaveModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <form class="mt-4">
+                                        
+                                        <label for="desc" class="block mb-2 text-base font-medium text-black">Description:</label>
+                                        <input disabled type="text" id="desc" v-model="" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                        <label for="amount" class="block mb-2 text-base font-medium text-black">Amount:</label>
+                                        <input disabled type="text" id="amount" v-model="" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+
+                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
+                                            <select
+                                                id="subject"
+                                                v-model="selectedPaymentMethod"
+                                                 @change="toggleTransfer"
+                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 "
+                                            >
+                                                <option
+                                                    v-for="option in options"
+                                                    :key="option"
+                                                >
+                                                    {{ option }}
+                                                </option>
+                                            </select>
+                                            <div class=" py-2 mt-2 bg-white rounded-b-lg" v-if="showEwallet">
+
+                                                <form class="flex flex-col gap-1 ">
+                                                    <div class="mb-3">
+                                                        <label for="EWalletName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
+                                                        <input type="text" id="EWalletName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
+                                                        <input type="text" id="accName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
+                                                        <input type="text" id="accName" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class=" py-2 mt-4 bg-white rounded-b-lg" v-if="showBankTransfer">
+                                                <form class="flex flex-col gap-1">
+                                                    <div class="mb-3">
+                                                        <label for="BankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
+                                                        <input type="text" id="BankName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accbankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
+                                                        <input type="text" id="accbankName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accbankNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
+                                                        <input type="text" id="accbankNumber" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                    </form>
+                                    </div>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="w-full border-t  border-gray-200"
+                                >
+                                    <button
+                                        @click=""
+                                        type="button"
+                                        class="text-white rounded-b-lg bg-orange-500 hover:bg-opacity-25 font-medium w-full text-sm px-5 py-2.5"
+                                    >
+                                        Submit Refund Request
+                                    </button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <!--
                 <div
                     class="rounded-2xl flex-col shadow-lg mt-5 dark:bg-slate-900/70 bg-white flex mb-6"

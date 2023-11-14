@@ -80,8 +80,11 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
-        return Inertia::render('Owner/Tenants', [
+        $tenant = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('owner', $auth->id)->get();
 
+        return Inertia::render('Owner/Tenants', [
+            'tenant' => $tenant
         ]);
     }
 

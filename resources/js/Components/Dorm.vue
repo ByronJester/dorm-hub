@@ -444,7 +444,7 @@ export default {
                                     >
                                         <button
                                             @click="changeRoomAvailability(item)"
-                                            class="bg-orange-400 py-2 px-3 rounded-md"
+                                            class="bg-orange-400 py-2 px-3 rounded-md text-white"
                                         >
                                             {{ !!item.is_available ? 'Mark as Unavailable' : 'Mark as Available' }}
                                         </button>
