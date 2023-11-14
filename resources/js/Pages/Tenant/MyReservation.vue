@@ -301,6 +301,7 @@ export default{
                                     <p>{{reservation.room.furnished_type }}</p>
                                 </div>
                                 <div>
+                                    <p>When will you move in?</p>
                                     <input type="date" class="rounded-md mr-2" v-model="move_in"/>
 
                                     <button class="py-2 px-5 rounded-md bg-orange-400 text-white font-semibold mt-5"

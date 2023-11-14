@@ -11,6 +11,9 @@
     import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
     import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
     import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+    import jsPDF from "jspdf";
+    import "jspdf-autotable";
+    import ExcelJS from "exceljs";
 
     export default {
         components: {
@@ -19,6 +22,147 @@
             AppDropdownContent,
             AppDropdownItem,
             VueGoodTable
+        },
+        methods: {
+        exportToPDF() {
+            const doc = new jsPDF();
+
+            // Add a timestamp (current date) to the PDF
+            doc.setFontSize(16);
+            doc.text("Reservation Record", 10, 10); // Title
+            const currentDate = new Date();
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            doc.setFontSize(12);
+            doc.text(timestamp, 10, 20);
+
+            const margin = 30;
+
+            // Create your data array with header and rows
+            const tableData = [this.headersReserve].concat(
+                this.slicedRows.map((row) => [
+                        row.dorm_name,
+                        row.room_name,
+                        row.tenant_name,
+                        row.visit_date,
+                        row.time_visit,
+                        row.remaining,
+                        row.status
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+            });
+
+            doc.save("table-data.pdf");
+        },
+        async exportToExcel() {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet("Table Data");
+
+            // Add headers to the worksheet
+            const headerRow = worksheet.addRow(
+                this.columns.map((column) => column.label)
+            );
+
+            // Set styles for the header row (if needed)
+            headerRow.eachCell((cell) => {
+                cell.fill = {
+                    type: "pattern",
+                    pattern: "solid",
+                    fgColor: { argb: "FFD9D9D9" },
+                };
+                cell.font = { bold: true };
+                cell.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" },
+                };
+            });
+
+            // Add data rows to the worksheet
+            this.rows.forEach((row) => {
+                const rowData = this.columns.map((column) => {
+                    if (column.field === "dorm_owner") {
+                        return `${row.user.first_name} ${row.user.last_name}`;
+                    } else if (column.field === "contact_number") {
+                        return row.user.phone_number;
+                    } else {
+                        return row[column.field];
+                    }
+                });
+                worksheet.addRow(rowData);
+            });
+
+            // Create a Blob from the workbook
+            const blob = await workbook.xlsx.writeBuffer();
+            const blobObject = new Blob([blob], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+
+            // Create a download link and trigger the download
+            const link = document.createElement("a");
+            link.href = window.URL.createObjectURL(blobObject);
+            link.download = "table-data.xlsx";
+            link.click();
+            },
+            printTable() {
+                // Open the print dialog for the table
+                const doc = new jsPDF();
+
+                // Add a timestamp (current date) to the PDF
+                doc.setFontSize(16);
+                doc.text("Income Report", 10, 10); // Title
+                const currentDate = new Date();
+                const dateString = currentDate.toLocaleDateString();
+                const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+                const timestamp = `Export Date: ${dateString} ${timeString}`;
+                doc.setFontSize(12);
+                doc.text(timestamp, 10, 20);
+
+                const margin = 30;
+
+                // Create your data array with header and rows
+                const tableData = [this.headersReserve].concat(
+                    this.slicedRows.value.map((row) => [
+                        row.user.first_name + " " + row.user.last_name, // Dorm Owner's Name
+                        row.user.phone_number, // Contact Number
+                        // Add the remaining columns here as needed
+                        row.property_name,
+                        row.detailed_address,
+                        row.status,
+                        row.net_sales,
+                    ])
+                );
+
+                // Generate the table in the PDF
+                doc.autoTable({
+                    head: [tableData[0]],
+                    body: tableData.slice(1),
+                    startY: margin,
+                });
+
+                doc.autoPrint();
+
+                // Save the PDF to a temporary file
+                const blob = doc.output("blob");
+                const url = URL.createObjectURL(blob);
+                const iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                iframe.src = url;
+                document.body.appendChild(iframe);
+
+                // Wait for the PDF to be displayed in the iframe
+                iframe.onload = function () {
+                    iframe.contentWindow.print();
+                };
+            },
         },
         setup() {
             const isMobileView = ref(false)
@@ -29,11 +173,38 @@
             const user = page.props.auth.user;
 
 
+            const getDaysRemaining = (reservation_date, expired_date) => {
+                const date1 = new Date(reservation_date);
+                const date2 = new Date(expired_date);
 
+                // To calculate the time difference
+                const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+
+                // Convert time difference to days
+                return Math.ceil(timeDiff / (1000 * 3600 * 24));
+            }
+
+            const getStatus = (isActive) => {
+                const active = isActive == true;
+                const expired = isActive == false;
+                let status = '';
+
+                // To calculate the time difference
+
+                // Assuming you have some logic to determine if it's active or expired
+                if (active) {
+                    status = 'Active';
+                } else if (expired) {
+                    status = 'Expired';
+                }
+
+                return status;
+            }
 
             var dataReserve = [];
+            
 
-            const headersReserve = ["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"];
+            const headersReserve = ["Dorm Name", "Room Name", "Tenant Name", "Date Visit", "Time Visit", 'Remaining Days', 'Status'];
 
             const reservations = page.props.reservations;
 
@@ -42,11 +213,12 @@
                     {
                         dorm_name: reservations[x].dorm.property_name,
                         room_name: reservations[x].room.name,
-                        tenant_name: reservations[x].tenant.name,
+                        tenant_name: reservations[x].tenant_user.name,
                         visit_date: reservations[x].check_date,
                         time_visit: reservations[x].check_time,
-                        payment_method: reservations[x].reservation_payment.payment_method,
-                        status: reservations[x].status,
+                        remaining: getDaysRemaining(reservations[x].created_at, reservations[x].expired_at),
+                        status: getStatus(reservations[x].is_active),
+                        created_at: reservations[x].created_at
                     }
                 );
             }
@@ -79,9 +251,17 @@
             const slicedRows = computed(() => {
                 const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
                 const endIndex = startIndex + itemsPerPageReserve;
-                return filteredDataReserve.value.slice(startIndex, endIndex);
-            });
 
+                const slicedAndSorted = filteredDataReserve.value
+                    .slice(startIndex, endIndex)
+                    .sort((a, b) => {
+                        const dateA = new Date(a.created_at);
+                        const dateB = new Date(b.created_at);
+                        return dateB - dateA;
+                    });
+
+                return slicedAndSorted;
+                });
             const changePageReserve = (pageChange) => {
                 const newPage = currentPageReserve.value + pageChange;
                 if (newPage >= 1 && newPage <= totalPagesReserve.value) {
@@ -131,7 +311,8 @@
                                 <div
                                     class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
                                 >
-                                <p class=" text-lg mb-5">Reservation Applicants</p>
+                                <p class="text-xl mb-5 font-bold">Reservation Records</p>
+                                <div class="flex-row flex items-center justify-between">
                                     <form class="flex items-center">
                                         <label
                                             for="simple-search"
@@ -139,56 +320,32 @@
                                             >Search</label
                                         >
                                         <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                v-model="searchQueryReserve"
-                                                required
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
                                                 />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
-                                    </form>
+                                        </div>
+                                       
+                                         
+                                    </form> 
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button 
+                                                @click="exportToPDF()"
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
+                                            </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -197,9 +354,9 @@
                                 class="items-center w-full bg-transparent border-collapse"
                             >
                                 <thead>
-                                    <tr>
+                                    <tr class="border-y">
                                         <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                             v-for="header in headersReserve"
                                             :key="header"
                                         >
@@ -218,7 +375,7 @@
                                             :key="colIndex"
                                         >
                                   
-                                                {{ value }}
+                                            {{ colIndex !== 'created_at' ? value : '' }}
                                         
                                         </td>
                                     </tr>

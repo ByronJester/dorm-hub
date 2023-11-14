@@ -3,7 +3,7 @@ import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-
+import { ref } from 'vue'
 export default{
     components:{
         AuthenticatedLayout,
@@ -12,42 +12,23 @@ export default{
         AppDropdownItem,
     },
     setup(){
+        const activeTable = ref('complain');
+        const setActiveTable = (table)=>{
+            activeTable.value = table;
+        }
         //mga sample data lang to
         const options=["M.D.R Apartment", "Dorm2"]
-        const headerComplaints=["Subject", "Message", "Status", "Complain Date", "Date Finish"]
-        const dataComplaints = [
-            {
-                "Subject": "Internet Connectivity",
-                "Message": "Experiencing slow internet in my room.",
-                "Status": "Open",
-                "Complain Date": "2023-10-15",
-                "Date Finish": "",
-            },
-            {
-                "Subject": "Heating Issue",
-                "Message": "The heating system is not working in the common area.",
-                "Status": "Open",
-                "Complain Date": "2023-10-20",
-                "Date Finish": "",
-            },
-            {
-                "Subject": "Billing Discrepancy",
-                "Message": "I received an incorrect bill for this month.",
-                "Status": "Open",
-                "Complain Date": "2023-10-25",
-                "Date Finish": "",
-            },
-            {
-                "Subject": "Room Cleaning",
-                "Message": "My room hasn't been cleaned for a week.",
-                "Status": "Open",
-                "Complain Date": "2023-10-30",
-                "Date Finish": "",
-            }
-            ];
+        const headerComplaints=["Complain Subject", "Message", "Status", "Image", "Complain Date", "Date Finish"]
+        const headerRefunds=["Refund Subject", "Refund Description", "Status", "Refund Date", "Bank/Wallet Name", "Account number", "Account Name", "Date Refunded"]
+        const headerMoveOut=["Move-out Subject", "Move-out Description", "Status", "Move-out Date", "Date moved-out"]
+       
             return{
+                activeTable,
+                setActiveTable,
                 options,
                 headerComplaints,
+                headerRefunds,
+                headerMoveOut,
             }
     }
 }
@@ -73,9 +54,27 @@ export default{
                             </option>
                         </select>
                 </div>
-            <div class="mt-5">
-                <p class="text-lg font-bold">Complaints Request</p>
-                <div class="w-full mb-5 mt-5">
+                <div class="flex flex-row mt-5">
+                    <button 
+                    @click="setActiveTable('complain')"
+                    :class="{ 'bg-orange-400 text-white': activeTable === 'complain' }"
+                    class="py-2.5 px-5 font-semibold text-md border-x">
+                        Complain
+                    </button>
+                    <button 
+                    @click="setActiveTable('refund')"
+                    :class="{ 'bg-orange-400 text-white': activeTable === 'refund' }"
+                    class="py-2.5 px-5 font-semibold text-md border-x">
+                        Refund
+                    </button>
+                    <button 
+                    @click="setActiveTable('move')"
+                    :class="{ 'bg-orange-400 text-white': activeTable === 'move' }"
+                    class="py-2.5 px-5 font-semibold text-md border-x">
+                        Move out
+                    </button>
+                </div>
+                <div v-if="activeTable === 'complain'">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
                     >
@@ -84,63 +83,41 @@ export default{
                                 <div
                                     class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
                                 >
+                                <p class="text-xl mb-5 font-bold">Complaints Records</p>
+                                <div class="flex-row flex items-center justify-between">
                                     <form class="flex items-center">
-                                        
                                         <label
                                             for="simple-search"
                                             class="sr-only"
                                             >Search</label
                                         >
                                         <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                required
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
                                                 />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
-                                    </form>
+                                        </div>
+                                       
+                                         
+                                    </form> 
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button 
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button 
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
+                                            </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -149,24 +126,19 @@ export default{
                                 class="items-center w-full bg-transparent border-collapse"
                             >
                                 <thead>
-                                    <tr>
+                                    <tr class="border-y">
                                         <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                             v-for="header in headerComplaints"
                                             :key="header"
                                         >
                                             {{ header }}
                                         </th>
-                                        <th
-                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                        >
-                                            Change Status
-                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in dataComplaints"
+                                        v-for="(item, rowIndex) in slicedRows"
                                         :key="rowIndex"
                                     >
                                         <td
@@ -174,82 +146,294 @@ export default{
                                             v-for="(value, colIndex) in item"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
-                                        </td>
-                                        <td
-                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
-                                        >
-                                            <AppDropdown class="">
-                                                <button >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
-                                                </button>
-                                                <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem>
-                                                        In Progress
-                                                    </AppDropdownItem>
-                                                    <AppDropdownItem>
-                                                        Finished
-                                                    </AppDropdownItem>
-                                                </AppDropdownContent>
-                                            </AppDropdown>
+                                  
+                                            {{ colIndex !== 'created_at' ? value : '' }}
+                                        
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
                             >
-                                <div
-                                    class="justify-between items-center block md:flex"
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    <div
-                                        class="flex items-center justify-center mb-6 md:mb-0"
-                                    >
-                                        <div
-                                            class="flex items-center justify-start flex-wrap -mb-3"
-                                        >
-                                            <button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >1</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >2</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >3</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >4</span
-                                                >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <small>Page 1 of 4</small>
-                                    </div>
-                                </div>
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+                        </div>
+                    </div>
+                </div>
+            
+           
+
+           
+                
+            
+                <div v-if="activeTable === 'refund'">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class="text-xl mb-5 font-bold">Refund Records</p>
+                                <div class="flex-row flex items-center justify-between">
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
+                                                />
+                                        </div>
+                                       
+                                         
+                                    </form> 
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button 
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button 
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
+                                            </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr class="border-y">
+                                        <th
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headerRefunds"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in slicedRows"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in item"
+                                            :key="colIndex"
+                                        >
+                                  
+                                            {{ colIndex !== 'created_at' ? value : '' }}
+                                        
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
+                            >
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+                    </div>
+                </div>
+            
+            
+
+               
+                <div v-if="activeTable === 'move'">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class="text-xl mb-5 font-bold">Move out Records</p>
+                                <div class="flex-row flex items-center justify-between">
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
+                                                />
+                                        </div>
+                                       
+                                         
+                                    </form> 
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button 
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button 
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
+                                            </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr class="border-y">
+                                        <th
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headerMoveOut"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in slicedRows"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in item"
+                                            :key="colIndex"
+                                        >
+                                  
+                                            {{ colIndex !== 'created_at' ? value : '' }}
+                                        
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
+                            >
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+                    </div>
+                </div>
+            
+            
     </div>
     </AuthenticatedLayout>
 </template>

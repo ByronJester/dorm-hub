@@ -48,14 +48,9 @@ class OwnerController extends Controller
         $applications = Application::with(['dorm', 'room', 'owner', 'tenant'])
             ->where('owner_id', $auth->id)->where('is_active', true)->get();
 
-        $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
-            ->where('owner', $auth->id)->where('is_active', true)->get();
-
-
-
         return Inertia::render('Owner/ApplicationModule', [
             'applications' => $applications,
-            'reservations' => $reservations
+            
 
         ]);
     }
@@ -67,8 +62,8 @@ class OwnerController extends Controller
         if($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
-        $reservations = TenantApplication::with('reservation')
-            ->where('status', 'reserve')->get();
+        $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('owner', $auth->id)->get();
 
 
         return Inertia::render('Owner/Reservation', [
