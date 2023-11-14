@@ -363,9 +363,9 @@ class OwnerController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
         }
-    
+
         $dorm = Dorm::find($id);
-    
+
         if (!$dorm) {
             return response()->json(['message' => 'Dorm not found', 'status' => 404], 404);
         }
@@ -418,13 +418,13 @@ class OwnerController extends Controller
                 $room->fee = $r->fee;
                 $room->deposit = $r->deposit;
                 $room->advance = $r->advance;
-        
+
                 // Upload room image if provided
                 if ($r->src) {
                     $uploadFile = $this->uploadFile($r->src, $filename);
                     $room->image = $filename;
                 }
-        
+
                 $room->save();
              }
             }
@@ -434,25 +434,25 @@ class OwnerController extends Controller
 
             foreach ($commonAreas as $key => $b) {
                 $filename = Str::random(10) . '_areas_image';
-              
+
                     $commonArea = new CommonAreas;
 
                     $commonArea->dorm_id = $dorm->id;
                     $commonArea->name = $b->name;
-            
+
                     // Upload common area image if provided
                     if ($b->src) {
                         $uploadFile = $this->uploadFile($b->src, $filename);
                         $commonArea->image = $filename;
                     }
-            
+
                     $commonArea->save();
-                
+
             }
-    
+
             // Update or create amenities
             $amenities = json_decode($request->amenities);
-    
+
             foreach ($amenities as $a) {
                 $amenity = new Amenity;
 
@@ -461,39 +461,39 @@ class OwnerController extends Controller
 
                 $amenity->save();
             }
-    
+
             // Update rules
             $rule = Rule::where('dorm_id', $dorm->id)->first();
-    
+
             if ($rule) {
                 $rule->short_term = $request->short_term;
                 $rule->mix_gender = $request->mix_gender;
                 $rule->curfew = $request->curfew;
                 $rule->curfew_hours = $request->curfew_hours;
                 $rule->minimum_stay = $request->minimum_stay;
-            
+
                 // Update rules array
                 $rules = [];
-            
+
                 foreach (json_decode($request->rules) as $r) {
                     array_push($rules, $r->name);
                 }
-            
+
                 $rule->rules = implode(',', $rules);
-            
+
                 $rule->save();
             }
-    
-    
+
+
             return response()->json(['message' => 'Dorm updated successfully.', 'status' => 200], 200);
         }
-    
+
         return response()->json(['message' => 'Error updating dorm.', 'status' => 500], 500);
-    
-    
+
+
     }
-    
-    
+
+
 
     public function applicationStatusChange(Request $request)
     {
@@ -897,5 +897,12 @@ class OwnerController extends Controller
         $tenant->save();
 
         return $tenant;
+    }
+
+    public function changeRoomStatus(Request $request)
+    {
+        return Room::where('id', $request->id)->update([
+            'is_available' => !$request->is_available
+        ]);
     }
 }
