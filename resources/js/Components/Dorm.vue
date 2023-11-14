@@ -167,48 +167,126 @@ export default {
         const messageOwner = (owner_id) => {
             router.get(route("message.owner", owner_id));
         };
-        const headers = [
-            "Room Name",
-            "Tenant Name",
-            "Capacity",
-            "Furnished",
-            "Description",
-            "Price",
-            "Moved-In Date",
-            "Status",
-        ];
-        const data = [
-            {
-                RoomName: "Room 101",
-                TenantName: "Jear De La Rea",
-                Capacity: "Room for 5",
-                Furnished: "Bare",
-                Description: "Studio Type",
-                Price: "P3000.00",
-                MovedInDate: "09/12/23",
-                Status: "Unavailable",
-            },
-            {
-                RoomName: "Room 102",
-                TenantName: "",
-                Capacity: "Room for 2",
-                Furnished: "Bare",
-                Description: "Studio Type",
-                Price: "P2000.00",
-                MovedInDate: "",
-                Status: "Available",
-            },
-        ];
 
         const page = usePage();
 
         const notAllowedToRentReserve = page.props.notAllowedToRentReserve;
 
-        console.log(notAllowedToRentReserve);
-
         const formatDate = (date) => {
          return format(new Date(date), 'MMMM dd, yyyy'); // Adjust the format as needed
         }
+
+        const objectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.id;
+            delete newObject.is_available;
+            delete newObject.room_id
+            delete newObject.auto_bill
+
+            return newObject;
+        }
+
+        const rooms = page.props.dorm.rooms
+        const totalRooms = rooms.length
+        const availableRooms = rooms.filter(x => { return !!x.is_available })
+        const unAvailableRooms = rooms.filter(x => { return !x.is_available })
+
+        const headers = [
+            "Room Name",
+            "Capacity",
+            "Furnished",
+            "Monthly Fee",
+            "Status",
+        ];
+
+        var data = ref([]);
+
+        for ( let r = 0; r < availableRooms.length; r++) {
+            data.value.push(
+                {
+                    room_name: availableRooms[r].name,
+                    type_of_room: availableRooms[r].type_of_room,
+                    furnished_type: availableRooms[r].furnished_type,
+                    fee: moneyFormat(availableRooms[r].fee),
+                    status: !availableRooms[r].is_available ? 'Unavailable' : 'Available',
+                    is_available: availableRooms[r].is_available,
+                    id: availableRooms[r].id
+                }
+            )
+        }
+
+        const changeRoomAvailability = (arg) => {
+            let confirmText = !arg.is_available ? 'mark this room available?' : 'mark this room unavailable?';
+            let successText = !arg.is_available ? 'available.' : 'unavailable.';
+            const data = { id: arg.id, is_available: arg.is_available }
+
+            swal(
+                {
+                    title: `Are you sure you want ${confirmText}`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("change.room.status"), data)
+                        .then((response) => {
+                            swal(
+                                "Room",
+                                `You successfully mark this room ${successText}`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {
+
+                        });
+                }
+            );
+        }
+
+        const roomStatusFilter = ref('available')
+        const roomStatusFilterChange = () => {
+            data.value = [];
+
+            if(roomStatusFilter.value == 'available') {
+                for ( let r = 0; r < availableRooms.length; r++) {
+                    data.value.push(
+                        {
+                            room_name: availableRooms[r].name,
+                            type_of_room: availableRooms[r].type_of_room,
+                            furnished_type: availableRooms[r].furnished_type,
+                            fee: moneyFormat(availableRooms[r].fee),
+                            status: !availableRooms[r].is_available ? 'Unavailable' : 'Available',
+                            is_available: availableRooms[r].is_available,
+                            id: availableRooms[r].id
+                        }
+                    )
+                }
+            } else {
+                for ( let r = 0; r < unAvailableRooms.length; r++) {
+                    data.value.push(
+                        {
+                            room_name: unAvailableRooms[r].name,
+                            type_of_room: unAvailableRooms[r].type_of_room,
+                            furnished_type: unAvailableRooms[r].furnished_type,
+                            fee: moneyFormat(unAvailableRooms[r].fee),
+                            status: !unAvailableRooms[r].is_available ? 'Unavailable' : 'Available',
+                            is_available: unAvailableRooms[r].is_available,
+                            id: unAvailableRooms[r].id
+                        }
+                    )
+                }
+            }
+        }
+
+
         return {
             props,
             isMobileView,
@@ -229,7 +307,15 @@ export default {
             currentTab,
             showDetails,
             showTerms,
-            notAllowedToRentReserve
+            notAllowedToRentReserve,
+            rooms,
+            totalRooms,
+            availableRooms,
+            unAvailableRooms,
+            changeRoomAvailability,
+            objectRemoveKey,
+            roomStatusFilter,
+            roomStatusFilterChange
         };
     },
 };
@@ -270,7 +356,7 @@ export default {
             >
                 <div class="text-center p-4">
                     <p class="text-2xl mb-2">
-                        <!--Palagay na lang ng data pre-->
+                        {{ totalRooms }}
                     </p>
                     <p class="text-xs">TOTAL NO. OF Rooms</p>
                 </div>
@@ -281,7 +367,7 @@ export default {
             >
                 <div class="text-center p-4">
                     <p class="text-2xl mb-2">
-                        <!--Palagay na lang ng data pre-->
+                       {{ availableRooms.length }}
                     </p>
                     <p class="text-xs">TOTAL NO. OF Available Rooms</p>
                 </div>
@@ -292,7 +378,7 @@ export default {
             >
                 <div class="text-center p-4">
                     <p class="text-2xl mb-2">
-                        <!--Palagay na lang ng data pre-->
+                        {{ unAvailableRooms.length }}
                     </p>
                     <p class="text-xs">TOTAL NO. OF Unavailable Rooms</p>
                 </div>
@@ -311,10 +397,11 @@ export default {
                             >
                                 <select
                                     class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    v-model="roomStatusFilter" @change="roomStatusFilterChange()"
                                 >
-                                    <option value="Approved">Available</option>
-                                    <option value="Declined">
-                                        UnAvailable
+                                    <option value="available">Available</option>
+                                    <option value="unavailable">
+                                        Unavailable
                                     </option>
                                 </select>
                             </div>
@@ -347,7 +434,7 @@ export default {
                                 >
                                     <td
                                         class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        v-for="(value, colIndex) in item"
+                                        v-for="(value, colIndex) in objectRemoveKey(item)"
                                         :key="colIndex"
                                     >
                                         {{ value }}
@@ -356,12 +443,10 @@ export default {
                                         class="border-t-0 px-6 align-middle items-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                     >
                                         <button
-                                            @click="editItem(rowIndex)"
-                                            class="hover:text-orange-400"
+                                            @click="changeRoomAvailability(item)"
+                                            class="bg-orange-400 py-2 px-3 rounded-md"
                                         >
-                                            <i
-                                                class="fa-solid fa-pen-to-square"
-                                            ></i>
+                                            {{ !!item.is_available ? 'Mark as Unavailable' : 'Mark as Available' }}
                                         </button>
                                     </td>
                                 </tr>
@@ -401,7 +486,7 @@ export default {
                             <img class="h-[450px] w-full rounded-lg" :src="props.dorm.dorm_image" alt="">
                         </div>
                         <p class="font-semibold text-lg ">Common Areas</p>
-                       
+
                         <div class="grid md:grid-cols-5 grid-cols-2 gap-4">
                             <div
                                 v-for="(commonArea, index) in props.dorm.common_areas"

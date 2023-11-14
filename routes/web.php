@@ -125,11 +125,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/addDorm', [OwnerController::class, 'addDorm'])->name('owner.addDorm');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
-        Route::get('/tenantspaymenthistory/{application_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
+        Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
-        Route::post('/update-dorm/{id}', [OwnerController::class, 'updateDorm'])->name('update.dorm');
         Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');
         Route::post('/application/decline/{id}', [OwnerController::class, 'declineApplication'])->name('decline.application');
         Route::post('/reservation/decline/{id}', [OwnerController::class, 'declineReservation'])->name('decline.reservation');
@@ -138,6 +137,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/payment-history/mark-as-paid', [OwnerController::class, 'paymentHistoryMarkAsPaid'])->name('payment-history.mark-as-paid');
         Route::post('/bill/munual-bill', [OwnerController::class, 'submitManualBill'])->name('owner.manual-bill');
         Route::post('/bill/auto-bill', [OwnerController::class, 'submitAutoBill'])->name('owner.auto-bill');
+        Route::post('/room/change-status', [OwnerController::class, 'changeRoomStatus'])->name('change.room.status');
     });
 
     Route::prefix('tenant')->group(function () {

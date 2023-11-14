@@ -29,7 +29,8 @@ class TenantController extends Controller
     }
 
     public function mydorm()
-    {   $auth = Auth::user();
+    {
+        $auth = Auth::user();
 
         // $myDorm = TenantApplication::where('tenant_id', $auth->id)->where('is_active', true)
         //     ->where('is_approved', true)->first();
@@ -40,7 +41,12 @@ class TenantController extends Controller
             ->first();
 
         $rating = DormRating::where('tenant_id', $auth->id)->first();
-        $complaints = TenantComplaint::where('tenant_id', $myDorm->id)->get();
+
+        $complaints = [];
+
+        if($myDorm) {
+            $complaints = TenantComplaint::where('tenant_id', $myDorm->id)->get();
+        }
 
         return Inertia::render('Tenant/MyDorm', [
             'myDorm' => $myDorm,
@@ -69,8 +75,19 @@ class TenantController extends Controller
 
         $payments = UserPayment::where('user_id', $auth->id)->get();
         $nexPayment = UserPayment::where('status', 'pending')->where('user_id', $auth->id)->where('description', 'monthly_fee')->first();
-        $lastBilled = UserPayment::orderBy('updated_at', 'desc')->where('status', 'paid')->where('user_id', $auth->id)->first();
-        $totalAmountPaid = UserPayment::where('status', 'paid')->where('user_id', $auth->id)->get();
+        $lastBilled = UserPayment::orderBy('created_at', 'desc')->where('status', 'paid')
+            ->whereIn('description', ['monthly_fee', 'advance_and_deposit_fee'])
+            ->where('user_id', $auth->id)
+            ->first();
+
+        $paid = UserPayment::where('status', 'paid')->where('user_id', $auth->id)->get();
+
+        $totalAmountPaid = 0;
+
+        foreach ($paid as $p) {
+            $billing = (object) $p->billing;
+            $totalAmountPaid += $billing->amount;
+        }
 
         $balance = 0;
 
@@ -85,7 +102,7 @@ class TenantController extends Controller
             'nexPayment' => $nexPayment,
             'lastBilled' => $lastBilled,
             'balance' => $balance,
-            'totalAmountPaid' => $totalAmountPaid->sum('amount')
+            'totalAmountPaid' => $totalAmountPaid,
         ]);
     }
 
