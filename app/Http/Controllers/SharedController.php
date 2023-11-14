@@ -240,4 +240,26 @@ class SharedController extends Controller
 
         return response()->json("Due Reminder!", 200);
     }
+
+    public function reservationExpiration()
+    {
+        $reservations = Reservation::where('is_active', true)->get();
+        $now = Carbon::now();
+
+        foreach($reservations as $reservation) {
+            $expirationDate = Carbon::parse($reservation->expired_at);
+            $room = Room::where('id', $reservation->room_id)->first();
+
+            if ($now->isSameDay($expirationDate)) {
+                $reservation->is_active = false;
+                $reservation->save();
+
+                $room->status = null;
+                $room->is_available = true;
+                $room->save();
+            }
+        }
+
+        return response()->json("Resrvation Expiration", 200);
+    }
 }
