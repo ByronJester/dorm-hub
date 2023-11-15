@@ -85,6 +85,60 @@ export default {
                 tenantsData.value = constructData(dorm_id)
             }
 
+            const noticeTermination = (arg) => {
+                swal({
+                    title: `Are you sure to notice this tenant for termination?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('tenant.notice.termination', {id: arg.id}),
+                        {
+                            id: arg.refund_id,
+                        })
+                        .then(response => {
+                            swal("Success!", `You successfully notice this tenant for termination.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+
+                        })
+                });
+            }
+
+            const removeTenant = (arg) => {
+                swal({
+                    title: `Are you sure to remove this tenant?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false
+                },
+                function(){
+                    axios.post(route('tenant.remove', {id: arg.id}),
+                        {
+                            id: arg.refund_id,
+                        })
+                        .then(response => {
+                            swal("Success!", `You successfully remove this tenant.`, "success");
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+
+                        })
+                });
+            }
+
             return{
                 options,
                 headerTenants,
@@ -93,7 +147,9 @@ export default {
                 objectRemoveKey,
                 tenants,
                 moneyFormat,
-                dormChange
+                dormChange,
+                noticeTermination,
+                removeTenant
             }
         }
 }
@@ -244,10 +300,10 @@ export default {
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
-                                                    <!-- <AppDropdownItem>
-                                                        Edit Tenant
-                                                    </AppDropdownItem> -->
-                                                    <AppDropdownItem>
+                                                    <AppDropdownItem @click="noticeTermination(item)">
+                                                        Notice Termination
+                                                    </AppDropdownItem>
+                                                    <AppDropdownItem @click="removeTenant(item)">
                                                         Remove Tenant
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>

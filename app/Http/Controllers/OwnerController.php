@@ -86,6 +86,7 @@ class OwnerController extends Controller
             ->get(['id', 'property_name']);
 
         $tenants = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user', 'billings'])
+            ->where('is_active', true)
             ->where('owner', $auth->id)->get();
 
         return Inertia::render('Owner/Tenants', [
@@ -1067,7 +1068,37 @@ class OwnerController extends Controller
             ->where('tenant_id', $tenant->tenant)
             ->where('dorm_id', $tenant->dorm_id)
             ->where('room_id', $tenant->room_id)
-            ->where('is_active', true)
+            ->first();
+
+        $application->is_active = false;
+        $application->save();
+
+        $tenant->status = 'moved_out';
+        $tenant->is_active = false;
+
+        return $tenant->save();
+    }
+
+    public function noticeTermination(Request $request)
+    {
+        $tenant = Tenant::where('id', $request->id)->first();
+
+        $user = User::where('id', $tenant->tenant)->first();
+
+        $message = 'Your are been notify for termination.';
+        $this->sendSMS($user->phone_number, $message);
+
+        return true;
+    }
+
+    public function removeTenant(Request $request)
+    {
+        $tenant = Tenant::where('id', $request->id)->first();
+
+        $application = Application::where('owner_id', $tenant->owner)
+            ->where('tenant_id', $tenant->tenant)
+            ->where('dorm_id', $tenant->dorm_id)
+            ->where('room_id', $tenant->room_id)
             ->first();
 
         $application->is_active = false;
