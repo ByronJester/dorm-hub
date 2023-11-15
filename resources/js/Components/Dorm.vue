@@ -286,6 +286,13 @@ export default {
             }
         }
 
+        const hasActive = (arg) => {
+            let check = page.props.dorm.rooms.filter(x => {
+                return x.id == arg.id;
+            })[0].has_active_application_reservation
+
+            return check;
+        }
 
         return {
             props,
@@ -315,7 +322,8 @@ export default {
             changeRoomAvailability,
             objectRemoveKey,
             roomStatusFilter,
-            roomStatusFilterChange
+            roomStatusFilterChange,
+            hasActive
         };
     },
 };
@@ -445,6 +453,9 @@ export default {
                                         <button
                                             @click="changeRoomAvailability(item)"
                                             class="bg-orange-400 py-2 px-3 rounded-md text-white"
+                                            :disabled="hasActive(item)"
+                                            :class="{'cursor-not-allowed': hasActive(item)}"
+
                                         >
                                             {{ !!item.is_available ? 'Mark as Unavailable' : 'Mark as Available' }}
                                         </button>

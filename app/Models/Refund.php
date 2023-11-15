@@ -13,4 +13,13 @@ class Refund extends Model
         'user_payment_id', 'amount', 'payment_method', 'wallet_name',
         'account_name', 'account_number'
     ];
+
+    // protected $with = [
+    //     'user_payments'
+    // ];
+
+    // public function user_payments()
+    // {
+    //     return $this->belongsTo(UserPayment::class);
+    // }
 }

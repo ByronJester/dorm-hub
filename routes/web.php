@@ -162,6 +162,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/cancel/reservation', [TenantController::class, 'cancelReservation'])->name('cancel.reservation');
         Route::post('/rent/now', [TenantController::class, 'rentNow'])->name('rent.now');
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
+        Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
     });
 
     Route::prefix('shared')->group(function () {

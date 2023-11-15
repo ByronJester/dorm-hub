@@ -746,5 +746,14 @@ class TenantController extends Controller
             ],
         );
     }
+
+    public function requestRefund(Request $request)
+    {
+        UserPayment::where('id', $request->user_payment_id)->update([
+            'status' => 'pending_refund'
+        ]);
+
+        return Refund::create($request->all());
+    }
 }
 
