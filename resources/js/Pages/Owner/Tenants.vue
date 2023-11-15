@@ -174,6 +174,103 @@ export default {
             modal.style.display = "none";
         };
 
+        const form = ref({
+            first_name: null,
+            last_name: null,
+            username: null,
+            phone_number: null,
+            password: null,
+            confirm_password: null,
+            id_picture: null,
+            selfie_id_picture: null,
+            image: null,
+            source_of_income: null,
+            monthly_income: null,
+            proof: null,
+            room: null
+        })
+
+        const idPictureChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                form.value.id_picture = e.target.result;
+            };
+        };
+
+        const selfieIdPictureChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                form.value.selfie_id_picture = e.target.result;
+            };
+        };
+
+        const proofImageChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                form.value.proof = e.target.result;
+            };
+        };
+
+        const imageChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                form.value.image = e.target.result;
+            };
+        };
+
+        const imageClick = () => {
+            document.getElementById("profile_image").click();
+        };
+
+        const createTenant = () => {
+            swal(
+                {
+                    title: `Are you sure to add this tenant?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("tenant.add"), form.value)
+                        .then((response) => {
+                            swal(
+                                "Success!",
+                                `You successfully add this tenant.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        }
+
         return {
             options,
             headerTenants,
@@ -187,6 +284,13 @@ export default {
             removeTenant,
             openComplainModal,
             closeComplainModal,
+            form,
+            idPictureChange,
+            selfieIdPictureChange,
+            imageChange,
+            proofImageChange,
+            imageClick,
+            createTenant
         };
     },
 };
@@ -460,14 +564,14 @@ export default {
                                             <div class="flex mb-3 md:mb-0">
                                                 <div>
                                                     <img
-                                                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                        :src="!!form.image ? form.image : 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                                                         alt="Profile picture"
                                                         class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 "
                                                     />
                                                 </div>
                                             </div>
                                             <div>
-                                                <div class="inline-flex">
+                                                <div class="inline-flex" @click="imageClick()">
                                                     <a
                                                         class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-blue-600 ring-blue-300 py-2 px-3"
                                                         disabled="false"
@@ -523,6 +627,7 @@ export default {
                                                     required
                                                     autofocus
                                                     autocomplete="first_name"
+                                                    v-model="form.first_name"
                                                 />
 
                                                 <InputError class="mt-2" />
@@ -542,6 +647,7 @@ export default {
                                                     placeholder="ex: Casimero"
                                                     autofocus
                                                     autocomplete="middle_name"
+                                                    v-model="form.last_name"
                                                 />
 
                                                 <InputError class="mt-2" />
@@ -561,6 +667,7 @@ export default {
                                                     placeholder="ex: Jear12"
                                                     autofocus
                                                     autocomplete="middle_name"
+                                                    v-model="form.username"
                                                 />
 
                                                 <InputError class="mt-2" />
@@ -580,6 +687,7 @@ export default {
                                                     placeholder="ex: 09112233445"
                                                     required
                                                     autocomplete="phone_number"
+                                                    v-model="form.phone_number"
                                                 />
 
                                                 <InputError class="mt-2" />
@@ -594,10 +702,11 @@ export default {
 
                                                 <TextInput
                                                     id="password"
-                                                    type="text"
+                                                    type="password"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="*********"
                                                     autofocus
+                                                    v-model="form.password"
                                                 />
 
                                                 <InputError class="mt-2" />
@@ -612,10 +721,11 @@ export default {
 
                                                 <TextInput
                                                     id="confirm_password"
-                                                    type="text"
+                                                    type="password"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="*********"
                                                     autofocus
+                                                    v-model="form.confirm_password"
                                                 />
 
                                                 <InputError class="mt-2" />
@@ -660,6 +770,7 @@ export default {
                                                     id="id_picture"
                                                     class="hidden"
                                                     accept="image/*"
+                                                    @change="idPictureChange($event)"
                                                 />
 
                                                 <label
@@ -670,7 +781,7 @@ export default {
                                                         class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
                                                     >
                                                         <img
-                                                            src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                        :src="!!form.id_picture ? form.id_picture : 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                                                             alt="Valid ID"
                                                             class="h-48 w-auto rounded-lg"
                                                         />
@@ -702,6 +813,7 @@ export default {
                                                     id="selfie_id_picture"
                                                     class="hidden"
                                                     accept="image/*"
+                                                    @change="selfieIdPictureChange($event)"
                                                 />
 
                                                 <label
@@ -712,7 +824,7 @@ export default {
                                                         class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
                                                     >
                                                         <img
-                                                            src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                        :src="!!form.selfie_id_picture ? form.selfie_id_picture : 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                                                             alt="Valid ID"
                                                             class="h-48 w-auto rounded-lg"
                                                         />
@@ -732,6 +844,7 @@ export default {
 
                                                     <select
                                                         class="w-full mt-1 rounded-md"
+                                                        v-model="form.source_of_income"
                                                     >
                                                         <option value="Salary">
                                                             Salary
@@ -766,6 +879,7 @@ export default {
                                                         type="number"
                                                         class="mt-1 block w-full"
                                                         required
+                                                        v-model="form.monthly_income"
                                                     />
 
                                                     <InputError class="mt-2" />
@@ -787,6 +901,7 @@ export default {
                                                         id="proof"
                                                         class="hidden"
                                                         accept="image/*"
+                                                        @change="proofImageChange($event)"
                                                     />
 
                                                     <label
@@ -797,7 +912,7 @@ export default {
                                                             class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
                                                         >
                                                             <img
-                                                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                                :src="!!form.proof ? form.proof : 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                                                                 alt="Proof"
                                                                 class="h-48 w-auto rounded-lg"
                                                             />
@@ -818,18 +933,17 @@ export default {
 
                                             <select
                                                 class="w-full mt-1 rounded-md"
+                                                v-model="form.room"
                                             >
-                                                <option value="1">
-                                                    Room 1
-                                                </option>
-                                                <option value="2">
-                                                    Room 2
-                                                </option>
-                                                <option value="3">
-                                                    Room 3
-                                                </option>
-                                                <option value="4">
-                                                    Room 4
+                                                <option
+                                                    v-for="room in options.filter(x =>  {
+                                                        return x.id == selectedDorm
+                                                    })[0].rooms"
+
+                                                    :key="room.id"
+                                                    :value="room.id"
+                                                >
+                                                    {{ room.name }}
                                                 </option>
                                             </select>
 
@@ -842,7 +956,7 @@ export default {
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b "
                                 >
                                     <button
-                                        @click.prevent="submitComplain()"
+                                        @click.prevent="createTenant()"
                                         type="button"
                                         class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                     >
