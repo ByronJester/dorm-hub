@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\{ Dorm, User, Notification };
+use App\Models\{
+    Dorm, User, Notification, Refund, UserPayment, Tenant
+};
+use Carbon\Carbon;
 
 
 class AdminController extends Controller
@@ -50,9 +53,34 @@ class AdminController extends Controller
     }
 
     public function refund(){
+        $refunds = Refund::where('status', 'ongoing')->get();
+
+        $refundArr = [];
+
+        foreach ($refunds as $refund) {
+            $payment = UserPayment::where('id', $refund->user_payment_id)->first();
+
+            if(!!$payment->tenant_id) {
+                array_push($refundArr, [
+                    'payment_id' => $refund->user_payment_id,
+                    'refund_id' => $refund->id,
+                    'refund_description' => $payment->description,
+                    'payment_method' => $refund->payment_method,
+                    'wallet_name' => $refund->wallet_name,
+                    'account_number' => $refund->account_number,
+                    'account_name' => $refund->account_name,
+                    'status' => $refund->status,
+                    'refund_date' => Carbon::parse($refund->created_at)->isoFormat('LL'),
+                    'proof_of_refund' => $refund->proof_of_refund,
+                ]);
+
+            }
+
+        }
+
 
         return Inertia::render('Admin/RefundRequest',[
-            
+            'refunds' => $refundArr
         ]);
     }
 

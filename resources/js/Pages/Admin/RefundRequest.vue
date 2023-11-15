@@ -17,10 +17,15 @@ export default {
     setup() {
         const page = usePage();
 
-        const openComplainModal = () => {
+        const selectedRefund = ref(null)
+
+        const openComplainModal = (arg) => {
             var modal = document.getElementById("viewModal");
 
             modal.style.display = "block";
+
+            selectedRefund.value = arg
+            console.log(arg)
         };
 
         const closeComplainModal = () => {
@@ -29,18 +34,110 @@ export default {
             modal.style.display = "none";
         };
 
-        const headerRefunds = [
-            "Dorm owner",
-            "Dorm name",
-            "Status",
-            "Refund Date",
-            "Action",
-        ];
+        const headerRefunds=["Refund Description", "Refund Method", "Bank/Wallet Name", "Account number", "Account Name", "Status", "Refund Date", "Action"]
+
+        const refundsData = page.props.refunds
+
+        const refundObjectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.dorm_id
+            delete newObject.payment_id
+            delete newObject.refund_id
+            delete newObject.proof_of_refund
+
+            return newObject;
+        }
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
+            }
+
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+
+        const approveRefund = () => {
+            var status = 'refunded'
+
+            swal({
+                title: `Are you sure to mark as ${status} this refund?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.refund.change.status', status),
+                    {
+                        id: selectedRefund.value.refund_id,
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        const declineRefund = () => {
+            var status = 'declined'
+
+            swal({
+                title: `Are you sure to mark as ${status} this refund?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.refund.change.status', status),
+                    {
+                        id: selectedRefund.value.refund_id,
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
 
         return {
             openComplainModal,
             closeComplainModal,
             headerRefunds,
+            refundsData,
+            refundObjectRemoveKey,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            selectedRefund,
+            approveRefund,
+            declineRefund
         };
     },
 };
@@ -133,25 +230,35 @@ export default {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
+                                <tr
+                                    v-for="(item, rowIndex) in refundsData"
+                                    :key="rowIndex"
+                                >
                                     <td
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">yow</td>
-                                    <td
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">yow</td>
-                                    <td
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">yow</td>
-                                    <td
-                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">yow</td>
+                                        class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                        v-for="(value, colIndex) in refundObjectRemoveKey(item)"
+                                        :key="colIndex"
+                                    >
+
+                                        {{ colIndex == 'refund_description' ? removeUnderscoreAndCapitalizeAfterSpace(value) : value }}
+
+                                    </td>
 
                                     <td
                                         class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                     >
-                                        <button
-                                            @click="openComplainModal()"
-                                            class="px-3 py-2 mr-2 bg-rose-500 text-white rounded-md"
-                                        >
-                                            View
-                                        </button>
+                                    <AppDropdown class="flex justify-center items-center">
+                                            <button >
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                                            </button>
+                                            <AppDropdownContent class="bg-white z-50 " v-if="item.status == 'ongoing'">
+                                                <AppDropdownItem @click="openComplainModal(item)">
+                                                    View
+                                                </AppDropdownItem>
+                                            </AppDropdownContent>
+                                    </AppDropdown>
+
+
                                     </td>
                                 </tr>
                             </tbody>
@@ -246,7 +353,7 @@ export default {
                                 </button>
                             </div>
                             <!-- Modal body -->
-                            <div class="p-6 space-y-6">
+                            <div class="p-6 space-y-6" v-if="selectedRefund">
                                 <div class="mb-3">
                                     <label
                                         for="EWalletName"
@@ -254,6 +361,7 @@ export default {
                                         >E-wallet/Bank Name</label
                                     >
                                     <input
+                                        :value="selectedRefund.wallet_name"
                                         disabled
                                         type="text"
                                         id="EWalletName"
@@ -268,6 +376,7 @@ export default {
                                         >Account Name:</label
                                     >
                                     <input
+                                        :value="selectedRefund.account_name"
                                         disabled
                                         type="text"
                                         id="accName"
@@ -281,6 +390,7 @@ export default {
                                         >Account Number:</label
                                     >
                                     <input
+                                        :value="selectedRefund.account_number"
                                         disabled
                                         type="text"
                                         id="accName"
@@ -292,6 +402,10 @@ export default {
                                         class="block mb-2 text-sm font-medium text-gray-900 "
                                         >Proof of refund:</label
                                     >
+
+                                    <img :src="selectedRefund.proof_of_refund"
+                                        class="w-full h-[200px]"
+                                    />
                                     <!--padagdag image pre-->
                                 </div>
                             </div>
@@ -300,6 +414,7 @@ export default {
                                 class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                             >
                                 <button
+                                    @click="declineRefund()"
                                     type="button"
                                     class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                 >
@@ -307,6 +422,7 @@ export default {
                                 </button>
 
                                 <button
+                                    @click="approveRefund()"
                                     type="button"
                                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                 >

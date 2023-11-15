@@ -14,7 +14,7 @@ export default {
         AuthenticatedLayout,
     },
     methods: {
-  
+
     exportToPDF() {
             const page = usePage();
             const doc = new jsPDF();
@@ -29,9 +29,9 @@ export default {
             const facebook = contacts.facebook;
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
-            
-           
-        
+
+
+
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
             doc.text(emails, 150, 30)
@@ -70,7 +70,7 @@ export default {
 
             doc.save("table-data.pdf");
         },
-          
+
     },
     setup() {
         const page = usePage();
@@ -251,7 +251,7 @@ export default {
 
             const filteredData = computed(() => {
                 const query = searchQuery.value.toLowerCase().trim();
-      
+
                     if (!query) {
                         if (activeTable.value === 'all') {
                         return data; // Return all data if 'all' is selected
@@ -353,7 +353,7 @@ export default {
             );
         }
 
-       
+
 
         const activeTable = ref('all')
 
@@ -614,24 +614,24 @@ export default {
                                                     required
                                                 />
                                         </div>
-                                       
-                                         
-                                    </form> 
+
+
+                                    </form>
                                     <div class="flex flex-row items-center gap-2 font-semibold">
-                                                <button 
+                                                <button
                                                 @click="exportToPDF()"
                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
                                                     PDF
                                                 </button>
                                                 <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
                                                     Print
-                                                </button>    
+                                                </button>
                                             </div>
                                 </div>
                                 </div>
                             </div>
                         </div>
-                                
+
                                         <div class="flex flex-row mt-5 border-t">
                                             <button
                                                 @click="setActiveTable('all')"
@@ -643,7 +643,7 @@ export default {
                                                 @click="setActiveTable('paid')"
                                                 :class="{ 'bg-orange-400 text-white': activeTable === 'paid' }"
                                                 class="py-2.5 px-5 font-semibold text-md border-x">
-                                                Paid    
+                                                Paid
                                             </button>
                                             <button
                                                 @click="setActiveTable('unpaid')"
@@ -652,7 +652,7 @@ export default {
                                                 Unpaid
                                             </button>
                                         </div>
-                                   
+
                                     <div class="block w-full overflow-x-auto">
                                         <table
                                             class="items-center w-full bg-transparent border-collapse"
@@ -699,10 +699,10 @@ export default {
                                                         </div>
 
                                                         <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5 mr-2"
-                                                            v-if="colIndex == 'action' && value.status != 'refunded'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund'"
-                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund'}"
+                                                            v-if="colIndex == 'action' && value.status != 'refunded'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund' || value.status == 'declined_refund' || value.status == 'ongoing_refund'"
+                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund' || value.status == 'declined_refund' || value.status == 'ongoing_refund'}"
                                                         >
-                                                            {{ value.status == 'paid' || value.status == 'pending_refund' ? 'Paid' : 'Pay' }}
+                                                            {{ value.status == 'paid' || value.status == 'pending_refund' || value.status == 'declined_refund' || value.status == 'ongoing_refund' ? 'Paid' : 'Pay' }}
                                                         </button>
 
                                                         <button @click="openLeaveModal(value)" class="bg-cyan-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"

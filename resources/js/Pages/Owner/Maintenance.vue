@@ -123,12 +123,15 @@ export default{
         }));
 
 
-        console.log(refundsData.value)
+        const selectedRefund = ref(null)
+        const proof_of_refund = ref(null)
 
-        const openAutoBill = () => {
+        const openAutoBill = (arg) => {
             var modal = document.getElementById("defaultModal");
 
             modal.style.display = "block";
+
+            selectedRefund.value = arg
 
         };
 
@@ -138,6 +141,83 @@ export default{
             modal.style.display = "none";
 
         };
+
+        const proofPaymentChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                proof_of_refund.value = e.target.result;
+            };
+        };
+
+        const proofPayment = () => {
+            document.getElementById("proof_payment").click();
+        };
+
+        const approveRefund = () => {
+            var status = 'ongoing'
+
+            swal({
+                title: `Are you sure to mark as ${status} this refund?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.refund.change.status', status),
+                    {
+                        id: selectedRefund.value.refund_id,
+                        proof_of_refund: proof_of_refund.value
+
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        const declineRefund = (arg) => {
+            var status = 'declined'
+
+            swal({
+                title: `Are you sure to mark as ${status} this refund?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.refund.change.status', status),
+                    {
+                        id: arg.refund_id,
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
 
         return{
             openAutoBill,
@@ -155,7 +235,13 @@ export default{
             changeComplainStatus,
             removeUnderscoreAndCapitalizeAfterSpace,
             refundObjectRemoveKey,
-            refundsData
+            refundsData,
+            selectedRefund,
+            proof_of_refund,
+            proofPaymentChange,
+            proofPayment,
+            approveRefund,
+            declineRefund
         }
     }
 }
@@ -435,11 +521,13 @@ export default{
                                                 <button >
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
-                                                <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem @click="openAutoBill()">
+                                                <AppDropdownContent class="bg-white z-50 " v-if="item.status == 'pending'">
+                                                    <AppDropdownItem @click="openAutoBill(item)">
                                                         Approve
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem >
+                                                    <AppDropdownItem
+                                                        @click="declineRefund(item)"
+                                                    >
                                                         Decline
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
@@ -618,7 +706,7 @@ export default{
                     <div class="h-screen flex justify-center items-center">
                         <div class="relative w-full max-w-md max-h-full">
                             <!-- Modal content -->
-                            <div class="relative bg-white rounded-lg shadow" v-if="selectedBill">
+                            <div class="relative bg-white rounded-lg shadow">
                                 <!-- Modal header -->
                                 <div
                                     class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
@@ -661,22 +749,33 @@ export default{
                                                 >Proof of Refund:</label>
                                             <label
                                                 for="proof"
-                                                class="relative cursor-pointer"
+                                                class="relative cursor-pointer w-full"
+                                                @click="proofPayment()"
                                             >
                                                 <div
                                                     class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
                                                 >
                                                     <img
-                                                        v-if="form.id_picture"
-                                                        :src="form.id_picture"
+                                                        v-if="proof_of_refund"
+                                                        :src="proof_of_refund"
                                                         alt="Valid ID"
-                                                        class="h-48 w-auto rounded-lg"
+                                                        class="h-48 w-full rounded-lg"
                                                     />
-                                                    <span v-else
+                                                    <span v-else class="w-full"
                                                         >Input Proof of refund</span
                                                     >
+
+
                                                 </div>
                                             </label>
+
+                                            <input
+                                                type="file"
+                                                id="proof_payment"
+                                                class="hidden"
+                                                @change="proofPaymentChange($event)"
+                                                accept="image/*"
+                                            />
                                     </div></div>
 
                                 </div>
@@ -685,7 +784,7 @@ export default{
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
-                                 
+                                        @click="approveRefund()"
                                         type="button"
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
