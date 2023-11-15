@@ -1085,7 +1085,7 @@ class OwnerController extends Controller
 
         $user = User::where('id', $tenant->tenant)->first();
 
-        $message = 'Your are been notify for termination.';
+        $message = 'You are been notify for termination.';
         $this->sendSMS($user->phone_number, $message);
 
         return true;
