@@ -11,15 +11,13 @@ class Refund extends Model
 
     protected $fillable = [
         'user_payment_id', 'amount', 'payment_method', 'wallet_name',
-        'account_name', 'account_number'
+        'account_name', 'account_number', 'proof_of_refund'
     ];
 
-    // protected $with = [
-    //     'user_payments'
-    // ];
+    public function getProofOfRefundAttribute($value)
+    {
+        if(!$value) return $value;
 
-    // public function user_payments()
-    // {
-    //     return $this->belongsTo(UserPayment::class);
-    // }
+        return  "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
 }

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('wallet_name', 100)->nullable();
             $table->string('account_name', 100)->nullable();
             $table->string('account_number', 100)->nullable();
+            $table->string('proof_of_refund', 100)->nullable();
             $table->string('status', 50)->default('pending');
 
             $table->foreign('user_payment_id')->references('id')->on('user_payments');

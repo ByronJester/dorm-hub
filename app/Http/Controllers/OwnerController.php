@@ -1013,4 +1013,40 @@ class OwnerController extends Controller
             'status' => $request->status
         ]);
     }
+
+    public function refundChangeStatus($status, Request $request)
+    {
+        $refund = Refund::where('id', $request->id)->first();
+
+        if($request->has('proof_of_refund')) {
+            $proof_of_refund = $request->proof_of_refund;
+
+            $filename = Str::random(10) . '_proof_of_refund';
+
+            $uploadFile = $this->uploadFile($proof_of_refund, $filename);
+            $refund->proof_of_refund = $filename;
+        }
+
+        if($status == 'declined') {
+            UserPayment::where('id', $refund->user_payment_id)->update([
+                'status' => 'declined_refund'
+            ]);
+        }
+
+        if($status == 'ongoing') {
+            UserPayment::where('id', $refund->user_payment_id)->update([
+                'status' => 'ongoing_refund'
+            ]);
+        }
+
+        if($status == 'refunded') {
+            UserPayment::where('id', $refund->user_payment_id)->update([
+                'status' => 'refunded'
+            ]);
+        }
+
+        $refund->status = $status;
+
+        return $refund->save();
+    }
 }
