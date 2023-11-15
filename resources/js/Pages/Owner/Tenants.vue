@@ -18,7 +18,7 @@ export default {
         AppDropdownItem,
         InputLabel,
         TextInput,
-        InputError
+        InputError,
     },
     setup() {
         const page = usePage();
@@ -103,6 +103,71 @@ export default {
             modal.style.display = "block";
         };
 
+        const noticeTermination = (arg) => {
+            swal(
+                {
+                    title: `Are you sure to notice this tenant for termination?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(
+                            route("tenant.notice.termination", { id: arg.id }),
+                            {
+                                id: arg.refund_id,
+                            }
+                        )
+                        .then((response) => {
+                            swal(
+                                "Success!",
+                                `You successfully notice this tenant for termination.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        };
+
+        const removeTenant = (arg) => {
+            swal(
+                {
+                    title: `Are you sure to remove this tenant?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("tenant.remove", { id: arg.id }), {
+                            id: arg.refund_id,
+                        })
+                        .then((response) => {
+                            swal(
+                                "Success!",
+                                `You successfully remove this tenant.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        };
+
         const closeComplainModal = () => {
             var modal = document.getElementById("complainModal");
 
@@ -118,6 +183,8 @@ export default {
             tenants,
             moneyFormat,
             dormChange,
+            noticeTermination,
+            removeTenant,
             openComplainModal,
             closeComplainModal,
         };
@@ -202,292 +269,246 @@ export default {
                                                     Add Tenant
                                                 </button>
                                             </div>
-                                            <div
-                                                class="flex flex-row gap-2 items-center"
-                                            >
-                                                <button
-                                                    @click="exportToPDF()"
-                                                    class="py-2.5 rounded-lg bg-orange-400 text-white px-4"
+                                            <form class="flex items-center">
+                                                <label
+                                                    for="simple-search"
+                                                    class="sr-only"
+                                                    >Search</label
                                                 >
-                                                    PDF
-                                                </button>
-                                                <button
-                                                    @click="printTable()"
-                                                    class="py-2.5 rounded-lg bg-orange-400 text-white px-4"
-                                                >
-                                                    Print
-                                                </button>
-                                                <form class="flex items-center">
-                                                    <label
-                                                        for="simple-search"
-                                                        class="sr-only"
-                                                        >Search</label
-                                                    >
+                                                <div class="relative w-full">
                                                     <div
-                                                        class="relative w-full"
+                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
                                                     >
-                                                        <div
-                                                            class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+                                                        <svg
+                                                            class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                            aria-hidden="true"
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            fill="none"
+                                                            viewBox="0 0 18 20"
                                                         >
-                                                            <svg
-                                                                class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                                aria-hidden="true"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none"
-                                                                viewBox="0 0 18 20"
-                                                            >
-                                                                <path
-                                                                    stroke="currentColor"
-                                                                    stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                                />
-                                                            </svg>
-                                                        </div>
-                                                        <input
-                                                            type="text"
-                                                            id="simple-search"
-                                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                            placeholder="Search in table..."
-                                                            required
-                                                        />
+                                                            <path
+                                                                stroke="currentColor"
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
+                                                            />
+                                                        </svg>
                                                     </div>
-                                                </form>
-                                            </div>
+                                                    <input
+                                                        type="text"
+                                                        id="simple-search"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                        placeholder="Search in table..."
+                                                        required
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                                >
+                                                    <svg
+                                                        class="w-4 h-4"
+                                                        aria-hidden="true"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 20 20"
+                                                    >
+                                                        <path
+                                                            stroke="currentColor"
+                                                            stroke-linecap="round"
+                                                            stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                        />
+                                                    </svg>
+                                                    <span class="sr-only"
+                                                        >Search</span
+                                                    >
+                                                </button>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="block w-full overflow-x-auto">
-                                <table
-                                    class="items-center w-full bg-transparent border-collapse"
-                                >
-                                    <thead>
-                                        <tr>
-                                            <th
-                                                class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                                v-for="header in headerTenants"
-                                                :key="header"
-                                            >
-                                                {{ header }}
-                                            </th>
-                                            <th
-                                                class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                            >
-                                                Actions
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr
-                                            v-for="(
-                                                item, rowIndex
-                                            ) in tenantsData"
-                                            :key="rowIndex"
-                                        >
-                                            <td
-                                                class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                <div class="block w-full overflow-x-auto">
+                                    <table
+                                        class="items-center w-full bg-transparent border-collapse"
+                                    >
+                                        <thead>
+                                            <tr>
+                                                <th
+                                                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                                    v-for="header in headerTenants"
+                                                    :key="header"
+                                                >
+                                                    {{ header }}
+                                                </th>
+                                                <th
+                                                    class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                                >
+                                                    Actions
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr
                                                 v-for="(
-                                                    value, colIndex
-                                                ) in objectRemoveKey(item)"
-                                                :key="colIndex"
+                                                    item, rowIndex
+                                                ) in tenantsData"
+                                                :key="rowIndex"
                                             >
-                                                {{
-                                                    colIndex == "fee" ||
-                                                    colIndex == "balance"
-                                                        ? moneyFormat(value)
-                                                        : value
-                                                }}
-                                            </td>
-                                            <td
-                                                class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
-                                            >
-                                                <AppDropdown class="">
-                                                    <button>
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            height="24"
-                                                            viewBox="0 0 448 512"
+                                                <td
+                                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                                    v-for="(
+                                                        value, colIndex
+                                                    ) in objectRemoveKey(item)"
+                                                    :key="colIndex"
+                                                >
+                                                    {{
+                                                        colIndex == "fee" ||
+                                                        colIndex == "balance"
+                                                            ? moneyFormat(value)
+                                                            : value
+                                                    }}
+                                                </td>
+                                                <td
+                                                    class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
+                                                >
+                                                    <AppDropdown class="">
+                                                        <button>
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                height="24"
+                                                                viewBox="0 0 448 512"
+                                                            >
+                                                                <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                                                                <path
+                                                                    d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"
+                                                                />
+                                                            </svg>
+                                                        </button>
+                                                        <AppDropdownContent
+                                                            class="bg-white z-50"
                                                         >
-                                                            <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                                                            <path
-                                                                d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"
-                                                            />
-                                                        </svg>
-                                                    </button>
-                                                    <AppDropdownContent
-                                                        class="bg-white z-50"
-                                                    >
-                                                        <!-- <AppDropdownItem>
+                                                            <!-- <AppDropdownItem>
                                                         Edit Tenant
                                                     </AppDropdownItem> -->
-                                                        <AppDropdownItem>
-                                                            Remove Tenant
-                                                        </AppDropdownItem>
-                                                    </AppDropdownContent>
-                                                </AppDropdown>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                <div
-                                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                                >
-                                    <div
-                                        class="justify-between items-center block md:flex"
-                                    >
-                                        <div
-                                            class="flex items-center justify-center mb-6 md:mb-0"
-                                        >
-                                            <div
-                                                class="flex items-center justify-start flex-wrap -mb-3"
-                                            >
-                                                <button
-                                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                    type="button"
-                                                >
-                                                    <!----><span class="px-2"
-                                                        >1</span
-                                                    ></button
-                                                ><button
-                                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                    type="button"
-                                                >
-                                                    <!----><span class="px-2"
-                                                        >2</span
-                                                    ></button
-                                                ><button
-                                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                    type="button"
-                                                >
-                                                    <!----><span class="px-2"
-                                                        >3</span
-                                                    ></button
-                                                ><button
-                                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                    type="button"
-                                                >
-                                                    <!----><span class="px-2"
-                                                        >4</span
-                                                    >
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex items-center justify-center"
-                                        >
-                                            <small>Page 1 of 4</small>
-                                        </div>
-                                    </div>
+                                                            <AppDropdownItem>
+                                                                Remove Tenant
+                                                            </AppDropdownItem>
+                                                        </AppDropdownContent>
+                                                    </AppDropdown>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div
-                        id="complainModal"
-                        tabindex="-1"
-                        aria-hidden="true"
-                        style="background-color: rgba(0, 0, 0, 0.7)"
-                        class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                    >
-                        <div class="h-screen flex justify-center items-center">
-                            <div class="relative w-full max-w-2xl max-h-full">
-                                <!-- Modal content -->
+                <div
+                    id="complainModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
                                 <div
-                                    class="relative bg-white rounded-lg shadow"
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
                                 >
-                                    <!-- Modal header -->
-                                    <div
-                                        class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                    <h3
+                                        class="text-xl font-semibold text-black"
                                     >
-                                        <h3
-                                            class="text-xl font-semibold text-black"
+                                        Add Tenant
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeComplainModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
                                         >
-                                            Add Tenant
-                                        </h3>
-                                        <button
-                                            type="button"
-                                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                            @click="closeComplainModal()"
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <form>
+                                        <div
+                                            class="flex flex-col gap-3 items-center justify-center"
                                         >
-                                            <svg
-                                                class="w-3 h-3"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 14 14"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                                />
-                                            </svg>
-                                            <span class="sr-only"
-                                                >Close modal</span
-                                            >
-                                        </button>
-                                    </div>
-                                    <!-- Modal body -->
-                                    <div class="p-6 space-y-6">
-                                        <form>
-                                            <div
-                                                class="flex flex-col gap-3 items-center justify-center"
-                                            >
                                             <div class="flex mb-3 md:mb-0">
                                                 <div>
                                                     <img
-                                                        src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                                        src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
                                                         alt="Profile picture"
                                                         class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
                                                     />
                                                 </div>
                                             </div>
-                                                <div>
-                                                    <div class="inline-flex">
-                                                        <a
-                                                            class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-blue-600 ring-blue-300 py-2 px-3"
-                                                            disabled="false"
-                                                        >
-                                                            <span
-                                                                class="inline-flex justify-center items-center w-6 h-6"
-                                                                ><svg
-                                                                    viewBox="0 0 24 24"
-                                                                    width="16"
-                                                                    height="16"
-                                                                    class="inline-block"
-                                                                >
-                                                                    <path
-                                                                        fill="currentColor"
-                                                                        d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
-                                                                    ></path>
-                                                                </svg> </span
-                                                            ><span class="px-2"
-                                                                >Upload</span
+                                            <div>
+                                                <div class="inline-flex">
+                                                    <a
+                                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-blue-600 ring-blue-300 py-2 px-3"
+                                                        disabled="false"
+                                                    >
+                                                        <span
+                                                            class="inline-flex justify-center items-center w-6 h-6"
+                                                            ><svg
+                                                                viewBox="0 0 24 24"
+                                                                width="16"
+                                                                height="16"
+                                                                class="inline-block"
                                                             >
+                                                                <path
+                                                                    fill="currentColor"
+                                                                    d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z"
+                                                                ></path>
+                                                            </svg> </span
+                                                        ><span class="px-2"
+                                                            >Upload</span
+                                                        >
 
-                                                            <input
-                                                                @change="
-                                                                    imageChange(
-                                                                        $event
-                                                                    )
-                                                                "
-                                                                accept="image/png, image/gif, image/jpeg"
-                                                                id="profile_image"
-                                                                type="file"
-                                                                class="absolute top-0 left-0 opacity-0 outline-none -z-1"
-                                                            />
-                                                        </a>
-                                                    </div>
+                                                        <input
+                                                            @change="
+                                                                imageChange(
+                                                                    $event
+                                                                )
+                                                            "
+                                                            accept="image/png, image/gif, image/jpeg"
+                                                            id="profile_image"
+                                                            type="file"
+                                                            class="absolute top-0 left-0 opacity-0 outline-none -z-1"
+                                                        />
+                                                    </a>
                                                 </div>
                                             </div>
-                                            <hr class="my-5"/>
-                                            <div class="grid grid-cols-2 gap-2 mt-2">
-                                            <div >
+                                        </div>
+                                        <hr class="my-5" />
+                                        <div
+                                            class="grid grid-cols-2 gap-2 mt-2"
+                                        >
+                                            <div>
                                                 <InputLabel
                                                     for="first_name"
                                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -504,9 +525,7 @@ export default {
                                                     autocomplete="first_name"
                                                 />
 
-                                                <InputError
-                                                    class="mt-2"
-                                                />
+                                                <InputError class="mt-2" />
                                             </div>
 
                                             <div>
@@ -525,11 +544,9 @@ export default {
                                                     autocomplete="middle_name"
                                                 />
 
-                                                <InputError
-                                                    class="mt-2"
-                                                />
+                                                <InputError class="mt-2" />
                                             </div>
-                                            
+
                                             <div>
                                                 <InputLabel
                                                     for="username"
@@ -546,11 +563,9 @@ export default {
                                                     autocomplete="middle_name"
                                                 />
 
-                                                <InputError
-                                                    class="mt-2"
-                                                />
+                                                <InputError class="mt-2" />
                                             </div>
-                                            
+
                                             <div>
                                                 <InputLabel
                                                     for="phone_number"
@@ -567,11 +582,9 @@ export default {
                                                     autocomplete="phone_number"
                                                 />
 
-                                                <InputError
-                                                    class="mt-2"
-                                                />
+                                                <InputError class="mt-2" />
                                             </div>
-                                            
+
                                             <div>
                                                 <InputLabel
                                                     for="password"
@@ -587,9 +600,7 @@ export default {
                                                     autofocus
                                                 />
 
-                                                <InputError
-                                                    class="mt-2"
-                                                />
+                                                <InputError class="mt-2" />
                                             </div>
 
                                             <div>
@@ -607,11 +618,9 @@ export default {
                                                     autofocus
                                                 />
 
-                                                <InputError
-                                                    class="mt-2"
-                                                />
+                                                <InputError class="mt-2" />
                                             </div>
-                                          
+
                                             <div class="mt-4">
                                                 <div>
                                                     <div
@@ -645,33 +654,30 @@ export default {
                                                         School ID)</span
                                                     >
                                                 </div>
-                                            
 
-                                            <input
-                                                type="file"
-                                                id="id_picture"
-                                                class="hidden"
-                                                accept="image/*"
-                                            />
+                                                <input
+                                                    type="file"
+                                                    id="id_picture"
+                                                    class="hidden"
+                                                    accept="image/*"
+                                                />
 
-                                            <label
-                                                for="id_picture"
-                                                class="relative cursor-pointer"
-                                            >
-                                                <div
-                                                    class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                <label
+                                                    for="id_picture"
+                                                    class="relative cursor-pointer"
                                                 >
-                                                    <img
-                                                        src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
-                                                        alt="Valid ID"
-                                                        class="h-48 w-auto rounded-lg"
-                                                    />
-                                                </div>
-                                            </label>
+                                                    <div
+                                                        class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                    >
+                                                        <img
+                                                            src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                            alt="Valid ID"
+                                                            class="h-48 w-auto rounded-lg"
+                                                        />
+                                                    </div>
+                                                </label>
 
-                                            <InputError
-                                                class="mt-2"
-                                            />
+                                                <InputError class="mt-2" />
                                             </div>
                                             <div class="mt-4">
                                                 <div>
@@ -686,140 +692,162 @@ export default {
                                                     </div>
                                                     <span
                                                         class="text-xs text-red-500"
-                                                        >Add selfie holding the valid id</span
+                                                        >Add selfie holding the
+                                                        valid id</span
                                                     >
                                                 </div>
-                                            
 
-                                            <input
-                                                type="file"
-                                                id="selfie_id_picture"
-                                                class="hidden"
-                                                accept="image/*"
-                                            />
+                                                <input
+                                                    type="file"
+                                                    id="selfie_id_picture"
+                                                    class="hidden"
+                                                    accept="image/*"
+                                                />
 
-                                            <label
-                                                for="selfie_id_picture"
-                                                class="relative cursor-pointer"
-                                            >
-                                                <div
-                                                    class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                <label
+                                                    for="selfie_id_picture"
+                                                    class="relative cursor-pointer"
                                                 >
-                                                    <img
-                                                        src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
-                                                        alt="Valid ID"
-                                                        class="h-48 w-auto rounded-lg"
-                                                    />
-                                                </div>
-                                            </label>
+                                                    <div
+                                                        class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                    >
+                                                        <img
+                                                            src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                            alt="Valid ID"
+                                                            class="h-48 w-auto rounded-lg"
+                                                        />
+                                                    </div>
+                                                </label>
 
-                                            <InputError
-                                                class="mt-2"
-                                            />
+                                                <InputError class="mt-2" />
                                             </div>
 
                                             <div class="mt-4">
                                                 <div class="w-full">
                                                     <InputLabel
-                                                            for="source_of_income"
-                                                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                            value="Source of Income"
-                                                        />
-
-                                                <select  class="w-full mt-1 rounded-md">
-                                                    <option value="Salary">Salary</option>
-                                                    <option value="Business">Business</option>
-                                                    <option value="Pension">Pension</option>
-                                                    <option value="Allowance">Allowance</option>
-                                                </select>
-
-                                                <InputError class="mt-2"  />
-                                            </div>
-
-                                            <div class="w-full mt-3">
-                                                <InputLabel
-                                                            for="monthly_income"
-                                                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                            value="Monthly Income"
-                                                        />
-
-                                                <TextInput
-                                                    id="monthly_income"
-                                                    type="number"
-                                                    class="mt-1 block w-full"
-                                                    required
-                                                />
-
-                                                <InputError class="mt-2"  />
-                                            </div>
-                                            </div>
-                                            
-                                            <div class="w-full flex flex-col mt-4">
-                                                <div class="w-full">
-                                                    <InputLabel
-                                                            for="proof"
-                                                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                            value="Proof of Income"
-                                                        />
-
-                                                        <input
-                                                            type="file"
-                                                            id="proof"
-                                                            class="hidden"
-                                                            accept="image/*"
-                                                        />
-
-                                                        <label
-                                                for="proof"
-                                                class="relative cursor-pointer"
-                                            >
-                                                <div
-                                                    class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                                >
-                                                    <img
-                                                        src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
-                                                        alt="Proof"
-                                                        class="h-48 w-auto rounded-lg"
+                                                        for="source_of_income"
+                                                        class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                        value="Source of Income"
                                                     />
+
+                                                    <select
+                                                        class="w-full mt-1 rounded-md"
+                                                    >
+                                                        <option value="Salary">
+                                                            Salary
+                                                        </option>
+                                                        <option
+                                                            value="Business"
+                                                        >
+                                                            Business
+                                                        </option>
+                                                        <option value="Pension">
+                                                            Pension
+                                                        </option>
+                                                        <option
+                                                            value="Allowance"
+                                                        >
+                                                            Allowance
+                                                        </option>
+                                                    </select>
+
+                                                    <InputError class="mt-2" />
                                                 </div>
-                                            </label>
+
+                                                <div class="w-full mt-3">
+                                                    <InputLabel
+                                                        for="monthly_income"
+                                                        class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                        value="Monthly Income"
+                                                    />
+
+                                                    <TextInput
+                                                        id="monthly_income"
+                                                        type="number"
+                                                        class="mt-1 block w-full"
+                                                        required
+                                                    />
 
                                                     <InputError class="mt-2" />
                                                 </div>
                                             </div>
-                                            
-                                        </div>
-                                        <hr class="my-5">
-                                        <div class="w-full">
+
+                                            <div
+                                                class="w-full flex flex-col mt-4"
+                                            >
+                                                <div class="w-full">
                                                     <InputLabel
-                                                            for="assign_room"
-                                                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                            value="Assign Room"
-                                                        />
+                                                        for="proof"
+                                                        class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                        value="Proof of Income"
+                                                    />
 
-                                                <select  class="w-full mt-1 rounded-md">
-                                                    <option value="1">Room 1</option>
-                                                    <option value="2">Room 2</option>
-                                                    <option value="3">Room 3</option>
-                                                    <option value="4">Room 4</option>
-                                                </select>
+                                                    <input
+                                                        type="file"
+                                                        id="proof"
+                                                        class="hidden"
+                                                        accept="image/*"
+                                                    />
 
-                                                <InputError class="mt-2"  />
+                                                    <label
+                                                        for="proof"
+                                                        class="relative cursor-pointer"
+                                                    >
+                                                        <div
+                                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
+                                                        >
+                                                            <img
+                                                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
+                                                                alt="Proof"
+                                                                class="h-48 w-auto rounded-lg"
+                                                            />
+                                                        </div>
+                                                    </label>
+
+                                                    <InputError class="mt-2" />
+                                                </div>
+                                            </div>
                                         </div>
-                                        </form>
-                                    </div>
-                                    <!-- Modal footer -->
-                                    <div
-                                        class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                        <hr class="my-5" />
+                                        <div class="w-full">
+                                            <InputLabel
+                                                for="assign_room"
+                                                class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                value="Assign Room"
+                                            />
+
+                                            <select
+                                                class="w-full mt-1 rounded-md"
+                                            >
+                                                <option value="1">
+                                                    Room 1
+                                                </option>
+                                                <option value="2">
+                                                    Room 2
+                                                </option>
+                                                <option value="3">
+                                                    Room 3
+                                                </option>
+                                                <option value="4">
+                                                    Room 4
+                                                </option>
+                                            </select>
+
+                                            <InputError class="mt-2" />
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        @click.prevent="submitComplain()"
+                                        type="button"
+                                        class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                     >
-                                        <button
-                                            @click.prevent="submitComplain()"
-                                            type="button"
-                                            class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                                        >
-                                            Submit
-                                        </button>
-                                    </div>
+                                        Submit
+                                    </button>
                                 </div>
                             </div>
                         </div>

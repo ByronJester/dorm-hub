@@ -130,6 +130,14 @@ class TenantController extends Controller
         $now = Carbon::now();
         $expiredDate = Carbon::now()->addDay(7);
 
+        // $hasExistingApplication = TenantApplication::where('tenant_id', $auth->id)
+        //     ->where('room_id', $room->id)->where('status', 'rent')
+        //     ->where('is_active', true)->first();
+
+        // $hasExistingReservation = TenantApplication::where('tenant_id', $auth->id)
+        //     ->where('room_id', $room->id)->where('status', 'reserve')
+        //     ->where('is_active', true)->first();
+
         return Inertia::render('Tenant/BillingInfo', [
             'room' => $room,
             'dorm' => $dorm,

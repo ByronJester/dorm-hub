@@ -143,6 +143,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/complain/change-status/{id}', [OwnerController::class, 'changeComplainStatus'])->name('owner.complain.change.status');
         Route::post('/refund/{status}', [OwnerController::class, 'refundChangeStatus'])->name('owner.refund.change.status');
         Route::post('/approve/move-out', [OwnerController::class, 'approveMoveOut'])->name('owner.move.out.tenant');
+        Route::post('/tenant/notice-termination', [OwnerController::class, 'noticeTermination'])->name('tenant.notice.termination');
+        Route::post('/tenant/remove', [OwnerController::class, 'removeTenant'])->name('tenant.remove');
     });
 
     Route::prefix('tenant')->group(function () {
