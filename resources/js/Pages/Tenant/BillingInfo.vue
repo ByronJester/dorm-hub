@@ -105,6 +105,11 @@ export default {
         const submitApplication = () => {
             if(!user.income_information) {
                 router.get(route("profile.edit"));
+                VsToast.show({
+                    title: 'Warning',
+                    message: 'Please add income information to make rent and reservation',
+                    variant: 'warning',
+                });
                 return
             }
 
