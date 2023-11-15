@@ -702,9 +702,10 @@ class OwnerController extends Controller
         if($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
+        $contact = ContactUs::first();
 
         return Inertia::render('Owner/Report', [
-
+            'contact' => $contact,
         ]);
     }
 

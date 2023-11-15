@@ -22,7 +22,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            12
+                            27
                         </p>
                         <p class="text-xs">
                             TOTAL No. of Users
@@ -35,7 +35,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                             30
+                             3
                         </p>
                         <p class="text-xs">
                             TOTAL No. of Registered Dorms
@@ -48,7 +48,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            20
+                            4
                         </p>
                         <p class="text-xs">TOTAL No. of Tenants</p>
                     </div>
@@ -59,7 +59,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            20
+                            10
                         </p>
                         <p class="text-xs">TOTAL No. of Dorm owners</p>
                     </div>

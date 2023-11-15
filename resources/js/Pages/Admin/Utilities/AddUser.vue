@@ -35,7 +35,7 @@ export default {
     <div class="px-4 pt-20 lg:ml-64">
         <div class="w-full">
                 <div class="flex items-center justify-start">
-                                            <h3 class="text-3xl">Add User</h3>
+                            <h3 class="text-3xl">Add System User</h3>
                     </div>
                 
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />

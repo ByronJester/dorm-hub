@@ -1,5 +1,5 @@
 <template>
-    <div @click="toggle" v-on-clickaway class="relative">
+    <div @click="toggle" v-on-clickaway class="relative z-30">
       
       <slot/>
     </div>

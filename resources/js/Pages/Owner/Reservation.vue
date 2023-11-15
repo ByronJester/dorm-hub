@@ -13,7 +13,6 @@
     import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
     import jsPDF from "jspdf";
     import "jspdf-autotable";
-    import ExcelJS from "exceljs";
 
     export default {
         components: {
@@ -85,7 +84,7 @@
             doc.save("table-data.pdf");
         },
             printTable() {
-                const doc = new jsPDF();
+            const doc = new jsPDF();
 
             const page = usePage();
             const contacts = page.props.contact;

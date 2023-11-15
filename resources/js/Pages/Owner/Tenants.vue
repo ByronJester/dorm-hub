@@ -3,7 +3,7 @@ import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { usePage, useForm } from "@inertiajs/vue3";
 import axios from "axios";
 import InputLabel from "@/Components/InputLabel.vue";
@@ -30,6 +30,51 @@ export default {
             "Move-Out Date",
             "Balance",
         ];
+
+        const searchQueryReserve = ref("");
+            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
+            const currentPageReserve = ref(1); // Initialize to the first page
+
+            
+            const filteredDataReserve = computed(() => {
+                const query = searchQueryReserve.value.toLowerCase().trim();
+                if (!query) {
+                    return tenantsData; // Return all data if the search query is empty.
+                }
+
+                return tenantsData.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.dorm_name.toLowerCase().includes(query) ||
+                        row.room_name.toLowerCase().includes(query) ||
+                        row.tenant_name.toLowerCase().includes(query)
+                    );
+                });
+            });
+
+            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
+
+            const slicedRows = computed(() => {
+                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
+                const endIndex = startIndex + itemsPerPageReserve;
+
+                const slicedAndSorted = filteredDataReserve.value
+                    .slice(startIndex, endIndex)
+                    .sort((a, b) => {
+                        const dateA = new Date(a.created_at);
+                        const dateB = new Date(b.created_at);
+                        return dateB - dateA;
+                    });
+
+                return slicedAndSorted;
+                });
+
+            const changePageReserve = (pageChange) => {
+                const newPage = currentPageReserve.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
+                    currentPageReserve.value = newPage;
+                }
+            };
 
         const options = page.props.dorms;
 
@@ -187,6 +232,9 @@ export default {
             removeTenant,
             openComplainModal,
             closeComplainModal,
+            currentPageReserve,
+            totalPagesReserve,
+            changePageReserve
         };
     },
 };
@@ -237,100 +285,46 @@ export default {
                         >
                             <div class="rounded-t mb-0 px-4 py-3 border-0">
                                 <div class="flex flex-wrap items-center">
-                                    <div
-                                        class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
-                                    >
-                                        <div class="text-xl font-semibold mb-3">
-                                            Tenant Records
-                                        </div>
-                                        <div
-                                            class="flex sm:flex-row sm:items-center sm:justify-between flex-col items-start gap-2"
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class="text-xl mb-5 font-bold">Tenants Records</p>
+                                <div class="flex-row flex items-center justify-between">
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
                                         >
-                                            <div>
-                                                <button
-                                                    class="flex items-center justify-start bg-orange-400 py-2.5 rounded-lg text-white px-4"
-                                                    @click="openComplainModal()"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke-width="1.5"
-                                                        stroke="currentColor"
-                                                        class="w-6 h-6"
-                                                    >
-                                                        <path
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            d="M12 4.5v15m7.5-7.5h-15"
-                                                        />
-                                                    </svg>
-
-                                                    Add Tenant
-                                                </button>
-                                            </div>
-                                            <form class="flex items-center">
-                                                <label
-                                                    for="simple-search"
-                                                    class="sr-only"
-                                                    >Search</label
-                                                >
-                                                <div class="relative w-full">
-                                                    <div
-                                                        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                                    >
-                                                        <svg
-                                                            class="w-4 h-4 text-gray-500 "
-                                                            aria-hidden="true"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            fill="none"
-                                                            viewBox="0 0 18 20"
-                                                        >
-                                                            <path
-                                                                stroke="currentColor"
-                                                                stroke-linecap="round"
-                                                                stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                            />
-                                                        </svg>
-                                                    </div>
-                                                    <input
-                                                        type="text"
-                                                        id="simple-search"
-                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  "
-                                                        placeholder="Search in table..."
-                                                        required
-                                                    />
-                                                </div>
-                                                <button
-                                                    type="submit"
-                                                    class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "
-                                                >
-                                                    <svg
-                                                        class="w-4 h-4"
-                                                        aria-hidden="true"
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        fill="none"
-                                                        viewBox="0 0 20 20"
-                                                    >
-                                                        <path
-                                                            stroke="currentColor"
-                                                            stroke-linecap="round"
-                                                            stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                        />
-                                                    </svg>
-                                                    <span class="sr-only"
-                                                        >Search</span
-                                                    >
-                                                </button>
-                                            </form>
+                                        <div class="relative w-full">
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
+                                                />
                                         </div>
-                                    </div>
+                                       
+                                         
+                                    </form> 
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button 
+                                                @click="exportToPDF()"
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button
+                                                @click="printTable()"
+                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
+                                            </div>
                                 </div>
-                                <div class="block w-full overflow-x-auto">
+                                </div>
+                            </div>
+                                <div class="block w-full overflow-x-auto mt-5">
                                     <table
                                         class="items-center w-full bg-transparent border-collapse"
                                     >
@@ -393,7 +387,7 @@ export default {
                                                         <AppDropdownItem @click="noticeTermination(item)">
                                                         Notice Termination
                                                     </AppDropdownItem>
-                                                            <AppDropdownItem>
+                                                            <AppDropdownItem @click="removeTenant(item)">
                                                                 Remove Tenant
                                                             </AppDropdownItem>
                                                         </AppDropdownContent>
@@ -402,6 +396,40 @@ export default {
                                             </tr>
                                         </tbody>
                                     </table>
+                                    <div
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
+                            >
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                                 </div>
                             </div>
                         </div>
