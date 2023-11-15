@@ -197,7 +197,7 @@ export default {
             <div class="w-full">
                 <div class="flex items-center justify-start">
                     <span
-                        class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
+                        class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black mr-3"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -212,14 +212,14 @@ export default {
                     <h3 class="text-3xl">Manage Tenants</h3>
                 </div>
 
-                <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
+                <hr class="h-px my-5 bg-orange-400 border-1 " />
                 <div>
                     <p class="text-sm font-bold">Dorm:</p>
                     <select
                         v-model="selectedDorm"
                         id="subject"
                         @change="dormChange($event)"
-                        class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500  "
                     >
                         <option
                             v-for="option in options"
@@ -280,7 +280,7 @@ export default {
                                                         class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
                                                     >
                                                         <svg
-                                                            class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                            class="w-4 h-4 text-gray-500 "
                                                             aria-hidden="true"
                                                             xmlns="http://www.w3.org/2000/svg"
                                                             fill="none"
@@ -298,14 +298,14 @@ export default {
                                                     <input
                                                         type="text"
                                                         id="simple-search"
-                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  "
                                                         placeholder="Search in table..."
                                                         required
                                                     />
                                                 </div>
                                                 <button
                                                     type="submit"
-                                                    class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                                    class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 "
                                                 >
                                                     <svg
                                                         class="w-4 h-4"
@@ -421,7 +421,7 @@ export default {
                             <div class="relative bg-white rounded-lg shadow">
                                 <!-- Modal header -->
                                 <div
-                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                    class="flex items-start justify-between p-4 border-b rounded-t "
                                 >
                                     <h3
                                         class="text-xl font-semibold text-black"
@@ -430,7 +430,7 @@ export default {
                                     </h3>
                                     <button
                                         type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center "
                                         @click="closeComplainModal()"
                                     >
                                         <svg
@@ -462,7 +462,7 @@ export default {
                                                     <img
                                                         src="https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com"
                                                         alt="Profile picture"
-                                                        class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                                                        class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 "
                                                     />
                                                 </div>
                                             </div>
@@ -511,14 +511,14 @@ export default {
                                             <div>
                                                 <InputLabel
                                                     for="first_name"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
                                                     value="First Name"
                                                 />
 
                                                 <TextInput
                                                     id="first_name"
                                                     type="text"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="ex: Juan"
                                                     required
                                                     autofocus
@@ -531,14 +531,14 @@ export default {
                                             <div>
                                                 <InputLabel
                                                     for="last_name"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
                                                     value="Last Name"
                                                 />
 
                                                 <TextInput
                                                     id="middle_name"
                                                     type="text"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="ex: Casimero"
                                                     autofocus
                                                     autocomplete="middle_name"
@@ -550,14 +550,14 @@ export default {
                                             <div>
                                                 <InputLabel
                                                     for="username"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
                                                     value="Username"
                                                 />
 
                                                 <TextInput
                                                     id="username"
                                                     type="text"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="ex: Jear12"
                                                     autofocus
                                                     autocomplete="middle_name"
@@ -569,14 +569,14 @@ export default {
                                             <div>
                                                 <InputLabel
                                                     for="phone_number"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
                                                     value="Contact"
                                                 />
 
                                                 <input
                                                     id="phone_number"
                                                     type="number"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="ex: 09112233445"
                                                     required
                                                     autocomplete="phone_number"
@@ -588,14 +588,14 @@ export default {
                                             <div>
                                                 <InputLabel
                                                     for="password"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
                                                     value="Password"
                                                 />
 
                                                 <TextInput
                                                     id="password"
                                                     type="text"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="*********"
                                                     autofocus
                                                 />
@@ -606,14 +606,14 @@ export default {
                                             <div>
                                                 <InputLabel
                                                     for="confirm_password"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
                                                     value="Confirm Password"
                                                 />
 
                                                 <TextInput
                                                     id="confirm_password"
                                                     type="text"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                                     placeholder="*********"
                                                     autofocus
                                                 />
@@ -628,7 +628,7 @@ export default {
                                                     >
                                                         <InputLabel
                                                             for="id_picture"
-                                                            class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                            class="block text-sm font-medium text-gray-900 "
                                                             value="Valid ID"
                                                         />
                                                         <svg
@@ -686,7 +686,7 @@ export default {
                                                     >
                                                         <InputLabel
                                                             for="selfie_id_picture"
-                                                            class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                            class="block text-sm font-medium text-gray-900 "
                                                             value="Selfie withValid ID"
                                                         />
                                                     </div>
@@ -726,7 +726,7 @@ export default {
                                                 <div class="w-full">
                                                     <InputLabel
                                                         for="source_of_income"
-                                                        class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                        class="block text-sm font-medium text-gray-900 "
                                                         value="Source of Income"
                                                     />
 
@@ -757,7 +757,7 @@ export default {
                                                 <div class="w-full mt-3">
                                                     <InputLabel
                                                         for="monthly_income"
-                                                        class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                        class="block text-sm font-medium text-gray-900 "
                                                         value="Monthly Income"
                                                     />
 
@@ -778,7 +778,7 @@ export default {
                                                 <div class="w-full">
                                                     <InputLabel
                                                         for="proof"
-                                                        class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                        class="block text-sm font-medium text-gray-900 "
                                                         value="Proof of Income"
                                                     />
 
@@ -812,7 +812,7 @@ export default {
                                         <div class="w-full">
                                             <InputLabel
                                                 for="assign_room"
-                                                class="block text-sm font-medium text-gray-900 dark:text-white"
+                                                class="block text-sm font-medium text-gray-900 "
                                                 value="Assign Room"
                                             />
 
@@ -839,7 +839,7 @@ export default {
                                 </div>
                                 <!-- Modal footer -->
                                 <div
-                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b "
                                 >
                                     <button
                                         @click.prevent="submitComplain()"
