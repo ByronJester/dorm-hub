@@ -148,7 +148,7 @@ export default {
                     <div class="flex items-center justify-start">
                         <button
                             @click="clickShowSideBar()"
-                            class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                            class="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
                         >
                             <span class="sr-only">Open sidebar</span>
                             <svg
@@ -358,7 +358,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -390,7 +390,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -417,7 +417,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -445,7 +445,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -472,7 +472,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -505,7 +505,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -525,7 +525,7 @@ export default {
                             @click="toggleDropDown()"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -636,7 +636,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -668,7 +668,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -695,7 +695,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -726,7 +726,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -756,15 +756,17 @@ export default {
                             :href="route('owner.manage.reservation')"
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                viewBox="0 0 384 512"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H544c53 0 96-43 96-96V96c0-53-43-96-96-96H96zM64 96c0-17.7 14.3-32 32-32H544c17.7 0 32 14.3 32 32V416c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V96zm159.8 80a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM96 309.3c0 14.7 11.9 26.7 26.7 26.7h56.1c8-34.1 32.8-61.7 65.2-73.6c-7.5-4.1-16.2-6.4-25.3-6.4H149.3C119.9 256 96 279.9 96 309.3zM461.2 336h56.1c14.7 0 26.7-11.9 26.7-26.7c0-29.5-23.9-53.3-53.3-53.3H421.3c-9.2 0-17.8 2.3-25.3 6.4c32.4 11.9 57.2 39.5 65.2 73.6zM372 289c-3.9-.7-7.9-1-12-1H280c-4.1 0-8.1 .3-12 1c-26 4.4-47.3 22.7-55.9 47c-2.7 7.5-4.1 15.6-4.1 24c0 13.3 10.7 24 24 24H408c13.3 0 24-10.7 24-24c0-8.4-1.4-16.5-4.1-24c-8.6-24.3-29.9-42.6-55.9-47zM512 176a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM320 256a64 64 0 1 0 0-128 64 64 0 1 0 0 128z"
-                                />
-                            </svg>
+                        <svg class=" ml-2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="30" height="25" viewBox="0 0 256 256" xml:space="preserve">     
+                                    <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10;  opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                                        <path d="M 83.247 13.625 h -9.953 V 9.819 c 0 -2.105 -1.713 -3.818 -3.818 -3.818 h -3.997 c -2.104 0 -3.817 1.713 -3.817 3.818 v 3.806 H 50.816 V 9.819 c 0 -2.105 -1.713 -3.818 -3.817 -3.818 h -3.998 c -2.105 0 -3.818 1.713 -3.818 3.818 v 3.806 H 28.339 V 9.819 c 0 -2.105 -1.713 -3.818 -3.818 -3.818 h -3.997 c -2.105 0 -3.818 1.713 -3.818 3.818 v 3.806 H 6.753 C 3.029 13.625 0 16.654 0 20.378 v 56.868 c 0 3.724 3.029 6.753 6.753 6.753 h 76.494 c 3.724 0 6.753 -3.029 6.753 -6.753 V 20.378 C 90 16.654 86.971 13.625 83.247 13.625 z M 83.247 79.999 H 6.753 C 5.235 79.999 4 78.764 4 77.246 V 31.472 h 82 v 45.774 C 86 78.764 84.765 79.999 83.247 79.999 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 22.81 36.583 h -8.392 c -1.973 0 -3.579 1.605 -3.579 3.579 v 8.392 c 0 1.974 1.605 3.579 3.579 3.579 h 8.392 c 1.973 0 3.579 -1.605 3.579 -3.579 v -8.392 C 26.388 38.189 24.783 36.583 22.81 36.583 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 49.196 36.583 h -8.392 c -1.973 0 -3.579 1.605 -3.579 3.579 v 8.392 c 0 1.974 1.605 3.579 3.579 3.579 h 8.392 c 1.973 0 3.578 -1.605 3.578 -3.579 v -8.392 C 52.774 38.189 51.169 36.583 49.196 36.583 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 75.582 36.583 H 67.19 c -1.973 0 -3.578 1.605 -3.578 3.579 v 8.392 c 0 1.974 1.605 3.579 3.578 3.579 h 8.392 c 1.974 0 3.579 -1.605 3.579 -3.579 v -8.392 C 79.161 38.189 77.556 36.583 75.582 36.583 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 22.81 59.061 h -8.392 c -1.973 0 -3.579 1.605 -3.579 3.579 v 8.392 c 0 1.973 1.605 3.578 3.579 3.578 h 8.392 c 1.973 0 3.579 -1.605 3.579 -3.578 V 62.64 C 26.388 60.666 24.783 59.061 22.81 59.061 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 75.582 59.061 H 67.19 c -1.973 0 -3.578 1.605 -3.578 3.579 v 8.392 c 0 1.973 1.605 3.578 3.578 3.578 h 8.392 c 1.974 0 3.579 -1.605 3.579 -3.578 V 62.64 C 79.161 60.666 77.556 59.061 75.582 59.061 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 51.272 62.67 c -0.908 -0.631 -2.153 -0.408 -2.784 0.499 l -4.409 6.336 l -2.459 -2.458 c -0.781 -0.781 -2.047 -0.781 -2.829 0 c -0.781 0.781 -0.781 2.048 0 2.828 l 4.149 4.148 c 0.377 0.377 0.886 0.586 1.414 0.586 c 0.059 0 0.118 -0.003 0.177 -0.008 c 0.59 -0.053 1.126 -0.363 1.464 -0.85 l 5.774 -8.298 C 52.402 64.547 52.179 63.301 51.272 62.67 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                    </g>
+                                    </svg>
                             <span class="ml-1">Reservation</span>
                         </a>
                     </li>
@@ -784,7 +786,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -811,7 +813,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -838,7 +840,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -864,14 +866,14 @@ export default {
             class="mx-auto p-4 lg:ml-64 md:flex md:items-center md:justify-between"
         >
             <span
-                class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+                class="text-sm  sm:text-center dark:text-gray-400"
                 >© 2023
                 <a href="https://dormhub.onrender.com/" class="hover:underline"
                     >Dormhub™</a
                 >. All Rights Reserved.</span
             >
             <ul
-                class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
+                class="flex flex-wrap items-center mt-3 text-sm font-medium  dark:text-gray-400 sm:mt-0"
             >
                 <li>
                     <a :href="route('about.us')" class="mr-4 hover:underline md:mr-6"

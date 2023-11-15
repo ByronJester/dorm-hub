@@ -23,9 +23,9 @@ import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import { Head, Link, useForm, usePage, router } from "@inertiajs/vue3";
 import { ref, onMounted } from "vue";
 import InputLabel from "@/Components/InputLabel.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputError from "@/Components/InputError.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Terms from "@/Components/Terms.vue"; //dinagdag ko pati nasa component
 import VsToast from '@vuesimple/vs-toast';
