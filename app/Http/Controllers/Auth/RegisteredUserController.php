@@ -69,7 +69,8 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'id_picture' => $id_picture,
             'selfie_id_picture' => $selfie_picture,
-            'is_approved' => false
+            'is_approved' => false,
+            'first_logged_in' => $request->user_type == 'tenant' ? false : true
         ]);
 
         event(new Registered($user));

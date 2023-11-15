@@ -23,6 +23,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'username' => 'admin1',
             'user_type' => 'admin',
+            'first_logged_in' => false
         ]);
 
 
@@ -33,6 +34,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'username' => 'admin2',
             'user_type' => 'admin',
+            'first_logged_in' => false
         ]);
 
 
@@ -43,6 +45,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'username' => 'admin3',
             'user_type' => 'admin',
+            'first_logged_in' => false
         ]);
 
         User::create([
@@ -52,6 +55,7 @@ class UserSeeder extends Seeder
             'password' => Hash::make('password'),
             'username' => 'admin4',
             'user_type' => 'admin',
+            'first_logged_in' => false
         ]);
     }
 }

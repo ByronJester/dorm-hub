@@ -145,6 +145,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/approve/move-out', [OwnerController::class, 'approveMoveOut'])->name('owner.move.out.tenant');
         Route::post('/tenant/notice-termination', [OwnerController::class, 'noticeTermination'])->name('tenant.notice.termination');
         Route::post('/tenant/remove', [OwnerController::class, 'removeTenant'])->name('tenant.remove');
+        Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
     });
 
     Route::prefix('tenant')->group(function () {

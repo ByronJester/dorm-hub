@@ -18,7 +18,7 @@ return new class extends Migration
             $table->bigInteger('user_id')->unsigned()->comment('Foreign key from table users');
             $table->string('source_of_income', 100);
             $table->string('monthly_income', 100);
-            $table->string('monthly_expenses', 100);
+            $table->string('monthly_expenses', 100)->nullable();
             $table->string('proof', 100);
 
             $table->timestamps();

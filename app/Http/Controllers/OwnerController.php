@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\
     {
-        User, Dorm, Room, Amenity, Rule, Payment, Notification,
+        User, Dorm, Room, Amenity, Rule, Payment, Notification, UserIncomeInformation,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
         Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs
 };
@@ -19,6 +19,7 @@ use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class OwnerController extends Controller
 {
@@ -81,7 +82,10 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
-        $dorms = DB::table('dorms')->where('user_id', $auth->id)
+        $dorms = Dorm::with(['rooms' => function ($query) {
+                $query->where('is_available', true);
+            }])
+            ->where('user_id', $auth->id)
             ->where('status', 'approved')
             ->get(['id', 'property_name']);
 
@@ -1086,7 +1090,7 @@ class OwnerController extends Controller
 
         $user = User::where('id', $tenant->tenant)->first();
 
-        $message = 'Your are been notify for termination.';
+        $message = 'You are been notify for termination.';
         $this->sendSMS($user->phone_number, $message);
 
         return true;
@@ -1109,5 +1113,84 @@ class OwnerController extends Controller
         $tenant->is_active = false;
 
         return $tenant->save();
+    }
+
+    public function addTenant(Request $request)
+    {
+        $req = [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'username' => 'required',
+            'phone_number' => 'required',
+            'id_picture' => 'required',
+            'selfie_id_picture' => 'required',
+            'source_of_income' => 'required',
+            'monthly_income' => 'required',
+            'proof' => 'required',
+            'image' => 'required',
+            'room' => 'required',
+            'password' => 'required|min:8',
+            'confirm_password' => 'required|same:password'
+        ];
+
+        $validator = Validator::make($request->all(), $req);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
+        }
+
+        $user = new User;
+        $user->first_name = $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->username = $request->username;
+        $user->phone_number = $request->phone_number;
+        $user->password = Hash::make($request->phone_number);
+        $user->is_approved = false;
+        $user->first_logged_in = false;
+
+        $filenameProfileImage = Str::random(10) . '_profile_image';
+        $uploadFile = $this->uploadFile($request->image, $filenameProfileImage);
+        $user->image = $filenameProfileImage;
+
+        $filenameIdPicture = Str::random(10) . '_id_picture';
+        $uploadFile = $this->uploadFile($request->id_picture, $filenameIdPicture);
+        $user->id_picture = $filenameIdPicture;
+
+        $filenameSelfieIdPicture = Str::random(10) . '_selfie_picture';
+        $uploadFile = $this->uploadFile($request->selfie_id_picture, $filenameSelfieIdPicture);
+        $user->selfie_id_picture = $filenameSelfieIdPicture;
+
+        $user->save();
+
+        $incomeInfo = new UserIncomeInformation;
+        $incomeInfo->user_id = $user->id;
+        $incomeInfo->source_of_income = $request->source_of_income;
+        $incomeInfo->monthly_income = $request->monthly_income;
+
+        $filenameProof = Str::random(10) . '_selfie_picture';
+        $uploadFile = $this->uploadFile($request->proof, $filenameProof);
+        $incomeInfo->proof = $filenameProof;
+
+        $incomeInfo->save();
+
+        $room = Room::where('id', $request->room)->first();
+        $dorm = Dorm::where('id', $room->id)->first();
+
+        $room->is_available = false;
+        $room->status = 'rent';
+        $room->save();
+
+
+        $application = new Application;
+        $application->owner_id = $dorm->user_id;
+        $application->tenant_id = $user->id;
+        $application->dorm_id = $dorm->id;
+        $application->room_id = $room->id;
+        $application->status = 'pending';
+        $application->move_in = Carbon::now();
+
+        $application->save();
+
+        return true;
     }
 }
