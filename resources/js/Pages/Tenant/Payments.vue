@@ -55,10 +55,14 @@ export default {
             modal.style.display = "none";
         };
 
-        const openLeaveModal = () => {
+        const selectedPayment = ref(null)
+        const openLeaveModal = (arg) => {
             var modal = document.getElementById("refundModal");
 
             modal.style.display = "block";
+
+            console.log(arg)
+            selectedPayment.value = arg
         };
 
         const closeLeaveModal = () => {
@@ -66,6 +70,52 @@ export default {
 
             modal.style.display = "none";
         };
+
+        const submitRefund = () => {
+            swal(
+                {
+                    title: `Are you sure to refund this payment?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    const data = {
+                        user_payment_id: selectedPayment.value.id,
+                        amount: selectedPayment.value.billing.amount,
+                        payment_method : selectedPaymentMethod.value,
+                        wallet_name: wallet_name.value,
+                        account_name: account_name.value,
+                        account_number: account_number.value
+                    }
+
+                    axios
+                        .post(route("request.refund"), data)
+                        .then((response) => {
+                            swal(
+                                "Request refund submitted.",
+                                "Please wait for dorm owner approval.",
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+
+                        })
+                        .catch((error) => {
+                            // errors.value = error.response.data.errors;
+                        });
+                }
+            );
+        }
+
+        const selectedPaymentMethod = ref()
+        const wallet_name = ref(null)
+        const account_name = ref(null)
+        const account_number = ref(null)
 
         const showBankTransfer = ref(false);
         const showEwallet = ref(false);
@@ -272,7 +322,13 @@ export default {
             showBankTransfer,
             showEwallet,
             options,
-            toggleTransfer
+            toggleTransfer,
+            selectedPaymentMethod,
+            selectedPayment,
+            wallet_name,
+            account_name,
+            account_number,
+            submitRefund
         };
     },
 };
@@ -522,14 +578,14 @@ export default {
                                                         </div>
 
                                                         <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5 mr-2"
-                                                            v-if="colIndex == 'action'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval'"
-                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval'}"
+                                                            v-if="colIndex == 'action' && value.status != 'refunded'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund'"
+                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund'}"
                                                         >
-                                                            {{ value.status == 'paid' ? 'Paid' : 'Pay' }}
+                                                            {{ value.status == 'paid' || value.status == 'pending_refund' ? 'Paid' : 'Pay' }}
                                                         </button>
 
-                                                        <button @click="openLeaveModal()" class="bg-cyan-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
-                                                            v-if="(colIndex == 'action' && value.status == 'paid') && (value.description == 'monthly_fee' || value.billing.subject != null)"
+                                                        <button @click="openLeaveModal(value)" class="bg-cyan-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
+                                                            v-if="(colIndex == 'action' && value.status == 'paid' && value.status != 'refunded') && (value.description == 'monthly_fee' || value.billing.subject != null)"
                                                         >
                                                             Refund
                                                         </button>
@@ -699,11 +755,11 @@ export default {
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6">
                                     <form class="mt-4">
-                                        
+
                                         <label for="desc" class="block mb-2 text-base font-medium text-black">Description:</label>
-                                        <input disabled type="text" id="desc" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                        <input disabled type="text" :value="!!selectedPayment ? selectedPayment.billing.amount : null" id="desc" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
                                         <label for="amount" class="block mb-2 text-base font-medium text-black">Amount:</label>
-                                        <input disabled type="text" id="amount"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                        <input disabled type="text" :value="!!selectedPayment ? removeUnderscoreAndCapitalizeAfterSpace(selectedPayment.description) : null" id="amount"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
 
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
                                             <select
@@ -760,7 +816,7 @@ export default {
                                     class="w-full border-t  border-gray-200"
                                 >
                                     <button
-                                        @click=""
+                                        @click="submitRefund()"
                                         type="button"
                                         class="text-white rounded-b-lg bg-orange-500 hover:bg-opacity-25 font-medium w-full text-sm px-5 py-2.5"
                                     >
@@ -772,12 +828,12 @@ export default {
                         </div>
                     </div>
                 </div>
-          
-                
+
+
 
             </div>
-      
-        
+
+
     </AuthenticatedLayout>
 </template>
 

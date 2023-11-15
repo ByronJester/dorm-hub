@@ -103,6 +103,11 @@ export default {
         const move_in = ref();
 
         const submitApplication = () => {
+            if(!user.income_information) {
+                router.get(route("profile.edit"));
+                return
+            }
+
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
@@ -143,6 +148,11 @@ export default {
         };
 
         const reserveRoom = () => {
+            if(!user.income_information) {
+                router.get(route("profile.edit"));
+                return
+            }
+
             if(validateSelectPM())
             {
             const request = {
@@ -204,7 +214,7 @@ export default {
 
         }
 
-    
+
         const errorMessages = ref({
                     sm: '',
                     dates: '',
@@ -216,7 +226,7 @@ export default {
             errorMessages.value.dates = "";
             if(date.value == null){
                 errorMessages.value.dates='Please input visiting date';
-                isValid = false;  
+                isValid = false;
             }
             if(selectedPaymentMethod && selectedPaymentMethod.value.trim()===''){
                 errorMessages.value.sm='Please Select Payment Method';
@@ -225,7 +235,6 @@ export default {
             return isValid
         }
 
-        
         return {
             errorMessages,
             back,

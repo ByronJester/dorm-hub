@@ -40,8 +40,13 @@ class SharedController extends Controller
 
         $dorm = Dorm::where('id', $dorm_id)->first();
 
-        $reservation = Reservation::where('tenant', $auth->id)->where('is_active', true)->first();
-        $application = Application::where('tenant_id', $auth->id)->where('is_active', true)->first();
+        $reservation = null;
+        $application = null;
+
+        if($auth) {
+            $reservation = Reservation::where('tenant', $auth->id)->where('is_active', true)->first();
+            $application = Application::where('tenant_id', $auth->id)->where('is_active', true)->first();
+        }
 
         return Inertia::render('Dorm', [
             'dorm' => $dorm,

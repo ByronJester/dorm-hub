@@ -13,4 +13,9 @@ class Billing extends Model
         'tenant_id', 'reservation_id', 'amount', 'subject', 'description',
         'date', 'is_paid', 'user_id'
     ];
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
 }

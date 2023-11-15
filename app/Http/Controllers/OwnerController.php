@@ -13,7 +13,7 @@ use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -102,9 +102,39 @@ class OwnerController extends Controller
             $query->where('owner', $auth->id);
         })->get();
 
+        $refundArr = [];
+
+        $refunds = Refund::get();
+
+        foreach ($refunds as $refund) {
+            $payment = UserPayment::where('id', $refund->user_payment_id)->first();
+
+            if(!!$payment->tenant_id) {
+                $tenant = Tenant::where('id', $payment->tenant_id)->first();
+
+                if($tenant->owner == $auth->id) {
+                    array_push($refundArr, [
+                        'dorm_id' => $tenant->dorm_id,
+                        'payment_id' => $refund->user_payment_id,
+                        'refund_id' => $refund->id,
+                        'refund_description' => $payment->description,
+                        'payment_method' => $refund->payment_method,
+                        'wallet_name' => $refund->wallet_name,
+                        'account_number' => $refund->account_number,
+                        'account_name' => $refund->account_name,
+                        'status' => $refund->status,
+                        'refund_date' => Carbon::parse($refund->created_at)->isoFormat('LL'),
+                    ]);
+                }
+            }
+
+        }
+
+
         return Inertia::render('Owner/Maintenance', [
             'complaints' => $complaints,
-            'dorms' => $dorms
+            'dorms' => $dorms,
+            'refunds' => $refundArr
 
         ]);
     }
@@ -634,11 +664,23 @@ class OwnerController extends Controller
         //     }
         // }
 
+        $applications = Application::where('owner_id', $auth->id)->where('is_active', true)->count();
+        $tenants = Tenant::where('owner', $auth->id)->where('is_active', true)->count();
+        $paidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
+            $query->where('owner', $auth->id);
+        })
+        ->where('is_paid', true)->sum('amount');
+
+        $unPaidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
+            $query->where('owner', $auth->id);
+        })
+        ->where('is_paid', false)->sum('amount');
+
         return Inertia::render('Owner/Dashboard', [
-            'paidAmount' => 1000,
-            'unpaidAmount' => 1000,
-            'totalTenants' => 3,
-            'totalApplications' => 5
+            'paidAmount' => $paidAmount,
+            'unpaidAmount' => $unPaidAmount,
+            'totalTenants' => $tenants,
+            'totalApplications' => $applications
         ]);
     }
 

@@ -14,7 +14,7 @@ class Room extends Model
     ];
 
     protected $appends = [
-        'src'
+        'src', 'has_active_application_reservation'
     ];
 
     public function getImageAttribute($value)
@@ -25,5 +25,17 @@ class Room extends Model
     public function getSrcAttribute()
     {
         return $this->image;
+    }
+
+    public function getHasActiveApplicationReservationAttribute()
+    {
+        $application = Application::where('room_id', $this->id)->where('is_active', true)->first();
+        $reservation = Reservation::where('room_id', $this->id)->where('is_active', true)->first();
+
+        if($application || $reservation) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -50,4 +50,9 @@ class UserPayment extends Model
     {
         return $this->belongsTo(Billing::class);
     }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
+    }
 }

@@ -23,12 +23,7 @@ export default{
         //mga sample data lang to
         const options = page.props.dorms
 
-        const headerRefunds=["Refund Subject", "Refund Description", "Status", "Refund Date", "Bank/Wallet Name", "Account number", "Account Name", "Date Refunded"]
         const headerMoveOut=["Move-out Subject", "Move-out Description", "Status", "Move-out Date", "Date moved-out"]
-
-
-
-        // console.log(page.props)
 
         const selectedDorm = ref(options[0].id)
 
@@ -90,6 +85,46 @@ export default{
             });
         }
 
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
+            }
+
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+
+        const refundObjectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.dorm_id
+            delete newObject.payment_id
+            delete newObject.refund_id
+
+            return newObject;
+        }
+
+        const headerRefunds=["Refund Description", "Refund Method", "Bank/Wallet Name", "Account number", "Account Name", "Status", "Refund Date", "Action"]
+
+        const refundsData = ref(page.props.refunds.filter(x => {
+            return x.dorm_id == selectedDorm.value;
+        }));
+
+
+        console.log(refundsData.value)
+
         return{
             activeTable,
             setActiveTable,
@@ -101,7 +136,10 @@ export default{
             changeSelectedDorm,
             complaintsObjectRemoveKey,
             complaintsData,
-            changeComplainStatus
+            changeComplainStatus,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            refundObjectRemoveKey,
+            refundsData
         }
     }
 }
@@ -361,16 +399,30 @@ export default{
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in slicedRows"
+                                        v-for="(item, rowIndex) in refundsData"
                                         :key="rowIndex"
                                     >
                                         <td
                                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
+                                            v-for="(value, colIndex) in refundObjectRemoveKey(item)"
                                             :key="colIndex"
                                         >
 
-                                            {{ colIndex !== 'created_at' ? value : '' }}
+                                            {{ colIndex == 'refund_description' ? removeUnderscoreAndCapitalizeAfterSpace(value) : value }}
+
+                                        </td>
+
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                        >
+                                            <button class="px-3 py-2 mr-2 bg-rose-500 text-white rounded-md">
+                                                Decline
+                                            </button>
+
+                                            <button class="px-3 py-2 mr-2 bg-cyan-500 text-white rounded-md">
+                                                Approve
+                                            </button>
+
 
                                         </td>
                                     </tr>
