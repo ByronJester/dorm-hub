@@ -104,6 +104,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::patch('/hero/update', [HeroController::class, 'update'])->name('hero.update');
         //
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
+        Route::get('/refund', [AdminController::class, 'refund'])->name('admin.refund');
         Route::get('/tenants', [AdminController::class, 'tenantList'])->name('admin.tenants');
         Route::get('/dashboard', [AdminController:: class, 'dashboard'])->name('admin.dashboard');
         Route::get('/maintenance', [AdminController:: class, 'maintenance'])->name('admin.maintenance');

@@ -49,6 +49,13 @@ class AdminController extends Controller
         ]);
     }
 
+    public function refund(){
+
+        return Inertia::render('Admin/RefundRequest',[
+            
+        ]);
+    }
+
     public function addUser(){
         return Inertia::render('Admin/Utilities/AddUser',[
 
