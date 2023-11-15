@@ -390,9 +390,9 @@ export default {
                                                         <AppDropdownContent
                                                             class="bg-white z-50"
                                                         >
-                                                            <!-- <AppDropdownItem>
-                                                        Edit Tenant
-                                                    </AppDropdownItem> -->
+                                                        <AppDropdownItem @click="noticeTermination(item)">
+                                                        Notice Termination
+                                                    </AppDropdownItem>
                                                             <AppDropdownItem>
                                                                 Remove Tenant
                                                             </AppDropdownItem>
