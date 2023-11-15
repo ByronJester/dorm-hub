@@ -714,12 +714,12 @@ export default {
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Reason:</label>
                                             <select id="subject" v-model="reason" class="block w-full px-4 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
                                                 <option selected>Choose a Reason:</option>
-                                                <option value="Maintenance">Relocation</option>
-                                                <option value="Cleanliness">End of Lease</option>
-                                                <option value="Noise">Housing Change</option>
-                                                <option value="Safety and Security">Financial Reasons</option>
-                                                <option value="Bill Concerns">Personal Preference</option>
-                                                <option value="General Inquiries">Family Circumstances</option>
+                                                <option value="Relocation">Relocation</option>
+                                                <option value="End of Lease">End of Lease</option>
+                                                <option value="Housing Change">Housing Change</option>
+                                                <option value="Financial Reasons">Financial Reasons</option>
+                                                <option value="Personal Preference">Personal Preference</option>
+                                                <option value="Family Circumstances">Family Circumstances</option>
                                                 <option value="Others">Others</option>
 
                                             </select>

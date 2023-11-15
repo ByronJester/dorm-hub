@@ -136,11 +136,15 @@ class OwnerController extends Controller
 
         }
 
+        $moveouts = Tenant::where('owner', $auth->id)
+            ->where('status', 'pending_move_out')
+            ->get(['id', 'reason', 'reason_description', 'status', 'move_out']);
 
         return Inertia::render('Owner/Maintenance', [
             'complaints' => $complaints,
             'dorms' => $dorms,
-            'refunds' => $refundArr
+            'refunds' => $refundArr,
+            'moveouts' => $moveouts
 
         ]);
     }
@@ -1053,5 +1057,25 @@ class OwnerController extends Controller
         $refund->status = $status;
 
         return $refund->save();
+    }
+
+    public function approveMoveOut(Request $request)
+    {
+        $tenant = Tenant::where('id', $request->id)->first();
+
+        $application = Application::where('owner_id', $tenant->owner)
+            ->where('tenant_id', $tenant->tenant)
+            ->where('dorm_id', $tenant->dorm_id)
+            ->where('room_id', $tenant->room_id)
+            ->where('is_active', true)
+            ->first();
+
+        $application->is_active = false;
+        $application->save();
+
+        $tenant->status = 'moved_out';
+        $tenant->is_active = false;
+
+        return $tenant->save();
     }
 }

@@ -23,8 +23,6 @@ export default{
         //mga sample data lang to
         const options = page.props.dorms
 
-        const headerMoveOut=["Move-out Subject", "Move-out Description", "Status", "Move-out Date", "Date moved-out"]
-
         const selectedDorm = ref(options[0].id)
 
         const changeSelectedDorm = (event) => {
@@ -218,6 +216,46 @@ export default{
             });
         }
 
+        console.log(page.props.moveouts)
+
+        const headerMoveOut=["Move-out Subject", "Move-out Description", "Status", "Move-out Date", "Action"]
+
+        const moveoutObjectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.id
+
+            return newObject;
+        }
+
+        const moveoutData = ref(page.props.moveouts)
+
+        const approveMoveOut = (arg) => {
+            swal({
+                title: `Are you sure to approve this moveout request?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.move.out.tenant', {id: arg.id}),
+                    {
+                        id: arg.refund_id,
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully moveout this tenant.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
 
         return{
             openAutoBill,
@@ -241,7 +279,10 @@ export default{
             proofPaymentChange,
             proofPayment,
             approveRefund,
-            declineRefund
+            declineRefund,
+            moveoutObjectRemoveKey,
+            moveoutData,
+            approveMoveOut
         }
     }
 }
@@ -531,7 +572,7 @@ export default{
                                                         Decline
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
-                                     </AppDropdown>
+                                        </AppDropdown>
 
 
                                         </td>
@@ -643,17 +684,37 @@ export default{
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in slicedRows"
+                                        v-for="(item, rowIndex) in moveoutData"
                                         :key="rowIndex"
                                     >
                                         <td
                                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
+                                            v-for="(value, colIndex) in moveoutObjectRemoveKey(item)"
                                             :key="colIndex"
                                         >
 
-                                            {{ colIndex !== 'created_at' ? value : '' }}
+                                            {{ value }}
 
+                                        </td>
+
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                        >
+                                            <AppDropdown class="">
+                                                <button >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                                                </button>
+                                                <AppDropdownContent class="bg-white z-50 ">
+                                                    <AppDropdownItem @click="approveMoveOut(item)">
+                                                        Approve
+                                                    </AppDropdownItem>
+                                                    <AppDropdownItem
+
+                                                    >
+                                                        Decline
+                                                    </AppDropdownItem>
+                                                </AppDropdownContent>
+                                            </AppDropdown>
                                         </td>
                                     </tr>
                                 </tbody>
