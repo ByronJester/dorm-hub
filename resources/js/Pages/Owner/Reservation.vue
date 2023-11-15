@@ -27,17 +27,38 @@
         exportToPDF() {
             const doc = new jsPDF();
 
-            // Add a timestamp (current date) to the PDF
-            doc.setFontSize(16);
-            doc.text("Reservation Record", 10, 10); // Title
+            const page = usePage();
+            const contacts = page.props.contact;
             const currentDate = new Date();
+            const logo = "/images/logo.png";
             const dateString = currentDate.toLocaleDateString();
             const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
             const timestamp = `Export Date: ${dateString} ${timeString}`;
-            doc.setFontSize(12);
-            doc.text(timestamp, 10, 20);
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Reservation Records", 15, 60)
 
-            const margin = 30;
+            const margin = 65;
 
             // Create your data array with header and rows
             const tableData = [this.headersReserve].concat(
@@ -57,96 +78,69 @@
                 head: [tableData[0]],
                 body: tableData.slice(1),
                 startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
             });
 
             doc.save("table-data.pdf");
         },
-        async exportToExcel() {
-            const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet("Table Data");
-
-            // Add headers to the worksheet
-            const headerRow = worksheet.addRow(
-                this.columns.map((column) => column.label)
-            );
-
-            // Set styles for the header row (if needed)
-            headerRow.eachCell((cell) => {
-                cell.fill = {
-                    type: "pattern",
-                    pattern: "solid",
-                    fgColor: { argb: "FFD9D9D9" },
-                };
-                cell.font = { bold: true };
-                cell.border = {
-                    top: { style: "thin" },
-                    left: { style: "thin" },
-                    bottom: { style: "thin" },
-                    right: { style: "thin" },
-                };
-            });
-
-            // Add data rows to the worksheet
-            this.rows.forEach((row) => {
-                const rowData = this.columns.map((column) => {
-                    if (column.field === "dorm_owner") {
-                        return `${row.user.first_name} ${row.user.last_name}`;
-                    } else if (column.field === "contact_number") {
-                        return row.user.phone_number;
-                    } else {
-                        return row[column.field];
-                    }
-                });
-                worksheet.addRow(rowData);
-            });
-
-            // Create a Blob from the workbook
-            const blob = await workbook.xlsx.writeBuffer();
-            const blobObject = new Blob([blob], {
-                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            });
-
-            // Create a download link and trigger the download
-            const link = document.createElement("a");
-            link.href = window.URL.createObjectURL(blobObject);
-            link.download = "table-data.xlsx";
-            link.click();
-            },
             printTable() {
-                // Open the print dialog for the table
                 const doc = new jsPDF();
 
-                // Add a timestamp (current date) to the PDF
-                doc.setFontSize(16);
-                doc.text("Income Report", 10, 10); // Title
-                const currentDate = new Date();
-                const dateString = currentDate.toLocaleDateString();
-                const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
-                const timestamp = `Export Date: ${dateString} ${timeString}`;
-                doc.setFontSize(12);
-                doc.text(timestamp, 10, 20);
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Reservation Records", 15, 60)
 
-                const margin = 30;
+            const margin = 65;
 
-                // Create your data array with header and rows
-                const tableData = [this.headersReserve].concat(
-                    this.slicedRows.value.map((row) => [
-                        row.user.first_name + " " + row.user.last_name, // Dorm Owner's Name
-                        row.user.phone_number, // Contact Number
-                        // Add the remaining columns here as needed
-                        row.property_name,
-                        row.detailed_address,
-                        row.status,
-                        row.net_sales,
-                    ])
-                );
+            // Create your data array with header and rows
+            const tableData = [this.headersReserve].concat(
+                this.slicedRows.map((row) => [
+                        row.dorm_name,
+                        row.room_name,
+                        row.tenant_name,
+                        row.visit_date,
+                        row.time_visit,
+                        row.remaining,
+                        row.status
+                ])
+            );
 
-                // Generate the table in the PDF
-                doc.autoTable({
-                    head: [tableData[0]],
-                    body: tableData.slice(1),
-                    startY: margin,
-                });
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
 
                 doc.autoPrint();
 
@@ -338,10 +332,9 @@
                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
                                                     PDF
                                                 </button>
-                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    Excel
-                                                </button>
-                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                <button
+                                                @click="printTable()"
+                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
                                                     Print
                                                 </button>    
                                             </div>

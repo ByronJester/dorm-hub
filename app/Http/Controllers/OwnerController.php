@@ -13,7 +13,7 @@ use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, ContactUs
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -65,8 +65,9 @@ class OwnerController extends Controller
         $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('owner', $auth->id)->get();
 
-
+        $contact = ContactUs::first();
         return Inertia::render('Owner/Reservation', [
+            'contact' => $contact,
             'reservations' => $reservations
 
         ]);

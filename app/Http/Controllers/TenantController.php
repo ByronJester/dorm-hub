@@ -9,7 +9,7 @@ use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
     Thread, ThreadMember, ThreadMessage,Hero, DormRating, TenantComplaint,
     //TenantApplication, TenantRefund, , TenantReservation, TenantBilling, TenantPayment,
-    Reservation, Billing, UserPayment, Application, Tenant, Refund
+    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -97,7 +97,16 @@ class TenantController extends Controller
             }
         }
 
+        $contact = ContactUs::first();
+
+        $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->first();
+
         return Inertia::render('Tenant/Payments', [
+            'contact' => $contact,
+            'myDorm' => $myDorm,
             'payments' => $payments,
             'nexPayment' => $nexPayment,
             'lastBilled' => $lastBilled,

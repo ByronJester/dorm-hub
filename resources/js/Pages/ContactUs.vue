@@ -51,7 +51,7 @@ export default {
                     errors.value = error.response.data.errors;
                 });
         };
-
+        console.log(contactUs);
         return {
             user,
             contactUs,

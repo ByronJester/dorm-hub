@@ -20,7 +20,7 @@ defineProps({
 
 <script>
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
-import { Head, Link, useForm, usePage } from "@inertiajs/vue3";
+import { Head, Link, useForm, usePage, router } from "@inertiajs/vue3";
 import { ref, onMounted } from "vue";
 import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -1124,18 +1124,18 @@ export default {
             <ul
                 class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
             >
-                <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6"
+            <li>
+                    <a :href="route('about.us')" class="mr-4 hover:underline md:mr-6"
                         >About us</a
                     >
                 </li>
                 <li>
-                    <a href="#" class="mr-4 hover:underline md:mr-6"
+                    <a :href="route('privacy.policy')" class="mr-4 hover:underline md:mr-6"
                         >Privacy Policy</a
                     >
                 </li>
                 <li>
-                    <a href="#" class="hover:underline">Contact us</a>
+                    <a :href="route('contact.us')" class="hover:underline">Contact us</a>
                 </li>
             </ul>
         </div>
