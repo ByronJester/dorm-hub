@@ -214,7 +214,7 @@ export default {
                                     </span>
                                 </button>
 
-                                <AppDropdownContent class="w-100%">
+                                <AppDropdownContent class="w-80 p-5 h-auto">
                                     <div
                                         class="block px-4 py-2 w-auto font-medium text-center"
                                     >
@@ -309,47 +309,4 @@ export default {
     </div>
 </template>
 
-<style>
-.notificationModal {
-    display: none;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 20px; /* Location of the box */
-    left: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: scroll; /* Enable scroll if needed */
-}
 
-/* Modal Content */
-.notification-modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 100%;
-    max-height: 80vh;
-    border-radius: 5px;
-    overflow: scroll;
-}
-
-/* The Close Button */
-.close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-::-webkit-scrollbar {
-    width: 0px;
-    background: transparent; /* make scrollbar transparent */
-}
-</style>

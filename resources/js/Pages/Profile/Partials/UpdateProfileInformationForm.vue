@@ -166,9 +166,6 @@ const imageChange = (e) => {
                             <!---->
                         </div>
                     </div>
-                    <div class="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                        Max 500kb
-                    </div>
                 </div>
                 <div class="mb-6 last:mb-0">
                     <label class="block font-bold mb-2">Name</label>
