@@ -49,7 +49,12 @@ export default {
         const myDorm = ref()
         myDorm.value = page.props.myDorm
 
+        const myApplication = ref()
+        myApplication.value = page.props.myApplication
+
         console.log(myDorm.value)
+
+        console.log(myApplication.value)
 
         const currentRating = ref()
         currentRating.value = page.props.rating
@@ -191,6 +196,7 @@ export default {
         }
 
         return {
+            myApplication,
             headers,
             date,
             reason,
@@ -554,8 +560,15 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div v-else class="p-5 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
-                    You dont have leasing yet
+                
+                <div v-else>
+                    <div v-if="myApplication" class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
+                        You have on going application please wait for the dorm owner to approve your application
+                    </div>
+                    <div v-else class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
+                        You dont have leasing yet
+                    </div>
+                    
                 </div>
             </div>
             <!--Complain Modal-->

@@ -337,14 +337,6 @@ export default {
                         {{ dorm.property_name }}
                     </option>
                 </select>
-                <select
-                    id="subject"
-                    class="block w-40 px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                >
-                    <option v-for="date in dates" :key="date">
-                        {{ date }}
-                    </option>
-                </select>
             </div>
             <div
                 class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-20 text-gray-400 dark:text-white"
