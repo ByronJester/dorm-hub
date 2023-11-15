@@ -6,6 +6,9 @@ import { VueGoodTable } from "vue-good-table-next";
 import { ref, computed, reactive, watch, onMounted, defineProps } from "vue";
 import { usePage, useForm } from "@inertiajs/vue3";
 import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import ExcelJS from "exceljs";
 
 export default {
     components: {
@@ -16,6 +19,7 @@ export default {
         const isMobileView = ref(false);
         const page = usePage();
         const rows = ref([]);
+     
 
         const columns = ref([
             {
@@ -197,7 +201,14 @@ export default {
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            {{ pends }}
+                            {{
+                                rows.filter((x) => {
+                                    return (
+                                        x.status != "approved" &&
+                                        x.status != "pending"
+                                    );
+                                }).length
+                            }}
                         </p>
                         <p class="text-xs">TOTAL NO. OF Declined Dorm</p>
                     </div>
@@ -208,10 +219,11 @@ export default {
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            <!--
                             {{
-                                props.rows.status =='pending'
-                            }}-->
+                                rows.filter((x) => {
+                                    return x.status == "approved";
+                                }).length
+                            }}
                         </p>
                         <p class="text-xs">TOTAL NO. OF Approved Dorm</p>
                     </div>
@@ -222,7 +234,11 @@ export default {
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            {{ appr }}
+                            {{
+                                rows.filter((x) => {
+                                    return x.status == "pending";
+                                }).length
+                            }}
                         </p>
                         <p class="text-xs">TOTAL NO. OF Pending Dorm</p>
                     </div>

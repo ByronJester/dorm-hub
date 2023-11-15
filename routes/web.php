@@ -60,6 +60,7 @@ Route::get('/alive', function () {
 Route::prefix('cron')->group(function () {
     Route::get('/auto-bill', [SharedController::class, 'autoBill']);
     Route::get('/due-reminder', [SharedController::class, 'dueReminder']);
+    Route::get('/reservation-expiration', [SharedController::class, 'reservationExpiration']);
 });
 
 Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
@@ -103,6 +104,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::patch('/hero/update', [HeroController::class, 'update'])->name('hero.update');
         //
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
+        Route::get('/refund', [AdminController::class, 'refund'])->name('admin.refund');
         Route::get('/tenants', [AdminController::class, 'tenantList'])->name('admin.tenants');
         Route::get('/dashboard', [AdminController:: class, 'dashboard'])->name('admin.dashboard');
         Route::get('/maintenance', [AdminController:: class, 'maintenance'])->name('admin.maintenance');
@@ -119,12 +121,13 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     Route::prefix('owner')->group(function () {
         Route::get('/dorms', [OwnerController::class, 'dormList'])->name('owner.dorms');
         Route::get('/applicationmodule', [OwnerController::class, 'applications'])->name('owner.manage.application');
+        Route::get('/reservation', [OwnerController::class, 'reservation'])->name('owner.manage.reservation');
         Route::get('/tenants', [OwnerController::class, 'tenants'])->name('owner.manage.tenants');
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/addDorm', [OwnerController::class, 'addDorm'])->name('owner.addDorm');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
-        Route::get('/tenantspaymenthistory/{application_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
+        Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
@@ -136,6 +139,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/payment-history/mark-as-paid', [OwnerController::class, 'paymentHistoryMarkAsPaid'])->name('payment-history.mark-as-paid');
         Route::post('/bill/munual-bill', [OwnerController::class, 'submitManualBill'])->name('owner.manual-bill');
         Route::post('/bill/auto-bill', [OwnerController::class, 'submitAutoBill'])->name('owner.auto-bill');
+        Route::post('/room/change-status', [OwnerController::class, 'changeRoomStatus'])->name('change.room.status');
+        Route::post('/complain/change-status/{id}', [OwnerController::class, 'changeComplainStatus'])->name('owner.complain.change.status');
+        Route::post('/refund/{status}', [OwnerController::class, 'refundChangeStatus'])->name('owner.refund.change.status');
+        Route::post('/approve/move-out', [OwnerController::class, 'approveMoveOut'])->name('owner.move.out.tenant');
     });
 
     Route::prefix('tenant')->group(function () {
@@ -144,6 +151,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/paymongo/success', [TenantController::class, 'successPage']);
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
         Route::get('/mydorm', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
+        Route::get('/myreservation', [TenantController::class, 'myreservation'])->name('tenant.reservation');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
         Route::get('/billing-info/{param}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
         // Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
@@ -154,7 +162,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/pay/billing', [TenantController::class, 'payBilling'])->name('pay.specific.billing');
         Route::post('/rate/dorm', [TenantController::class, 'rateDorm'])->name('tenant.rate.dorm');
         Route::post('/submit/complain', [TenantController::class, 'submitComplain'])->name('tenant.submit.complain');
+        Route::post('/cancel/reservation', [TenantController::class, 'cancelReservation'])->name('cancel.reservation');
+        Route::post('/rent/now', [TenantController::class, 'rentNow'])->name('rent.now');
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
+        Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
     });
 
     Route::prefix('shared')->group(function () {

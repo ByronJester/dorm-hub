@@ -11,11 +11,9 @@ export default {
 
         const moneyFormat = (amount) => {
             amount = parseFloat(amount).toFixed(2)
-
             return '₱ ' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');;
         }
-
-
+        
         return {
             props,
             viewDorm,

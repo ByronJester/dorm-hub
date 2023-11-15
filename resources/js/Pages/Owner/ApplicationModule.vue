@@ -197,34 +197,33 @@
 
             }
 
+            const formatDate = (d) => {
+                const date = new Date(d); // Your date object
 
+                const options = {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }
 
-            var dataReserve = [];
-
-            const headersReserve = ["Dorm Name", "Room Name", "Applicant Name", "Date Visit", "Time Visit", "Payment Method", "Status"];
-
-            const reservations = page.props.reservations;
-
-            for (let x = 0; x < reservations.length; x++) {
-                dataReserve.push(
-                    {
-                        dorm_name: reservations[x].dorm.property_name,
-                        room_name: reservations[x].room.name,
-                        tenant_name: reservations[x].tenant.name,
-                        visit_date: reservations[x].check_date,
-                        time_visit: reservations[x].check_time,
-                        payment_method: reservations[x].reservation_payment.payment_method,
-                        status: reservations[x].status,
-                        action: reservations[x]
-                    }
-                );
+                return date.toLocaleDateString('en-US', options);
             }
+
+            const formatTime = (t) => {
+                // Creating a date object without specifying the date
+                const date = new Date(`2000-01-01T${t}`);
+
+                const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+
+                return date.toLocaleTimeString('en-US', options);
+            }
+
 
             const searchQueryReserve = ref("");
             const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
             const currentPageReserve = ref(1); // Initialize to the first page
 
-            
+
             const filteredDataReserve = computed(() => {
                 const query = searchQueryReserve.value.toLowerCase().trim();
                 if (!query) {
@@ -272,8 +271,8 @@
                     tenant_name: applications[y].tenant.name,
                     source_of_income: applications[y].tenant.income_information.source_of_income,
                     monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
-                    move_in: !applications[y].move_in ? 'N/A' : applications[y].move_in,
-                    move_out: !applications[y].move_out ? 'N/A' : applications[y].move_out,
+                    move_in: !applications[y].move_in ? 'N/A' : formatDate(applications[y].move_in),
+                    move_out: !applications[y].move_out ? 'N/A' : formatDate(applications[y].move_out),
                     status: applications[y].status,
                     action: applications[y]
                 });
@@ -393,11 +392,10 @@
             const approveApplication = (arg) => {
                 const data = {
                     tenant_id: arg.tenant_id,
-                    tenant_application_id: arg.id,
-                    first_name: user.first_name,
-                    last_name: user.last_name,
-                    phone_number: user.phone_number,
-                    room_id: arg.room_id
+                    owner_id: arg.owner_id,
+                    dorm_id: arg.dorm_id,
+                    room_id: arg.room_id,
+                    move_in: arg.move_in
                 }
 
                 swal({
@@ -433,7 +431,7 @@
                     closeOnConfirm: false
                 },
                 function(){
-                    axios.post(route('decline.application', arg.id), {})
+                    axios.post(route('decline.application', arg.id), {room_id: arg.room_id})
                         .then(response => {
                             swal("Success!", `You successfully declined this application.`, "success");
 
@@ -461,8 +459,6 @@
                 changePage,
                 headersRent,
                 dataRent,
-                headersReserve,
-                dataReserve,
                 isMobileView,
                 columns,
                 rows,
@@ -479,12 +475,13 @@
                 openProofModal,
                 closeProofModal,
                 applications,
-                reservations,
                 selectedApplication,
                 approveReservation,
                 declineReservation,
                 approveApplication,
-                declineApplication
+                declineApplication,
+                formatDate,
+                formatTime
             }
         }
     }
@@ -502,13 +499,8 @@
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
             <div>
-            <label for="divSelector">Select a table:</label>
-            <select v-model="selectedContent" id="divSelector" class="ml-4 rounded-md border-gray-200 cursor-pointer"> 
-                <option value="applicants">Rent Applicants</option>
-                <option value="reservations">Reservation Applicants</option>
-            </select>
             </div>
-            <div v-if="selectedContent === 'applicants'" class="w-full mt-5">
+            <div class="w-full mt-5">
                 <div class="w-full mb-5 ">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -595,7 +587,7 @@
                                         <th
                                             class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                         >
-                                            Proof of income
+                                            Action
                                         </th>
                                     </tr>
                                 </thead>
@@ -620,7 +612,15 @@
                                                 <AppDropdownContent class="bg-white z-50">
 
                                                     <AppDropdownItem>
-                                                        <button class="w-full"  @click="openProofModal(value)">View</button>
+                                                        <button class="w-full"  @click="openProofModal(value)">View Proof of Income</button>
+                                                    </AppDropdownItem>
+
+                                                    <AppDropdownItem v-if="!value.is_approved">
+                                                        <button class="w-full"  @click="approveApplication(value)">Approve Application</button>
+                                                    </AppDropdownItem>
+
+                                                    <AppDropdownItem v-if="!value.is_approved">
+                                                        <button class="w-full"  @click="declineApplication(value)">Decline Application</button>
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
                                             </AppDropdown>
@@ -660,165 +660,6 @@
                             </div>
                             <div class="flex items-center justify-center">
                                 <small>Page {{ currentPage }}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--Reservation-->
-            <div v-if="selectedContent === 'reservations'" class="w-full mt-5">
-                <div class="w-full mb-5 ">
-                    <div
-                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                    >
-                        <div class="rounded-t mb-0 px-4 py-3 border-0">
-                            <div class="flex flex-wrap items-center">
-                                <div
-                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
-                                >
-                                <p class=" text-lg mb-5">Reservation Applicants</p>
-                                    <form class="flex items-center">
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                v-model="searchQueryReserve"
-                                                required
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="block w-full overflow-x-auto">
-                            <table
-                                class="items-center w-full bg-transparent border-collapse"
-                            >
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                            v-for="header in headersReserve"
-                                            :key="header"
-                                        >
-                                            {{ header }}
-                                        </th>
-                                        <th
-                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                        >
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="(item, rowIndex) in filteredDataReserve"
-                                        :key="rowIndex"
-                                    >
-                                        <td
-                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
-                                            :key="colIndex"
-                                        >
-                                            <p v-if="colIndex != 'action'">
-                                                {{ value }}
-                                            </p>
-
-                                            <p v-else>
-                                                <i @click="approveReservation(value)" class="fa-solid fa-circle-check fa-xl" style="color: #1f8118; cursor: pointer;"></i>
-                                                <i @click="declineReservation(value)" class="fa-solid fa-circle-xmark fa-xl float-right mt-2" style="color: #c20000; cursor: pointer;"></i>
-                                            </p>
-
-                                        </td>
-                                        <!-- <td
-                                            class="border-t-0 px-6 flex text-center justify-center hover:bg-opacity-25 flex-row gap-2 border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        >
-                                        <i @click="" class="fa-solid fa-circle-check fa-xl" style="color: #1f8118; cursor: pointer;"></i>
-                                        <i @click="" class="fa-solid fa-circle-xmark fa-xl" style="color: #c20000; cursor: pointer;"></i>
-                                        </td> -->
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
-                    <div class="block w-full overflow-x-auto">
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-start flex-wrap mb-3"
-                            >
-                                <button
-                                    @click="changePageReserve(-1)"
-                                    :disabled="currentPageReserve == 1"
-                                    :class="{
-                                        hidden: currentPageReserve == 1,
-                                    }"
-                                    type="button"
-                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    @click="changePageReserve(1)"
-                                    :disabled="currentPageReserve === totalPagesReserve"
-                                    type="button"
-                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page {{ currentPageReserve }}</small>
                             </div>
                         </div>
                     </div>
@@ -876,7 +717,7 @@
                                     <img :src="selectedApplication.tenant.income_information.proof" class="w-full h-[300px]"/>
                                 </div>
                                 <!-- Modal footer -->
-                                <div
+                                <!-- <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
@@ -896,7 +737,7 @@
                                         Approve
                                     </button>
 
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>

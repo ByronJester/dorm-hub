@@ -7,9 +7,9 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
-    Thread, ThreadMember, ThreadMessage, TenantApplication,
-    TenantBilling, TenantReservation, TenantPayment, Hero,
-    DormRating, TenantComplaint, TenantRefund
+    Thread, ThreadMember, ThreadMessage,Hero, DormRating, TenantComplaint,
+    //TenantApplication, TenantRefund, , TenantReservation, TenantBilling, TenantPayment,
+    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -29,13 +29,24 @@ class TenantController extends Controller
     }
 
     public function mydorm()
-    {   $auth = Auth::user();
+    {
+        $auth = Auth::user();
 
-        $myDorm = TenantApplication::where('tenant_id', $auth->id)->where('is_active', true)
-            ->where('is_approved', true)->first();
+        // $myDorm = TenantApplication::where('tenant_id', $auth->id)->where('is_active', true)
+        //     ->where('is_approved', true)->first();
+
+        $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->first();
 
         $rating = DormRating::where('tenant_id', $auth->id)->first();
-        $complaints = TenantComplaint::where('tenant_application_id', $myDorm->id)->get();
+
+        $complaints = [];
+
+        if($myDorm) {
+            $complaints = TenantComplaint::where('tenant_id', $myDorm->id)->get();
+        }
 
         return Inertia::render('Tenant/MyDorm', [
             'myDorm' => $myDorm,
@@ -44,15 +55,39 @@ class TenantController extends Controller
         ]);
     }
 
+    public function myreservation()
+    {   $auth = Auth::user();
+
+        $reservation = Reservation::with(['dorm', 'room'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->first();
+
+        return Inertia::render('Tenant/MyReservation', [
+            'reservation' => $reservation
+        ]);
+    }
+
 
     public function paymentList()
     {
         $auth = Auth::user();
 
-        $payments = TenantPayment::where('tenant_id', $auth->id)->get();
-        $nexPayment = TenantPayment::where('status', 'pending')->where('tenant_id', $auth->id)->first();
-        $lastBilled = TenantPayment::orderBy('updated_at', 'desc')->where('status', 'paid')->where('tenant_id', $auth->id)->first();
-        $totalAmountPaid = TenantPayment::where('status', 'paid')->where('tenant_id', $auth->id)->get();
+        $payments = UserPayment::where('user_id', $auth->id)->get();
+        $nexPayment = UserPayment::where('status', 'pending')->where('user_id', $auth->id)->where('description', 'monthly_fee')->first();
+        $lastBilled = UserPayment::orderBy('created_at', 'desc')->where('status', 'paid')
+            ->whereIn('description', ['monthly_fee', 'advance_and_deposit_fee'])
+            ->where('user_id', $auth->id)
+            ->first();
+
+        $paid = UserPayment::where('status', 'paid')->where('user_id', $auth->id)->get();
+
+        $totalAmountPaid = 0;
+
+        foreach ($paid as $p) {
+            $billing = (object) $p->billing;
+            $totalAmountPaid += $billing->amount;
+        }
 
         $balance = 0;
 
@@ -62,12 +97,21 @@ class TenantController extends Controller
             }
         }
 
+        $contact = ContactUs::first();
+
+        $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->first();
+
         return Inertia::render('Tenant/Payments', [
+            'contact' => $contact,
+            'myDorm' => $myDorm,
             'payments' => $payments,
             'nexPayment' => $nexPayment,
             'lastBilled' => $lastBilled,
             'balance' => $balance,
-            'totalAmountPaid' => $totalAmountPaid->sum('amount')
+            'totalAmountPaid' => $totalAmountPaid,
         ]);
     }
 
@@ -83,14 +127,6 @@ class TenantController extends Controller
         $now = Carbon::now();
         $expiredDate = Carbon::now()->addDay(7);
 
-        $hasExistingApplication = TenantApplication::where('tenant_id', $auth->id)
-            ->where('room_id', $room->id)->where('status', 'rent')
-            ->where('is_active', true)->first();
-
-        $hasExistingReservation = TenantApplication::where('tenant_id', $auth->id)
-            ->where('room_id', $room->id)->where('status', 'reserve')
-            ->where('is_active', true)->first();
-
         return Inertia::render('Tenant/BillingInfo', [
             'room' => $room,
             'dorm' => $dorm,
@@ -99,8 +135,8 @@ class TenantController extends Controller
             'expiredDate' => $expiredDate->isoFormat('LL'),
             'min' => $now,
             'max' => $expiredDate,
-            'hasExistingApplication' => $hasExistingApplication,
-            'hasExistingReservation' => $hasExistingReservation
+            'hasExistingApplication' => false,
+            'hasExistingReservation' => false
         ]);
     }
 
@@ -321,17 +357,28 @@ class TenantController extends Controller
 
     public function submitApplication(Request $request)
     {
-        $data = $request->toArray();
+        Room::where('id', $request->room_id)->update([
+            'status' => 'rent',
+            'is_available' => false
+        ]);
 
-        return TenantApplication::updateOrCreate(
+        return Application::updateOrCreate(
             [
                 "owner_id" => $request->owner_id,
                 "tenant_id" => $request->tenant_id,
                 "room_id" => $request->room_id,
                 "dorm_id" => $request->dorm_id,
-                "is_active" => true
+                "is_active" => true,
             ],
-            $data
+            [
+                "owner_id" => $request->owner_id,
+                "tenant_id" => $request->tenant_id,
+                "room_id" => $request->room_id,
+                "dorm_id" => $request->dorm_id,
+                "is_active" => true,
+                "move_in" => Carbon::parse($request->move_in),
+                "status" => "pending"
+            ],
         );
     }
 
@@ -342,65 +389,65 @@ class TenantController extends Controller
 
             $auth = Auth::user();
 
-            $now = Carbon::now();
+            $existingReseravtion = Reservation::where('owner', $request->owner_id)
+                ->where('tenant', $request->tenant_id)
+                ->where('dorm_id', $request->dorm_id)
+                ->where('room_id', $request->room_id)
+                ->first();
 
-            $applicationRequest = $request->only([
-                'owner_id', 'tenant_id', 'dorm_id', 'room_id', 'status', 'check_time'
+            if($existingReseravtion) {
+                Reservation::where('id', $existingReseravtion->id)->delete();
+                Billing::where('reservation_id', $existingReseravtion->id)->delete();
+                UserPayment::where('reservation_id', $existingReseravtion->id)->delete();
+            }
+
+            $reservation = Reservation::create([
+                'owner' => $request->owner_id,
+                'tenant' => $request->tenant_id,
+                'dorm_id' => $request->dorm_id,
+                'room_id' => $request->room_id,
+                'check_date' => Carbon::parse($request->check_date),
+                'check_time' => $request->check_time,
+                'date' => Carbon::now(),
+                'expired_at' => Carbon::now()->addDays(7)
             ]);
 
-            $applicationRequest['check_date'] = Carbon::parse($request->check_date);
-
-            $application = TenantApplication::create($applicationRequest);
-
-            $reservationRequest = $request->only([
-                'owner_id', 'tenant_id', 'dorm_id', 'room_id'
+            $billing = Billing::create([
+                'reservation_id' => $reservation->id,
+                'amount' => $request->amount,
+                'description' => 'reservation_fee',
+                'date' => Carbon::now(),
+                'user_id' => $auth->id
             ]);
 
-            $reservationRequest['date'] = $now;
-            $reservationRequest['tenant_application_id'] = $application->id;
-
-            $reservation = TenantReservation::create($reservationRequest);
-
-            $billingRequest = $request->only([
-                'tenant_id', 'amount'
-            ]);
-
-            $billingRequest['tenant_application_id'] = $application->id;
-            $billingRequest['first_name'] = !$request->first_name ? $auth->first_name : $request->first_name;
-            $billingRequest['last_name'] = !$request->last_name ? $auth->last_name : $request->last_name;
-            $billingRequest['phone_number'] = !$request->phone_number ? $auth->phone_number : $request->phone_number;
-            $billingRequest['description'] = 'reservation_fee';
-            $billingRequest['date'] = $now;
-
-            $billing = TenantBilling::create($billingRequest);
-
-            $paymentRequest = $request->only([
-                'tenant_id', 'dorm_id', 'room_id', 'amount', 'payment_method'
-            ]);
-
-            $paymentRequest['tenant_billing_id'] = $billing->id;
-            $paymentRequest['category'] = "reservation_fee";
-            $paymentRequest['date'] = $now;
-            $paymentRequest['proof_of_payment'] = null;
-            $paymentRequest['status'] = 'pending';
-
+            $proof_of_payment = null;
 
             if($request->payment_method == "Bank Transfer") {
                 $filename = Str::random(10) . '_proof_of_payment';
                 $uploadFile = $this->uploadFile($request->proof_of_payment, $filename);
-                $paymentRequest['proof_of_payment'] = $filename;
+                $proof_of_payment = $filename;
             }
 
-            $payment = TenantPayment::create($paymentRequest);
+            $payment = UserPayment::create([
+                'reservation_id' => $reservation->id,
+                'billing_id' => $billing->id,
+                'payment_method' => $request->payment_method,
+                'proof_of_payment' => $proof_of_payment,
+                'description' => 'reservation_fee',
+                'date' => Carbon::now(),
+                'user_id' => $auth->id
+            ]);
 
             DB::commit(); // Commit the transaction
+
+            session()->put('room_id', $request->room_id);
 
             // Return the data
             return [
                 'success' => true,
                 'data' => $request->payment_method == "Bank Transfer"
                     ? $payment
-                    : $this->payOnline($request->amount, $request->owner_id, $request->tenant_id),
+                    : $this->payOnline($request->amount, $request->owner_id, $request->tenant_id, 'Reservation Fee', $payment->id),
                 'payment_method' => $request->payment_method
             ];
         } catch (Exception $e) {
@@ -413,16 +460,16 @@ class TenantController extends Controller
 
     public function payBilling(Request $request)
     {
-        $billing = TenantBilling::where('id', $request->tenant_billing_id)->first();
-        $application = TenantApplication::where('id', $billing->tenant_application_id)->first();
-        $payment = TenantPayment::where('id', $request->id)->first();
+        $billing = Billing::where('id', $request->billing_id)->first();
+        $tenant = Tenant::where('id', $billing->tenant_id)->first();
+        $payment = UserPayment::where('id', $request->id)->first();
 
         $method = $request->payment_method;
         $amount = $request->amount;
 
         if($method == 'Online Payment') {
             return [
-                "data" => $this->payOnline($amount, $application->owner_id, $application->tenant_id, $request->id)
+                "data" => $this->payOnline($amount, $tenant->owner, $tenant->tenant, 'Deposit and Advance Fee', $request->id)
             ];
         } else {
             $filename = Str::random(10) . '_proof_of_payment';
@@ -444,7 +491,7 @@ class TenantController extends Controller
         ];
     }
 
-    public function payOnline($amount, $owner_id, $tenant_id, $payment_id = null)
+    public function payOnline($amount, $owner_id, $tenant_id, $description, $payment_id = null)
     {
         $tenant = User::where('id', $tenant_id)->first();
         $owner = User::where('id', $owner_id)->first();
@@ -489,6 +536,8 @@ class TenantController extends Controller
         session()->put('owner', $owner);
         session()->put('amount', $amount);
         session()->put('payment_id', $payment_id);
+        session()->put('tenant', $tenant);
+        session()->put('description', $description);
 
         return $source;
 
@@ -501,6 +550,8 @@ class TenantController extends Controller
         $owner = session()->get('owner');
         $amount = session()->get('amount');
         $payment_id = session()->get('payment_id');
+        $tenant = session()->get('tenant');
+        $description = session()->get('description');
 
         $client = new \GuzzleHttp\Client(['verify' => false]);
 
@@ -520,8 +571,8 @@ class TenantController extends Controller
         $notification->save();
 
         if($payment_id) {
-            $payment = TenantPayment::where('id', $payment_id)->first();
-            $billing = TenantBilling::where('id', $payment->tenant_billing_id)->first();
+            $payment = UserPayment::where('id', $payment_id)->first();
+            $billing = Billing::where('id', $payment->billing_id)->first();
 
             $payment->status = 'paid';
             $payment->payment_method = "Online Payment";
@@ -531,10 +582,27 @@ class TenantController extends Controller
             $billing->save();
         }
 
+        $invoice = $this->generateInvoice($tenant->id);
+
+        if (session()->has('room_id')) {
+            $room_id = session()->get('room_id');
+
+            $room = Room::where('id', $room_id)->first();
+            $room->is_available = false;
+            $room->status = 'reserve';
+            $room->save();
+
+            session()->forget('room_id');
+
+        }
+
         return Inertia::render('Paymongo/Success', [
             'source' => $source,
             'owner' => $owner,
-            'amount' => $amount
+            'amount' => $amount,
+            'invoice' => $invoice,
+            'tenant' => $tenant,
+            'description' => $description
         ]);
     }
 
@@ -556,13 +624,13 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        $application = TenantApplication::where('tenant_id', $auth->id)
-            ->where('is_active', true)->where('is_approved', true)->first();
+        $tenant = Tenant::where('tenant', $auth->id)
+            ->where('is_active', true)->first();
 
         return DormRating::updateOrCreate(
             ['tenant_id' => $auth->id],
             [
-                'dorm_id' => $application->dorm_id,
+                'dorm_id' => $tenant->dorm_id,
                 'tenant_id' => $auth->id,
                 'rate' => $request->rating,
                 'comment' => $request->comment
@@ -574,11 +642,11 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        $application = TenantApplication::where('tenant_id', $auth->id)
-            ->where('is_active', true)->where('is_approved', true)->first();
+        $tenant = Tenant::where('tenant', $auth->id)
+            ->where('is_active', true)->first();
 
         return TenantComplaint::create([
-            'tenant_application_id' => $application->id,
+            'tenant_id' => $tenant->id,
             'subject' => $request->subject,
             'complain' => $request->complain
         ]);
@@ -588,32 +656,96 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        $application = TenantApplication::where('tenant_id', $auth->id)
-            ->where('is_active', true)->where('is_approved', true)->first();
+        $tenant = Tenant::where('tenant', $auth->id)
+            ->where('is_active', true)->first();
 
-        $billing = TenantBilling::where('description', 'advance_and_deposit_fee')
-            ->where('tenant_application_id', $application->id)->first();
+        $billing = Billing::where('description', 'advance_and_deposit_fee')
+            ->where('tenant_id', $tenant->id)->first();
 
-        $payment = TenantPayment::where('tenant_billing_id', $billing->id)->first();
+        $payment = UserPayment::where('billing_id', $billing->id)->first();
 
-        $room = (object) $application->room;
-        $application->move_out = Carbon::parse($request->move_out);
-        $application->reason = $request->reason;
-        $application->reason_description = $request->reason_description;
-        $application->status = 'pending_move_out';
+        $room = (object) $tenant->room;
+        $tenant->move_out = Carbon::parse($request->move_out);
+        $tenant->reason = $request->reason;
+        $tenant->reason_description = $request->reason_description;
+        $tenant->status = 'pending_move_out';
 
-        TenantRefund::create([
-            'tenant_application_id' => $application->id,
-            'tenant_payment_id' => $payment->id,
+        Refund::create([
+            'user_payment_id' => $payment->id,
             'amount' => $room->deposit,
-            'tenant_id' => $auth->id,
             'payment_method' => $request->payment_method,
             'wallet_name' => $request->wallet_name,
             'account_name' => $request->account_name,
             'account_number' => $request->account_number,
         ]);
 
-        return $application->save();
+        return $tenant->save();
+    }
+
+    public function viewReceipt()
+    {
+        // $auth = Auth::user();
+
+        // $invoice = $this->generateInvoice($auth->id);
+
+        // return Inertia::render('Paymongo/Success', [
+        //     'owner' => $owner,
+        //     'amount' => $amount,
+        //     'invoice' => $invoice,
+        //     'tenant' => $tenant,
+        //     'description' => $description
+        // ]);
+    }
+
+    public function cancelReservation(Request $request)
+    {
+        $reservation = Reservation::where('id', $request->reservation_id)->first();
+        $reservation->is_active = false;
+
+        $room = Room::where('id', $reservation->room_id)->first();
+        $room->is_available = true;
+        $room->status = null;
+
+        return $reservation->save() && $room->save();
+    }
+
+    public function rentNow(Request $request)
+    {
+        Reservation::where('id', $request->reservation_id)->update([
+            'is_active' => false
+        ]);
+
+        Room::where('id', $request->room_id)->update([
+            'status' => 'rent'
+        ]);
+
+        return Application::updateOrCreate(
+            [
+                "owner_id" => $request->owner_id,
+                "tenant_id" => $request->tenant_id,
+                "room_id" => $request->room_id,
+                "dorm_id" => $request->dorm_id,
+                "is_active" => true,
+            ],
+            [
+                "owner_id" => $request->owner_id,
+                "tenant_id" => $request->tenant_id,
+                "room_id" => $request->room_id,
+                "dorm_id" => $request->dorm_id,
+                "is_active" => true,
+                "move_in" => Carbon::parse($request->move_in),
+                "status" => "pending"
+            ],
+        );
+    }
+
+    public function requestRefund(Request $request)
+    {
+        UserPayment::where('id', $request->user_payment_id)->update([
+            'status' => 'pending_refund'
+        ]);
+
+        return Refund::create($request->all());
     }
 }
 

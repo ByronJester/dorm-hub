@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('tenant_complaints', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('tenant_application_id')->unsigned()->comment('Foreign key from table tenant_applications');
+            $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table tenants');
             $table->string('subject', 100);
             $table->longText('complain')->nullable();
             $table->string('status', 50)->default("pending");
 
-            $table->foreign('tenant_application_id')->references('id')->on('tenant_applications');
+            $table->foreign('tenant_id')->references('id')->on('tenants');
             $table->timestamps();
         });
     }

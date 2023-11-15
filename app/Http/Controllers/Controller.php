@@ -6,6 +6,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use App\Models\User;
+use Carbon\Carbon;
 
 class Controller extends BaseController
 {
@@ -47,5 +49,16 @@ class Controller extends BaseController
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
         $output = curl_exec( $ch );
         curl_close ($ch);
+    }
+
+    public function generateInvoice($user_id)
+    {
+        $user = User::where('id', $user_id)->first();
+
+        $date = Carbon::parse($user->created_at);
+
+        $timestamp = $date->timestamp;
+
+        return "INVOICE-$timestamp";
     }
 }

@@ -3,6 +3,9 @@ import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+import { ref } from 'vue'
+import { usePage, useForm } from "@inertiajs/vue3";
+import axios from "axios";
 
 export default{
     components:{
@@ -12,43 +15,275 @@ export default{
         AppDropdownItem,
     },
     setup(){
+        const page = usePage();
+        const activeTable = ref('complain');
+        const setActiveTable = (table)=>{
+            activeTable.value = table;
+        }
         //mga sample data lang to
-        const options=["M.D.R Apartment", "Dorm2"]
-        const headerComplaints=["Subject", "Message", "Status", "Complain Date", "Date Finish"]
-        const dataComplaints = [
-            {
-                "Subject": "Internet Connectivity",
-                "Message": "Experiencing slow internet in my room.",
-                "Status": "Open",
-                "Complain Date": "2023-10-15",
-                "Date Finish": "",
+        const options = page.props.dorms
+
+        const selectedDorm = ref(options[0].id)
+
+        const changeSelectedDorm = (event) => {
+            let arg = event.target.value
+
+            complaintsData.value = page.props.complaints.filter(x => {
+                return x.tenant.dorm_id == arg
+            })
+        }
+
+        const headerComplaints = [
+            "Complain Subject",
+            "Message",
+            "Status",
+            "Complain Date",
+            "Date Finish",
+            "Action"
+        ];
+
+        const complaintsData = ref(page.props.complaints.filter(x => {
+            return x.tenant.dorm_id == selectedDorm.value
+        }));
+
+        const complaintsObjectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.id
+            delete newObject.tenant_id
+            delete newObject.tenant
+            delete newObject.created_at
+            delete newObject.updated_at
+
+
+            return newObject;
+        }
+
+        const changeComplainStatus = (id, status) => {
+            swal({
+                title: `Are you sure to mark as ${status} this complain?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
             },
-            {
-                "Subject": "Heating Issue",
-                "Message": "The heating system is not working in the common area.",
-                "Status": "Open",
-                "Complain Date": "2023-10-20",
-                "Date Finish": "",
-            },
-            {
-                "Subject": "Billing Discrepancy",
-                "Message": "I received an incorrect bill for this month.",
-                "Status": "Open",
-                "Complain Date": "2023-10-25",
-                "Date Finish": "",
-            },
-            {
-                "Subject": "Room Cleaning",
-                "Message": "My room hasn't been cleaned for a week.",
-                "Status": "Open",
-                "Complain Date": "2023-10-30",
-                "Date Finish": "",
+            function(){
+                axios.post(route('owner.complain.change.status', id), {status: status})
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this complain.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
             }
-            ];
-            return{
-                options,
-                headerComplaints,
-            }
+
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+
+        const refundObjectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.dorm_id
+            delete newObject.payment_id
+            delete newObject.refund_id
+
+            return newObject;
+        }
+
+        const headerRefunds=["Refund Description", "Refund Method", "Bank/Wallet Name", "Account number", "Account Name", "Status", "Refund Date", "Action"]
+
+        const refundsData = ref(page.props.refunds.filter(x => {
+            return x.dorm_id == selectedDorm.value;
+        }));
+
+
+        const selectedRefund = ref(null)
+        const proof_of_refund = ref(null)
+
+        const openAutoBill = (arg) => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "block";
+
+            selectedRefund.value = arg
+
+        };
+
+        const closeAutoBill = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "none";
+
+        };
+
+        const proofPaymentChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                proof_of_refund.value = e.target.result;
+            };
+        };
+
+        const proofPayment = () => {
+            document.getElementById("proof_payment").click();
+        };
+
+        const approveRefund = () => {
+            var status = 'ongoing'
+
+            swal({
+                title: `Are you sure to mark as ${status} this refund?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.refund.change.status', status),
+                    {
+                        id: selectedRefund.value.refund_id,
+                        proof_of_refund: proof_of_refund.value
+
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        const declineRefund = (arg) => {
+            var status = 'declined'
+
+            swal({
+                title: `Are you sure to mark as ${status} this refund?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.refund.change.status', status),
+                    {
+                        id: arg.refund_id,
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        console.log(page.props.moveouts)
+
+        const headerMoveOut=["Move-out Subject", "Move-out Description", "Status", "Move-out Date", "Action"]
+
+        const moveoutObjectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.id
+
+            return newObject;
+        }
+
+        const moveoutData = ref(page.props.moveouts)
+
+        const approveMoveOut = (arg) => {
+            swal({
+                title: `Are you sure to approve this moveout request?`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function(){
+                axios.post(route('owner.move.out.tenant', {id: arg.id}),
+                    {
+                        id: arg.refund_id,
+                    })
+                    .then(response => {
+                        swal("Success!", `You successfully moveout this tenant.`, "success");
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    })
+            });
+        }
+
+        return{
+            openAutoBill,
+            closeAutoBill,
+            activeTable,
+            setActiveTable,
+            options,
+            headerComplaints,
+            headerRefunds,
+            headerMoveOut,
+            selectedDorm,
+            changeSelectedDorm,
+            complaintsObjectRemoveKey,
+            complaintsData,
+            changeComplainStatus,
+            removeUnderscoreAndCapitalizeAfterSpace,
+            refundObjectRemoveKey,
+            refundsData,
+            selectedRefund,
+            proof_of_refund,
+            proofPaymentChange,
+            proofPayment,
+            approveRefund,
+            declineRefund,
+            moveoutObjectRemoveKey,
+            moveoutData,
+            approveMoveOut
+        }
     }
 }
 </script>
@@ -60,22 +295,41 @@ export default{
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 640 512"><path d="M335.5 4l288 160c15.4 8.6 21 28.1 12.4 43.5s-28.1 21-43.5 12.4L320 68.6 47.5 220c-15.4 8.6-34.9 3-43.5-12.4s-3-34.9 12.4-43.5L304.5 4c9.7-5.4 21.4-5.4 31.1 0zM320 160a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM144 256a40 40 0 1 1 0 80 40 40 0 1 1 0-80zm312 40a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM226.9 491.4L200 441.5V480c0 17.7-14.3 32-32 32H120c-17.7 0-32-14.3-32-32V441.5L61.1 491.4c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l37.9-70.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c16.3 0 31.9 4.5 45.4 12.6l33.6-62.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c32.4 0 62.1 17.8 77.5 46.3l33.6 62.3c13.5-8.1 29.1-12.6 45.4-12.6h19.5c32.4 0 62.1 17.8 77.5 46.3l37.9 70.3c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8L552 441.5V480c0 17.7-14.3 32-32 32H472c-17.7 0-32-14.3-32-32V441.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l36.3-67.5c-1.7-1.7-3.2-3.6-4.3-5.8L376 345.5V400c0 17.7-14.3 32-32 32H296c-17.7 0-32-14.3-32-32V345.5l-26.9 49.9c-1.2 2.2-2.6 4.1-4.3 5.8l36.3 67.5c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8z"/></svg>                </span>
                         <h3 class="text-3xl">Manage Requests</h3>
                     </div>
-                
+
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div>
                         <p class="text-sm font-bold">Dorm:</p>
                         <select
-                            id="subject"
+                            v-dmodel="selectedDorm"
+                            @change="changeSelectedDorm($event)"
                             class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
-                            <option v-for="option in options" :key="option">
-                                {{ option }}
+                            <option v-for="option in options" :key="option.id" :value="option.id">
+                                {{ option.property_name }}
                             </option>
                         </select>
                 </div>
-            <div class="mt-5">
-                <p class="text-lg font-bold">Complaints Request</p>
-                <div class="w-full mb-5 mt-5">
+                <div class="flex flex-row mt-5">
+                    <button
+                    @click="setActiveTable('complain')"
+                    :class="{ 'bg-orange-400 text-white': activeTable === 'complain' }"
+                    class="py-2.5 px-5 font-semibold text-md border-x">
+                        Complain
+                    </button>
+                    <button
+                    @click="setActiveTable('refund')"
+                    :class="{ 'bg-orange-400 text-white': activeTable === 'refund' }"
+                    class="py-2.5 px-5 font-semibold text-md border-x">
+                        Refund
+                    </button>
+                    <button
+                    @click="setActiveTable('move')"
+                    :class="{ 'bg-orange-400 text-white': activeTable === 'move' }"
+                    class="py-2.5 px-5 font-semibold text-md border-x">
+                        Move out
+                    </button>
+                </div>
+                <div v-if="activeTable === 'complain'">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
                     >
@@ -84,63 +338,41 @@ export default{
                                 <div
                                     class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
                                 >
+                                <p class="text-xl mb-5 font-bold">Complaints Records</p>
+                                <div class="flex-row flex items-center justify-between">
                                     <form class="flex items-center">
-                                        
                                         <label
                                             for="simple-search"
                                             class="sr-only"
                                             >Search</label
                                         >
                                         <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                required
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
                                                 />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
+                                        </div>
+
+
                                     </form>
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>
+                                            </div>
+                                </div>
                                 </div>
                             </div>
                         </div>
@@ -149,46 +381,337 @@ export default{
                                 class="items-center w-full bg-transparent border-collapse"
                             >
                                 <thead>
-                                    <tr>
+                                    <tr class="border-y">
                                         <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100 text-center"
                                             v-for="header in headerComplaints"
                                             :key="header"
                                         >
                                             {{ header }}
                                         </th>
-                                        <th
-                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in complaintsData"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 text-center"
+                                            v-for="(value, colIndex) in complaintsObjectRemoveKey(item)"
+                                            :key="colIndex"
                                         >
-                                            Change Status
+                                            {{ value }}
+
+                                        </td>
+
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4 flex justify-center items-center"
+                                        >
+                                            <button class="py-2 px-3 rounded-md bg-cyan-400 mr-2"
+                                                :disabled="item.status == 'ongoing' || item.status == 'finish'"
+                                                :class="{'cursor-not-allowed': item.status == 'ongoing' || item.status == 'finish'}"
+                                                @click="changeComplainStatus(item.id, 'ongoing')"
+                                                v-if="item.status == 'pending'"
+                                            >
+                                                Mark as Ongoing
+                                            </button>
+
+                                            <button class="py-2 px-3 rounded-md bg-orange-400"
+                                                :disabled="item.status == 'pending' || item.status == 'finish'"
+                                                :class="{'cursor-not-allowed': item.status == 'pending' || item.status == 'finish'}"
+                                                @click="changeComplainStatus(item.id, 'finish')"
+                                                v-if="item.status == 'ongoing'"
+                                            >
+                                                Mark as Finish
+                                            </button>
+
+                                            <span v-if="item.status == 'finish'" class="rounded-md py-2 px-5 text-center text-white bg-orange-400">
+                                                Finished
+                                            </span>
+
+                                        </td>
+
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
+                            >
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+                <div v-if="activeTable === 'refund'">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class="text-xl mb-5 font-bold">Refund Records</p>
+                                <div class="flex-row flex items-center justify-between">
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
+                                                />
+                                        </div>
+
+
+                                    </form>
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>
+                                            </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr class="border-y">
+                                        <th
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headerRefunds"
+                                            :key="header"
+                                        >
+                                            {{ header }}
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in dataComplaints"
+                                        v-for="(item, rowIndex) in refundsData"
                                         :key="rowIndex"
                                     >
                                         <td
                                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
+                                            v-for="(value, colIndex) in refundObjectRemoveKey(item)"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
+
+                                            {{ colIndex == 'refund_description' ? removeUnderscoreAndCapitalizeAfterSpace(value) : value }}
+
                                         </td>
+
                                         <td
-                                            class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                        >
+                                        <AppDropdown class="flex justify-center items-center">
+                                                <button >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
+                                                </button>
+                                                <AppDropdownContent class="bg-white z-50 " v-if="item.status == 'pending'">
+                                                    <AppDropdownItem @click="openAutoBill(item)">
+                                                        Approve
+                                                    </AppDropdownItem>
+                                                    <AppDropdownItem
+                                                        @click="declineRefund(item)"
+                                                    >
+                                                        Decline
+                                                    </AppDropdownItem>
+                                                </AppDropdownContent>
+                                        </AppDropdown>
+
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
+                            >
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <div v-if="activeTable === 'move'">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+                    >
+                        <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <p class="text-xl mb-5 font-bold">Move out Records</p>
+                                <div class="flex-row flex items-center justify-between">
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
+                                        >
+                                        <div class="relative w-full">
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
+                                                />
+                                        </div>
+
+
+                                    </form>
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Excel
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>
+                                            </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block w-full overflow-x-auto">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr class="border-y">
+                                        <th
+                                            class="px-6 align-middle py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                            v-for="header in headerMoveOut"
+                                            :key="header"
+                                        >
+                                            {{ header }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        v-for="(item, rowIndex) in moveoutData"
+                                        :key="rowIndex"
+                                    >
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                            v-for="(value, colIndex) in moveoutObjectRemoveKey(item)"
+                                            :key="colIndex"
+                                        >
+
+                                            {{ value }}
+
+                                        </td>
+
+                                        <td
+                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                         >
                                             <AppDropdown class="">
                                                 <button >
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem>
-                                                        In Progress
+                                                    <AppDropdownItem @click="approveMoveOut(item)">
+                                                        Approve
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem>
-                                                        Finished
+                                                    <AppDropdownItem
+
+                                                    >
+                                                        Decline
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
                                             </AppDropdown>
@@ -197,59 +720,151 @@ export default{
                                 </tbody>
                             </table>
                             <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
                             >
-                                <div
-                                    class="justify-between items-center block md:flex"
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    <div
-                                        class="flex items-center justify-center mb-6 md:mb-0"
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    id="defaultModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-md max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
                                     >
-                                        <div
-                                            class="flex items-center justify-start flex-wrap -mb-3"
+                                        Auto Billing
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeAutoBill()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
                                         >
-                                            <button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <div class="flex flex-row gap-3">
+                                    <div>
+                                        <label
+                                                for="dorm_owner_name"
+                                                class="block mb-2 text-sm font-medium text-gray-900"
+                                                >Proof of Refund:</label>
+                                            <label
+                                                for="proof"
+                                                class="relative cursor-pointer w-full"
+                                                @click="proofPayment()"
                                             >
-                                                <!----><span class="px-2"
-                                                    >1</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >2</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >3</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >4</span
+                                                <div
+                                                    class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
                                                 >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center"
+                                                    <img
+                                                        v-if="proof_of_refund"
+                                                        :src="proof_of_refund"
+                                                        alt="Valid ID"
+                                                        class="h-48 w-full rounded-lg"
+                                                    />
+                                                    <span v-else class="w-full"
+                                                        >Input Proof of refund</span
+                                                    >
+
+
+                                                </div>
+                                            </label>
+
+                                            <input
+                                                type="file"
+                                                id="proof_payment"
+                                                class="hidden"
+                                                @change="proofPaymentChange($event)"
+                                                accept="image/*"
+                                            />
+                                    </div></div>
+
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        @click="approveRefund()"
+                                        type="button"
+                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
-                                        <small>Page 1 of 4</small>
-                                    </div>
+                                        Submit Proof
+                                    </button>
+                                    <button
+                                        @click="closeAutoBill()"
+                                        type="button"
+                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+
     </div>
     </AuthenticatedLayout>
 </template>

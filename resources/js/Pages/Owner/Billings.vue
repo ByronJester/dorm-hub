@@ -79,7 +79,7 @@ export default {
 
         const selectedBill = ref(null)
         const autoBillingForm = ref({
-            tenant_application_id: null,
+            tenant_id: null,
             auto_bill: false,
         })
 
@@ -90,10 +90,8 @@ export default {
 
             selectedBill.value = arg
 
-            autoBillingForm.value.tenant_application_id = arg.application_id
+            autoBillingForm.value.tenant_id = arg.tenant_id
             autoBillingForm.value.auto_bill = arg.auto_bill
-
-            console.log(arg)
         };
 
         const closeAutoBill = () => {
@@ -102,7 +100,7 @@ export default {
             modal.style.display = "none";
 
             autoBillingForm.value = {
-                tenant_application_id: null,
+                tenant_id: null,
                 auto_bill: false,
             }
         };
@@ -132,7 +130,7 @@ export default {
         }
 
         const manualBillingForm = ref({
-            tenant_application_id: null,
+            tenant_id: null,
             subject: null,
             amount: null,
             description: null
@@ -145,7 +143,7 @@ export default {
 
             selectedBill.value = arg
 
-            manualBillingForm.value.tenant_application_id = arg.application_id
+            manualBillingForm.value.tenant_id = arg.tenant_id
         };
 
         const closeManualBill = () => {
@@ -154,7 +152,7 @@ export default {
             modal.style.display = "none";
 
             manualBillingForm.value = {
-                tenant_application_id: null,
+                tenant_id: null,
                 subject: null,
                 amount: null,
                 description: null
@@ -198,7 +196,7 @@ export default {
             const newObject = Object.assign({}, object);
 
             delete newObject.dorm_id;
-            delete newObject.application_id;
+            delete newObject.tenant_id;
             delete newObject.room_id
             delete newObject.auto_bill
 
@@ -494,7 +492,7 @@ export default {
                                                     <AppDropdownItem @click="openManualBill(item)">
                                                         Manual Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem :href="route('owner.tenantshistory', item.application_id)">
+                                                    <AppDropdownItem :href="route('owner.tenantshistory', item.tenant_id)">
                                                         View Payments
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
@@ -904,10 +902,10 @@ export default {
                                             >
                                             <select id="subject" v-model="manualBillingForm.subject" class="block w-full px-2 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                                 <option selected :value="null">Choose a Billing for:</option>
-                                                <option value="Maintenance">Electricity</option>
-                                                <option value="Cleanliness">Water</option>
-                                                <option value="Noise">Internet</option>
-                                                <option value="Safety and Security">Others</option>
+                                                <option value="Electricity">Electricity</option>
+                                                <option value="Water">Water</option>
+                                                <option value="Internet">Internet</option>
+                                                <option value="Others">Others</option>
                                             </select>
                                     </div>
                                     <div class="flex-grow">

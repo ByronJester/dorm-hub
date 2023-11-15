@@ -5,6 +5,7 @@ import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import { VueGoodTable } from "vue-good-table-next";
+import { format } from 'date-fns';
 
 export default {
     props: ["dorm", "user", "application"],
@@ -20,6 +21,15 @@ export default {
     setup(props) {
         const isMobileView = ref(false);
         const room = ref(null);
+        const currentTab = ref("details"); // Default tab
+
+        const showDetails = () => {
+            currentTab.value = "details";
+        };
+
+        const showTerms = () => {
+            currentTab.value = "terms";
+        };
 
         isMobileView.value = screen.width < 600;
 
@@ -157,50 +167,140 @@ export default {
         const messageOwner = (owner_id) => {
             router.get(route("message.owner", owner_id));
         };
+
+        const page = usePage();
+
+        const notAllowedToRentReserve = page.props.notAllowedToRentReserve;
+
+        const formatDate = (date) => {
+         return format(new Date(date), 'MMMM dd, yyyy'); // Adjust the format as needed
+        }
+
+        const objectRemoveKey = (object, key = null) => {
+            const newObject = Object.assign({}, object);
+
+            delete newObject.id;
+            delete newObject.is_available;
+            delete newObject.room_id
+            delete newObject.auto_bill
+
+            return newObject;
+        }
+
+        const rooms = page.props.dorm.rooms
+        const totalRooms = rooms.length
+        const availableRooms = rooms.filter(x => { return !!x.is_available })
+        const unAvailableRooms = rooms.filter(x => { return !x.is_available })
+
         const headers = [
             "Room Name",
-            "Tenant Name",
             "Capacity",
             "Furnished",
-            "Description",
-            "Price",
-            "Moved-In Date",
+            "Monthly Fee",
             "Status",
         ];
-        const data = [
-            {
-                RoomName: "Room 101",
-                TenantName: "Jear De La Rea",
-                Capacity: "Room for 5",
-                Furnished: "Bare",
-                Description: "Studio Type",
-                Price: "P3000.00",
-                MovedInDate: "09/12/23",
-                Status: "Unavailable",
-            },
-            {
-                RoomName: "Room 102",
-                TenantName: "",
-                Capacity: "Room for 2",
-                Furnished: "Bare",
-                Description: "Studio Type",
-                Price: "P2000.00",
-                MovedInDate: "",
-                Status: "Available",
-            },
-        ];
 
-        const page = usePage()
+        var data = ref([]);
 
-        const hasApplication = page.props.hasApplication
+        for ( let r = 0; r < availableRooms.length; r++) {
+            data.value.push(
+                {
+                    room_name: availableRooms[r].name,
+                    type_of_room: availableRooms[r].type_of_room,
+                    furnished_type: availableRooms[r].furnished_type,
+                    fee: moneyFormat(availableRooms[r].fee),
+                    status: !availableRooms[r].is_available ? 'Unavailable' : 'Available',
+                    is_available: availableRooms[r].is_available,
+                    id: availableRooms[r].id
+                }
+            )
+        }
 
-        console.log(hasApplication)
+        const changeRoomAvailability = (arg) => {
+            let confirmText = !arg.is_available ? 'mark this room available?' : 'mark this room unavailable?';
+            let successText = !arg.is_available ? 'available.' : 'unavailable.';
+            const data = { id: arg.id, is_available: arg.is_available }
+
+            swal(
+                {
+                    title: `Are you sure you want ${confirmText}`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("change.room.status"), data)
+                        .then((response) => {
+                            swal(
+                                "Room",
+                                `You successfully mark this room ${successText}`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {
+
+                        });
+                }
+            );
+        }
+
+        const roomStatusFilter = ref('available')
+        const roomStatusFilterChange = () => {
+            data.value = [];
+
+            if(roomStatusFilter.value == 'available') {
+                for ( let r = 0; r < availableRooms.length; r++) {
+                    data.value.push(
+                        {
+                            room_name: availableRooms[r].name,
+                            type_of_room: availableRooms[r].type_of_room,
+                            furnished_type: availableRooms[r].furnished_type,
+                            fee: moneyFormat(availableRooms[r].fee),
+                            status: !availableRooms[r].is_available ? 'Unavailable' : 'Available',
+                            is_available: availableRooms[r].is_available,
+                            id: availableRooms[r].id
+                        }
+                    )
+                }
+            } else {
+                for ( let r = 0; r < unAvailableRooms.length; r++) {
+                    data.value.push(
+                        {
+                            room_name: unAvailableRooms[r].name,
+                            type_of_room: unAvailableRooms[r].type_of_room,
+                            furnished_type: unAvailableRooms[r].furnished_type,
+                            fee: moneyFormat(unAvailableRooms[r].fee),
+                            status: !unAvailableRooms[r].is_available ? 'Unavailable' : 'Available',
+                            is_available: unAvailableRooms[r].is_available,
+                            id: unAvailableRooms[r].id
+                        }
+                    )
+                }
+            }
+        }
+
+        const hasActive = (arg) => {
+            let check = page.props.dorm.rooms.filter(x => {
+                return x.id == arg.id;
+            })[0].has_active_application_reservation
+
+            return check;
+        }
+
         return {
             props,
             isMobileView,
             room,
             headers,
             data,
+            formatDate,
             moneyFormat,
             openModal,
             closeModal,
@@ -211,7 +311,19 @@ export default {
             closeReviewModal,
             openReviewModal,
             redirectToBillingInfo,
-            hasApplication
+            currentTab,
+            showDetails,
+            showTerms,
+            notAllowedToRentReserve,
+            rooms,
+            totalRooms,
+            availableRooms,
+            unAvailableRooms,
+            changeRoomAvailability,
+            objectRemoveKey,
+            roomStatusFilter,
+            roomStatusFilterChange,
+            hasActive
         };
     },
 };
@@ -252,7 +364,7 @@ export default {
             >
                 <div class="text-center p-4">
                     <p class="text-2xl mb-2">
-                        <!--Palagay na lang ng data pre-->
+                        {{ totalRooms }}
                     </p>
                     <p class="text-xs">TOTAL NO. OF Rooms</p>
                 </div>
@@ -263,7 +375,7 @@ export default {
             >
                 <div class="text-center p-4">
                     <p class="text-2xl mb-2">
-                        <!--Palagay na lang ng data pre-->
+                       {{ availableRooms.length }}
                     </p>
                     <p class="text-xs">TOTAL NO. OF Available Rooms</p>
                 </div>
@@ -274,7 +386,7 @@ export default {
             >
                 <div class="text-center p-4">
                     <p class="text-2xl mb-2">
-                        <!--Palagay na lang ng data pre-->
+                        {{ unAvailableRooms.length }}
                     </p>
                     <p class="text-xs">TOTAL NO. OF Unavailable Rooms</p>
                 </div>
@@ -293,10 +405,11 @@ export default {
                             >
                                 <select
                                     class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    v-model="roomStatusFilter" @change="roomStatusFilterChange()"
                                 >
-                                    <option value="Approved">Available</option>
-                                    <option value="Declined">
-                                        UnAvailable
+                                    <option value="available">Available</option>
+                                    <option value="unavailable">
+                                        Unavailable
                                     </option>
                                 </select>
                             </div>
@@ -329,7 +442,7 @@ export default {
                                 >
                                     <td
                                         class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        v-for="(value, colIndex) in item"
+                                        v-for="(value, colIndex) in objectRemoveKey(item)"
                                         :key="colIndex"
                                     >
                                         {{ value }}
@@ -338,12 +451,13 @@ export default {
                                         class="border-t-0 px-6 align-middle items-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                     >
                                         <button
-                                            @click="editItem(rowIndex)"
-                                            class="hover:text-orange-400"
+                                            @click="changeRoomAvailability(item)"
+                                            class="bg-orange-400 py-2 px-3 rounded-md text-white"
+                                            :disabled="hasActive(item)"
+                                            :class="{'cursor-not-allowed': hasActive(item)}"
+
                                         >
-                                            <i
-                                                class="fa-solid fa-pen-to-square"
-                                            ></i>
+                                            {{ !!item.is_available ? 'Mark as Unavailable' : 'Mark as Available' }}
                                         </button>
                                     </td>
                                 </tr>
@@ -371,21 +485,27 @@ export default {
                 <!--Header-->
                 <div class="w-full px-5">
                     <p class="w-full">
-                        <span class="text-xl">
-                            {{ props.dorm.detailed_address }}
+                        <span v-tooltip="'yow'" class="text-xl cursor-pointer">
+                            {{ props.dorm.map_address }}
                         </span>
                     </p>
 
-                    <p class="text-md w-full"></p>
+                    <p class="text-sm w-full text-gray-600">{{ props.dorm.detailed_address }}</p>
 
-                    <div class="w-full mt-5 flex justify-center items-center">
-                        <img
-                            :src="props.dorm.dorm_image"
-                            class="w-full rounded-lg shadow-lg"
-                            :style="{
-                                height: isMobileView ? '200px' : '500px',
-                            }"
-                        />
+                    <div class="grid gap-4 mt-4">
+                        <div>
+                            <img class="h-[450px] w-full rounded-lg" :src="props.dorm.dorm_image" alt="">
+                        </div>
+                        <p class="font-semibold text-lg ">Common Areas</p>
+
+                        <div class="grid md:grid-cols-5 grid-cols-2 gap-4">
+                            <div
+                                v-for="(commonArea, index) in props.dorm.common_areas"
+                                :key="index"
+                            >
+                                <img class="h-[150px] w-full rounded-lg" :src="commonArea.image" alt="">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr class="h-px my-5 bg-gray-200 border-0 dark:bg-gray-700" />
@@ -405,7 +525,7 @@ export default {
                             >
                                 <!--Room Card-->
                                 <div
-                                    class="w-64 lg:w-96 cursor-pointer bg-white rounded-lg"
+                                    class="w-64 lg:w-96 bg-white rounded-lg"
                                 >
                                     <div>
                                         <img
@@ -427,16 +547,18 @@ export default {
                                                 class="text-xs mx-12 bg-orange-500 p-3 w-auto rounded-md text-white"
                                             >
                                                 {{
-                                                    room.is_available
-                                                        ? "Available"
-                                                        : "Not Available"
+                                                    room.status == 'reserve'
+                                                        ? "Reserved"
+                                                        : room.status == 'rent'
+                                                        ? "Occupied"
+                                                        : "Available"
                                                 }}
                                             </p>
                                         </a>
                                     </div>
 
                                     <button
-                                        class="bg-cyan-500 items-center justify-center text-white text-sm py-4 w-full hover:bg-opacity-25 rounded-md"
+                                        class="bg-cyan-500 items-center justify-center text-white text-sm py-4 w-full hover:bg-opacity-25 rounded-md cursor-pointer"
                                         v-if="
                                             props.user &&
                                             props.user.user_type == 'tenant'
@@ -494,18 +616,87 @@ export default {
                     </div>
                 </div>
 
-                <hr class="h-px my-5 bg-gray-200 border-0 dark:bg-gray-700" />
+                <hr class="h-px mt-5 bg-gray-200 border-0 dark:bg-gray-700" />
+                <div class="flex w-full justify-start border-b border-gray-200">
+                    <div
+                        class="flex flex-row gap-5 text-xl cursor-pointer font-bold"
+                    >
+                        <button
+                            class="py-3 px-4"
+                            :class="{
+                                ' text-orange-400 border-b-2 border-orange-400 ':
+                                    currentTab === 'details',
+                            }"
+                            @click="showDetails()"
+                        >
+                            Details
+                        </button>
+                        <button
+                            class="py-1 px-4"
+                            :class="{
+                                'text-orange-400 border-b-2 border-orange-400 ':
+                                    currentTab === 'terms',
+                            }"
+                            @click="showTerms()"
+                        >
+                            Owner Details
+                        </button>
+                    </div>
+                </div>
+                <div v-if="currentTab === 'terms'" class="w-full">
+                    <div class="mt-5 flex flex-col ">
+                        <div class="flex flex-row gap-2 items-center">
+                                <img     :src="
+                                            props.dorm.user.image ??
+                                            'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                        "
+                                        alt="Profile picture"
+                                        class="rounded-full w-32 h-32 bg-gray-100 dark:bg-slate-800"
+                                    />
+                                    <div>
+                                        <div class='mt-5 font-semibold text-lg text-gray-700'>
+                                            {{ props.dorm.user.first_name }}
+                                        </div>
+                                        <div class='mt-1 uppercase font-semibold text-sm text-gray-500'>
+                                            Memeber since: {{ formatDate(props.dorm.user.created_at) }}
+                                        </div>
+                                        <div class="flex flex-row gap-2">
+                                            <div class="flex justify-center md:block">
+                                            <div
+                                                class="inline-flex mt-2 items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 border-blue-500 text-white"
+                                            >
+                                                <span
+                                                    class="inline-flex justify-center items-center w-4 h-4 mr-2"
+                                                    ><svg
+                                                        viewBox="0 0 24 24"
+                                                        width="16"
+                                                        height="16"
+                                                        class="inline-block"
+                                                    >
+                                                        <path
+                                                            fill="currentColor"
+                                                            d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"
+                                                        ></path></svg></span
+                                                ><span>Verified</span>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+
+                        </div>
+
+
+                        <div class="items-start justify-start mt-5">
+
+                        </div>
+                    </div>
+                </div>
 
                 <div
-                    className="
-              w-full
-              grid
-              grid-cols-1
-              md:grid-cols-7
-              md:gap-10
-            "
+                    v-if="currentTab === 'details'"
+                    class="w-full grid grid-cols-1 md:grid-cols-7 md:gap-10 mt-5"
                 >
-                    <div className="col-span-4 flex flex-col gap-8">
+                    <div className="col-span-4 flex flex-col gap-6">
                         <div className="flex flex-col gap-2">
                             <div
                                 className="
@@ -520,16 +711,14 @@ export default {
                             >
                                 <div>{{ props.dorm.property_name }}</div>
                             </div>
-                            <div
-                                className="
-                        flex flex-row items-center gap-1 "
-                            >
+                            <div className="flex flex-row items-center gap-1 ">
                                 <div
                                     className="text-md  text-neutral-600 font-semibold"
                                 ></div>
                                 <div className="font-light text-neutral-600">
-                                    {{ props.dorm.range_from }} -
-                                    {{ props.dorm.range_to }} a month
+                                    {{ moneyFormat(props.dorm.range_from) }} -
+                                    {{ moneyFormat(props.dorm.range_to) }} a
+                                    months
                                 </div>
                             </div>
                             <div
@@ -640,10 +829,171 @@ export default {
                                 </span>
                             </div>
                         </div>
+
                         <hr
                             class="h-px bg-gray-200 border-0 dark:bg-gray-700"
                         />
-                        <!--MapBox-->
+                        <div class="w-full justify-start">
+                            <table
+                                class="items-center w-full bg-transparent border-collapse"
+                            >
+                                <thead>
+                                    <tr>
+                                        <th
+                                            class="align-middle text-3xl py-3 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                        >
+                                            <p>Reviews</p>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            class="align-middle whitespace-nowrap"
+                                        >
+                                            <div
+                                                class="bg-white w-full rounded-md shadow p-5"
+                                            >
+                                                <div
+                                                    class="flex flex-row gap-5 items-center"
+                                                >
+                                                    <img
+                                                        src="your-image-source.jpg"
+                                                        alt="Your Image"
+                                                        class="rounded-full shadow bg-black h-16 w-16 object-cover"
+                                                    />
+                                                    <div>
+                                                        <p
+                                                            class="uppercase font-semibold"
+                                                        >
+                                                            Jear
+                                                        </p>
+                                                        <div
+                                                            class="flex flex-row gap-2"
+                                                        >
+                                                            <div
+                                                                class="text-yellow-500"
+                                                            >
+                                                                <i
+                                                                    data-alt="1"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 1
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            1,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="2"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 2
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            2,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="3"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 3
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            3,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="4"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 4
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            4,
+                                                                    }"
+                                                                ></i
+                                                                >&nbsp;<i
+                                                                    data-alt="5"
+                                                                    class="fas fa-star active"
+                                                                    title=""
+                                                                    @click="
+                                                                        rating = 5
+                                                                    "
+                                                                    :class="{
+                                                                        'text-yellow-500':
+                                                                            rating ==
+                                                                            5,
+                                                                    }"
+                                                                ></i>
+                                                                <!-- <input name="rating" type="hidden" value="5" /> -->
+                                                            </div>
+                                                            <p>*</p>
+                                                            <div>
+                                                                11/19/2023
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="mt-2 w-full mx-1 whitespace-normal"
+                                                >
+                                                    Lorem ipsum dolor sit amet,
+                                                    consectetur adipiscing elit,
+                                                    sed do eiusmod tempor
+                                                    incididunt ut labore et
+                                                    dolore magna aliqua.
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div
+                                class="pt-5 border-t border-gray-100 dark:border-slate-800"
+                            >
+                                <div class="block w-full overflow-x-auto">
+                                    <div
+                                        class="justify-between items-center block md:flex"
+                                    >
+                                        <div
+                                            class="flex items-center justify-start flex-wrap mb-3"
+                                        >
+                                            <button
+                                                type="button"
+                                                class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                            >
+                                                Previous
+                                            </button>
+                                            <button
+                                                class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--MapBox-->
+                    <div
+                        className="order-last my-10 sm:my-0 md:order-last sm:col-span-3"
+                    >
                         <div class="w-full">
                             <p
                                 class="text-xl lg:text-3xl font-semibold flex flex-row mb-5 items-center gap-2"
@@ -654,7 +1004,7 @@ export default {
                             <MapboxMap
                                 class="rounded-lg shadow-md lg:mb-8"
                                 :style="{
-                                    height: isMobileView ? '300px' : '425px',
+                                    height: isMobileView ? '300px' : '350px',
                                 }"
                                 access-token="pk.eyJ1IjoiYmFsb2dzeHh4IiwiYSI6ImNsbHA1dDN2MDAydGczZXFqZHprcW44dXIifQ.Z0dcyAB1W1B4-jcaqC_NKA"
                                 map-style="mapbox://styles/mapbox/streets-v11"
@@ -666,12 +1016,7 @@ export default {
                                 />
                             </MapboxMap>
                         </div>
-                    </div>
-
-                    <!--Owner Information-->
-                    <div
-                        className="order-last my-10 sm:my-0 md:order-last sm:col-span-3"
-                    >
+                        <!--
                         <div
                             class="flex items-center cursor-pointer hover:text-orange-400 justify-center mb-8"
                             v-if="
@@ -687,7 +1032,7 @@ export default {
                         <div
                             className="bg-white rounded-xl border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
                         >
-                            <!-- Common elements for all screen sizes -->
+
 
                             <div
                                 className="flex flex-row items-center justify-center gap-1  "
@@ -732,7 +1077,7 @@ export default {
                                 </p>
                             </div>
 
-                            <!-- Conditional layout for sm screens (horizontal) -->
+
 
                             <footer
                                 class="items-center justify-center flex mt-3"
@@ -745,121 +1090,10 @@ export default {
                                     Message
                                 </button>
                             </footer>
-                        </div>
+                        </div>-->
                     </div>
                 </div>
 
-                <!--rateReviewModal-->
-                <div
-                    id="rateReviewModal"
-                    tabindex="-1"
-                    aria-hidden="true"
-                    style="background-color: rgba(0, 0, 0, 0.7)"
-                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
-                    <div class="h-screen flex justify-center items-center">
-                        <div class="relative w-full max-w-xl max-h-full">
-                            <!-- Modal content -->
-                            <div
-                                class="relativerounded-lg shadow rounded-xl bg-white"
-                            >
-                                <!-- Modal header -->
-                                <div
-                                    class="flex items-start justify-between p-4 rounded-t dark:border-gray-600"
-                                >
-                                    <button
-                                        type="button"
-                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        @click="closeReviewModal()"
-                                    >
-                                        <svg
-                                            class="w-3 h-3"
-                                            aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 14 14"
-                                        >
-                                            <path
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                            />
-                                        </svg>
-                                        <span class="sr-only">Close modal</span>
-                                    </button>
-                                </div>
-                                <!-- Modal body -->
-                                <div class="p-10 flex flex-col gap-5">
-                                    <h3
-                                        class="text-2xl font-semibold text-black"
-                                    >
-                                        Write a review
-                                    </h3>
-                                    <p class="text-lg font-light text-gray-600">
-                                        Rating
-                                    </p>
-                                    <div style="cursor: pointer">
-                                        <i
-                                            data-alt="1"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="2"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="3"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="4"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        >&nbsp;<i
-                                            data-alt="5"
-                                            class="fas fa-star active"
-                                            title=""
-                                        ></i
-                                        ><input
-                                            name="rating"
-                                            type="hidden"
-                                            value="5"
-                                        />
-                                    </div>
-                                    <label
-                                        for="message"
-                                        class="block mb-2 text-lg font-medium text-gray-900 dark:text-white"
-                                        >Review</label
-                                    >
-                                    <textarea
-                                        id="message"
-                                        rows="4"
-                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Write your thoughts here..."
-                                    ></textarea>
-                                </div>
-                                <!-- Modal footer -->
-                                <div
-                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
-                                >
-                                    <button
-                                        @click="closeTutModal()"
-                                        type="button"
-                                        class="text-white w-full rounded-2xl bg-orange-400 hover:bg-orange-300 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 text-center"
-                                    >
-                                        Submit
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <!--Room modal-->
                 <div class="w-full">
                     <div id="roomModal" class="roomModal mt-10 md:mt-0">
@@ -944,39 +1178,43 @@ export default {
                                 </div>
                             </div>
 
-                        <div
-                            class="w-full flex justify-center items-center mt-10"
-                        >
-                            <button
-                                class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
-                                @click="redirectToBillingInfo(room, 'reserve')"
-                                :class="{
-                                    'cursor-not-allowed': !room.is_available,
-                                }"
-                                :disabled="!room.is_available"
-                                v-if="user.is_approved && !hasApplication"
+                            <div
+                                class="w-full flex justify-center items-center mt-10"
                             >
-                                Reserve
-                            </button>
+                                <button
+                                    class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
+                                    @click="
+                                        redirectToBillingInfo(room, 'reserve')
+                                    "
+                                    :class="{
+                                        'cursor-not-allowed':
+                                            !room.is_available || notAllowedToRentReserve,
+                                    }"
+                                    :disabled="!room.is_available || notAllowedToRentReserve"
+                                    v-if="user.is_approved && room.is_available"
+                                >
+                                    Reserve
+                                </button>
 
-                            <button
-                                class="text-md bg-cyan-500 text-white    mx-2 p-5 rounded-md"
-                                @click="redirectToBillingInfo(room, 'rent')"
-                                :class="{
-                                    'cursor-not-allowed': !room.is_available ,
-                                }"
-                                :disabled="!room.is_available"
-                                v-if="user.is_approved && !hasApplication"
-                            >
-                                Rent
-                            </button>
+                                <button
+                                    class="text-md bg-cyan-500 text-white mx-2 p-5 rounded-md"
+                                    @click="redirectToBillingInfo(room, 'rent')"
+                                    :class="{
+                                        'cursor-not-allowed':
+                                            !room.is_available || notAllowedToRentReserve,
+                                    }"
+                                    :disabled="!room.is_available || notAllowedToRentReserve"
+                                    v-if="user.is_approved && room.is_available"
+                                >
+                                    Rent
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-</div>
-</div>
+    </div>
 </template>
 
 <style>
@@ -1005,8 +1243,7 @@ hr {
 
 .roomModal {
     display: none;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
+    position: fixed; /* Sit on top */
     padding-top: 100px; /* Location of the box */
     left: 0;
     top: 0;
@@ -1045,4 +1282,15 @@ hr {
     width: 0px;
     background: transparent; /* make scrollbar transparent */
 }
+
+.zoomed {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        z-index: 1000;
+        cursor: pointer;
+    }
 </style>

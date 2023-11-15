@@ -5,10 +5,72 @@ import { ref, reactive, watch, onMounted, computed } from "vue";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import axios from "axios";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 
 export default {
     components: {
         AuthenticatedLayout,
+    },
+    methods: {
+
+    exportToPDF() {
+            const page = usePage();
+            const doc = new jsPDF();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+
+
+
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Payments Record", 15, 60)
+            const margin = 65;
+
+            const tableData = [this.headers].concat(
+                this.slicedRows.map((row) => [
+                        row.date,
+                        row.payment_method,
+                        row.amount,
+                        row.category,
+                        row.status,
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+            doc.save("table-data.pdf");
+        },
+
     },
     setup() {
         const page = usePage();
@@ -26,6 +88,7 @@ export default {
         const lastBilled = page.props.lastBilled
         const balance = page.props.balance
         const totalAmountPaid = page.props.totalAmountPaid
+        const options = ["E-Wallet", "Cash", "Bank Transfer"];
 
         onMounted(() => {
             application.value = page.props.application;
@@ -54,6 +117,75 @@ export default {
             modal.style.display = "none";
         };
 
+        const selectedPayment = ref(null)
+        const openLeaveModal = (arg) => {
+            var modal = document.getElementById("refundModal");
+
+            modal.style.display = "block";
+
+            console.log(arg)
+            selectedPayment.value = arg
+        };
+
+        const closeLeaveModal = () => {
+            var modal = document.getElementById("refundModal");
+
+            modal.style.display = "none";
+        };
+
+        const submitRefund = () => {
+            swal(
+                {
+                    title: `Are you sure to refund this payment?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    const data = {
+                        user_payment_id: selectedPayment.value.id,
+                        amount: selectedPayment.value.billing.amount,
+                        payment_method : selectedPaymentMethod.value,
+                        wallet_name: wallet_name.value,
+                        account_name: account_name.value,
+                        account_number: account_number.value
+                    }
+
+                    axios
+                        .post(route("request.refund"), data)
+                        .then((response) => {
+                            swal(
+                                "Request refund submitted.",
+                                "Please wait for dorm owner approval.",
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+
+                        })
+                        .catch((error) => {
+                            // errors.value = error.response.data.errors;
+                        });
+                }
+            );
+        }
+
+        const selectedPaymentMethod = ref()
+        const wallet_name = ref(null)
+        const account_name = ref(null)
+        const account_number = ref(null)
+
+        const showBankTransfer = ref(false);
+        const showEwallet = ref(false);
+        const toggleTransfer = () => {
+            showBankTransfer.value = selectedPaymentMethod.value === 'Bank Transfer';
+            showEwallet.value = selectedPaymentMethod.value === 'E-Wallet';
+        };
+
         const imageClick = () => {
             document.getElementById("bank_receipt").click();
         };
@@ -76,6 +208,10 @@ export default {
         var data = [];
 
         const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
+            }
+
             const stringWithSpaces = inputString.replace(/_/g, ' ');
 
             // Split the string by spaces
@@ -98,8 +234,8 @@ export default {
                     // id: payments[p].id,
                     date: payments[p].display_date,
                     payment_method: payments[p].payment_method,
-                    amount: payments[p].amount,
-                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].category),
+                    amount: payments[p].billing.amount,
+                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].description),
                     status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
                     receipt: '',
                     action: payments[p]
@@ -107,28 +243,39 @@ export default {
             )
         }
         //
-        
+
             const searchQuery = ref("");
             const itemsPerPage = 5; // Set the maximum number of items per page to 10
             const currentPage = ref(1); // Initialize to the first page
 
-            
+
             const filteredData = computed(() => {
                 const query = searchQuery.value.toLowerCase().trim();
-                if (!query) {
-                    return data; // Return all data if the search query is empty.
-                }
 
-                return data.filter((row) => {
-                    // Modify the conditions as needed for your specific search criteria.
-                    return (
+                    if (!query) {
+                        if (activeTable.value === 'all') {
+                        return data; // Return all data if 'all' is selected
+                        } else {
+                        return data.filter((row) => {
+                            // Modify the condition based on your logic for 'paid' and 'unpaid'
+                            if (activeTable.value === 'paid') {
+                            return row.status.toLowerCase() === 'paid';
+                            } else if (activeTable.value === 'unpaid') {
+                            return row.status.toLowerCase() === 'unpaid';
+                            }
+                        });
+                        }
+                    }
+
+                    return data.filter((row) => {
+                        // Your existing query conditions
+                        return (
                         row.date.toLowerCase().includes(query) ||
                         row.payment_method.toLowerCase().includes(query) ||
                         row.category.toLowerCase().includes(query) ||
                         row.status.toLowerCase().includes(query)
-                        // Add more conditions for other columns as needed
-                    );
-                });
+                        );
+                    });
             });
 
             const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
@@ -173,13 +320,11 @@ export default {
         const proceedPayment = () => {
             const data = {
                 id: selectedBill.value.id,
-                tenant_billing_id: selectedBill.value.tenant_billing_id,
-                amount: selectedBill.value.amount,
+                billing_id: selectedBill.value.billing_id,
+                amount: selectedBill.value.billing.amount,
                 payment_method: payment_method.value,
                 proof_of_payment: proof_of_payment.value
             }
-
-            console.log(data)
 
             swal(
                 {
@@ -208,7 +353,25 @@ export default {
             );
         }
 
+
+
+        const activeTable = ref('all')
+
+        const setActiveTable = (table) =>{
+            activeTable.value = table;
+            currentPage = 1;
+        }
+
+
+        const myDorm = ref()
+        myDorm.value = page.props.myDorm
+
+        console.log(totalAmountPaid)
+
         return {
+            setActiveTable,
+            activeTable,
+            myDorm,
             user,
             payments,
             application,
@@ -243,6 +406,18 @@ export default {
             totalPages,
             slicedRows,
             changePage,
+            openLeaveModal,
+            closeLeaveModal,
+            showBankTransfer,
+            showEwallet,
+            options,
+            toggleTransfer,
+            selectedPaymentMethod,
+            selectedPayment,
+            wallet_name,
+            account_name,
+            account_number,
+            submitRefund
         };
     },
 };
@@ -278,7 +453,7 @@ export default {
                 </section>
                 <div class="grid grid-cols-12 gap-6 mb-6">
                     <!--Eto yung amount para sa upcoming payment-->
-                    <div class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
+                    <div v-if="myDorm" class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
                         <div
                             class="flex-col dark:bg-slate-900/70 bg-white flex"
                         >
@@ -299,7 +474,7 @@ export default {
                                                 class="text-3xl leading-tight font-semibold"
                                             >
                                                 <div>
-                                                    {{ !!nextPayment ?  moneyFormat(nexPayment.amount) : 0.00 }}
+                                                    {{ !!nexPayment ?  moneyFormat(nexPayment.billing.amount) : 0.00 }}
                                                 </div>
                                             </h1>
                                         </div>
@@ -310,7 +485,7 @@ export default {
                         </div>
                     </div>
                     <!--Dito lalabas yung balance ni user-->
-                    <div class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
+                    <div  v-if="myDorm" class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
                         <div
                             class="flex-col dark:bg-slate-900/70 bg-white flex"
                         >
@@ -370,8 +545,8 @@ export default {
 
                 </div>
 
-                <div class="flex-1 shadow-lg rounded-lg p-6">
-                   
+                <div  v-if="myDorm" class="flex-1 shadow-lg rounded-lg p-6">
+
                     <div class="md:flex md:justify-between md:items-center">
                         <div class="md:flex md:items-center">
                             <div
@@ -391,7 +566,7 @@ export default {
                         <div class="text-center md:text-right">
                             <p class="text-gray-500">Amount due</p>
                             <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
-                            <h1 class="text-2xl font-semibold">{{ !!nextPayment ? moneyFormat(nexPayment.amount) : 0.00 }}</h1>
+                            <h1 class="text-2xl font-semibold">{{ !!nexPayment ? moneyFormat(nexPayment.billing.amount) : 0.00 }}</h1>
                         </div>
                     </div>
                 </div>
@@ -417,35 +592,67 @@ export default {
                             <div
                                     class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
                                 >
-                                    <div
-                                        class="rounded-t mb-0 px-4 py-3 border-0"
-                                    >
-                                        <div
-                                            class="flex flex-wrap items-center"
+                                <div class="rounded-t mb-0 px-4 py-3 border-0">
+                            <div class="flex flex-wrap items-center">
+                                <div
+                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
+                                >
+                                <div class="flex-row flex items-center justify-between">
+                                    <form class="flex items-center">
+                                        <label
+                                            for="simple-search"
+                                            class="sr-only"
+                                            >Search</label
                                         >
-                                            <div
-                                                class="relative w-full px-4 max-w-full flex-grow flex-1"
-                                            >
-                                            <form class="flex items-center">
-                                                <label for="simple-search" class="sr-only">Search</label>
-                                                <div class="relative w-full">
-                                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
-                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"/>
-                                                        </svg>
-                                                    </div>
-                                                    <input type="text" id="simple-search" v-model="searchQuery" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search in table..." required>
-                                                </div>
-                                                <button type="submit" class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                                    </svg>
-                                                    <span class="sr-only">Search</span>
-                                                </button>
-                                            </form>
-                                            </div>
+                                        <div class="relative w-full">
+                                                <input
+                                                    type="text"
+                                                    id="simple-search"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
+                                                    placeholder="Search in table..."
+                                                    v-model="searchQueryReserve"
+                                                    required
+                                                />
                                         </div>
-                                    </div>
+
+
+                                    </form>
+                                    <div class="flex flex-row items-center gap-2 font-semibold">
+                                                <button
+                                                @click="exportToPDF()"
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>
+                                            </div>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                                        <div class="flex flex-row mt-5 border-t">
+                                            <button
+                                                @click="setActiveTable('all')"
+                                                :class="{ 'bg-orange-400 text-white': activeTable === 'all' }"
+                                                class="py-2.5 px-5 font-semibold text-md border-x">
+                                                All
+                                            </button>
+                                            <button
+                                                @click="setActiveTable('paid')"
+                                                :class="{ 'bg-orange-400 text-white': activeTable === 'paid' }"
+                                                class="py-2.5 px-5 font-semibold text-md border-x">
+                                                Paid
+                                            </button>
+                                            <button
+                                                @click="setActiveTable('unpaid')"
+                                                :class="{ 'bg-orange-400 text-white': activeTable === 'unpaid' }"
+                                                class="py-2.5 px-5 font-semibold text-md border-x">
+                                                Unpaid
+                                            </button>
+                                        </div>
+
                                     <div class="block w-full overflow-x-auto">
                                         <table
                                             class="items-center w-full bg-transparent border-collapse"
@@ -485,17 +692,23 @@ export default {
                                                         </p>
 
                                                         <div v-if="colIndex == 'receipt'">
-                                                            <img v-if="value != null"
-                                                                :src="value"
+                                                            <img v-if="value.proof_of_payment != null"
+                                                                :src="value.proof_of_payment"
                                                                 class="w-[100px] h-[100px]"
                                                             />
                                                         </div>
 
-                                                        <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
-                                                            v-if="colIndex == 'action'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval'"
-                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval'}"
+                                                        <button @click="pay(value)" class="bg-orange-400 text-white w-14 px-2 rounded-md font-semibold py-0.5 mr-2"
+                                                            v-if="colIndex == 'action' && value.status != 'refunded'" :disabled="value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund' || value.status == 'declined_refund' || value.status == 'ongoing_refund'"
+                                                            :class="{'cursor-not-allowed bg-opacity-20': value.status == 'paid' || value.status == 'waiting_for_approval' || value.status == 'pending_refund' || value.status == 'declined_refund' || value.status == 'ongoing_refund'}"
                                                         >
-                                                            Pay
+                                                            {{ value.status == 'paid' || value.status == 'pending_refund' || value.status == 'declined_refund' || value.status == 'ongoing_refund' ? 'Paid' : 'Pay' }}
+                                                        </button>
+
+                                                        <button @click="openLeaveModal(value)" class="bg-cyan-400 text-white w-14 px-2 rounded-md font-semibold py-0.5"
+                                                            v-if="(colIndex == 'action' && value.status == 'paid' && value.status != 'refunded') && (value.description == 'monthly_fee' || value.billing.subject != null)"
+                                                        >
+                                                            Refund
                                                         </button>
                                                     </td>
 
@@ -509,7 +722,7 @@ export default {
                         <div class="block w-full overflow-x-auto">
                                 <div class="justify-between items-center block md:flex">
                                     <div class="flex items-center justify-start flex-wrap mb-3">
-                                    <button                                        
+                                    <button
                                         @click="changePage(-1)"
                                         :disabled="currentPage == 1"
                                         :class="{
@@ -535,7 +748,7 @@ export default {
                                     <small>Page {{ currentPage }}</small>
                                     </div>
                                 </div>
-                           
+
                             </div>
                         </div>
                                     </div>
@@ -561,7 +774,7 @@ export default {
                                 style="border: 1px solid black"
                             >
                                 <span class="text-2xl">
-                                    {{ selectedBill ? moneyFormat(selectedBill.amount) : 0.00 }}
+                                    {{ selectedBill ? moneyFormat(selectedBill.billing.amount) : 0.00 }}
                                 </span>
                             </div>
 
@@ -616,307 +829,132 @@ export default {
 
                         </div>
                     </div>
-                <!--
-                <div
-                    class="rounded-2xl flex-col shadow-lg mt-5 dark:bg-slate-900/70 bg-white flex mb-6"
-                >
-                    <div class="flex-1 p-6">
-                        <div class="md:flex md:justify-between md:items-center">
-                            <div
-                                class="flex items-center justify-center md:justify-start flex-wrap -mb-3"
-                            >
-                                <button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                    type="button"
-                                >
-                                    <span class="px-2"
-                                        >View invoice</span
-                                    ></button
-                                ><button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                    type="button"
-                                >
-                                   <span class="px-2">PDF</span>
-                                </button>
-                            </div>
-                            <div
-                                class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
-                            >
-                                <p class="text-gray-500 mr-6">
-                                    Sun, Oct 1, 2023
-                                </p>
-                                <div
-                                    class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-red-500 border-red-500 text-white mr-6"
-                                >
-                                    <span>Unpaid</span>
-                                </div>
-                                <h2 class="text-2xl font-semibold">P3000.00</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex-1 p-6">
-                        <div class="md:flex md:justify-between md:items-center">
-                            <div
-                                class="flex items-center justify-center md:justify-start flex-wrap -mb-3"
-                            >
-                                <button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                    type="button"
-                                >
-                                   <span class="px-2"
-                                        >View invoice</span
-                                    ></button
-                                ><button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                    type="button"
-                                >
-                                   <span class="px-2">PDF</span>
-                                </button>
-                            </div>
-                            <div
-                                class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
-                            >
-
-                                <p class="text-gray-500 mr-6">
-                                    Sun, Sep 1, 2023
-                                </p>
-                                <div
-                                    class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 text-white mr-6"
-                                >
-                                   <span>Paid</span>
-                                </div>
-
-                                <h2 class="text-2xl font-semibold">P3000.00</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex-1 p-6">
-                        <div class="md:flex md:justify-between md:items-center">
-                            <div
-                                class="flex items-center justify-center md:justify-start flex-wrap -mb-3"
-                            >
-                                <button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                    type="button"
-                                >
-                                   <span class="px-2"
-                                        >View invoice</span
-                                    ></button
-                                ><button
-                                    class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-100 text-black dark:bg-slate-800 dark:text-white hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                    type="button"
-                                >
-                                    <span class="px-2">PDF</span>
-                                </button>
-                            </div>
-                            <div
-                                class="mt-6 md:mt-0 flex justify-between md:justify-end items-center"
-                            >
-                                <p class="text-gray-500 mr-6">
-                                    Sun, Aug 1, 2023
-                                </p>
-                                <div
-                                    class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 text-white mr-6"
-                                >
-                                   <span>Paid</span>
-                                </div>
-                                <h2 class="text-2xl font-semibold">P3000.00</h2>
-                            </div>
-                        </div>
-                    </div>
-
 
                     <div
-                        class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                    >
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-center mb-6 md:mb-0"
-                            >
+                    id="refundModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
                                 <div
-                                    class="flex items-center justify-start flex-wrap -mb-3"
+                                    class="flex items-start justify-between p-4 border-b rounded-t "
                                 >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Refund Request
+                                    </h3>
                                     <button
-                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
                                         type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
+                                        @click="closeLeaveModal()"
                                     >
-                                       <span class="px-2"
-                                            >1</span
-                                        ></button
-                                    ><button
-                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                        type="button"
-                                    >
-                                      <span class="px-2"
-                                            >2</span
-                                        ></button
-                                    ><button
-                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                        type="button"
-                                    >
-                                       <span class="px-2"
-                                            >3</span
-                                        ></button
-                                    ><button
-                                        class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                        type="button"
-                                    >
-                                        <span class="px-2">4</span>
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
                                     </button>
                                 </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <form class="mt-4">
+
+                                        <label for="desc" class="block mb-2 text-base font-medium text-black">Description:</label>
+                                        <input disabled type="text" :value="!!selectedPayment ? selectedPayment.billing.amount : null" id="desc" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                        <label for="amount" class="block mb-2 text-base font-medium text-black">Amount:</label>
+                                        <input disabled type="text" :value="!!selectedPayment ? removeUnderscoreAndCapitalizeAfterSpace(selectedPayment.description) : null" id="amount"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+
+                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
+                                            <select
+                                                id="subject"
+                                                v-model="selectedPaymentMethod"
+                                                 @change="toggleTransfer"
+                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 "
+                                            >
+                                                <option
+                                                    v-for="option in options"
+                                                    :key="option"
+                                                >
+                                                    {{ option }}
+                                                </option>
+                                            </select>
+                                            <div class=" py-2 mt-2 bg-white rounded-b-lg" v-if="showEwallet">
+
+                                                <form class="flex flex-col gap-1 ">
+                                                    <div class="mb-3">
+                                                        <label for="EWalletName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
+                                                        <input type="text" id="EWalletName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
+                                                        <input type="text" id="accName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
+                                                        <input type="text" id="accName" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class=" py-2 mt-4 bg-white rounded-b-lg" v-if="showBankTransfer">
+                                                <form class="flex flex-col gap-1">
+                                                    <div class="mb-3">
+                                                        <label for="BankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
+                                                        <input type="text" id="BankName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accbankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
+                                                        <input type="text" id="accbankName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="accbankNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
+                                                        <input type="text" id="accbankNumber" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                    </form>
+                                    </div>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="w-full border-t  border-gray-200"
+                                >
+                                    <button
+                                        @click="submitRefund()"
+                                        type="button"
+                                        class="text-white rounded-b-lg bg-orange-500 hover:bg-opacity-25 font-medium w-full text-sm px-5 py-2.5"
+                                    >
+                                        Submit Refund Request
+                                    </button>
+
+                                </div>
                             </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page 1 of 4</small>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>-->
-
-            </div>
-        </div>
-        <!--Eto yung dati-->
-        <!--
-        <div class="main w-full">
-            <div class="w-full md:flex md:justify-center md:items-center" v-if="payments.length > 0">
-                <div v-if="payments.length > 0"
-                    :style="{width: isMobileView ? '100vw' : '35vw'}"
-                    class="px-5 py-5 md:px-0 md:py-0"
-                >
-                    <div class="w-full flex justify-center items-center rounded-sm mt-5"
-                        v-for="payment in payments" :key="payment.id"
-                        style="height: 350px; 	background-color: rgb(251 146 60)"
-
-                    >
-                        <div class="w-full flex flex-col bg-white rounded-lg"
-                            style="width: 90%;"
-                        >
-                            <div class="w-full">
-                                <p class="text-center font-bold mt-10"
-                                    :style="{'font-size': isMobileView ? '15px': '20px'}"
-                                >
-                                    {{ owner.name }}
-                                </p>
-
-                                <p class="text-center font-bold"
-                                    :style="{'font-size': isMobileView ? '12px': '15px'}"
-                                >
-                                    {{ owner.phone_number }}
-                                </p>
-
-                                <p class="text-center font-bold my-8"
-                                    :style="{'font-size': isMobileView ? '15px': '22px'}"
-                                >
-                                    ₱{{
-                                        payment.partial != null
-                                        ? parseFloat(payment.partial).toFixed(2)
-                                        : payment.pending_payment != null
-                                        ? parseFloat(payment.pending_payment).toFixed(2)
-                                        : payment.amount_paid != null
-                                        ? parseFloat(payment.amount_to_pay - payment.amount_paid).toFixed(2)
-                                        : payment.amount_paid == null
-                                        ? parseFloat(payment.amount_to_pay).toFixed(2)
-                                        : ''
-                                    }}
-                                </p>
-                            </div>
-
-                            <div class="w-full flex justify-center items-center mb-2"
-                                v-if="payment.amount_to_pay != payment.amount && !payment.pending_payment"
-                            >
-                                <button class="bg-cyan-500 py-2 px-5 rounded-md font-bold text-xs mr-1"
-                                    @click="pay(payment.id, 'GCash Payment')"
-                                    v-if="methods.includes('GCash')"
-                                >
-                                    Pay Via GCash
-                                </button>
-
-                                <button class="bg-cyan-500 py-2 px-5 rounded-md font-bold text-xs mr-1"
-                                    @click="openModal(payment.id)"
-                                    v-if="methods.includes('Bank')"
-                                >
-                                    Pay Via Bank
-                                </button>
-                            </div>
-
-                            <div class="w-full" v-if="payment.pending_payment">
-                                <p class="text-center font-bold mt-10"
-                                    :style="{'font-size': isMobileView ? '10px': '12px'}"
-                                >
-                                    Wait for dorm owner to verify your payment.
-                                </p>
-                            </div>
-
-                            <div class="w-full mb-2">
-                                <p class="text-center font-bold mt-3"
-                                    :style="{'font-size': isMobileView ? '10px': '10px'}"
-                                >
-                                    {{ payment.display_date }}
-                                </p>
-                            </div>
-
                         </div>
                     </div>
                 </div>
+
+
+
             </div>
 
 
-            <div class="w-full flex justify-center items-center" v-if="payments.length == 0">
-                <div class=""
-                    :style="{width: isMobileView ? '100vw' : '50vw'}"
-                >
-                    <div class="w-full px-2 rounded-lg text-center flex justify-center items-center bg-gray-200"
-                        :style="{height: isMobileView ? '200px': '500px'}"
-
-                    >
-                        <p class="font-bold" :style="{'font-size': isMobileView ? '16px': '25px'}">
-                            There's no payment(s) in your account.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="w-full">
-                <div id="bankModal" class="bankModal mt-10 md:mt-0">
-                    <div class="bank-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
-                        <div class="w-full">
-                            <span class="text-lg font-bold">
-                                Upload Bank Transfer Receipt
-                            </span>
-                            <span class="float-right cursor-pointer"
-                                @click="closeModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
-
-                        <div class="w-full mt-5">
-                            <input type="file" id="bank_receipt" style="display: none"
-                                @change="imageChange($event)"
-                            />
-
-                            <img :src="receipt ?? '/images/upload_image.png'"
-                                class="cursor-pointer"
-                                @click="imageClick()"
-                                style="border: 1px solid black; border-radius: 5px; width: 100%; height: 260px;"
-                            >
-
-                            <p v-if="imageError" class="text-red-500 text-xs mt-1">
-                                {{ imageError }}
-                            </p>
-                        </div>
-
-                        <div class="w-full mt-5">
-                            <button class="bg-cyan-500 py-2 px-5 rounded-md font-bold text-xs mr-1"
-                                @click="pay(payment_id, 'Bank Payment')"
-                            >
-                                Upload
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>-->
     </AuthenticatedLayout>
 </template>
 

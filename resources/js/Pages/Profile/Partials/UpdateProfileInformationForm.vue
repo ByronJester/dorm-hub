@@ -17,7 +17,7 @@ const form = useForm({
     middle_name: user.middle_name,
     last_name: user.last_name,
     phone_number: user.phone_number,
-    email: user.email,
+    username: user.username,
     image: user.image,
     bio: user.bio,
     pk: user.pk,
@@ -92,7 +92,7 @@ const imageChange = (e) => {
                     <img
                         :src="form.image ?? 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                         alt="Profile picture"
-                        class="rounded-full block md:h-60 w-full max-w-full bg-gray-100 dark:bg-slate-800"
+                        class="rounded-full block md:h-60 w-60 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
                     />
                 </div>
             </div>
@@ -246,14 +246,14 @@ const imageChange = (e) => {
                 </div>
                 <!--Email-->
                 <div class="mb-6 last:mb-0">
-                    <label class="block font-bold mb-2">E-mail</label>
+                    <label class="block font-bold mb-2">Username</label>
                     <div class="">
                         <div class="relative">
                             <input
                                 id="email"
                                 autocomplete="email"
                                 required=""
-                                v-model="form.email"
+                                v-model="form.username"
                                 type="email"
                                 class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full h-12 border bg-white pl-10"
                             /><span
@@ -271,7 +271,7 @@ const imageChange = (e) => {
                         </div>
                     </div>
                     <div class="text-xs text-gray-500 mt-1">
-                        Required. Your e-mail
+                        Required. Your username
                     </div>
                 </div>
             </div>

@@ -59,6 +59,7 @@ return array(
     'App\\Models\\Rule' => $baseDir . '/app/Models/Rule.php',
     'App\\Models\\TenantApplication' => $baseDir . '/app/Models/TenantApplication.php',
     'App\\Models\\TenantBilling' => $baseDir . '/app/Models/TenantBilling.php',
+    'App\\Models\\TenantComplaint' => $baseDir . '/app/Models/TenantComplaint.php',
     'App\\Models\\TenantPayment' => $baseDir . '/app/Models/TenantPayment.php',
     'App\\Models\\TenantRefund' => $baseDir . '/app/Models/TenantRefund.php',
     'App\\Models\\TenantReservation' => $baseDir . '/app/Models/TenantReservation.php',

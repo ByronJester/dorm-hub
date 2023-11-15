@@ -8,6 +8,8 @@ import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import VsToast from '@vuesimple/vs-toast';
+import tooltip from "@/tooltip.js";
+import "../css/tooltip.css";
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 
@@ -20,6 +22,7 @@ createInertiaApp({
             .use(ZiggyVue, Ziggy)
             .component('VueDatePicker', VueDatePicker)
             .component('VsToast', VsToast)
+            .directive("tooltip", tooltip)
             .mount(el);
             
     },
