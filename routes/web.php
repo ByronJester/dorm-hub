@@ -142,6 +142,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/room/change-status', [OwnerController::class, 'changeRoomStatus'])->name('change.room.status');
         Route::post('/complain/change-status/{id}', [OwnerController::class, 'changeComplainStatus'])->name('owner.complain.change.status');
         Route::post('/refund/{status}', [OwnerController::class, 'refundChangeStatus'])->name('owner.refund.change.status');
+        Route::post('/approve/move-out', [OwnerController::class, 'approveMoveOut'])->name('owner.move.out.tenant');
     });
 
     Route::prefix('tenant')->group(function () {

@@ -81,11 +81,16 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
-        $tenant = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+        $dorms = DB::table('dorms')->where('user_id', $auth->id)
+            ->where('status', 'approved')
+            ->get(['id', 'property_name']);
+
+        $tenants = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user', 'billings'])
             ->where('owner', $auth->id)->get();
 
         return Inertia::render('Owner/Tenants', [
-            'tenant' => $tenant
+            'tenants' => $tenants,
+            'dorms' => $dorms
         ]);
     }
 
@@ -131,11 +136,15 @@ class OwnerController extends Controller
 
         }
 
+        $moveouts = Tenant::where('owner', $auth->id)
+            ->where('status', 'pending_move_out')
+            ->get(['id', 'reason', 'reason_description', 'status', 'move_out']);
 
         return Inertia::render('Owner/Maintenance', [
             'complaints' => $complaints,
             'dorms' => $dorms,
-            'refunds' => $refundArr
+            'refunds' => $refundArr,
+            'moveouts' => $moveouts
 
         ]);
     }
@@ -1048,5 +1057,25 @@ class OwnerController extends Controller
         $refund->status = $status;
 
         return $refund->save();
+    }
+
+    public function approveMoveOut(Request $request)
+    {
+        $tenant = Tenant::where('id', $request->id)->first();
+
+        $application = Application::where('owner_id', $tenant->owner)
+            ->where('tenant_id', $tenant->tenant)
+            ->where('dorm_id', $tenant->dorm_id)
+            ->where('room_id', $tenant->room_id)
+            ->where('is_active', true)
+            ->first();
+
+        $application->is_active = false;
+        $application->save();
+
+        $tenant->status = 'moved_out';
+        $tenant->is_active = false;
+
+        return $tenant->save();
     }
 }

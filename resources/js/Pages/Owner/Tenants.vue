@@ -3,6 +3,9 @@ import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+import { ref, onMounted } from 'vue'
+import { usePage, useForm } from "@inertiajs/vue3";
+import axios from "axios";
 
 
 export default {
@@ -13,12 +16,84 @@ export default {
             AppDropdownItem,
         },
         setup(){
-            const options=["M.D.R Apartment", "Dorm 2"];
+            const page = usePage();
             const headerTenants=["Room Name", "Tenant Name", "Room Price", "Move-In Date", "Move-Out Date", "Balance"];
-            
+
+            const options = page.props.dorms
+
+            const selectedDorm = ref(options[0].id)
+
+            const tenantsData = ref([])
+
+            const tenants = page.props.tenants
+
+            const constructData = (dorm_id) => {
+                var arrTenant = [];
+
+                for(let t = 0; t < tenants.length; t++) {
+                    var balance = 0;
+
+                    let billings = tenants[t].billings
+
+                    for(let b = 0; b < billings.length; b++) {
+                        if(billings[b].is_paid == 0) {
+                            balance = balance + billings[b].amount
+                        }
+                    }
+
+                    arrTenant.push({
+                        id: tenants[t].id,
+                        dorm_id: tenants[t].dorm_id,
+                        room_name: tenants[t].room.name,
+                        tenant_name: tenants[t].tenant_user.name,
+                        fee: tenants[t].room.fee,
+                        move_in: tenants[t].move_in,
+                        move_out: tenants[t].move_out,
+                        balance: balance
+                    });
+                }
+
+                return arrTenant.filter(x => {
+                    return x.dorm_id == dorm_id;
+                });
+            }
+
+            const objectRemoveKey = (object, key = null) => {
+                const newObject = Object.assign({}, object);
+
+                delete newObject.id
+                delete newObject.dorm_id
+
+                return newObject;
+            }
+
+            onMounted(() => {
+                tenantsData.value = constructData(selectedDorm.value)
+            });
+
+            const moneyFormat = (amount) => {
+                amount = parseFloat(amount).toFixed(2);
+
+                return (
+                    "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                );
+            };
+
+            const dormChange = (evt) => {
+                let dorm_id = evt.target.value
+
+                tenantsData.value = constructData(dorm_id)
+            }
+
             return{
                 options,
-                headerTenants
+                headerTenants,
+                selectedDorm,
+                tenantsData,
+                objectRemoveKey,
+                tenants,
+                moneyFormat,
+                dormChange
             }
         }
 }
@@ -32,16 +107,18 @@ export default {
                             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 640 512"><path d="M335.5 4l288 160c15.4 8.6 21 28.1 12.4 43.5s-28.1 21-43.5 12.4L320 68.6 47.5 220c-15.4 8.6-34.9 3-43.5-12.4s-3-34.9 12.4-43.5L304.5 4c9.7-5.4 21.4-5.4 31.1 0zM320 160a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM144 256a40 40 0 1 1 0 80 40 40 0 1 1 0-80zm312 40a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM226.9 491.4L200 441.5V480c0 17.7-14.3 32-32 32H120c-17.7 0-32-14.3-32-32V441.5L61.1 491.4c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l37.9-70.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c16.3 0 31.9 4.5 45.4 12.6l33.6-62.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c32.4 0 62.1 17.8 77.5 46.3l33.6 62.3c13.5-8.1 29.1-12.6 45.4-12.6h19.5c32.4 0 62.1 17.8 77.5 46.3l37.9 70.3c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8L552 441.5V480c0 17.7-14.3 32-32 32H472c-17.7 0-32-14.3-32-32V441.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l36.3-67.5c-1.7-1.7-3.2-3.6-4.3-5.8L376 345.5V400c0 17.7-14.3 32-32 32H296c-17.7 0-32-14.3-32-32V345.5l-26.9 49.9c-1.2 2.2-2.6 4.1-4.3 5.8l36.3 67.5c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8z"/></svg>                </span>
                         <h3 class="text-3xl">Manage Tenants</h3>
                     </div>
-                
+
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div>
                         <p class="text-sm font-bold">Dorm:</p>
                         <select
+                            v-model="selectedDorm"
                             id="subject"
+                            @change="dormChange($event)"
                             class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         >
-                            <option v-for="option in options" :key="option">
-                                {{ option }}
+                            <option v-for="option in options" :key="option.id" :value="option.id">
+                                {{ option.property_name }}
                             </option>
                         </select>
                 </div>
@@ -55,7 +132,7 @@ export default {
                                 <div
                                     class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
                                 >
-                                        <div class="mb-3">
+                                        <!-- <div class="mb-3">
                                             <button
                                             class="flex items-center justify-start bg-orange-400 py-2 px-2 gap-2 rounded-md h-8 text-white"
                                             @click=""
@@ -66,9 +143,9 @@ export default {
 
                                                     Add Tenant
                                             </button>
-                                        </div>
+                                        </div> -->
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -149,15 +226,15 @@ export default {
                                 </thead>
                                 <tbody>
                                     <tr
-                                        v-for="(item, rowIndex) in dataTenants"
+                                        v-for="(item, rowIndex) in tenantsData"
                                         :key="rowIndex"
                                     >
                                         <td
                                             class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
+                                            v-for="(value, colIndex) in objectRemoveKey(item)"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
+                                            {{ colIndex == 'fee' || colIndex == 'balance' ? moneyFormat(value) : value }}
                                         </td>
                                         <td
                                             class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
@@ -167,9 +244,9 @@ export default {
                                                     <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
                                                 </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem>
+                                                    <!-- <AppDropdownItem>
                                                         Edit Tenant
-                                                    </AppDropdownItem>
+                                                    </AppDropdownItem> -->
                                                     <AppDropdownItem>
                                                         Remove Tenant
                                                     </AppDropdownItem>
@@ -235,7 +312,7 @@ export default {
             </div>
         </div>
     </div>
-        
+
     </AuthenticatedLayout>
 
 </template>
