@@ -223,7 +223,7 @@ export default {
                     });
 
                 return slicedAndSorted;
-                });
+            });
 
             const changePageReserve = (pageChange) => {
                 const newPage = currentPageReserve.value + pageChange;

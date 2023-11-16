@@ -45,6 +45,7 @@
                                                 <input
                                                     type="text"
                                                     id="simple-search"
+                                                    v-model="searchQuery"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
                                                     placeholder="Search in table..."
                                                     required
@@ -60,10 +61,10 @@
                                     <table
                                         class="items-center w-full bg-transparent border-collapse"
                                     >
-                                    <thead>
+                                    <thead class="border-t border-b">
                                             <tr>
                                                 <th
-                                                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
+                                                    class="px-6 align-middle  py-3 text-xs uppercase whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
                                                     v-for="headers in header"
                                                     :key="headers"
                                                 >
@@ -81,14 +82,21 @@
                                             
                                                 v-for="(
                                                     item, rowIndex
-                                                ) in header"
+                                                ) in slicedRows"
                                                 :key="rowIndex"
+                                                
                                             >
                                                 
                                                 <td
-                                                    class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
+                                                    v-for="(value, colIndex) in item"
+                                                    :key="colIndex"
+                                                    class=" px-6 align-middle text-xs whitespace-nowrap p-4"
                                                 >
-                                                    <AppDropdown class="">
+                                                    {{ colIndex !== 'created_at' ? value : '' }}
+
+                                                </td>
+                                                <td class="px-6 align-middle text-center text-green-500 text-xs whitespace-nowrap p-4">
+                                                    <AppDropdown>
                                                         <button>
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +112,7 @@
                                                         <AppDropdownContent
                                                             class="bg-white z-50"
                                                         >
-                                                            <AppDropdownItem>
+                                                            <AppDropdownItem @click="editFaqs(item)">
                                                             Edit
                                                              </AppDropdownItem>
                                                             <AppDropdownItem>
@@ -125,10 +133,10 @@
                                 class="flex items-center justify-start flex-wrap mb-3"
                             >
                                 <button
-                                    @click="changePageReserve(-1)"
-                                    :disabled="currentPageReserve == 1"
+                                    @click="changePage(-1)"
+                                    :disabled="currentPage == 1"
                                     :class="{
-                                        hidden: currentPageReserve == 1,
+                                        hidden: currentPage == 1,
                                     }"
                                     type="button"
                                     class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
@@ -136,8 +144,8 @@
                                     Previous
                                 </button>
                                 <button
-                                    @click="changePageReserve(1)"
-                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    @click="changePage(1)"
+                                    :disabled="currentPage === totalPages"
                                     type="button"
                                     class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
@@ -145,7 +153,7 @@
                                 </button>
                             </div>
                             <div class="flex items-center justify-center">
-                                <small>Page {{ currentPageReserve }}</small>
+                                <small>Page {{ currentPage }}</small>
                             </div>
                         </div>
                     </div>
@@ -213,6 +221,7 @@
                                             id="title"
                                             type="text"
                                             autocomplete="title"
+                                            v-model="form.question"
                                             class="bg-gray-50 mb-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
                                             
                                             required
@@ -222,7 +231,7 @@
                                     <div class="px-4 py-2 bg-white rounded-b-lg ">
                                         
                                             <label for="complainmessage">Answer:</label>
-                                            <textarea id="complainmessage" v-model="complain" rows="8" class="block w-full  text-sm text-gray-800 bg-gray-100 border-0 rounded-xl border-spacing-1 p-5" placeholder="Write a Answer..." required></textarea>
+                                            <textarea id="complainmessage" v-model="form.answer" rows="8" class="block w-full  text-sm text-gray-800 bg-gray-100 border-0 rounded-xl border-spacing-1 p-5" placeholder="Write a Answer..." required></textarea>
                                         </div>
                                         
                                         
@@ -240,11 +249,107 @@
                                         Cancel
                                     </button>
                                     <button
-                                        @click.prevent="createTenant()"
+                                        @click.prevent="addFaqs()"
                                         type="button"
                                         class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                     >
                                         Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    id="defaultModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow" v-if="selectedFaqs">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t "
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Edit FAQ(s)
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center "
+                                        @click="closeEditFaqs()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <form>
+                                        <div class="px-4 py-2 bg-white rounded-b-lg ">
+                                            <label
+                                            for="title"
+                                            class="block mb-2 text-sm font-medium text-gray-900"
+                                            >Question:</label
+                                        >
+
+                                        <input
+                                            id="title"
+                                            type="text"
+                                            autocomplete="title"
+                                            v-model="FaqsForm.question"
+                                            class="bg-gray-50 mb-4 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
+                                            
+                                            required
+                                        />
+                                        </div>
+                                        
+                                    <div class="px-4 py-2 bg-white rounded-b-lg ">
+                                        
+                                            <label for="complainmessage">Answer:</label>
+                                            <textarea id="complainmessage" v-model="FaqsForm.answer" rows="8" class="block w-full  text-sm text-gray-800 bg-gray-100 border-0 rounded-xl border-spacing-1 p-5" placeholder="Write a Answer..." required></textarea>
+                                        </div>
+                                        
+                                        
+                                    </form>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex w-full py-6 px-8 space-x-2 border-t border-gray-200 rounded-b "
+                                >
+                                <button
+                                        @click.prevent="closeComplainModal()"
+                                        type="button"
+                                        class="text-white bg-red-400 hover:bg-red-200 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        @click.prevent="editHelp()"
+                                        type="button"
+                                        class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                    >
+                                        Update
                                     </button>
                                 </div>
                             </div>
@@ -261,6 +366,8 @@ import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue"
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import {ref, computed} from 'vue';
 import SidebarLayout from '@/Layouts/SidebarLayout.vue'
+import { usePage, router } from "@inertiajs/vue3";
+
 export default{
     components:{
         AppDropdown,
@@ -269,54 +376,67 @@ export default{
         SidebarLayout,
     },
     setup(){
-            // const searchQueryReserve = ref("");
-            // const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
-            // const currentPageReserve = ref(1); // Initialize to the first page
-
+            var dataFaqs = [];
             
-            // const filteredDataReserve = computed(() => {
-            //     const query = searchQueryReserve.value.toLowerCase().trim();
-            //     if (!query) {
-            //         return tenantsData; // Return all data if the search query is empty.
-            //     }
+            const page = usePage();
+            const helps = page.props.helps;
 
-            //     return tenantsData.filter((row) => {
-            //         // Modify the conditions as needed for your specific search criteria.
-            //         return (
-            //             row.dorm_name.toLowerCase().includes(query) ||
-            //             row.room_name.toLowerCase().includes(query) ||
-            //             row.tenant_name.toLowerCase().includes(query)
-            //         );
-            //     });
-            // });
+            for (let x = 0; x < helps.length; x++) {
+                dataFaqs.push(
+                    {
+                        answer: helps[x].answer,
+                        question: helps[x].question,
+                    }
+                );
+            }
 
-            // const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
+            const searchQuery = ref("");
+            const itemsPerPage = 10; // Set the maximum number of items per page to 10
+            const currentPage = ref(1); // Initialize to the first page
 
-            // const slicedRows = computed(() => {
-            //     const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
-            //     const endIndex = startIndex + itemsPerPageReserve;
+            const filteredData = computed(() => {
+                const query = searchQuery.value.toLowerCase().trim();
+                if (!query) {
+                    return dataFaqs; // Return all data if the search query is empty.
+                }
 
-            //     const slicedAndSorted = filteredDataReserve.value
-            //         .slice(startIndex, endIndex)
-            //         .sort((a, b) => {
-            //             const dateA = new Date(a.created_at);
-            //             const dateB = new Date(b.created_at);
-            //             return dateB - dateA;
-            //         });
+                return dataFaqs.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.question.toLowerCase().includes(query) 
+                    );
+                });
+            });
 
-            //     return slicedAndSorted;
-            //     });
+            const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
 
-            // const changePageReserve = (pageChange) => {
-            //     const newPage = currentPageReserve.value + pageChange;
-            //     if (newPage >= 1 && newPage <= totalPagesReserve.value) {
-            //         currentPageReserve.value = newPage;
-            //     }
-            // };
+            const slicedRows = computed(() => {
+                const startIndex = (currentPage.value - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+
+                const slicedAndSorted = filteredData.value
+                    .slice(startIndex, endIndex)
+                    .sort((a, b) => {
+                        const dateA = new Date(a.created_at);
+                        const dateB = new Date(b.created_at);
+                        return dateB - dateA;
+                    });
+
+                return slicedAndSorted;
+                });
+
+            const changePage = (pageChange) => {
+                const newPage = currentPage.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPages.value) {
+                    currentPage.value = newPage;
+                }
+            };
             const header = [
-            "Question",
-            "Answer",
-        ];
+                "Question",
+                "Answer",
+            ];
+
+           
             const openComplainModal = () => {
                 var modal = document.getElementById("complainModal");
 
@@ -327,15 +447,123 @@ export default{
 
                 modal.style.display = "none";
             };
+
+            const form = ref({
+                question:null,
+                answer:null,
+            });
+
+            
+            
+            console.log(helps);
+
+            const addFaqs = () => {
+            swal(
+                {
+                    title: `Are you sure to add this FAQs?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("help.add"), form.value)
+                        .then((response) => {
+                            swal(
+                                "Success!",
+                                `You successfully add this FAQs.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        }
+        const selectedFaqs = ref(null);
+        const FaqsForm = ref({
+            question: selectedFaqs.question,
+            answer: selectedFaqs.answer,
+        })
+
+        const editFaqs = (arg) => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "block";
+
+        
+            selectedFaqs.value = arg
+            console.log(selectedFaqs);
+
+            FaqsForm.value.question = arg.question
+            FaqsForm.value.answer = arg.answer
+        };
+
+        const closeEditFaqs = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "none";
+
+        
+        };
+        
+        const editHelp = () => {
+            swal(
+                {
+                    title: `Are you sure want to update this FAQs?`,
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    closeOnConfirm: false,
+                },
+                function () {
+                    axios
+                        .post(route("help.update", { id: selectedFaqs.value.id }), FaqsForm.value)
+                        .then((response) => {
+                            swal(
+                                "Success!",
+                                `You successfully add this FAQs.`,
+                                "success"
+                            );
+
+                            setTimeout(function () {
+                                location.reload();
+                            }, 3000);
+                        })
+                        .catch((error) => {});
+                }
+            );
+        }
+
             return{
                 openComplainModal,
                 closeComplainModal,
                 header,
-            //     changePageReserve,
-            //     itemsPerPageReserve,
-            //     totalPagesReserve,
-            //     currentPageReserve,
-            //     searchQueryReserve,
+                addFaqs,
+                editFaqs,
+                closeEditFaqs,
+                form,
+                dataFaqs,
+                searchQuery,
+                itemsPerPage,
+                currentPage,
+                totalPages,
+                slicedRows,
+                changePage,
+                selectedFaqs,
+                FaqsForm,
+                editHelp
+            //     changePage,
+            //     itemsPerPage,
+            //     totalPages,
+            //     currentPage,
+            //     searchQuery,
             //     slicedRows
             }
     }

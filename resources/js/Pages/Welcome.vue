@@ -47,7 +47,8 @@ export default {
             dorms.value = page.props.dorms.filter((dorm) => {
                 return (
                     dorm.property_name.toLowerCase().includes(query) ||
-                    dorm.detailed_address.toLowerCase().includes(query)
+                    dorm.detailed_address.toLowerCase().includes(query) ||
+                    dorm.map_address.toLowerCase().includes(query)
                 );
             });
         });
