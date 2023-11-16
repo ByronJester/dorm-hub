@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\DatabaseBackup;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\{
-    Dorm, User, Notification, Refund, UserPayment, Tenant
-};
+use App\Models\{BackUp, Dorm, User, Notification, Refund, UserPayment, Tenant};
 use Carbon\Carbon;
 
 
@@ -31,8 +30,17 @@ class AdminController extends Controller
     }
 
     public function dashboard() {
-        return Inertia::render('Admin/Dashboard',[
 
+        $users = User::count();
+        $dorms = Dorm::count();
+        $tenants = Tenant::count();
+        $owners = User::where('user_type', 'owner')->count();
+
+        return Inertia::render('Admin/Dashboard',[
+            'users' => $users,
+            'dorms' => $dorms,
+            'tenants' => $tenants,
+            'owners' => $owners
         ]);
     }
 
@@ -47,8 +55,44 @@ class AdminController extends Controller
     public function reports(){
         $dorms = Dorm::get();
 
+        $userArr = [];
+
+        $users = User::get();
+
+        foreach($users as $user) {
+            array_push($userArr, [
+                'name' => $user->name,
+                'username' => $user->username,
+                'user_type' => $user->user_type,
+                'phone_number' => $user->phone_number,
+                'date_registered' => Carbon::parse($user->created_at)->isoFormat('LL')
+            ]);
+        }
+
+        $incomeArr = [];
+
+        foreach($dorms as $dorm) {
+            $tenants = Tenant::with(['billings', 'tenant_user'])->where('dorm_id', $dorm->id)->get();
+
+            $netSales = 0;
+            foreach($tenants as $tenant) {
+                $netSales += $tenant->billings->where('is_paid', true)->sum('amount');
+            }
+
+            array_push($incomeArr, [
+                'owner' => $dorm->user->name,
+                'phone_number' => $dorm->user->phone_number,
+                'dorm_name' => $dorm->property_name,
+                'detailed_address' => $dorm->detailed_address,
+                'status' => $dorm->status,
+                'net_sales' => $netSales
+            ]);
+        }
+
         return Inertia::render('Admin/Reports',[
             'dorms' => $dorms,
+            'userArr' => $userArr,
+            'incomeArr' => $incomeArr
         ]);
     }
 
@@ -160,5 +204,27 @@ class AdminController extends Controller
         $notification->save();
 
         return response()->json(["message" => "Success"], 200);
+    }
+
+    public function backUpDatabase(DatabaseBackup $databaseBackup)
+    {
+        $action = new BackUp;
+        $action->user_id = auth()->user()->id;
+        $action->operation_type = 'backup';
+        $action->operation_date = now();
+
+        sleep(2);
+        try {
+            $databaseBackup->execute();
+        } catch (\Exception $e) {
+            return response()->setStatusCode(500);
+        }
+        $action->save();
+        return response()->download(storage_path("backup/db-backup.sql"));
+    }
+
+    public function restoreDatabase()
+    {
+
     }
 }

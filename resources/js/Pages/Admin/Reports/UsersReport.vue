@@ -21,20 +21,7 @@ export default {
         const date = ref();
         const options = ["Jear dorm", "Dorm 2"];
         const numoptions = ["5", "10", "15", "20"];
-        const header=["User Name", "User Type", "Contact No.", "Status", "Date Registered"]
-        const data = [
-            ["Gene De La Rea", "Admin", "09165984951", "", ""],
-            ["Michael Lapuz", "Admin", "09165984951", "", ""],
-            ["Giovanni Marco", "Admin", "09165984951", "", ""],
-            ["Luigi Butor", "Admin", "09165984951", "", ""],
-            ["Pastora Panganiban", "Dorm Owner", "09165984951", "Approved", "2023-10-01"],
-            ["Ronnel Roxas", "Dorm Owner", "09165984951", "Approved", "2023-10-01"],
-            ["Marife De Guzman", "Dorm Owner", "09165984951", "Approved", "2023-10-01"],
-            ["Marife De Guzman", "Dorm Owner", "09165984951", "Approved", "2023-10-01"],
-            ["June Zaragoza", "Tenant", "09165984951", "Approved", "2023-10-03"],
-            
-
-        ];
+        const header=["Name", "Username", "User Type", "Contact No.","Date Registered"]
 
         const presetDates = ref([
             { label: "Today", value: [new Date(), new Date()] },
@@ -68,6 +55,8 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+
+        const data = page.props.dorms
         return {
             date,
             presetDates,
@@ -151,7 +140,7 @@ export default {
                                     </div>
                                 </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -237,9 +226,9 @@ export default {
                                         >
                                             {{ value }}
                                         </td>
-                                        
+
                                     </tr>
-                                </tbody>    
+                                </tbody>
                             </table>
                             <div
                                 class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"

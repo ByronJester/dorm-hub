@@ -3,7 +3,8 @@ import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-
+import  fileDownload from "js-file-download";
+import {usePage} from "@inertiajs/vue3";
 
 export default {
         components: {
@@ -16,13 +17,56 @@ export default {
             const numoptions=["5", "10", "10"];
             const headers=["BackUp-ID", "Description", "Back-Up Date"];
             const data=[{"BakcUp-ID":"001", "Description":"System Maintennace", "Bsack-Up Date":"2023-10-11"}];
-            
+
             return{
                 numoptions,
                 headers,
                 data
             }
+        },
+    mounted() {
+        const page = usePage();
+
+        console.log(page.props)
+    },
+    methods: {
+        async backup() {
+
+            swal({
+                title: 'Creating database backup',
+                text: 'Please wait and do not change/reload page while database backup is ongoing.',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                type: "info",
+            })
+            axios.post(route('admin.backup.execute')).then((response) => {
+                // swal.close()
+                if (response.status === 200) {
+                    swal("Success", "Database backup created", "success")
+                    fileDownload(response.data, "db-backup.sql");
+                } else {
+
+                }
+            }).catch((err) => {
+                const { response } = err;
+                if (response.status === 500) {
+                    swal("Error: 500", "Failed to create database backup", "error")
+                }
+            })
+        },
+        restore() {
+            var modal = document.getElementById("restoreModal");
+
+            modal.style.display = "block";
+        },
+        closeRestoreModal() {
+            var modal = document.getElementById("restoreModal");
+
+            modal.style.display = "none";
         }
+
+    }
 }
 </script>
 <template>
@@ -32,15 +76,90 @@ export default {
                 <div class="flex items-center justify-start">
                         <h3 class="text-3xl">Back-Up</h3>
                     </div>
-                
+
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div class="bg-white p-5 rounded-md shadow">
-                    <button class="py-2 px-3 bg-orange-400 text-white rounded">
+                    <button class="py-2 px-3 bg-orange-400 text-white rounded mr-2" v-on:click="backup">
                         Start Back-Up
+                    </button>
+                    <button class="py-2 px-3 bg-cyan-400 text-white rounded" @click="restore">
+                        Restore
                     </button>
                 </div>
         </div>
-        <div class="w-full mb-5 mt-5">
+
+                <div
+                    id="restoreModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-md max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Restore
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeRestoreModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <input type="file" />
+                                </div>
+
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        type="button"
+                                        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Submit
+                                    </button>
+                                    <button
+                                        @click="closeRestoreModal()"
+                                        type="button"
+                                        class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full mb-5 mt-5">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
                     >
@@ -78,7 +197,7 @@ export default {
                                     </div>
                                 </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -164,9 +283,9 @@ export default {
                                         >
                                             {{ value }}
                                         </td>
-                                        
+
                                     </tr>
-                                </tbody>    
+                                </tbody>
                             </table>
                             <div
                                 class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
@@ -222,7 +341,7 @@ export default {
                     </div>
                 </div>
     </div>
-        
+
     </AuthenticatedLayout>
 
 </template>

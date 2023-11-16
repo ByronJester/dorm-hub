@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'be8dfaed9054956dfec3d80a7690ce103e2dc55f',
+        'reference' => 'bb259bf95d7f66ea7e0e29ac5822ffee3e50cd88',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -174,6 +174,15 @@
             'install_path' => __DIR__ . '/../hamcrest/hamcrest-php',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'ifsnop/mysqldump-php' => array(
+            'pretty_version' => 'v2.12',
+            'version' => '2.12.0.0',
+            'reference' => '2d3a43fc0c49f23bf7dee392b0dd1f8c799f89d3',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../ifsnop/mysqldump-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'illuminate/auth' => array(
             'dev_requirement' => false,
@@ -412,7 +421,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'be8dfaed9054956dfec3d80a7690ce103e2dc55f',
+            'reference' => 'bb259bf95d7f66ea7e0e29ac5822ffee3e50cd88',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -196,8 +196,12 @@ export default {
             },
         ]);
 
+        const data = ref([])
+
         onMounted(() => {
             rows.value = page.props.dorms;
+
+            data.value = page.props.incomeArr
         });
 
         const currentPage = ref(1); // Initialize to the first page
@@ -272,6 +276,8 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+
+        console.log('asdasd')
         return {
             presetDates,
             columns,
@@ -287,6 +293,7 @@ export default {
             changePage,
             slicedRows,
             back,
+            data,
         };
     },
 };
@@ -418,6 +425,19 @@ export default {
                     </thead>
                     <tbody>
                         <tr
+                            v-for="(item, rowIndex) in data"
+                            :key="rowIndex"
+                        >
+                            <td
+                                class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
+                                v-for="(value, colIndex) in item"
+                                :key="colIndex"
+                            >
+                                {{ value }}
+                            </td>
+
+                        </tr>
+                        <!-- <tr
                             v-for="(row, rowIndex) in slicedRows"
                             :key="rowIndex"
                         >
@@ -470,7 +490,7 @@ export default {
                                     </div>
                                 </div>
                             </td>
-                        </tr>
+                        </tr> -->
                     </tbody>
                 </table>
                 <div

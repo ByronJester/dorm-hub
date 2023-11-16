@@ -120,6 +120,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/change-staus', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
 
+        Route::post('/backup', [AdminController:: class, 'backUpDatabase'])->name('admin.backup.execute');
     });
 
     Route::prefix('owner')->group(function () {
