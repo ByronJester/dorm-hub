@@ -1,9 +1,20 @@
 <script>
-import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
+import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
+import DormitoriesReports from "@/Pages/Admin/Reports/DormitoriesReport.vue";
+import IncomeReport from "@/Pages/Admin/Reports/IncomeReports.vue";
+import UsersReport from "@/Pages/Admin/Reports/UsersReport.vue";
+import { usePage, router } from "@inertiajs/vue3";
 
 export default{
     components:{
         AuthenticatedLayout
+    },
+    setup() {
+        const props = usePage().props
+
+        return {
+            props
+        }
     }
 }
 
@@ -12,8 +23,8 @@ export default{
 <template>
 <AuthenticatedLayout>
     <div class="p-4 mt-16 lg:ml-64">
-           
-            
+
+
             <div
                 class="grid grid-cols-2 lg:grid-cols-4 sm:grid-cols-2 gap-4 mb-4 mt-4 text-gray-400 dark:text-white"
             >
@@ -22,7 +33,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            27
+                            {{props.users}}
                         </p>
                         <p class="text-xs">
                             TOTAL No. of Users
@@ -35,7 +46,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                             3
+                            {{props.dorms}}
                         </p>
                         <p class="text-xs">
                             TOTAL No. of Registered Dorms
@@ -48,7 +59,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            4
+                            {{props.tenants}}
                         </p>
                         <p class="text-xs">TOTAL No. of Tenants</p>
                     </div>
@@ -59,7 +70,7 @@ export default{
                 >
                     <div class="text-center p-4">
                         <p class="text-2xl mb-2">
-                            10
+                            {{props.owners}}
                         </p>
                         <p class="text-xs">TOTAL No. of Dorm owners</p>
                     </div>

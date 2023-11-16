@@ -68,9 +68,6 @@ export default {
 
                 <component :is="activeReportComponent"></component>
 
-
-
-
             <div
                 class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 items-center w-full gap-8 mb-40 mt-5"
                 v-if="!activeReport"
