@@ -33,9 +33,9 @@ export default {
             const facebook = contacts.facebook;
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
-            
-           
-        
+
+
+
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
             doc.text(emails, 150, 30)
@@ -57,7 +57,7 @@ export default {
             // Create your data array with header and rows
             const tableData = [this.header].concat(
                 this.slicedRows.map((row) => [
-                        
+
                 ])
             );
 
@@ -87,9 +87,9 @@ export default {
             const facebook = contacts.facebook;
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
-            
-           
-        
+
+
+
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
             doc.text(emails, 150, 30)
@@ -146,12 +146,6 @@ export default {
         const options = ["M.D.R Apartment", "Dorm2"];
         const numoptions = ["5", "10", "15", "20"];
         const header=["Room Name", "Tenant Name", "Move-in Date", "Monthly Rent", "Other Charges", "Total Income"]
-        const data = [
-            ["Bedroom 1", "John Doe", "2023-01-15", 1000, 50, 1050],
-            ["Bedroom 2", "Jane Smith", "2023-02-10", 1100, 60, 1160],
-            ["Total", "", "", "", "", 2210]
-
-        ];
 
         const presetDates = ref([
             { label: "Today", value: [new Date(), new Date()] },
@@ -186,12 +180,12 @@ export default {
             }
         };
 
-        
+
         const searchQueryReserve = ref("");
             const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
             const currentPageReserve = ref(1); // Initialize to the first page
 
-            
+
             const filteredDataReserve = computed(() => {
                 const query = searchQueryReserve.value.toLowerCase().trim();
                 if (!query) {
@@ -231,6 +225,20 @@ export default {
                     currentPageReserve.value = newPage;
                 }
             };
+
+
+
+        const data = page.props.incomeReports
+
+        console.log(data)
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
         return {
             data,
             date,
@@ -242,6 +250,7 @@ export default {
             totalPagesReserve,
             changePageReserve,
             currentPageReserve,
+            moneyFormat
         };
     },
 };
@@ -270,7 +279,7 @@ export default {
     </div>
     <div class="w-[278px] mt-5">
     <div class="flex flex-row gap-2 items-center justify-center">
-        <div> 
+        <div>
         <p class="text-sm">Date Range:</p>
         <VueDatePicker
             v-model="date"
@@ -292,15 +301,15 @@ export default {
             </template>
         </VueDatePicker>
     </div>
-       
+
         <div class="mt-5">
             <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
         </div>
     </div>
-        
+
     </div>
     <!--Button-->
-    
+
     <div class="w-full mb-5 mt-5">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -311,10 +320,10 @@ export default {
                                 <div
                                     class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
                                 >
-                                
+
                                 <div class="mb-3 sm:flex-row flex-col flex gap-3">
                                     <div class="flex flex-row gap-2">
-                                        <button 
+                                        <button
                                                 @click="exportToPDF()"
                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
                                                     PDF
@@ -323,11 +332,11 @@ export default {
                                                 @click="printTable()"
                                                  class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
                                                     Print
-                                                </button>    
+                                                </button>
                                     </div>
                                 </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -390,11 +399,15 @@ export default {
                                             v-for="(value, colIndex) in item"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
+                                            {{
+                                                colIndex == 'total_rent_collected' || colIndex == 'other_charges' || colIndex == 'total_income'
+                                                ? moneyFormat(value)
+                                                : value
+                                            }}
                                         </td>
-                                        
+
                                     </tr>
-                                </tbody>    
+                                </tbody>
                             </table>
                             <div
                     class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
