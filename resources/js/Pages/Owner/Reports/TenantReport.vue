@@ -17,7 +17,7 @@ export default {
     component: {
         VueDatePicker,
     },
-    
+
     methods: {
         exportToPDF() {
             const doc = new jsPDF();
@@ -34,9 +34,9 @@ export default {
             const facebook = contacts.facebook;
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
-            
-           
-        
+
+
+
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
             doc.text(emails, 150, 30)
@@ -58,7 +58,7 @@ export default {
             // Create your data array with header and rows
             const tableData = [this.header].concat(
                 this.slicedRows.map((row) => [
-                        
+
                 ])
             );
 
@@ -88,9 +88,9 @@ export default {
             const facebook = contacts.facebook;
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
-            
-           
-        
+
+
+
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
             doc.text(emails, 150, 30)
@@ -145,10 +145,6 @@ export default {
         const options = ["M.D.R Apartment", "Dorm2"];
         const numoptions = ["5", "10", "15", "20"];
         const header=["Tenant Name", "Contact Inforamtion", "Room Name", "Monthly Rent", "Move-In Date", "Move-Out Date"]
-        const data = [
-            ["John Smith", "+639-912-234563", "Room 101", "3000", "2023-10-17", ""],
-
-        ];
 
         const presetDates = ref([
             { label: "Today", value: [new Date(), new Date()] },
@@ -182,15 +178,29 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+
         const page = usePage();
         const user = page.props.auth.user;
+
+        const data = page.props.tenantReports
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
         return {
             date,
             presetDates,
             options,
             numoptions,
             header,
-            back
+            back,
+            data,
+            moneyFormat
         };
     },
 };
@@ -219,7 +229,7 @@ export default {
     </div>
     <div class="w-[278px] mt-5">
     <div class="flex flex-row gap-2 items-center justify-center">
-        <div> 
+        <div>
         <p class="text-sm">Date Range:</p>
         <VueDatePicker
             v-model="date"
@@ -241,12 +251,12 @@ export default {
             </template>
         </VueDatePicker>
     </div>
-       
+
         <div class="mt-5">
             <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
         </div>
     </div>
-        
+
     </div>
     <div class="w-full mb-5 mt-5">
                     <div
@@ -286,7 +296,7 @@ export default {
                                     </div>
                                 </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -370,11 +380,11 @@ export default {
                                             v-for="(value, colIndex) in item"
                                             :key="colIndex"
                                         >
-                                            {{ value }}
+                                            {{ colIndex == 'fee' ? moneyFormat(value) : value }}
                                         </td>
-                                        
+
                                     </tr>
-                                </tbody>    
+                                </tbody>
                             </table>
                             <div
                                 class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
