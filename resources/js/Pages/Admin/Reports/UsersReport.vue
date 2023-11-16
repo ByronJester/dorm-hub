@@ -56,7 +56,7 @@ export default {
             }
         };
 
-        const data = page.props.dorms
+        const data = page.props.userArr
         return {
             date,
             presetDates,
