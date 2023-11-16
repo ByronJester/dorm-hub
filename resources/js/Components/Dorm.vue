@@ -684,6 +684,13 @@ export default {
                                         </div>
                                         </div>
                                     </div>
+                                    <button
+                                    class="text-white float-left bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm p-4"
+                                    @click="messageOwner(props.dorm.user_id)"
+                                    v-if="props.user"
+                                >
+                                    Message
+                                </button>
 
                         </div>
 

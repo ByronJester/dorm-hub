@@ -251,7 +251,7 @@ const imageChange = (e) => {
                                 autocomplete="email"
                                 required=""
                                 v-model="form.username"
-                                type="email"
+                                type="text"
                                 class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full h-12 border bg-white pl-10"
                             /><span
                                 class="inline-flex justify-center items-center w-10 h-12 absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
