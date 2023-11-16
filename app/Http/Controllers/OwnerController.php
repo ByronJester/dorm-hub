@@ -706,10 +706,41 @@ class OwnerController extends Controller
         if($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
-        $contact = ContactUs::first();
+
+        $now = Carbon::now();
+
+        $dorms = DB::table('dorms')->where('user_id', $auth->id)->get();
+
+        $dormReports = [];
+
+        foreach($dorms as $dorm) {
+
+            $ts = Tenant::where('dorm_id', $dorm->id)->get();
+
+            $monthlyIncome = 0;
+            $yearlyIncome = 0;
+
+            foreach($ts as $t) {
+                $monthlyIncome += Billing::where('tenant_id', $t->id)->whereMonth('date', $now)->sum('amount');
+                $yearlyIncome += Billing::where('tenant_id', $t->id)->whereYear('date', $now)->sum('amount');
+            }
+
+            array_push($dormReports, [
+                'name' => $dorm->property_name,
+                'date_registered' => Carbon::parse($dorm->created_at)->isoFormat('LLL'),
+                'rooms_total' => $dorm->rooms_total,
+                'occupied_rooms' => Room::where('dorm_id', $dorm->id)->where('is_available', false)->count(),
+                'vacant_rooms' => Room::where('dorm_id', $dorm->id)->where('is_available', true)->count(),
+                'monthly_income' => $monthlyIncome,
+                'yearly_income' => $yearlyIncome
+            ]);
+
+
+        }
 
         return Inertia::render('Owner/Report', [
-            'contact' => $contact,
+            'dorms' => $dorms,
+            'dormReports' => $dormReports
         ]);
     }
 
