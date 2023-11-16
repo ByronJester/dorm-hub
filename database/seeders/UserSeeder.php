@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
         User::create([
             'first_name' => 'Giovanni',
             'last_name' => 'Marco',
-            'phone_number' => '0977000000',
+            'phone_number' => '09972395348',
             'password' => Hash::make('password'),
             'username' => '@admin.gio',
             'user_type' => 'admin',
@@ -51,7 +51,7 @@ class UserSeeder extends Seeder
         User::create([
             'first_name' => 'Michael',
             'last_name' => 'Lapuz',
-            'phone_number' => '0977000000',
+            'phone_number' => '09214036746',
             'password' => Hash::make('password'),
             'username' => '@admin.michael',
             'user_type' => 'admin',
