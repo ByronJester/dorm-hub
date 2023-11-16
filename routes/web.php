@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\{
     ProfileController, AdminController, OwnerController, TenantController, SharedController, RegisteredUserController, AboutUsController, ContactUsController,
-    PrivacyPolicyController, TermsUserController, HeroController
+    PrivacyPolicyController, TermsUserController, HeroController, HelpController
 };
 
 use Illuminate\Foundation\Application;
@@ -103,6 +103,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/hero/edit', [HeroController::class, 'edit'])->name('hero.edit');
         Route::patch('/hero/update', [HeroController::class, 'update'])->name('hero.update');
         //
+        Route::get('/help/edit', [HelpController::class, 'editPage'])->name('help.edit');
+        //
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
         Route::get('/refund', [AdminController::class, 'refund'])->name('admin.refund');
         Route::get('/tenants', [AdminController::class, 'tenantList'])->name('admin.tenants');
@@ -184,5 +186,6 @@ Route::get('/aboutUs', [SharedController::class, 'show'])->name('about.us');
 Route::get('/policy', [SharedController::class, 'showPolicy'])->name('privacy.policy');
 Route::get('/contactUs', [SharedController::class, 'showContact'])->name('contact.us');
 Route::get('/view-dorm/{dorm_id}', [SharedController::class, 'viewDorm'])->name('view.dorm');
+Route::get('/FAQs', [SharedController::class, 'help'])->name('user.help');
 
 require __DIR__.'/auth.php';

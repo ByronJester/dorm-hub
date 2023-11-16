@@ -1137,6 +1137,11 @@ export default {
                 <li>
                     <a :href="route('contact.us')" class="hover:underline">Contact us</a>
                 </li>
+                <li>
+                    <a :href="route('user.help')" class="mr-4 hover:underline md:mr-6"
+                        >Help</a
+                    >
+                </li>
             </ul>
         </div>
     </footer>

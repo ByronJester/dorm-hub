@@ -335,7 +335,7 @@ export default {
             imageChange,
             proofImageChange,
             imageClick,
-            createTenant
+            createTenant,
             currentPageReserve,
             totalPagesReserve,
             changePageReserve

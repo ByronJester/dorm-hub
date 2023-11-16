@@ -865,20 +865,25 @@ export default {
                 >. All Rights Reserved.</span
             >
             <ul
-                class="flex flex-wrap items-center mt-3 text-sm font-medium  dark:text-gray-400 sm:mt-0"
+                class="flex flex-wrap items-center mt-3 gap-4 text-sm font-medium  dark:text-gray-400 sm:mt-0"
             >
                 <li>
-                    <a :href="route('about.us')" class="mr-4 hover:underline md:mr-6"
+                    <a :href="route('about.us')" class="hover:underline md:mr-6"
                         >About us</a
                     >
                 </li>
                 <li>
-                    <a :href="route('privacy.policy')" class="mr-4 hover:underline md:mr-6"
+                    <a :href="route('privacy.policy')" class="hover:underline md:mr-6"
                         >Privacy Policy</a
                     >
                 </li>
                 <li>
                     <a :href="route('contact.us')" class="hover:underline">Contact us</a>
+                </li>
+                <li>
+                    <a :href="route('user.help')" class=" hover:underline md:mr-6"
+                        >Help</a
+                    >
                 </li>
             </ul>
         </div>

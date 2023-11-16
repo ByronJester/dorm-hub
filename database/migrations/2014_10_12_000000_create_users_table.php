@@ -36,6 +36,7 @@ return new class extends Migration
             $table->boolean('first_logged_in')->default(true);
 
             $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

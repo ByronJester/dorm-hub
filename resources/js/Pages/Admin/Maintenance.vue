@@ -159,7 +159,7 @@ export default {
                             <div class="w-full mt-3">
                                 <a
                                     class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right"
-                                    
+                                    :href="route('help.edit')"
                                 >
                                     Edit
                                 </a>
