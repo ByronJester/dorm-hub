@@ -30,8 +30,17 @@ class AdminController extends Controller
     }
 
     public function dashboard() {
-        return Inertia::render('Admin/Dashboard',[
 
+        $users = User::count();
+        $dorms = Dorm::count();
+        $tenants = Tenant::count();
+        $owners = User::where('user_type', 'owner')->count();
+
+        return Inertia::render('Admin/Dashboard',[
+            'users' => $users,
+            'dorms' => $dorms,
+            'tenants' => $tenants,
+            'owners' => $owners
         ]);
     }
 
@@ -46,8 +55,44 @@ class AdminController extends Controller
     public function reports(){
         $dorms = Dorm::get();
 
+        $userArr = [];
+
+        $users = User::get();
+
+        foreach($users as $user) {
+            array_push($userArr, [
+                'name' => $user->name,
+                'username' => $user->username,
+                'user_type' => $user->user_type,
+                'phone_number' => $user->phone_number,
+                'date_registered' => Carbon::parse($user->created_at)->isoFormat('LL')
+            ]);
+        }
+
+        $incomeArr = [];
+
+        foreach($dorms as $dorm) {
+            $tenants = Tenant::with(['billings', 'tenant_user'])->where('dorm_id', $dorm->id)->get();
+
+            $netSales = 0;
+            foreach($tenants as $tenant) {
+                $netSales += $tenant->billings->where('is_paid', true)->sum('amount');
+            }
+
+            array_push($incomeArr, [
+                'owner' => $dorm->user->name,
+                'phone_number' => $dorm->user->phone_number,
+                'dorm_name' => $dorm->property_name,
+                'detailed_address' => $dorm->detailed_address,
+                'status' => $dorm->status,
+                'net_sales' => $netSales
+            ]);
+        }
+
         return Inertia::render('Admin/Reports',[
             'dorms' => $dorms,
+            'userArr' => $userArr,
+            'incomeArr' => $incomeArr
         ]);
     }
 
