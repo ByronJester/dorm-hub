@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\DatabaseBackup;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\{
-    Dorm, User, Notification, Refund, UserPayment, Tenant
-};
+use App\Models\{BackUp, Dorm, User, Notification, Refund, UserPayment, Tenant};
 use Carbon\Carbon;
 
 
@@ -169,5 +168,27 @@ class AdminController extends Controller
         $notification->save();
 
         return response()->json(["message" => "Success"], 200);
+    }
+
+    public function backUpDatabase(DatabaseBackup $databaseBackup)
+    {
+        $action = new BackUp;
+        $action->user_id = auth()->user()->id;
+        $action->operation_type = 'backup';
+        $action->operation_date = now();
+
+        sleep(2);
+        try {
+            $databaseBackup->execute();
+        } catch (\Exception $e) {
+            return response()->setStatusCode(500);
+        }
+        $action->save();
+        return response()->download(storage_path("backup/db-backup.sql"));
+    }
+
+    public function restoreDatabase()
+    {
+
     }
 }

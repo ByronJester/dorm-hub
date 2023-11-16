@@ -3,7 +3,8 @@ import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-
+import  fileDownload from "js-file-download";
+import {usePage} from "@inertiajs/vue3";
 
 export default {
         components: {
@@ -16,13 +17,45 @@ export default {
             const numoptions=["5", "10", "10"];
             const headers=["BackUp-ID", "Description", "Back-Up Date"];
             const data=[{"BakcUp-ID":"001", "Description":"System Maintennace", "Bsack-Up Date":"2023-10-11"}];
-            
+
             return{
                 numoptions,
                 headers,
                 data
             }
-        }
+        },
+    mounted() {
+        const page = usePage();
+
+        console.log(page.props)
+    },
+    methods: {
+        async backup() {
+
+            swal({
+                title: 'Creating database backup',
+                text: 'Please wait and do not change/reload page while database backup is ongoing.',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                type: "info",
+            })
+            axios.post(route('admin.backup.execute')).then((response) => {
+                // swal.close()
+                if (response.status === 200) {
+                    swal("Success", "Database backup created", "success")
+                    fileDownload(response.data, "db-backup.sql");
+                } else {
+
+                }
+            }).catch((err) => {
+                const { response } = err;
+                if (response.status === 500) {
+                    swal("Error: 500", "Failed to create database backup", "error")
+                }
+            })
+        },
+    }
 }
 </script>
 <template>
@@ -32,10 +65,10 @@ export default {
                 <div class="flex items-center justify-start">
                         <h3 class="text-3xl">Back-Up</h3>
                     </div>
-                
+
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div class="bg-white p-5 rounded-md shadow">
-                    <button class="py-2 px-3 bg-orange-400 text-white rounded">
+                    <button class="py-2 px-3 bg-orange-400 text-white rounded" v-on:click="backup">
                         Start Back-Up
                     </button>
                 </div>
@@ -78,7 +111,7 @@ export default {
                                     </div>
                                 </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -164,9 +197,9 @@ export default {
                                         >
                                             {{ value }}
                                         </td>
-                                        
+
                                     </tr>
-                                </tbody>    
+                                </tbody>
                             </table>
                             <div
                                 class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
@@ -222,7 +255,7 @@ export default {
                     </div>
                 </div>
     </div>
-        
+
     </AuthenticatedLayout>
 
 </template>

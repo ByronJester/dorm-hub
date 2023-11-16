@@ -26,6 +26,7 @@
         "@vuesimple/vs-toast": "^3.0.5",
         "exceljs": "^4.4.0",
         "html2canvas": "^1.4.1",
+        "js-file-download": "^0.4.12",
         "jspdf": "^2.5.1",
         "jspdf-autotable": "^3.7.1",
         "lightvue": "^1.5.1",
