@@ -86,7 +86,6 @@ class OwnerController extends Controller
                 $query->where('is_available', true);
             }])
             ->where('user_id', $auth->id)
-            ->where('status', 'approved')
             ->get(['id', 'property_name']);
 
         $tenants = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user', 'billings'])
@@ -734,13 +733,112 @@ class OwnerController extends Controller
                 'monthly_income' => $monthlyIncome,
                 'yearly_income' => $yearlyIncome
             ]);
+        }
+
+        $reservationReports = [];
+
+        $reservations = Reservation::with(['tenant_user', 'room'])
+            ->where('owner', $auth->id)
+            ->where('is_active', true)->get();
+
+        foreach($reservations as $reservation) {
+            $tenant = (object) $reservation->tenant_user;
+            $room = (object) $reservation->room;
+
+            array_push($reservationReports, [
+                'name' => $tenant->name,
+                'room' => $room->name,
+                'fee' => 300,
+                'expiration_date' => Carbon::parse($reservation->expired_at)->isoFormat('LL')
+            ]);
+        }
+
+        $tenantReports = [];
+        $requestReports = [];
+        $occupancyReports = [];
+        $rentRollReports = [];
+        $incomeReports = [];
+
+        $allTenants = Tenant::with(['room', 'tenant_user'])
+            ->where('owner', $auth->id)->get();
+
+        foreach($allTenants as $at) {
+            $tenant = (object) $at->tenant_user;
+            $room = (object) $at->room;
 
 
+            array_push($tenantReports, [
+                'name' => $tenant->name,
+                'contact' => $tenant->phone_number,
+                'room' => $room->name,
+                'fee' => $room->fee,
+                'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
+                'move_out' => Carbon::parse($at->move_out)->isoFormat('LL'),
+            ]);
+
+            if(!!$at->is_active) {
+                array_push($occupancyReports, [
+                    'room' => $room->name,
+                    'name' => $tenant->name,
+                    'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
+                    'status' => $at->status,
+                ]);
+            }
+
+            $billings = Billing::where('tenant_id', $at->id)->get();
+            $totalRentCollected = 0;
+            $otherCharges = 0;
+
+            foreach($billings as $billing) {
+                if(!!$billing->is_paid) {
+                    if($billing->description == 'monthly_fee' || $billing->description == 'advance_and_deposit_fee') {
+                        $totalRentCollected += $billing->amount;
+                    }
+
+                    if($billing->description != 'monthly_fee' && $billing->description != 'advance_and_deposit_fee') {
+                        $otherCharges += $billing->amount;
+                    }
+                }
+            }
+
+            array_push($rentRollReports, [
+                'room' => $room->name,
+                'name' => $tenant->name,
+                'fee' => $room->fee,
+                'totalRentCollected' => $totalRentCollected,
+            ]);
+
+            array_push($incomeReports, [
+                'room' => $room->name,
+                'name' => $at->move_in,
+                'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
+                'total_rent_collected' => $totalRentCollected,
+                'other_charges' => $otherCharges,
+                'total_income' => $totalRentCollected + $otherCharges,
+            ]);
+
+            $complaints = TenantComplaint::where('tenant_id', $at->id)->get();
+
+            foreach($complaints as $complaint) {
+                array_push($requestReports, [
+                    'subject' => $complaint->subject,
+                    'complain' => $complaint->complain,
+                    'status' => $complaint->status,
+                    'request_date' => Carbon::parse($complaint->created_at)->isoFormat('LL'),
+                    'date_finish' => $complaint->status == 'finish' ? Carbon::parse($complaint->updated_at)->isoFormat('LL') : null,
+                ]);
+            }
         }
 
         return Inertia::render('Owner/Report', [
             'dorms' => $dorms,
-            'dormReports' => $dormReports
+            'dormReports' => $dormReports,
+            'reservationReports' => $reservationReports,
+            'tenantReports' => $tenantReports,
+            'requestReports' => $requestReports,
+            'occupancyReports' => $occupancyReports,
+            'rentRollReports' => $rentRollReports,
+            'incomeReports' => $incomeReports
         ]);
     }
 
