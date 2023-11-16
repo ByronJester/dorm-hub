@@ -148,7 +148,7 @@ export default {
                     <div class="flex items-center justify-start">
                         <button
                             @click="clickShowSideBar()"
-                            class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                            class="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
                         >
                             <span class="sr-only">Open sidebar</span>
                             <svg
@@ -358,7 +358,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -390,7 +390,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -417,7 +417,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -445,7 +445,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -471,20 +471,12 @@ export default {
                             :href="route('admin.refund')"
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 22 21"
-                            >
-                                <path
-                                    d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"
-                                />
-                                <path
-                                    d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"
-                                />
-                            </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" height="20" width="40" version="1.1" id="Capa_1" viewBox="0 0 492.153 492.153" xml:space="preserve">
+                                        <g>
+                                            <path d="M426.638,87.91c-42.247-42.247-98.418-65.514-158.166-65.514c-5.799,0-10.5,4.701-10.5,10.5v56.531   c0,5.799,4.701,10.5,10.5,10.5c80.587,0,146.148,65.561,146.148,146.147c0,80.587-65.561,146.148-146.148,146.148   c-73.915,0-135.549-54.985-144.913-127.088h36.91c0.008,0,0.013,0.001,0.02,0c5.799,0,10.5-4.701,10.5-10.5   c0-2.887-1.165-5.502-3.051-7.4l-75.345-84.401c-1.993-2.232-4.842-3.508-7.833-3.508c-0.017,0-0.034,0-0.05,0   c-3.009,0.015-5.867,1.319-7.85,3.583L2.6,247.719c-2.714,3.101-3.365,7.502-1.663,11.254c1.702,3.753,5.442,6.163,9.563,6.163   h35.11c4.553,54.02,28.36,104.134,67.69,142.033c41.883,40.359,96.99,62.587,155.171,62.587   c59.748,0,115.919-23.267,158.166-65.515c42.248-42.248,65.515-98.419,65.515-158.166   C492.153,186.328,468.886,130.157,426.638,87.91z M268.472,448.756c-109.242,0-198.191-85.45-202.501-194.535   c-0.223-5.633-4.854-10.085-10.492-10.085H33.65l51.186-58.457l52.185,58.457H112.06c-2.883,0-5.639,1.186-7.621,3.278   c-1.983,2.092-3.018,4.908-2.863,7.786c4.774,88.611,78.084,158.023,166.897,158.023c92.166,0,167.148-74.982,167.148-167.148   c0-88.639-69.355-161.384-156.648-166.821V43.665c106.9,5.479,192.181,94.173,192.181,202.41   C471.153,357.834,380.231,448.756,268.472,448.756z"/>
+                                            <path d="M255.41,255.643v79.405h-25.332c-5.799,0-10.5,4.701-10.5,10.5s4.701,10.5,10.5,10.5h25.332v13.028   c0,5.799,4.701,10.5,10.5,10.5c5.799,0,10.5-4.701,10.5-10.5v-13.964c28.222-4.984,49.733-29.669,49.733-59.3   c0-29.63-21.512-54.314-49.733-59.299v-79.407l22.119-0.001c5.799,0,10.5-4.701,10.5-10.5c0-5.799-4.701-10.5-10.5-10.5   l-22.119,0.001v-13.03c0-5.799-4.701-10.5-10.5-10.5c-5.799,0-10.5,4.701-10.5,10.5v13.965c-28.224,4.985-49.736,29.67-49.736,59.3   C205.674,225.973,227.186,250.658,255.41,255.643z M305.143,295.813c0,17.998-12.184,33.193-28.733,37.797v-75.593   C292.959,262.62,305.143,277.816,305.143,295.813z M255.41,158.545v75.595c-16.551-4.604-28.736-19.8-28.736-37.799   C226.674,178.344,238.859,163.149,255.41,158.545z"/>
+                                        </g>
+                                        </svg>
                             <span class="ml-1">Refund Request</span>
                         </a>
                     </li>
@@ -505,7 +497,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -525,7 +517,7 @@ export default {
                             @click="toggleDropDown()"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -636,7 +628,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -668,7 +660,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -695,7 +687,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -726,7 +718,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -756,15 +748,17 @@ export default {
                             :href="route('owner.manage.reservation')"
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                viewBox="0 0 384 512"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H544c53 0 96-43 96-96V96c0-53-43-96-96-96H96zM64 96c0-17.7 14.3-32 32-32H544c17.7 0 32 14.3 32 32V416c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V96zm159.8 80a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM96 309.3c0 14.7 11.9 26.7 26.7 26.7h56.1c8-34.1 32.8-61.7 65.2-73.6c-7.5-4.1-16.2-6.4-25.3-6.4H149.3C119.9 256 96 279.9 96 309.3zM461.2 336h56.1c14.7 0 26.7-11.9 26.7-26.7c0-29.5-23.9-53.3-53.3-53.3H421.3c-9.2 0-17.8 2.3-25.3 6.4c32.4 11.9 57.2 39.5 65.2 73.6zM372 289c-3.9-.7-7.9-1-12-1H280c-4.1 0-8.1 .3-12 1c-26 4.4-47.3 22.7-55.9 47c-2.7 7.5-4.1 15.6-4.1 24c0 13.3 10.7 24 24 24H408c13.3 0 24-10.7 24-24c0-8.4-1.4-16.5-4.1-24c-8.6-24.3-29.9-42.6-55.9-47zM512 176a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM320 256a64 64 0 1 0 0-128 64 64 0 1 0 0 128z"
-                                />
-                            </svg>
+                        <svg class=" ml-2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="30" height="25" viewBox="0 0 256 256" xml:space="preserve">     
+                                    <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10;  opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
+                                        <path d="M 83.247 13.625 h -9.953 V 9.819 c 0 -2.105 -1.713 -3.818 -3.818 -3.818 h -3.997 c -2.104 0 -3.817 1.713 -3.817 3.818 v 3.806 H 50.816 V 9.819 c 0 -2.105 -1.713 -3.818 -3.817 -3.818 h -3.998 c -2.105 0 -3.818 1.713 -3.818 3.818 v 3.806 H 28.339 V 9.819 c 0 -2.105 -1.713 -3.818 -3.818 -3.818 h -3.997 c -2.105 0 -3.818 1.713 -3.818 3.818 v 3.806 H 6.753 C 3.029 13.625 0 16.654 0 20.378 v 56.868 c 0 3.724 3.029 6.753 6.753 6.753 h 76.494 c 3.724 0 6.753 -3.029 6.753 -6.753 V 20.378 C 90 16.654 86.971 13.625 83.247 13.625 z M 83.247 79.999 H 6.753 C 5.235 79.999 4 78.764 4 77.246 V 31.472 h 82 v 45.774 C 86 78.764 84.765 79.999 83.247 79.999 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 22.81 36.583 h -8.392 c -1.973 0 -3.579 1.605 -3.579 3.579 v 8.392 c 0 1.974 1.605 3.579 3.579 3.579 h 8.392 c 1.973 0 3.579 -1.605 3.579 -3.579 v -8.392 C 26.388 38.189 24.783 36.583 22.81 36.583 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 49.196 36.583 h -8.392 c -1.973 0 -3.579 1.605 -3.579 3.579 v 8.392 c 0 1.974 1.605 3.579 3.579 3.579 h 8.392 c 1.973 0 3.578 -1.605 3.578 -3.579 v -8.392 C 52.774 38.189 51.169 36.583 49.196 36.583 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 75.582 36.583 H 67.19 c -1.973 0 -3.578 1.605 -3.578 3.579 v 8.392 c 0 1.974 1.605 3.579 3.578 3.579 h 8.392 c 1.974 0 3.579 -1.605 3.579 -3.579 v -8.392 C 79.161 38.189 77.556 36.583 75.582 36.583 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 22.81 59.061 h -8.392 c -1.973 0 -3.579 1.605 -3.579 3.579 v 8.392 c 0 1.973 1.605 3.578 3.579 3.578 h 8.392 c 1.973 0 3.579 -1.605 3.579 -3.578 V 62.64 C 26.388 60.666 24.783 59.061 22.81 59.061 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 75.582 59.061 H 67.19 c -1.973 0 -3.578 1.605 -3.578 3.579 v 8.392 c 0 1.973 1.605 3.578 3.578 3.578 h 8.392 c 1.974 0 3.579 -1.605 3.579 -3.578 V 62.64 C 79.161 60.666 77.556 59.061 75.582 59.061 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                        <path d="M 51.272 62.67 c -0.908 -0.631 -2.153 -0.408 -2.784 0.499 l -4.409 6.336 l -2.459 -2.458 c -0.781 -0.781 -2.047 -0.781 -2.829 0 c -0.781 0.781 -0.781 2.048 0 2.828 l 4.149 4.148 c 0.377 0.377 0.886 0.586 1.414 0.586 c 0.059 0 0.118 -0.003 0.177 -0.008 c 0.59 -0.053 1.126 -0.363 1.464 -0.85 l 5.774 -8.298 C 52.402 64.547 52.179 63.301 51.272 62.67 z" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" transform=" matrix(1 0 0 1 0 0) " stroke-linecap="round"/>
+                                    </g>
+                                    </svg>
                             <span class="ml-1">Reservation</span>
                         </a>
                     </li>
@@ -784,7 +778,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -811,7 +805,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -838,7 +832,7 @@ export default {
                             class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -864,27 +858,32 @@ export default {
             class="mx-auto p-4 lg:ml-64 md:flex md:items-center md:justify-between"
         >
             <span
-                class="text-sm text-gray-500 sm:text-center dark:text-gray-400"
+                class="text-sm  sm:text-center dark:text-gray-400"
                 >© 2023
                 <a href="https://dormhub.onrender.com/" class="hover:underline"
                     >Dormhub™</a
                 >. All Rights Reserved.</span
             >
             <ul
-                class="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0"
+                class="flex flex-wrap items-center mt-3 gap-4 text-sm font-medium  dark:text-gray-400 sm:mt-0"
             >
                 <li>
-                    <a :href="route('about.us')" class="mr-4 hover:underline md:mr-6"
+                    <a :href="route('about.us')" class="hover:underline md:mr-6"
                         >About us</a
                     >
                 </li>
                 <li>
-                    <a :href="route('privacy.policy')" class="mr-4 hover:underline md:mr-6"
+                    <a :href="route('privacy.policy')" class="hover:underline md:mr-6"
                         >Privacy Policy</a
                     >
                 </li>
                 <li>
                     <a :href="route('contact.us')" class="hover:underline">Contact us</a>
+                </li>
+                <li>
+                    <a :href="route('user.help')" class=" hover:underline md:mr-6"
+                        >Help</a
+                    >
                 </li>
             </ul>
         </div>

@@ -13,14 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_income_informations', function (Blueprint $table) {
+        Schema::create('table_help', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->unsigned()->comment('Foreign key from table users');
-            $table->string('source_of_income', 100);
-            $table->string('monthly_income', 100);
-            $table->string('monthly_expenses', 100)->nullable();
-            $table->string('proof', 100);
-
+            $table->string('question');
+            $table->text('answer');
             $table->timestamps();
         });
     }
@@ -32,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_income_informations');
+        Schema::dropIfExists('table_help');
     }
 };

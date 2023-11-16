@@ -10,11 +10,136 @@ import {
     startOfYear,
     subMonths,
 } from "date-fns";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default {
     component: {
         VueDatePicker,
     },
+    
+    methods: {
+        exportToPDF() {
+            const doc = new jsPDF();
+
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Reservation Records", 15, 60)
+
+            const margin = 65;
+
+            // Create your data array with header and rows
+            const tableData = [this.header].concat(
+                this.slicedRows.map((row) => [
+                        
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+            doc.save("table-data.pdf");
+        },
+            printTable() {
+            const doc = new jsPDF();
+
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Rent Roll Report", 15, 60)
+
+            const margin = 65;
+
+            // Create your data array with header and rows
+            const tableData = [this.headersReserve].concat(
+                this.slicedRows.map((row) => [
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+                doc.autoPrint();
+
+                // Save the PDF to a temporary file
+                const blob = doc.output("blob");
+                const url = URL.createObjectURL(blob);
+                const iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                iframe.src = url;
+                document.body.appendChild(iframe);
+
+                // Wait for the PDF to be displayed in the iframe
+                iframe.onload = function () {
+                    iframe.contentWindow.print();
+                };
+            },
+        },
     setup() {
         const date = ref();
         const options = ["M.D.R Apartment", "Dorm2"];
@@ -95,6 +220,8 @@ export default {
         </div>
     </div>
     <div class="w-[278px] mt-5">
+    <div class="flex flex-row gap-2 items-center justify-center">
+        <div> 
         <p class="text-sm">Date Range:</p>
         <VueDatePicker
             v-model="date"
@@ -104,7 +231,7 @@ export default {
         >
             <template #preset-date-range-button="{ label, value, presetDate }">
                 <span
-                    class=""
+                    class="px-3"
                     role="button"
                     :tabindex="0"
                     @click="presetDate(value)"
@@ -116,9 +243,12 @@ export default {
             </template>
         </VueDatePicker>
     </div>
-    <!--Button-->
-    <div class="mt-5">
-        <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+       
+        <div class="mt-5">
+            <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+        </div>
+    </div>
+        
     </div>
     <div class="w-full mb-5 mt-5">
                     <div
@@ -126,35 +256,23 @@ export default {
                     >
                         <div class="rounded-t mb-0 px-4 py-3 border-0">
                             <div class="flex flex-wrap items-center">
+                                <p class="text-xl mb-5 font-bold">Rent Roll Records</p>
                                 <div
                                     class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
                                 >
+                                
                                 <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    <div class="flex flex-row items-center gap-2">
-                                        <p class="text-sm font-bold">Show</p>
-                                        <select
-                                            id="subject"
-                                            class="block w-16 px-5 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        >
-                                            <option v-for="option in numoptions" :key="option">
-                                                {{ option }}
-                                            </option>
-                                        </select>
-                                        <p class="text-sm font-bold">entries</p>
-                                    </div>
                                     <div class="flex flex-row gap-2">
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Copy
-                                    </button>
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Excel
-                                    </button>
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        PDF
-                                    </button>
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Print
-                                    </button>
+                                        <button 
+                                                @click="exportToPDF()"
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button
+                                                @click="printTable()"
+                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
                                     </div>
                                 </div>
                                     <form class="flex items-center">
@@ -192,27 +310,6 @@ export default {
                                                 required
                                             />
                                         </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
                                     </form>
                                 </div>
                             </div>

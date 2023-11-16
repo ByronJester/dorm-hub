@@ -148,6 +148,44 @@ export default {
                                         />
                                     </svg>
                                 </span>
+                                <p class="text-xl">Help Page</p>
+                            </div>
+                            <hr class="my-3" />
+                            <div class="flex flex-col gap-1 text-gray-400 ml-3">
+                                <p>
+                                    Help Page serves as your go-to resource for understanding and addressing any disruptions in our services. Explore this page to stay informed about scheduled maintenance, system updates, and troubleshooting tips, ensuring a seamless and reliable user experience on our platform.
+                                </p>
+                            </div>
+                            <div class="w-full mt-3">
+                                <a
+                                    class="border-[2px] border-orange-400 text-orange-400 px-5 py-1 rounded-md float-right"
+                                    :href="route('help.edit')"
+                                >
+                                    Edit
+                                </a>
+                            </div>
+                        </div>
+                        <div
+                            class="relative flex flex-col p-5 rounded-xl card-style-boxshadows group overflow-hidden shadow-[rgba(50,_50,_105,_0.15)_0px_2px_5px_0px,_rgba(0,_0,_0,_0.05)_0px_1px_1px_0px]"
+                        >
+                            <div
+                                class="w-full flex flex-row items-center gap-5"
+                            >
+                                <span>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        fill="currentColor"
+                                        class="bi bi-bookmark-star-fill"
+                                        viewBox="0 0 16 16"
+                                    >
+                                        <path
+                                            fill-rule="evenodd"
+                                            d="M2 15.5V2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.74.439L8 13.069l-5.26 2.87A.5.5 0 0 1 2 15.5zM8.16 4.1a.178.178 0 0 0-.32 0l-.634 1.285a.178.178 0 0 1-.134.098l-1.42.206a.178.178 0 0 0-.098.303L6.58 6.993c.042.041.061.1.051.158L6.39 8.565a.178.178 0 0 0 .258.187l1.27-.668a.178.178 0 0 1 .165 0l1.27.668a.178.178 0 0 0 .257-.187L9.368 7.15a.178.178 0 0 1 .05-.158l1.028-1.001a.178.178 0 0 0-.098-.303l-1.42-.206a.178.178 0 0 1-.134-.098L8.16 4.1z"
+                                        />
+                                    </svg>
+                                </span>
                                 <p class="text-xl">Privacy Policy</p>
                             </div>
                             <hr class="my-3" />

@@ -10,11 +10,136 @@ import {
     startOfYear,
     subMonths,
 } from "date-fns";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default {
     component: {
         VueDatePicker,
     },
+    
+    methods: {
+        exportToPDF() {
+            const doc = new jsPDF();
+
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Reservation Records", 15, 60)
+
+            const margin = 65;
+
+            // Create your data array with header and rows
+            const tableData = [this.header].concat(
+                this.slicedRows.map((row) => [
+                        
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+            doc.save("table-data.pdf");
+        },
+            printTable() {
+            const doc = new jsPDF();
+
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Tenant Report", 15, 60)
+
+            const margin = 65;
+
+            // Create your data array with header and rows
+            const tableData = [this.headersReserve].concat(
+                this.slicedRows.map((row) => [
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+                doc.autoPrint();
+
+                // Save the PDF to a temporary file
+                const blob = doc.output("blob");
+                const url = URL.createObjectURL(blob);
+                const iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                iframe.src = url;
+                document.body.appendChild(iframe);
+
+                // Wait for the PDF to be displayed in the iframe
+                iframe.onload = function () {
+                    iframe.contentWindow.print();
+                };
+            },
+        },
     setup() {
         const date = ref();
         const options = ["M.D.R Apartment", "Dorm2"];
@@ -93,6 +218,8 @@ export default {
         </div>
     </div>
     <div class="w-[278px] mt-5">
+    <div class="flex flex-row gap-2 items-center justify-center">
+        <div> 
         <p class="text-sm">Date Range:</p>
         <VueDatePicker
             v-model="date"
@@ -102,7 +229,7 @@ export default {
         >
             <template #preset-date-range-button="{ label, value, presetDate }">
                 <span
-                    class=""
+                    class="px-3"
                     role="button"
                     :tabindex="0"
                     @click="presetDate(value)"
@@ -114,9 +241,12 @@ export default {
             </template>
         </VueDatePicker>
     </div>
-    <!--Button-->
-    <div class="mt-5">
-        <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+       
+        <div class="mt-5">
+            <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+        </div>
+    </div>
+        
     </div>
     <div class="w-full mb-5 mt-5">
                     <div

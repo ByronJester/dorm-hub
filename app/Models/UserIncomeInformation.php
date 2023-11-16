@@ -12,7 +12,7 @@ class UserIncomeInformation extends Model
     protected $table = 'user_income_informations';
 
     protected $fillable = [
-        'source_of_income', 'monthly_icome', 'proof'
+        'source_of_income', 'monthly_icome', 'proof', 'monthly_expenses'
     ];
 
     public function getProofAttribute($value)

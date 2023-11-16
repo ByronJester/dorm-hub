@@ -171,6 +171,12 @@ class SharedController extends Controller
         ]);
     }
 
+    public function help()
+    {
+        return Inertia::render('Help', [
+        ]);
+    }
+
     public function autoBill()
     {
         $tenants = Tenant::where('auto_bill', true)->get();

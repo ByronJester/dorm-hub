@@ -122,6 +122,51 @@ export default {
                     })
             });
         }
+        
+        const searchQueryReserve = ref("");
+            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
+            const currentPageReserve = ref(1); // Initialize to the first page
+
+            
+            const filteredDataReserve = computed(() => {
+                const query = searchQueryReserve.value.toLowerCase().trim();
+                if (!query) {
+                    return tenantsData; // Return all data if the search query is empty.
+                }
+
+                return dataReserve.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.dorm_name.toLowerCase().includes(query) ||
+                        row.room_name.toLowerCase().includes(query) ||
+                        row.tenant_name.toLowerCase().includes(query)
+                    );
+                });
+            });
+
+            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
+
+            const slicedRows = computed(() => {
+                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
+                const endIndex = startIndex + itemsPerPageReserve;
+
+                const slicedAndSorted = filteredDataReserve.value
+                    .slice(startIndex, endIndex)
+                    .sort((a, b) => {
+                        const dateA = new Date(a.created_at);
+                        const dateB = new Date(b.created_at);
+                        return dateB - dateA;
+                    });
+
+                return slicedAndSorted;
+                });
+
+            const changePageReserve = (pageChange) => {
+                const newPage = currentPageReserve.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
+                    currentPageReserve.value = newPage;
+                }
+            };
 
         return {
             date,
@@ -132,7 +177,10 @@ export default {
             back,
             objectRemoveKey,
             removeUnderscoreAndCapitalizeAfterSpace,
-            markAsPaid
+            markAsPaid,
+            totalPagesReserve,
+            currentPageReserve,
+            changePageReserve
         };
     },
 };
@@ -240,16 +288,6 @@ export default {
                                     class="mb-3 sm:flex-row flex-col flex gap-3"
                                 >
                                     <div class="flex flex-row gap-2">
-                                        <button
-                                            class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white"
-                                        >
-                                            Copy
-                                        </button>
-                                        <button
-                                            class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white"
-                                        >
-                                            Excel
-                                        </button>
                                         <button
                                             class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white"
                                         >
@@ -367,51 +405,39 @@ export default {
                             </tbody>
                         </table>
                         <div
-                            class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                        >
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
                             <div
-                                class="justify-between items-center block md:flex"
+                                class="flex items-center justify-start flex-wrap mb-3"
                             >
-                                <div
-                                    class="flex items-center justify-center mb-6 md:mb-0"
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    <div
-                                        class="flex items-center justify-start flex-wrap -mb-3"
-                                    >
-                                        <button
-                                            class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                            type="button"
-                                        >
-                                            <!----><span class="px-2"
-                                                >1</span
-                                            ></button
-                                        ><button
-                                            class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                            type="button"
-                                        >
-                                            <!----><span class="px-2"
-                                                >2</span
-                                            ></button
-                                        ><button
-                                            class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                            type="button"
-                                        >
-                                            <!----><span class="px-2"
-                                                >3</span
-                                            ></button
-                                        ><button
-                                            class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                            type="button"
-                                        >
-                                            <!----><span class="px-2">4</span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="flex items-center justify-center">
-                                    <small>Page 1 of 4</small>
-                                </div>
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
                             </div>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>

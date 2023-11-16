@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -10,11 +10,135 @@ import {
     startOfYear,
     subMonths,
 } from "date-fns";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default {
     component: {
         VueDatePicker,
     },
+    methods: {
+        exportToPDF() {
+            const doc = new jsPDF();
+
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Reservation Records", 15, 60)
+
+            const margin = 65;
+
+            // Create your data array with header and rows
+            const tableData = [this.header].concat(
+                this.slicedRows.map((row) => [
+                        
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+            doc.save("table-data.pdf");
+        },
+            printTable() {
+            const doc = new jsPDF();
+
+            const page = usePage();
+            const contacts = page.props.contact;
+            const currentDate = new Date();
+            const logo = "/images/logo.png";
+            const dateString = currentDate.toLocaleDateString();
+            const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase
+            const timestamp = `Export Date: ${dateString} ${timeString}`;
+            const emails = contacts.email;
+            const phone = contacts.phone;
+            const facebook = contacts.facebook;
+            const ig = `Ig: ${contacts.ig}`;
+            const address =  contacts.address;
+            
+           
+        
+            doc.addImage(logo, 'PNG', 141, 10, 55, 13);
+            doc.setFontSize(10);
+            doc.text(emails, 150, 30)
+            doc.setFontSize(10);
+            doc.text(phone, 175, 36)
+            doc.setFontSize(10);
+            doc.text(facebook, 159, 41)
+            doc.setFontSize(10);
+            doc.text(ig, 174, 46)
+            doc.setFontSize(10);
+            doc.text(address, 146, 52)
+            doc.setFontSize(10);
+            doc.text(timestamp, 135, 60);
+            doc.setFontSize(15);
+            doc.text("Reservation Records", 15, 60)
+
+            const margin = 65;
+
+            // Create your data array with header and rows
+            const tableData = [this.headersReserve].concat(
+                this.slicedRows.map((row) => [
+                ])
+            );
+
+            // Generate the table in the PDF
+            doc.autoTable({
+                head: [tableData[0]],
+                body: tableData.slice(1),
+                startY: margin,
+                theme: 'grid',
+                styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
+            });
+
+                doc.autoPrint();
+
+                // Save the PDF to a temporary file
+                const blob = doc.output("blob");
+                const url = URL.createObjectURL(blob);
+                const iframe = document.createElement("iframe");
+                iframe.style.display = "none";
+                iframe.src = url;
+                document.body.appendChild(iframe);
+
+                // Wait for the PDF to be displayed in the iframe
+                iframe.onload = function () {
+                    iframe.contentWindow.print();
+                };
+            },
+        },
     setup() {
         const page = usePage();
         const user = page.props.auth.user;
@@ -61,13 +185,63 @@ export default {
                 router.get(route("landing.page"));
             }
         };
+
+        
+        const searchQueryReserve = ref("");
+            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
+            const currentPageReserve = ref(1); // Initialize to the first page
+
+            
+            const filteredDataReserve = computed(() => {
+                const query = searchQueryReserve.value.toLowerCase().trim();
+                if (!query) {
+                    return data; // Return all data if the search query is empty.
+                }
+
+                return data.filter((row) => {
+                    // Modify the conditions as needed for your specific search criteria.
+                    return (
+                        row.dorm_name.toLowerCase().includes(query) ||
+                        row.room_name.toLowerCase().includes(query) ||
+                        row.tenant_name.toLowerCase().includes(query)
+                    );
+                });
+            });
+
+            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
+
+            const slicedRows = computed(() => {
+                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
+                const endIndex = startIndex + itemsPerPageReserve;
+
+                const slicedAndSorted = filteredDataReserve.value
+                    .slice(startIndex, endIndex)
+                    .sort((a, b) => {
+                        const dateA = new Date(a.created_at);
+                        const dateB = new Date(b.created_at);
+                        return dateB - dateA;
+                    });
+
+                return slicedAndSorted;
+                });
+
+            const changePageReserve = (pageChange) => {
+                const newPage = currentPageReserve.value + pageChange;
+                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
+                    currentPageReserve.value = newPage;
+                }
+            };
         return {
+            data,
             date,
             presetDates,
             options,
             numoptions,
             header,
-            back
+            back,
+            totalPagesReserve,
+            changePageReserve,
+            currentPageReserve,
         };
     },
 };
@@ -95,6 +269,8 @@ export default {
         </div>
     </div>
     <div class="w-[278px] mt-5">
+    <div class="flex flex-row gap-2 items-center justify-center">
+        <div> 
         <p class="text-sm">Date Range:</p>
         <VueDatePicker
             v-model="date"
@@ -104,7 +280,7 @@ export default {
         >
             <template #preset-date-range-button="{ label, value, presetDate }">
                 <span
-                    class=""
+                    class="px-3"
                     role="button"
                     :tabindex="0"
                     @click="presetDate(value)"
@@ -116,45 +292,38 @@ export default {
             </template>
         </VueDatePicker>
     </div>
-    <!--Button-->
-    <div class="mt-5">
-        <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+       
+        <div class="mt-5">
+            <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
+        </div>
     </div>
+        
+    </div>
+    <!--Button-->
+    
     <div class="w-full mb-5 mt-5">
                     <div
                         class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
                     >
                         <div class="rounded-t mb-0 px-4 py-3 border-0">
                             <div class="flex flex-wrap items-center">
+                                <p class="text-xl mb-5 font-bold">Income Records</p>
                                 <div
                                     class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
                                 >
+                                
                                 <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    <div class="flex flex-row items-center gap-2">
-                                        <p class="text-sm font-bold">Show</p>
-                                        <select
-                                            id="subject"
-                                            class="block w-16 px-5 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        >
-                                            <option v-for="option in numoptions" :key="option">
-                                                {{ option }}
-                                            </option>
-                                        </select>
-                                        <p class="text-sm font-bold">entries</p>
-                                    </div>
                                     <div class="flex flex-row gap-2">
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Copy
-                                    </button>
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Excel
-                                    </button>
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        PDF
-                                    </button>
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Print
-                                    </button>
+                                        <button 
+                                                @click="exportToPDF()"
+                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    PDF
+                                                </button>
+                                                <button
+                                                @click="printTable()"
+                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
+                                                    Print
+                                                </button>    
                                     </div>
                                 </div>
                                     <form class="flex items-center">
@@ -192,27 +361,6 @@ export default {
                                                 required
                                             />
                                         </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -249,55 +397,39 @@ export default {
                                 </tbody>    
                             </table>
                             <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
+                >
+                    <div class="block w-full overflow-x-auto">
+                        <div class="justify-between items-center block md:flex">
+                            <div
+                                class="flex items-center justify-start flex-wrap mb-3"
                             >
-                                <div
-                                    class="justify-between items-center block md:flex"
+                                <button
+                                    @click="changePageReserve(-1)"
+                                    :disabled="currentPageReserve == 1"
+                                    :class="{
+                                        hidden: currentPageReserve == 1,
+                                    }"
+                                    type="button"
+                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 >
-                                    <div
-                                        class="flex items-center justify-center mb-6 md:mb-0"
-                                    >
-                                        <div
-                                            class="flex items-center justify-start flex-wrap -mb-3"
-                                        >
-                                            <button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >1</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >2</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >3</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >4</span
-                                                >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <small>Page 1 of 4</small>
-                                    </div>
-                                </div>
+                                    Previous
+                                </button>
+                                <button
+                                    @click="changePageReserve(1)"
+                                    :disabled="currentPageReserve === totalPagesReserve"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                >
+                                    Next
+                                </button>
                             </div>
+                            <div class="flex items-center justify-center">
+                                <small>Page {{ currentPageReserve }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                         </div>
                     </div>
                 </div>

@@ -13,14 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_income_informations', function (Blueprint $table) {
+        Schema::create('backup_and_restore', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->unsigned()->comment('Foreign key from table users');
-            $table->string('source_of_income', 100);
-            $table->string('monthly_income', 100);
-            $table->string('monthly_expenses', 100)->nullable();
-            $table->string('proof', 100);
-
+            $table->string('user_id'); // Assuming you want to record the user who performed the operation
+            $table->enum('operation_type', ['backup', 'restore']);
+            $table->timestamp('operation_date')->default(now());
+            // Add other columns as needed
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_income_informations');
+        Schema::dropIfExists('backup_and_restore');
     }
 };

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\{
     ProfileController, AdminController, OwnerController, TenantController, SharedController, RegisteredUserController, AboutUsController, ContactUsController,
-    PrivacyPolicyController, TermsUserController, HeroController
+    PrivacyPolicyController, TermsUserController, HeroController, HelpController
 };
 
 use Illuminate\Foundation\Application;
@@ -103,6 +103,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/hero/edit', [HeroController::class, 'edit'])->name('hero.edit');
         Route::patch('/hero/update', [HeroController::class, 'update'])->name('hero.update');
         //
+        Route::get('/help/edit', [HelpController::class, 'editPage'])->name('help.edit');
+        //
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
         Route::get('/refund', [AdminController::class, 'refund'])->name('admin.refund');
         Route::get('/tenants', [AdminController::class, 'tenantList'])->name('admin.tenants');
@@ -143,6 +145,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/complain/change-status/{id}', [OwnerController::class, 'changeComplainStatus'])->name('owner.complain.change.status');
         Route::post('/refund/{status}', [OwnerController::class, 'refundChangeStatus'])->name('owner.refund.change.status');
         Route::post('/approve/move-out', [OwnerController::class, 'approveMoveOut'])->name('owner.move.out.tenant');
+        Route::post('/tenant/notice-termination', [OwnerController::class, 'noticeTermination'])->name('tenant.notice.termination');
+        Route::post('/tenant/remove', [OwnerController::class, 'removeTenant'])->name('tenant.remove');
+        Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
     });
 
     Route::prefix('tenant')->group(function () {
@@ -181,5 +186,6 @@ Route::get('/aboutUs', [SharedController::class, 'show'])->name('about.us');
 Route::get('/policy', [SharedController::class, 'showPolicy'])->name('privacy.policy');
 Route::get('/contactUs', [SharedController::class, 'showContact'])->name('contact.us');
 Route::get('/view-dorm/{dorm_id}', [SharedController::class, 'viewDorm'])->name('view.dorm');
+Route::get('/FAQs', [SharedController::class, 'help'])->name('user.help');
 
 require __DIR__.'/auth.php';

@@ -188,6 +188,7 @@ export default {
         }
 
         const rooms = page.props.dorm.rooms
+        const dorm = page.props.dorm
         const totalRooms = rooms.length
         const availableRooms = rooms.filter(x => { return !!x.is_available })
         const unAvailableRooms = rooms.filter(x => { return !x.is_available })
@@ -296,6 +297,7 @@ export default {
 
         return {
             props,
+            dorm,
             isMobileView,
             room,
             headers,
@@ -353,7 +355,7 @@ export default {
             <h3 class="text-3xl">Manage Room Availability</h3>
         </div>
         <div class="flex items-center justify-start mt-5">
-            <h3 class="text-2xl">Dorm Name</h3>
+            <h3 class="text-2xl">{{ dorm.property_name}}</h3>
         </div>
         <!--Overview-->
         <div
