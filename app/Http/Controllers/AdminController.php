@@ -31,8 +31,17 @@ class AdminController extends Controller
     }
 
     public function dashboard() {
-        return Inertia::render('Admin/Dashboard',[
 
+        $users = User::count();
+        $dorms = Dorm::count();
+        $tenants = Tenant::count();
+        $owners = User::where('user_type', 'owner')->count();
+
+        return Inertia::render('Admin/Dashboard',[
+            'users' => $users,
+            'dorms' => $dorms,
+            'tenants' => $tenants,
+            'owners' => $owners
         ]);
     }
 

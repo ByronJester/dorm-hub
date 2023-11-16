@@ -19,8 +19,6 @@ export default {
 
         const page = usePage();
 
-        console.log(page.props)
-
         const changeActiveReport = (reportName) => {
         // Set the active report and its component based on the selected report name
             if (reportName === 'IncomeReport') {
@@ -41,7 +39,7 @@ export default {
         return{
             activeReport,
             activeReportComponent,
-            changeActiveReport,
+            changeActiveReport
         };
 },
 };
