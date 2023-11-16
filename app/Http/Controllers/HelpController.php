@@ -24,11 +24,14 @@ class HelpController extends Controller
 
         Help::create($validatedData);
 
-        return redirect()->back();
+        return redirect()->route('help.edit')->with('success', 'Added FAQs successfully.');
     }
     
     public function editPage(){
-        return Inertia::render('Admin/EditPage/EditHelp', []);
+        $helps = Help::all();
+        return Inertia::render('Admin/EditPage/EditHelp', [
+            'helps' => $helps,
+        ]);
 
     }
 
@@ -45,10 +48,10 @@ class HelpController extends Controller
             'answer' => 'required',
         ]);
 
-        $help = Help::findOrFail($id);
+        $help = Help::first($id);
         $help->update($validatedData);
 
-        return redirect()->back();
+        return redirect()>route('help.edit')->with('success', 'Updated FAQs successfully.');
     }
 
     public function destroy($id)

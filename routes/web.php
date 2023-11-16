@@ -104,6 +104,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::patch('/hero/update', [HeroController::class, 'update'])->name('hero.update');
         //
         Route::get('/help/edit', [HelpController::class, 'editPage'])->name('help.edit');
+        Route::patch('/admin/help/update/{id}', [HelpController::class, 'update'])->name('help.update');
+        Route::post('/help/add', [HelpController::class, 'store'])->name('help.add');
         //
         Route::get('/dorms', [AdminController::class, 'dormList'])->name('admin.dorms');
         Route::get('/refund', [AdminController::class, 'refund'])->name('admin.refund');
@@ -129,6 +131,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/addDorm', [OwnerController::class, 'addDorm'])->name('owner.addDorm');
+        Route::post('/updateDorm', [OwnerController::class, 'updateDorm'])->name('update.dorm');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
         Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');

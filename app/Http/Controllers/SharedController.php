@@ -8,7 +8,8 @@ use App\Models\{
     Dorm, Notification, Thread, ThreadMessage, Code ,
     PrivacyPolicy, AboutUs, ContactUs,Room, User,
     // TenantApplication, TenantBilling, TenantPayment,
-    Reservation, Application, Billing, UserPayment, Tenant
+    Reservation, Application, Billing, UserPayment, Tenant,
+    Help
 };
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -173,7 +174,10 @@ class SharedController extends Controller
 
     public function help()
     {
+        $help = Help::all();
+
         return Inertia::render('Help', [
+            'help' => $help
         ]);
     }
 
