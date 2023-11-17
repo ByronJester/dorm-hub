@@ -1774,10 +1774,10 @@ export default {
                                     :disabled="loading || termsAndCondition.length < 2"
                                     :class="{
                                         'cursor-not-allowed': loading || termsAndCondition.length < 2,
-                                        'bg-cyan-500 text-white': !loading && termsAndCondition.length === 2,
+                                        'bg-orange-400 text-white hover:text-gray-700 hover:bg-orange-300': !loading && termsAndCondition.length === 2,
 
                                         }"
-                                    class="text-gray-500 float-right bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                    class="text-gray-500 float-right focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-orange-400 focus:z-10"
                                 >
                                     {{!!loading ? 'Saving...' : 'Submit'}}
                                     <pulse-loader :loading="loading"></pulse-loader>
