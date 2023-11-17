@@ -114,7 +114,7 @@ export default{
             return newObject;
         }
 
-        const headerRefunds=["Refund Description", "Refund Method", "Bank/Wallet Name", "Account number", "Account Name", "Status", "Refund Date", "Action"]
+        const headerRefunds=["Refund Description", "Refund Method", "Bank/Wallet Name", "Account number", "Account Name", 'Amount', "Status", "Refund Date", "Action"]
 
         const refundsData = ref(page.props.refunds.filter(x => {
             return x.dorm_id == selectedDorm.value;
@@ -216,8 +216,6 @@ export default{
             });
         }
 
-        console.log(page.props.moveouts)
-
         const headerMoveOut=["Move-out Subject", "Move-out Description", "Status", "Move-out Date", "Action"]
 
         const moveoutObjectRemoveKey = (object, key = null) => {
@@ -257,6 +255,14 @@ export default{
             });
         }
 
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
         return{
             openAutoBill,
             closeAutoBill,
@@ -282,7 +288,8 @@ export default{
             declineRefund,
             moveoutObjectRemoveKey,
             moveoutData,
-            approveMoveOut
+            approveMoveOut,
+            moneyFormat
         }
     }
 }
@@ -551,7 +558,13 @@ export default{
                                             :key="colIndex"
                                         >
 
-                                            {{ colIndex == 'refund_description' ? removeUnderscoreAndCapitalizeAfterSpace(value) : value }}
+                                            {{
+                                                colIndex == 'refund_description'
+                                                ? removeUnderscoreAndCapitalizeAfterSpace(value)
+                                                : colIndex == 'amount'
+                                                ? moneyFormat(value)
+                                                : value
+                                            }}
 
                                         </td>
 

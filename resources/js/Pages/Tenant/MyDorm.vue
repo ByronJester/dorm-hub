@@ -195,6 +195,14 @@ export default {
             rating.value = r
         }
 
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
         return {
             myApplication,
             headers,
@@ -224,7 +232,8 @@ export default {
             moveOut,
             rateDorm,
             rating,
-            comment
+            comment,
+            moneyFormat
         };
     },
 };
@@ -560,7 +569,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                
+
                 <div v-else>
                     <div v-if="myApplication" class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
                         You have on going application please wait for the dorm owner to approve your application
@@ -568,7 +577,7 @@ export default {
                     <div v-else class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
                         You dont have leasing yet
                     </div>
-                    
+
                 </div>
             </div>
             <!--Complain Modal-->
@@ -743,8 +752,8 @@ export default {
                                     </form>
                                     <div>
                                         <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit Refund Information:</p>
-                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room 101</p>
-                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit: P2,000.00</p>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{myDorm.room.name}}</p>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit: {{moneyFormat(myDorm.room.deposit)}}</p>
                                         <form class="mt-4">
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
                                             <select
