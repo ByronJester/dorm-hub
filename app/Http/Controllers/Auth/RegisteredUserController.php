@@ -57,7 +57,7 @@ class RegisteredUserController extends Controller
         $selfie_picture = Str::random(10) . '_selfie_picture';
 
         $this->uploadFile($request->id_picture, $id_picture);
-        $this->uploadFile($request->id_picture, $selfie_picture);
+        $this->uploadFile($request->selfie_id_picture, $selfie_picture);
 
         $user = User::create([
             'first_name' => $request->first_name,
