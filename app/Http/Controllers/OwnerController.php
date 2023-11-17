@@ -132,6 +132,7 @@ class OwnerController extends Controller
                         'wallet_name' => $refund->wallet_name,
                         'account_number' => $refund->account_number,
                         'account_name' => $refund->account_name,
+                        'amount' => $refund->amount,
                         'status' => $refund->status,
                         'refund_date' => Carbon::parse($refund->created_at)->isoFormat('LL'),
                     ]);
@@ -430,6 +431,23 @@ class OwnerController extends Controller
         $dorm->rooms_total = $request->rooms_total;
         $dorm->terms = $request->terms;
 
+        if($dorm_image = $request->dorm_image) {
+
+            $filename = Str::random(10) . '_dorm_image';
+
+            $uploadFile = $this->uploadFile($dorm_image, $filename);
+            $dorm->dorm_image = $filename;
+        }
+
+        if($business_permit_src = $request->business_permit_image_src) {
+            $business_permit_src = $request->business_permit_image_src;
+
+            $filename = Str::random(10) . '_business_permit' ;
+
+            $uploadFile = $this->uploadFile($business_permit_src, $filename);
+            $dorm->business_permit_image = $filename;
+        }
+
         if ($dorm->save()) {
             $rooms = json_decode($request->rooms);
 
@@ -502,6 +520,8 @@ class OwnerController extends Controller
 
             // Update or create amenities
             $amenities = json_decode($request->amenities);
+
+            Amenity::where('dorm_id', $dorm->id)->delete();
 
             foreach ($amenities as $a) {
                 $amenity = new Amenity;

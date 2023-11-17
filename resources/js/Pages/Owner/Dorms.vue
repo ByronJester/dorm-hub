@@ -386,7 +386,7 @@ export default {
                             );
 
                             setTimeout(function () {
-
+                                location.reload()
                             }, 1500);
                         })
                         .catch((error) => {
