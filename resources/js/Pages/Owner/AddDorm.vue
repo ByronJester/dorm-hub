@@ -39,7 +39,7 @@ export default {
 
         const termsAndCondition = ref([]);
         const data = new FormData();
-        // const errors = ref(null);
+        const errors = ref(null);
         const progress = ref(20);
         var timer = ref(undefined);
         const id = ref(null);
@@ -395,7 +395,7 @@ export default {
                     location.reload();
                 })
                 .catch((error) => {
-                    errors.value = error.response.data.errors;
+                    // errors.value = error.response.data.errors;
                 });
         };
 
