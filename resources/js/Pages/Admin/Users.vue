@@ -109,7 +109,7 @@
         //search function
         const searchQuery = ref('');
         const filteredRows = computed(() => {
-        const query = searchQuery.value.toLowerCase().trim();
+        const query = searchQuery.value?.toLowerCase().trim();
         if (!query) {
             return rows.value; // Return all rows if the search query is empty.
         }
