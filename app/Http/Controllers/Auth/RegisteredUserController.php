@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\{ User, Code };
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -74,6 +74,8 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        Code::where('code', $request->code)->delete();
 
         // Auth::login($user);
 

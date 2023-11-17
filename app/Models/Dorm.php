@@ -16,7 +16,7 @@ class Dorm extends Model
     ];
 
     protected $with = [
-        'user', 'rooms', 'rule', 'amenities', 'common_areas'
+        'user', 'rooms', 'rule', 'amenities', 'common_areas', 'ratings'
     ];
 
     protected $appends = [
@@ -107,5 +107,10 @@ class Dorm extends Model
         $date = Carbon::parse($value);
 
         return $date->isoFormat("LL");
+    }
+
+    public function ratings()
+    {
+        return $this->hasMany(DormRating::class);
     }
 }

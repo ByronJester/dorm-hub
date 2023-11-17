@@ -71,6 +71,12 @@ class User extends Authenticatable
         return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 
+    public function getSelfieIdPictureAttribute($value)
+    {
+        // return \LaravelCloudinary::show($value, []);
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+    }
+
     public function getImageAttribute($value)
     {
         if(!$value) return $value;

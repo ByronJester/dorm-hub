@@ -295,6 +295,11 @@ export default {
             return check;
         }
 
+
+
+        const ratings = dorm.ratings
+        console.log(ratings)
+
         return {
             props,
             dorm,
@@ -325,7 +330,8 @@ export default {
             objectRemoveKey,
             roomStatusFilter,
             roomStatusFilterChange,
-            hasActive
+            hasActive,
+            ratings
         };
     },
 };
@@ -684,6 +690,13 @@ export default {
                                         </div>
                                         </div>
                                     </div>
+                                    <button
+                                    class="text-white float-left bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm p-4"
+                                    @click="messageOwner(props.dorm.user_id)"
+                                    v-if="props.user"
+                                >
+                                    Message
+                                </button>
 
                         </div>
 
@@ -849,7 +862,7 @@ export default {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
+                                    <tr v-for="rating in ratings">
                                         <td
                                             class="align-middle whitespace-nowrap"
                                         >
@@ -868,76 +881,61 @@ export default {
                                                         <p
                                                             class="uppercase font-semibold"
                                                         >
-                                                            Jear
+                                                            {{rating.tenant.name}}
                                                         </p>
                                                         <div
                                                             class="flex flex-row gap-2"
                                                         >
                                                             <div
-                                                                class="text-yellow-500"
+                                                                class=""
                                                             >
                                                                 <i
                                                                     data-alt="1"
                                                                     class="fas fa-star active"
                                                                     title=""
-                                                                    @click="
-                                                                        rating = 1
-                                                                    "
                                                                     :class="{
                                                                         'text-yellow-500':
-                                                                            rating ==
-                                                                            1,
+                                                                        rating.rate ==
+                                                                            1 || rating.rate > 1,
                                                                     }"
                                                                 ></i
                                                                 >&nbsp;<i
                                                                     data-alt="2"
                                                                     class="fas fa-star active"
                                                                     title=""
-                                                                    @click="
-                                                                        rating = 2
-                                                                    "
                                                                     :class="{
                                                                         'text-yellow-500':
-                                                                            rating ==
-                                                                            2,
+                                                                        rating.rate ==
+                                                                            2 || rating.rate > 2,
                                                                     }"
                                                                 ></i
                                                                 >&nbsp;<i
                                                                     data-alt="3"
                                                                     class="fas fa-star active"
                                                                     title=""
-                                                                    @click="
-                                                                        rating = 3
-                                                                    "
                                                                     :class="{
                                                                         'text-yellow-500':
-                                                                            rating ==
-                                                                            3,
+                                                                        rating.rate ==
+                                                                            3 || rating.rate > 3,
                                                                     }"
                                                                 ></i
                                                                 >&nbsp;<i
                                                                     data-alt="4"
                                                                     class="fas fa-star active"
                                                                     title=""
-                                                                    @click="
-                                                                        rating = 4
-                                                                    "
                                                                     :class="{
                                                                         'text-yellow-500':
-                                                                            rating ==
-                                                                            4,
+                                                                        rating.rate ==
+                                                                            4 || rating.rate > 4,
                                                                     }"
                                                                 ></i
                                                                 >&nbsp;<i
                                                                     data-alt="5"
                                                                     class="fas fa-star active"
                                                                     title=""
-                                                                    @click="
-                                                                        rating = 5
-                                                                    "
                                                                     :class="{
                                                                         'text-yellow-500':
-                                                                            rating ==
+                                                                            rating.rate ==
                                                                             5,
                                                                     }"
                                                                 ></i>
@@ -953,11 +951,7 @@ export default {
                                                 <div
                                                     class="mt-2 w-full mx-1 whitespace-normal"
                                                 >
-                                                    Lorem ipsum dolor sit amet,
-                                                    consectetur adipiscing elit,
-                                                    sed do eiusmod tempor
-                                                    incididunt ut labore et
-                                                    dolore magna aliqua.
+                                                    {{ rating.comment }}
                                                 </div>
                                             </div>
                                         </td>

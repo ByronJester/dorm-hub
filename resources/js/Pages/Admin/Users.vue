@@ -109,7 +109,7 @@
         //search function
         const searchQuery = ref('');
         const filteredRows = computed(() => {
-        const query = searchQuery.value.toLowerCase().trim();
+        const query = searchQuery.value?.toLowerCase().trim();
         if (!query) {
             return rows.value; // Return all rows if the search query is empty.
         }
@@ -125,9 +125,12 @@
         });
 
         const id_picture = ref(null)
+        const selfie_id_picture = ref(null)
         const user = ref(null)
         const openTermsModal = (arg) => {
+            console.log(arg)
             id_picture.value = arg.id_picture
+            selfie_id_picture.value = arg.selfie_id_picture
             user.value = arg
 
             var modal = document.getElementById("defaultModal");
@@ -158,7 +161,8 @@
                 closeModal,
                 changeStatus,
                 openTermsModal,
-                closeTermsModal
+                closeTermsModal,
+                selfie_id_picture
             }
         }
     }
@@ -446,7 +450,15 @@
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6">
                                     <div class="w-full mt-5" v-if="id_picture">
+                                        <label> ID Picture</label> <br/>
                                         <img :src="id_picture" alt="id_picture"
+                                            style="width: 100%; height: 250px;"
+                                        >
+                                    </div>
+
+                                    <div class="w-full mt-5" v-if="selfie_id_picture">
+                                        <label> Selfie ID Picture</label> <br/>
+                                        <img :src="selfie_id_picture" alt="selfie_id_picture"
                                             style="width: 100%; height: 250px;"
                                         >
                                     </div>

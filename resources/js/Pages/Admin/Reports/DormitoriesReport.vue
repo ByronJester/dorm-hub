@@ -25,7 +25,7 @@ export default {
 
             // Add a timestamp (current date) to the PDF
             doc.setFontSize(16);
-            doc.text("Income Report", 10, 10); // Title
+            doc.text("Dormitory Report", 10, 10); // Title
             const currentDate = new Date();
             const dateString = currentDate.toLocaleDateString();
             const timeString = currentDate.toLocaleTimeString().toLowerCase(); // Convert to lowercase

@@ -39,7 +39,7 @@ export default {
 
         const termsAndCondition = ref([]);
         const data = new FormData();
-        const errors = ref(null);
+        // const errors = ref(null);
         const progress = ref(20);
         var timer = ref(undefined);
         const id = ref(null);
@@ -352,10 +352,10 @@ export default {
                             }, 1500);
                         })
                         .catch((error) => {
-                            errors.value = error.response.data.errors;
-                            console.log(data);
-                            console.log(error);
-                            loading.value = false;
+                            // errors.value = error.response.data.errors;
+                            // console.log(data);
+                            // console.log(error);
+                            // loading.value = false;
                         });
                 }
             );
