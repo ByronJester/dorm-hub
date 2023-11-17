@@ -186,6 +186,8 @@ export default {
             modal.style.display = "none";
         };
 
+        const isLoadingRegister = ref(false)
+
         const submit = () => {
             if (validateForm()) {
                 axios
@@ -206,6 +208,8 @@ export default {
         };
 
         const confirmSubmit = () => {
+            isLoadingRegister.value = true
+
             form.post(route("user.register"), {
                 onSuccess: () => {
                     location.reload();
@@ -214,6 +218,8 @@ export default {
                         message: "You've registered successfuly",
                         variant: "success",
                     });
+
+                    isLoadingRegister.value = false
                 },
                 onError: (error) => {
                     VsToast.show({
@@ -221,6 +227,8 @@ export default {
                         message: error,
                         variant: "error",
                     });
+
+                    isLoadingRegister.value = false
                 },
             });
         };
@@ -264,7 +272,7 @@ export default {
             id_picture:"",
             selfie_id_picture:"",
             terms:"",
-            
+
         });
 
         const validateForm = () => {
@@ -317,7 +325,7 @@ export default {
             return isValid;
         };
         const errorMessagespassword = ref({
-  
+
             password: "",
             password_length: "",
             password_uppercase: "",
@@ -325,7 +333,7 @@ export default {
             password_number: "",
             password_special: "",
             password_confirmation: "",
-       
+
         });
 
         const passwordTouched = ref(false);
@@ -426,6 +434,7 @@ export default {
             confirmSubmit,
             acceptClose,
             not_approved,
+            isLoadingRegister
         };
     },
 };
@@ -535,6 +544,8 @@ export default {
                                     <div class="w-full mt-5">
                                         <button
                                             class="float-right rounded-md px-4 py-2 bg-cyan-300"
+                                            :disabled="isLoadingRegister"
+                                            :class="{'cursor-not-allowed': isLoadingRegister}"
                                             @click="confirmSubmit()"
                                         >
                                             Submit
@@ -982,9 +993,9 @@ export default {
                                                 >Terms and Condition</a
                                             >
                                         </div>
-                                        
+
                                     </div>
-                                    
+
                                 </div>
                                 <InputError
                                         class="mt-2"
