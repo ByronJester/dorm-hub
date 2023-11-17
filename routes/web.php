@@ -131,7 +131,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
         Route::get('/reports', [OwnerController::class, 'reports'])->name('owner.reports');
         Route::get('/addDorm', [OwnerController::class, 'addDorm'])->name('owner.addDorm');
-        Route::post('/updateDorm', [OwnerController::class, 'updateDorm'])->name('update.dorm');
+        Route::post('/updateDorm/{id}', [OwnerController::class, 'updateDorm'])->name('update.dorm');
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
         Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
@@ -152,7 +152,6 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/notice-termination', [OwnerController::class, 'noticeTermination'])->name('tenant.notice.termination');
         Route::post('/tenant/remove', [OwnerController::class, 'removeTenant'])->name('tenant.remove');
         Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
-        Route::post('/updateDorm', [OwnerController::class, 'updateDorm'])->name('update.dorm');
     });
 
     Route::prefix('tenant')->group(function () {
