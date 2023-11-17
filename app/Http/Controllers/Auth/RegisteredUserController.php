@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\{ User, Code };
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -57,7 +57,7 @@ class RegisteredUserController extends Controller
         $selfie_picture = Str::random(10) . '_selfie_picture';
 
         $this->uploadFile($request->id_picture, $id_picture);
-        $this->uploadFile($request->id_picture, $selfie_picture);
+        $this->uploadFile($request->selfie_id_picture, $selfie_picture);
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -74,6 +74,8 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        Code::where('code', $request->code)->delete();
 
         // Auth::login($user);
 

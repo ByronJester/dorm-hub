@@ -6,12 +6,14 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import VsToast from '@vuesimple/vs-toast';
+import Checkbox from "@/Components/Checkbox.vue";
 
 export default {
     components: {
         VueDatePicker,
         TenantLayout,
-        VsToast
+        VsToast,
+        Checkbox
     },
     setup() {
         const page = usePage();
@@ -738,7 +740,7 @@ export default {
                             </div>
 
                             <div class="flex justify-between mb-2">
-                                            <div class="flex items-start gap-2">
+                                            <div class="flex items-start gap-2 mt-3">
                                                 <Checkbox
                                                     name="terms"
                                                     v-model:checked="
@@ -831,8 +833,7 @@ export default {
                                     </button>
                                 </div>
                                 <!-- Modal body -->
-                                <div class="p-6 space-y-6">
-                                    {{  dorms.terms }}
+                                <div class="p-6 space-y-6" v-html="dorm.terms">
                                 </div>
                                 <!-- Modal footer -->
                                 <div

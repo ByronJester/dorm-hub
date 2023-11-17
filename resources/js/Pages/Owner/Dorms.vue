@@ -80,7 +80,7 @@ export default {
 
             modal.style.display = "none";
         };
-        
+
 
         const getCoordinates = async (a) => {
             const url = `https://api.tomtom.com/search/2/geocode/${a}.json?key=wjvWAT9KJyQfZepSiABAgsa8idqpcLlG`;
@@ -195,7 +195,7 @@ export default {
                 business_permit_image_src.value = e.target.result;
             };
         };
-        
+
         const addRoom = () => {
             const totalRooms = parseInt(rooms_total.value);
             // Check if the total number of rooms added is equal to rooms_total
@@ -372,7 +372,7 @@ export default {
                     data.append("minimum_stay", minimum_stay.value);
                     data.append("rules", JSON.stringify(rules.value));
 
-                    const apiUrl = !!id.value ? route("update.dorm", { id: id.value }) : route("save.dorm");
+                    const apiUrl = !!id.value ? route("update.dorm", id.value) : route("save.dorm");
 
                     axios
                         .post(apiUrl, data)
@@ -386,11 +386,11 @@ export default {
                             );
 
                             setTimeout(function () {
-
+                                location.reload()
                             }, 1500);
                         })
                         .catch((error) => {
-                            errors.value = error.response.data.errors;
+                            // errors.value = error.response.data.errors;
                             loading.value = false;
                         });
                 }
@@ -402,7 +402,7 @@ export default {
                     variant: 'warning',
                 });
             }
-            
+
         };
 
         const dorms = ref([]);
@@ -445,29 +445,29 @@ export default {
             const roomValidation = validateRooms();
 
             switch (active.value) {
-                case 1: 
+                case 1:
                     isValid = validateDormDetails();
                     break;
-                case 2: 
+                case 2:
                     isValid = roomValidation && validateRoomsTotal();
                     break;
-                case 3: 
+                case 3:
                     isValid = validateBusinessPermit();
                 break;
                 case 4:
                     isValid = validateDormImage();
                 break;
-                case 5: 
+                case 5:
                     isValid = validateAddress();
                 break;
-                case 6: 
+                case 6:
                     isValid = validateRules();
                 break;
-                case 7: 
+                case 7:
                     isValid = validateAmenities();
                 break;
             default:
-                isValid = true, 
+                isValid = true,
                 errors= {} ;
             }
             return isValid;
@@ -507,7 +507,7 @@ export default {
                 isValid = false;
                 errorMessages.value.curfew = 'Select curfew hours.';
             }
-                
+
             return isValid;
         };
 
@@ -544,7 +544,7 @@ export default {
                 isValid = false;
                 errorMessages.value.detailed_address = 'Detailed address is required.';
             }
-                
+
             return isValid;
         };
 
@@ -651,7 +651,7 @@ export default {
         const validateRooms = () => {
             let isValid = true;
             errorMessages.value.room =[];
-           
+
             if (active.value === 2) {
                 errorMessages.value.room = [];
                 rooms.value.forEach((room, index) => {
@@ -710,7 +710,7 @@ export default {
                         isValid = false;
                         errorMessages.value.room[index].furnished_type = 'Select funished type';
                     }
-                    
+
                     if (!hasName) {
                         isValid = false;
                         errorMessages.value.room[index].name = 'Room Name is required.';
@@ -718,10 +718,10 @@ export default {
                 }
             });
             }
-    
+
         return isValid;
         };
-        
+
 
         // Function to handle clicking "Next"
         const handleNext = () => {
@@ -731,7 +731,7 @@ export default {
         } else {
         }
         };
-        
+
         return {
             errorMessages,
             selectedStatus,
@@ -1155,7 +1155,7 @@ export default {
                                     Step 1: Dorm Details
                                 </p>
                             <div class="w-full px-2 mb-2 flex flex-row">
-                            
+
                                 <div class="w-full mx-1">
                                     <InputLabel class="text-black" for="property_name" value="Dorm Name" />
 
@@ -1235,7 +1235,7 @@ export default {
                                 <div class="w-full px-3 ">
                                     <div class="w-ful flex flex-col p-3 mt-2 border rounded-xl border-gray-400 "
                                         v-for="(commonArea, index) in commonAreas" :key="index"
-                                    >   
+                                    >
                                         <div class="w-full ">
                                         <span class="float-right cursor-pointer"
                                                 @click="removeCommonAreas(index)"
@@ -1256,8 +1256,8 @@ export default {
                                             <div v-if="errorMessages.commonArea[index]">
                                                     <p class="text-xs text-red-500 ml-2">{{ errorMessages.commonArea[index].name }}</p>
                                             </div>
-                                           
-                                                                                    
+
+
                                             </div>
 
                                                 <InputLabel value="Common Areas Image" class="text-black"/>
@@ -1287,19 +1287,19 @@ export default {
                                                         <span v-else
                                                             >Click to Input Common Areas Image</span
                                                         >
-                                                    </div> 
-                                                        
+                                                    </div>
+
                                                 </label>
                                                 <div v-if="errorMessages.commonArea[index]">
                                                     <p class="text-xs text-red-500 ml-2">{{ errorMessages.commonArea[index].src }}</p>
                                                 </div>
-                                               
+
                                     </div>
-                                              
+
                                 </div>
-                           
-                                
-                            </div> 
+
+
+                            </div>
                             <!--Rooms-->
                             <div class="w-full" v-if="active==2">
                                 <p class="text-2xl font-bold mt-1 ml-2 mb-2">
@@ -1311,7 +1311,7 @@ export default {
                                 <div class="w-full px-3 ">
                                     <div class="w-ful flex flex-col p-3 mt-2 border rounded-xl border-gray-400 "
                                         v-for="(room, index) in rooms" :key="index"
-                                    >   
+                                    >
                                         <div class="w-full ">
                                         <span class="float-right cursor-pointer"
                                                 @click="removeRoom(index)"
@@ -1375,7 +1375,7 @@ export default {
                                                 <div class="w-full mx-1">
                                                     <InputLabel class="text-black" for="type_of_room" value="Capacity" />
 
-                                                    <select required v-model="room.type_of_room" class="w-full border-gray-300  text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">                                                       
+                                                    <select required v-model="room.type_of_room" class="w-full border-gray-300  text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                                         <option value="Room for 1">Room for 1</option>
                                                         <option value="Room for 2">Room for 2</option>
                                                         <option value="Room for 3">Room for 3</option>
@@ -1415,9 +1415,9 @@ export default {
                                                     </div>
                                                 </div>
                                             </div>
-                                                
 
-                                                
+
+
                                             </div>
 
                                         <div class="w-full flex flex-row mt-3">

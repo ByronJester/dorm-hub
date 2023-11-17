@@ -12,4 +12,14 @@ class DormRating extends Model
     protected $fillable = [
         'rate', 'comment', 'dorm_id', 'tenant_id'
     ];
+
+    protected $with = [
+        'tenant'
+    ];
+
+
+    public function tenant()
+    {
+        return $this->belongsTo(User::class, 'tenant_id', 'id');
+    }
 }

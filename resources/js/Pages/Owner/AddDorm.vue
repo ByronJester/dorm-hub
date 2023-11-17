@@ -352,10 +352,10 @@ export default {
                             }, 1500);
                         })
                         .catch((error) => {
-                            errors.value = error.response.data.errors;
-                            console.log(data);
-                            console.log(error);
-                            loading.value = false;
+                            // errors.value = error.response.data.errors;
+                            // console.log(data);
+                            // console.log(error);
+                            // loading.value = false;
                         });
                 }
             );
@@ -395,7 +395,7 @@ export default {
                     location.reload();
                 })
                 .catch((error) => {
-                    errors.value = error.response.data.errors;
+                    // errors.value = error.response.data.errors;
                 });
         };
 
