@@ -202,7 +202,7 @@ export default {
             };
         };
 
-        const headers = ["Payment Date" , "Payment Method", "Amount", "Description", "Status", "Receipt"];
+        const headers = ["Payment Date" , "Payment Method", "Amount", "Description", "Status"];
 
 
         var data = [];

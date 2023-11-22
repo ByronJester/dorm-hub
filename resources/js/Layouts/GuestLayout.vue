@@ -29,6 +29,10 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Terms from "@/Components/Terms.vue"; //dinagdag ko pati nasa component
 import VsToast from "@vuesimple/vs-toast";
+import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
+import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
+import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+
 
 export default {
     components: {
@@ -41,6 +45,9 @@ export default {
         Terms,
         Checkbox,
         VsToast,
+        AppDropdown,
+        AppDropdownContent,
+        AppDropdownItem,
     },
     methods: {
         togglePasswordVisibility(field) {
@@ -108,6 +115,13 @@ export default {
 
             modal.style.display = "none";
         };
+
+        const isDropdownOpen = ref(false);
+
+    // Function to toggle dropdown visibility
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value;
+    };
 
         const showingNavigationDropdown = ref(false);
 
@@ -186,7 +200,7 @@ export default {
             modal.style.display = "none";
         };
 
-        const isLoadingRegister = ref(false)
+        const isLoadingRegister = ref(false);
 
         const submit = () => {
             if (validateForm()) {
@@ -208,7 +222,7 @@ export default {
         };
 
         const confirmSubmit = () => {
-            isLoadingRegister.value = true
+            isLoadingRegister.value = true;
 
             form.post(route("user.register"), {
                 onSuccess: () => {
@@ -219,7 +233,7 @@ export default {
                         variant: "success",
                     });
 
-                    isLoadingRegister.value = false
+                    isLoadingRegister.value = false;
                 },
                 onError: (error) => {
                     VsToast.show({
@@ -228,7 +242,7 @@ export default {
                         variant: "error",
                     });
 
-                    isLoadingRegister.value = false
+                    isLoadingRegister.value = false;
                 },
             });
         };
@@ -268,11 +282,10 @@ export default {
             last_name: "",
             phone_number: "",
             username: "",
-            user_type:"",
-            id_picture:"",
-            selfie_id_picture:"",
-            terms:"",
-
+            user_type: "",
+            id_picture: "",
+            selfie_id_picture: "",
+            terms: "",
         });
 
         const validateForm = () => {
@@ -312,20 +325,21 @@ export default {
             }
             if (form.selfie_id_picture.trim() === "") {
                 isValid = false;
-                errorMessages.value.selfie_id_picture = "Selfie Id picture is required";
+                errorMessages.value.selfie_id_picture =
+                    "Selfie Id picture is required";
             }
             if (!validatePassword()) {
                 isValid = false;
             }
             if (!form.terms) {
                 isValid = false;
-                errorMessages.value.terms = "You must accept the terms and conditions";
+                errorMessages.value.terms =
+                    "You must accept the terms and conditions";
             }
 
             return isValid;
         };
         const errorMessagespassword = ref({
-
             password: "",
             password_length: "",
             password_uppercase: "",
@@ -333,7 +347,6 @@ export default {
             password_number: "",
             password_special: "",
             password_confirmation: "",
-
         });
 
         const passwordTouched = ref(false);
@@ -352,7 +365,8 @@ export default {
                 return true;
             }
 
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            const passwordRegex =
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
             if (!passwordRegex.test(form.password)) {
                 isValid = false;
@@ -388,11 +402,10 @@ export default {
                 isValid = false;
                 errorMessagespassword.value.confirm_password =
                     "Passwords do not match.";
-            };
+            }
 
-            return isValid
-        }
-
+            return isValid;
+        };
 
         const handlePasswordChange = () => {
             validatePassword();
@@ -434,14 +447,18 @@ export default {
             confirmSubmit,
             acceptClose,
             not_approved,
-            isLoadingRegister
+            isLoadingRegister,
+
+            isDropdownOpen,
+
+            toggleDropdown,
         };
     },
 };
 </script>
 
 <template>
-    <div class="mb-20">
+    <div>
         <div class="h-full">
             <nav class="fixed top-0 z-50 w-full bg-white">
                 <div class="py-4">
@@ -452,11 +469,60 @@ export default {
                             class="flex flex-row items-center justify-between gap-3 md:gap-0"
                         >
                             <div class="flex items-center justify-start">
-                                <a href="/">
+                                <div class="flex items-center">
+                            <AppDropdown>
+                                <button
+                                    class="inline-flex items-center p-2 text-sm rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                                >
+                                    <span class="sr-only">Open sidebar</span>
+                                    <svg
+                                        class="w-6 h-6"
+                                        aria-hidden="true"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            clip-rule="evenodd"
+                                            fill-rule="evenodd"
+                                            d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+                                        ></path>
+                                    </svg>
+                                </button>
+                                <AppDropdownContent class="left-0 origin-top-left lg:hidden block">
+                                    <AppDropdownItem>
+                                        <Link href="/" >Find a home</Link>
+                                    </AppDropdownItem>
+                                    <AppDropdownItem>
+                                        <Link :href="route('about.us')" >Pricing</Link>
+                                    </AppDropdownItem>
+                                    <AppDropdownItem>
+                                        <Link :href="route('about.us')" class="hover:text-orange-400">About us</Link>
+                                    </AppDropdownItem>
+                                    <AppDropdownItem>
+                                        <Link :href="route('user.help')" class="hover:text-orange-400">FAQ</Link>
+                                    </AppDropdownItem>
+                                </AppDropdownContent>
+                            </AppDropdown>
+                                </div>
+                            
+                                <a href="/" class="ml-2 md:mr-24">
                                     <ApplicationLogo />
                                 </a>
                             </div>
-                            <div class="flex items-center">
+                            <div class="flex flex-row gap-5 items-center">
+                                <div
+                                    class="lg:flex-row flex-col z-50 bg-white gap-5 items-center hidden sm:hidden md:hidden lg:flex"
+                                >
+                                    <!-- Button for large screens -->
+                                    <Link href="/" class="hover:text-orange-400">Find a dorm</Link>
+                                    <Link :href="route('about.us')" class="hover:text-orange-400">Pricing</Link>
+                                    <Link :href="route('about.us')" class="hover:text-orange-400">About us</Link>
+                                    <Link :href="route('user.help')" class="hover:text-orange-400">FAQ</Link>
+                                </div>
+
+                                
+
                                 <div class="grid grid-cols-2 gap-2">
                                     <button
                                         @click.prevent="openLoginModal()"
@@ -477,6 +543,7 @@ export default {
                     </div>
                 </div>
             </nav>
+
 
             <!--New UI register modal-->
             <div
@@ -545,7 +612,10 @@ export default {
                                         <button
                                             class="float-right rounded-md px-4 py-2 bg-cyan-300"
                                             :disabled="isLoadingRegister"
-                                            :class="{'cursor-not-allowed': isLoadingRegister}"
+                                            :class="{
+                                                'cursor-not-allowed':
+                                                    isLoadingRegister,
+                                            }"
                                             @click="confirmSubmit()"
                                         >
                                             Submit
@@ -698,7 +768,9 @@ export default {
 
                                         <InputError
                                             class="mt-2"
-                                            :message="errorMessages.phone_number"
+                                            :message="
+                                                errorMessages.phone_number
+                                            "
                                         />
                                     </div>
                                 </div>
@@ -973,7 +1045,9 @@ export default {
 
                                     <InputError
                                         class="mt-2"
-                                        :message="errorMessages.selfie_id_picture"
+                                        :message="
+                                            errorMessages.selfie_id_picture
+                                        "
                                     />
                                 </div>
                                 <hr class="mb-4" />
@@ -993,14 +1067,12 @@ export default {
                                                 >Terms and Condition</a
                                             >
                                         </div>
-
                                     </div>
-
                                 </div>
                                 <InputError
-                                        class="mt-2"
-                                        :message="errorMessages.terms"
-                                        />
+                                    class="mt-2"
+                                    :message="errorMessages.terms"
+                                />
                                 <button
                                     :class="{
                                         'opacity-25': form.processing,
@@ -1320,7 +1392,7 @@ export default {
             <slot />
         </main>
         <footer
-            class="fixed bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
+            class="bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
         >
             <div class="mx-auto p-4 md:flex md:items-center md:justify-between">
                 <span

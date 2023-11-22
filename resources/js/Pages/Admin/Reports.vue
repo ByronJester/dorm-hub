@@ -14,8 +14,8 @@ export default {
         IncomeReport,
         UsersReport
     },setup(){
-        const activeReport = ref(''); // Initially, no report is active
-        const activeReportComponent = ref(null);
+        const activeReport = ref('IncomeReport'); // Initially, no report is active
+        const activeReportComponent = ref(IncomeReport);
 
         const page = usePage();
 
@@ -62,7 +62,41 @@ export default {
                 <h3 class="text-3xl font-bold">Reports</h3>
             </div>
             <hr class="my-5" />
-            <main>
+            <div class="w-full flex flex-row">
+                <div class="w-[15%] flex flex-col" style="border-right: 1px solid black">
+                    <div class="w-full my-3"
+                        :class="{'bg-gray-300': activeReport == 'IncomeReport'}"
+                    >
+                        <span class="cursor-pointer" @click="changeActiveReport('IncomeReport')">
+                            Income Report
+                        </span>
+                    </div>
+
+                    <div class="w-full my-3"
+                        :class="{'bg-gray-300': activeReport == 'DormitoriesReports'}"
+                    >
+                        <span class="cursor-pointer" @click="changeActiveReport('DormitoriesReports')">
+                            Dormitories Report
+                        </span>
+                    </div>
+
+                    <div class="w-full my-3"
+                        :class="{'bg-gray-300': activeReport == 'UsersReport'}"
+                    >
+                        <span class="cursor-pointer" @click="changeActiveReport('UsersReport')">
+                            Users Report
+                        </span>
+                    </div>
+                </div>
+
+                <div class="w-[85%]">
+                    <div class="pl-5">
+                        <component :is="activeReportComponent"></component>
+                    </div>
+
+                </div>
+            </div>
+            <!-- <main>
 
 
 
@@ -179,7 +213,7 @@ export default {
                     </div>
                 </div>
             </div>
-            </main>
+            </main> -->
         </div>
 
     </div>
