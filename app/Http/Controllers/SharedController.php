@@ -126,8 +126,6 @@ class SharedController extends Controller
             'last_name' => 'required|string|max:50',
             'phone_number' => 'required|numeric|digits:11',
             'user_type' => 'required',
-            'id_picture' => 'required',
-            'selfie_id_picture' => 'required',
             'username' => 'required|string|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);

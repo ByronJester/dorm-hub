@@ -335,9 +335,10 @@ export default {
                 'translate-x-0': showSidebar,
                 '-translate-x-full': !showSidebar,
             }"
-            class="fixed top-0 left-0 z-40 w-64 shadow-lg h-screen pt-20 transition-transform bg-white -translate-x-full dark:bg-gray-800 lg:-translate-x-0 dark:border-gray-700"
+            class="fixed top-0 left-0 z-40 w-64 shadow-lg h-screen pt-16 transition-transform bg-white -translate-x-full dark:bg-gray-800 lg:-translate-x-0 dark:border-gray-700"
         >
-            <div class="h-full overflow-y-auto bg-white dark:bg-gray-800">
+        <div class="p-3 w-full"> yow </div>
+            <div class="h-full overflow-y-auto p-5 bg-white dark:bg-gray-800">
                 <ul
                     class="space-y-5 font-medium"
                     v-if="user.user_type == 'admin'"

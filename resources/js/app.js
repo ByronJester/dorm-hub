@@ -9,9 +9,15 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import VsToast from '@vuesimple/vs-toast';
 import tooltip from "@/tooltip.js";
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
 import "../css/tooltip.css";
+// theme
+import 'primevue/resources/themes/lara-light-green/theme.css';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+
 
 createInertiaApp({
     title: (title) => `${appName}`,
@@ -20,6 +26,9 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue, Ziggy)
+            .use(PrimeVue)
+            .use(ConfirmationService)
+            .use(ToastService)
             .component('VueDatePicker', VueDatePicker)
             .component('VsToast', VsToast)
             .directive("tooltip", tooltip)

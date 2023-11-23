@@ -155,23 +155,13 @@ class AdminController extends Controller
         ]);
     }
 
-    public function changeTenantStatus(Request $request)
+    public function changeTenantStatus(Request $request, $status)
     {
         $user = User::where('id', $request->id)->first();
-        $user->is_approved = $request->status;
+        $user->status = $status;
         $user->save();
 
         $notification = new Notification;
-
-        $status = $request->status ? 'approved' : 'declined';
-        $message = $status == 'approved' ? 'Your account has been approved you can logged in your account now.' : 'Your account has been declined';
-
-        if($status == 'approved') {
-            $notification->redirection = 'tenant.dorms';
-
-            $this->sendSMS($user->phone_number, $message);
-        }
-
 
         $notification->user_id = $user->id;
         $notification->message = "Your account has been $status";

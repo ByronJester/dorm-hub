@@ -33,15 +33,6 @@ class AuthenticatedSessionController extends Controller
     {
         $user = User::where('username', $request->username)->first();
 
-        if($user) {
-            if($user->user_type == "tenant" || $user->user_type == 'owner') {
-                if(!$user->is_approved) {
-                    return redirect()->back()
-                        ->withErrors(['not_approved' => 'Your account is not yet verfied.']);
-                }
-            }
-        }
-
         $request->authenticate();
 
         $request->session()->regenerate();

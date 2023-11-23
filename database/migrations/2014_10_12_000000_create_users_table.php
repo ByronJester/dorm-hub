@@ -27,11 +27,14 @@ return new class extends Migration
             $table->longText('bio')->nullable();
             $table->string('user_type', 10)->default('tenant');
             $table->string('sk', 100)->nullable();
+            $table->longText('reason')->nullable();
+            $table->string('address', 255)->nullable();
+            $table->string('subscription', 255)->nullable();
             $table->string('pk', 100)->nullable();
             $table->string('bank_name', 100)->nullable();
             $table->string('account_name', 100)->nullable();
             $table->string('account_number', 100)->nullable();
-            $table->boolean('is_approved')->default(true);
+            $table->string('status', 20)->nullable();
             $table->boolean('is_active')->default(true);
             $table->boolean('first_logged_in')->default(true);
 
