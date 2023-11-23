@@ -1342,4 +1342,11 @@ class OwnerController extends Controller
 
         return true;
     }
+
+    public function getOwnerStatus()
+    {
+        $user = Auth::user();
+
+        return response()->json($user->status, 200);
+    }
 }

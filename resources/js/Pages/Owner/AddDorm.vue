@@ -76,8 +76,8 @@ export default {
         const landmark = ref("");
         const note = ref("");
 
-        
-        
+
+
 
         const selectedPayment = ref('card'); // Default selected payment method
 
@@ -245,7 +245,7 @@ export default {
         };
 
         //Dinagdag ko
-        
+
 
         const SelfieidPictureChange = (e) => {
             const image = e.target.files[0];
@@ -451,24 +451,42 @@ export default {
         });
 
         const confirmSubmit = () => {
-            form.post(route("submit.id"), {
-                onSuccess: () => {
-                    location.reload();
+            // form.post(route("submit.id"), {
+            //     onSuccess: () => {
+            //         location.reload();
+            //         VsToast.show({
+            //             title: "Submit",
+            //             message: "You've Submit successfuly",
+            //             variant: "success",
+            //         });
+            //     },
+            //     onError: (error) => {
+                    // VsToast.show({
+                    //     title: "Error",
+                    //     message: error,
+                    //     variant: "error",
+                    // });
+
+            //     },
+            // });
+
+            axios
+                .post(route("submit.id"), form)
+                .then((response) => {
                     VsToast.show({
                         title: "Submit",
                         message: "You've Submit successfuly",
                         variant: "success",
                     });
-                },
-                onError: (error) => {
+                    location.reload();
+                })
+                .catch((error) => {
                     VsToast.show({
                         title: "Error",
                         message: error,
                         variant: "error",
                     });
-
-                },
-            });
+                });
         };
 
         const openTermsModal = () => {
@@ -554,7 +572,7 @@ export default {
                     isValid
                     break;
                 default:
-                    (isValid = true), (errors = {});
+                    (isValid = true), (errors.value = {});
             }
             return isValid;
         };
@@ -861,14 +879,42 @@ export default {
 
             return isValid;
         };
-       
-        
+
+
         const handleNext = () => {
             if (validateStep()) {
                 active.value++;
             } else {
             }
         };
+
+        const userStatus = ref(user.status)
+
+        const getUserStatus = () => {
+            if(userStatus.value == 'pending') {
+                axios
+                    .get(route("owner.status"))
+                    .then((response) => {
+                        userStatus.value = response.data
+                    })
+                    .catch((error) => {
+
+                    });
+            }
+
+        }
+
+        const recallTimer = ref(null);
+
+        onMounted(() => {
+            clearInterval(recallTimer.value);
+
+            recallTimer.value = setInterval(() => {
+                getUserStatus();
+            }, 10000);
+        });
+
+
         return {
             errorMessages,
             handleNext,
@@ -941,21 +987,22 @@ export default {
             roomAreasChange,
             addCommonAreas,
             removeCommonAreas,
+            userStatus
         };
     },
 };
 </script>
 
 <template>
-    
+
     <nav
         class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
-        <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-red-500" v-if="$page.props.auth.user.status == 'decline'">
-            Your account has been declined. Reason: Please resubmit your valid id 
+        <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-red-500" v-if="userStatus == 'decline'">
+            Your account has been declined. Reason: Please resubmit your valid id
         </div>
-        <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-orange-400" v-if="$page.props.auth.user.status == 'pending'">
-            You have pending status for user verication. Please wait for the system admin to approve you! 
+        <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-orange-400" v-if="userStatus == 'pending'">
+            You have pending status for user verication. Please wait for the system admin to approve you!
         </div>
         <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
             <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -1000,7 +1047,7 @@ export default {
             </div>
         </div>
     </nav>
-    
+
     <div class="max-w-[2520px] mt-24 xl:px-20 md:px-10 sm:px-2 px-4" v-if="$page.props.auth.user.status == null || $page.props.auth.user.status == 'decline'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="w-full items-center">
@@ -1236,23 +1283,23 @@ export default {
         </div>
     </div>
 
-        <div class="flex items-center justify-center w-full h-screen" v-if="$page.props.auth.user.status=='pending'">
+        <div class="flex items-center justify-center w-full h-screen" v-if="userStatus == 'pending'">
             <div class="flex justify-center items-center space-x-1 text-sm text-gray-700">
-                
+
                         <svg fill='none' class="w-6 h-6 animate-spin" viewBox="0 0 32 32" xmlns='http://www.w3.org/2000/svg'>
                             <path clip-rule='evenodd'
                                 d='M15.165 8.53a.5.5 0 01-.404.58A7 7 0 1023 16a.5.5 0 011 0 8 8 0 11-9.416-7.874.5.5 0 01.58.404z'
                                 fill='currentColor' fill-rule='evenodd' />
                         </svg>
 
-                
+
                 <div>Loading ...</div>
             </div>
         </div>
-    
-    <div class="max-w-[2520px] mt-20 xl:px-20 md:px-10 sm:px-2 px-4" v-if="$page.props.auth.user.status == 'approved'">
+
+    <div class="max-w-[2520px] mt-20 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == 'approved'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
-            
+
             <div v-if="active == 10">
                 <div>
                     <p class="text-2xl font-bold mt-1">
@@ -1610,7 +1657,7 @@ export default {
                                         {{ errorMessages.property_name }}
                                     </span>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -1671,7 +1718,7 @@ export default {
                                     >{{ errorMessages.floors_total }}
                                 </span>
                              </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -1704,7 +1751,7 @@ export default {
                                     >{{ errorMessages.rooms_total }}
                                     </span>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -1737,7 +1784,7 @@ export default {
                                     >{{ errorMessages.reservation }}
                                     </span>
                                 </div>
-                                
+
                             </div>
                         </div>
                     </div>
@@ -2655,7 +2702,7 @@ export default {
                                         v-model="pk"
                                         :class="{
                                             'border-red-500':
-                                                !!errorMessages.pk 
+                                                !!errorMessages.pk
                                         }"
                                         required=""
                                         placeholder="Paymongo Public Key"
@@ -2673,7 +2720,7 @@ export default {
                                         v-model="sk"
                                         :class="{
                                             'border-red-500':
-                                                !!errorMessages.sk 
+                                                !!errorMessages.sk
                                         }"
                                         required=""
                                         placeholder="Paymongo Secret Key"
@@ -2737,7 +2784,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <div class="w-full" v-if="active == 11">
                 <div clas="w-full grid grid-cols-3 gap-5">
@@ -2782,7 +2829,7 @@ export default {
                                             <!--Payment Method-->
                                             <div class="mt-4" v-if="selectedPayment == 'card'">
                                                 <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full"> 
+                                                    <div class="w-full">
                                                     <label class="text-sm font-semibold">Name on Card:</label>
                                                     <TextInput
                                                         type="text"
@@ -2790,8 +2837,8 @@ export default {
                                                         class="placeholder:text-gray-400 w-full"
                                                     />
                                                     </div>
-                                                    
-                                                    <div class="w-full"> 
+
+                                                    <div class="w-full">
                                                     <label class="text-sm font-semibold">Card Number:</label>
                                                     <TextInput
                                                         type="text"
@@ -2801,7 +2848,7 @@ export default {
                                                     </div>
                                                 </div>
                                                 <div class="mt-4 w-full flex flex-row items-center gap-2">
-                                                    <div class="w-full"> 
+                                                    <div class="w-full">
                                                     <label class="text-sm font-semibold">Expiry Date:</label>
                                                     <TextInput
                                                         type="text"
@@ -2809,8 +2856,8 @@ export default {
                                                         class="placeholder:text-gray-400 w-full"
                                                     />
                                                     </div>
-                                                    
-                                                    <div class="w-full "> 
+
+                                                    <div class="w-full ">
                                                     <label class="text-sm font-semibold">CVC:</label>
                                                     <TextInput
                                                         type="text"
@@ -2820,11 +2867,11 @@ export default {
                                                     </div>
                                                 </div>
 
-                                                
+
                                             </div>
                                             <div class="mt-4" v-if="selectedPayment == 'gcash'">
                                                 <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full"> 
+                                                    <div class="w-full">
                                                     <label class="text-sm font-semibold">Name on Gcash:</label>
                                                     <TextInput
                                                         type="text"
@@ -2836,7 +2883,7 @@ export default {
                                             </div>
                                             <div class="mt-4" v-if="selectedPayment == 'paymaya'">
                                                 <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full"> 
+                                                    <div class="w-full">
                                                     <label class="text-sm font-semibold">Name on Maya:</label>
                                                     <TextInput
                                                         type="text"
@@ -2848,7 +2895,7 @@ export default {
                                             </div>
                                             <div class="mt-4" v-if="selectedPayment == 'grabpay'">
                                                 <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full"> 
+                                                    <div class="w-full">
                                                     <label class="text-sm font-semibold">Name on GrabPay:</label>
                                                     <TextInput
                                                         type="text"
@@ -2869,7 +2916,7 @@ export default {
                                                 <div class="mt-6 flex items-center justify-between">
                                                 <p class="text-sm font-medium text-gray-900">Total</p>
                                                 <p class="text-2xl font-semibold text-gray-900">{{ moneyFormat(selectedSubscription? selectedSubscription.price : 0) }}</p>
-                                            </div> 
+                                            </div>
                                             <hr class="my-4"/>
                                             <div class="w-full mt-2">
                                                 <input
@@ -2897,7 +2944,7 @@ export default {
                                                     ></label
                                                 >
                                             </div>
-                                            <button 
+                                            <button
                                                 :disabled="loading || termsAndCondition.length < 2"
                                                 :class="{
                                                     'cursor-not-allowed bg-orange-200':
@@ -2912,15 +2959,15 @@ export default {
                                                 <span v-else-if="selectedPayment === 'paymaya'"> using Paymaya</span>
                                                 <span v-else-if="selectedPayment === 'grabpay'"> using GrabPay</span>
                                             </button>
-                                        </div>                                   
+                                        </div>
                                     </div>
-                                    
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <!--Button-->
             <div
@@ -2950,7 +2997,7 @@ export default {
                         v-if="active == 11"
                         @click="saveDorm()"
                         type="button"
-                        
+
                         class="text-gray-500 float-right bg-white focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                     >
                         {{ !!loading ? "Saving..." : "Submit" }}

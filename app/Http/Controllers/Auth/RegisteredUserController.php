@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
             'code' => ['required', new CodeExists('codes', 'code')]
         ]);
 
-       
+
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -99,7 +99,7 @@ class RegisteredUserController extends Controller
             'selfie_id_picture' => 'required',
             'status' => 'required'
         ]);
-        
+
         $id_picture = Str::random(10) . '_id_picture';
         $selfie_picture = Str::random(10) . '_selfie_picture';
 

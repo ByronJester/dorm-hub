@@ -138,6 +138,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
         Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
+        Route::get('/owner-status', [OwnerController::class, 'getOwnerStatus'])->name('owner.status');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/update', [RegisteredUserController::class, 'update'])->name('submit.id');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
