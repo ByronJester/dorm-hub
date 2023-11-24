@@ -9,17 +9,29 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import ExcelJS from "exceljs";
-
+import DataTable from 'primevue/datatable';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';   // optional
+import Row from 'primevue/row';      
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
 export default {
     components: {
         AuthenticatedLayout,
         VueGoodTable,
+        DataTable,
+            Column,
+            ColumnGroup,
+            Row,
+            Button,
+            Tag,
     },
     setup() {
-        const isMobileView = ref(false);
         const page = usePage();
         const rows = ref([]);
-     
+        const statuses = ref(['approved', 'decline', 'pending']);
+        const filters = ref();
 
         const columns = ref([
             {
@@ -62,6 +74,55 @@ export default {
         });
 
 
+        const getSeverity = (status) => {
+                switch (status) {
+                    case 'decline':
+                        return 'danger';
+
+                    case 'approved':
+                        return 'success';
+
+                    case 'pending':
+                        return 'warning';
+
+                }
+            };
+
+            const initFilters = () => {
+                filters.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    dorm_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    dorm_owner: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    detailed_address: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    created_at: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+                    status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                   
+                };
+            };
+
+            initFilters();
+
+            const formatDate = (value) => {
+                // Check if value is a string and convert it to a Date object
+                const date = typeof value === 'string' ? new Date(value) : value;
+
+                // Check if date is a valid Date object
+                if (isNaN(date.getTime())) {
+                    // If not a valid Date, you can handle it according to your requirements
+                    return "Invalid Date"; // or return value.toString() or any other representation
+                }
+
+                // If it's a valid Date object, format it
+                return date.toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            };
+
+            const clearFilter = () => {
+                initFilters();
+            };
 
         const changeStatus = (status, id) => {
             var s = status == "declined" ? "decline" : "approved";
@@ -95,45 +156,7 @@ export default {
                 }
             );
         };
-        //pagination
-        const currentPage = ref(1); // Initialize to the first page
-        const itemsPerPage = 10;
-        const totalPages = computed(() => Math.ceil(rows.value.length / itemsPerPage));
-    
-        const slicedRows = computed(() => {
-        const startIndex = (currentPage.value - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return filteredRows.value.slice(startIndex, endIndex);
-        });
 
-        const changePage = (pageChange) => {
-            const newPage = currentPage.value + pageChange;
-            if (newPage >= 1 && newPage <= totalPages.value) {
-                currentPage.value = newPage;
-            }
-        };
-
-        //search function
-        const searchQuery = ref('');
-        const filteredRows = computed(() => {
-        const query = searchQuery.value.toLowerCase().trim();
-        if (!query) {
-            return rows.value; // Return all rows if the search query is empty.
-        }
-
-        return rows.value.filter(row => {
-            // Modify the conditions as needed for your specific search criteria.
-            return (
-            row.user.first_name.toLowerCase().includes(query) ||
-            row.user.last_name.toLowerCase().includes(query) ||
-            row.user.phone_number.toLowerCase().includes(query)||
-            row.status.toLowerCase().includes(query)||
-            row.floors_total.toLowerCase().includes(query)||
-            row.property_name.toLowerCase().includes(query)
-            // Add more conditions for other columns as needed
-            );
-        });
-        }); 
         const business_permit = ref(null);
         const dorm = ref(null);
         const openTermsModal = (arg) => {
@@ -154,18 +177,14 @@ export default {
        
 
         return {
-            isMobileView,
-            columns,
+            filters,
+            clearFilter,
+            getSeverity,
+            formatDate,
+            statuses,
             rows,
             business_permit,
             dorm,
-            filteredRows,
-            searchQuery,
-            currentPage,
-            itemsPerPage,
-            itemsPerPage,
-            changePage,
-            slicedRows,
             changeStatus,
             openTermsModal,
             closeTermsModal,
@@ -244,198 +263,63 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="w-full mb-5 mt-5">
-                <div
-                    class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                >
-                    <div class="rounded-t mb-0 px-4 py-3 border-0">
-                        <div class="flex flex-wrap items-center">
-                            <div
-                                    class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
-                                >
-                                <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    
-                                    <div class="flex flex-row gap-2">
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Csv
-                                    </button>
-                                    
-                                    </div>
-                                </div>
-                                    <form class="flex items-center">
-                                        
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                v-model="searchQuery"
-                                            />
-                                        </div>
-                                    </form>
-                                </div>
-                        </div>
+
+            <div class="card">
+                <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                :globalFilterFields="['dorm_owner', 'dorm_name', 'detailed_address', 'created_at', 'status']">
+                <template #header>
+                    <div class="flex items-center justify-between">
+                        <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                        <span class="p-input-icon-left">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
+                        </span>
                     </div>
-                    <div class="block w-full overflow-x-auto">
-                        <table
-                            class="items-center w-full bg-transparent border-collapse"
-                        >
-                            <thead>
-                                <tr>
-                                    <th
-                                        class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                        v-for="column in columns"
-                                        :key="column.field"
-                                    >
-                                        {{ column.label }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="(row, rowIndex) in slicedRows"
-                                    :key="rowIndex"
-                                >
-                                    <td
-                                        class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        v-for="(value, colIndex) in columns"
-                                        :key="colIndex"
-                                    >
-                                        <div>
-                                            <div
-                                                v-if="
-                                                    value.field === 'dorm_owner'
-                                                "
-                                            >
-                                                {{ row.user.first_name }}
-                                                {{ row.user.last_name }}
-                                            </div>
-
-                                            <div
-                                                v-if="
-                                                    value.field ===
-                                                    'contact_number'
-                                                "
-                                            >
-                                                {{ row.user.phone_number }}
-                                            </div>
-                                            <div
-                                                v-if="value.field === 'status'"
-                                                class="mt-2"
-                                            >
-                                                <button
-                                                    class="bg-orange-500 p-1 mx-1 text-white rounded-sm text-xs"
-                                                    v-if="
-                                                        row.status === 'pending'
-                                                    "
-                                                    :disabled="true"
-                                                >
-                                                    Pending
-                                                </button>
-
-                                                <button
-                                                    class="bg-rose-500 p-1 mx-1 text-white rounded-md text-xs"
-                                                    v-if="
-                                                        row.status ===
-                                                        'declined'
-                                                    "
-                                                    :disabled="true"
-                                                >
-                                                    DECLINED
-                                                </button>
-
-                                                <button
-                                                    class="bg-cyan-900 p-1 text-white rounded-md text-xs"
-                                                    v-if="
-                                                        row.status ===
-                                                        'approved'
-                                                    "
-                                                    :disabled="true"
-                                                >
-                                                    {{ row.status }}
-                                                </button>
-                                            </div>
-
-                                            <div
-                                                v-if="value.field === 'action'"
-                                            >
-                                                <button
-                                                    class="bg-orange-500 p-3 mx-1 text-white rounded-md text-xs"
-                                                    @click="openTermsModal(row)"
-                                                >
-                                                    View
-                                                </button>
-                                            </div>
-                                            <div v-else>
-                                                {{ row[value.field] }}
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div
-                            class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                        >
-                        <div class="block w-full overflow-x-auto">
-                                <div class="justify-between items-center block md:flex">
-                                    <div class="flex items-center justify-start flex-wrap mb-3">
-                                    <button                                        
-                                        @click="changePage(-1)"
-                                        :disabled="currentPage == 1"
-                                        :class="{
-                                            'hidden': currentPage == 1,
-                                        }"
-                                        type="button"
-                                        class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-
-                                    >
-                                        Previous
-                                    </button>
-                                    <button
-                                        @click="changePage(1)"
-                                        :disabled="currentPage === totalPages"
-                                        type="button"
-                                        class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-
-                                    >
-                                        Next
-                                    </button>
-                                    </div>
-                                    <div class="flex items-center justify-center">
-                                    <small>Page {{ currentPage }}</small>
-                                    </div>
-                                </div>
-                           
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </template>
+                <template #empty> No dormitory found. </template>
+                    <Column field="dorm_name" header="Dorm Name" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ data.dorm_name }}
+                        </template>
+                    </Column>
+                    <Column field="dorm_owner" header="Dorm Owner" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ data.dorm_owner }}
+                        </template>
+                    </Column>
+                    <Column field="detailed_address" header="Address" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ data.detailed_address }}
+                        </template>
+                    </Column>
+                    <Column field="created_at" header="Register Date" sortable dataType="date" style="min-width: 10rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ formatDate(data.created_at) }}
+                        </template>
+                    </Column>
+                    <Column header="Status" field="status" sortable style="min-width: 12rem" class="border-b">
+                        <template #body="{ data }">
+                            <Tag :value="data.status" :severity="getSeverity(data.status)" />
+                        </template>
+                    </Column>
+                    <Column header="Action" style="min-width: 5rem" class="border-b">
+                        <template #body ="{data}">
+                            <button
+                                class="hover:text-orange-400"
+                                :class="{
+                                    'cursor-not-allowed': data.status == 'approved',
+                                    'cursor-pointer': data.status == 'pending' && data.status == 'decline'
+                                }"
+                                :disabled="data.status=='approved'"
+                                @click="openTermsModal(data)"
+                            >
+                                <!-- Use v-if to conditionally render the appropriate icon -->
+                                <i v-if="data.status =='pending' || data.status == 'decline' || data.status == null" class="fa-solid fa-eye"></i>
+                                <i v-else class="fa-solid fa-eye-slash"></i>
+                            </button>
+                        </template>
+                    </Column>
+                </DataTable>
             </div>
             <div
                     id="defaultModal"
