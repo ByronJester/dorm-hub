@@ -27,12 +27,13 @@ class User extends Authenticatable
         'password',
         'id_picture',
         'selfie_id_picture',
-        'is_approved',
+        'status',
         'image',
         'bio',
         'pk',
         'sk',
         'bank_name',
+        'subscription',
         'account_name',
         'account_number',
         'first_logged_in'
@@ -67,13 +68,13 @@ class User extends Authenticatable
 
     public function getIdPictureAttribute($value)
     {
-        // return \LaravelCloudinary::show($value, []);
+        if(!$value) return $value;
         return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 
     public function getSelfieIdPictureAttribute($value)
     {
-        // return \LaravelCloudinary::show($value, []);
+        if(!$value) return $value;
         return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 

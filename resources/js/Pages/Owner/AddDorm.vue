@@ -14,7 +14,7 @@ import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import Editor from "@tinymce/tinymce-vue";
-import VsToast from '@vuesimple/vs-toast';
+import VsToast from "@vuesimple/vs-toast";
 
 export default {
     components: {
@@ -36,13 +36,13 @@ export default {
         const loading = ref(false);
         const page = usePage();
 
-        const user = computed(() => page.props.auth.user);
+        const user = page.props.auth.user;
 
         const termsAndCondition = ref([]);
         const data = new FormData();
         const errors = ref(null);
         const progress = ref(20);
-        
+
         var timer = ref(undefined);
         const id = ref(null);
         const address = ref("");
@@ -72,6 +72,48 @@ export default {
         const account_name = ref("");
         const account_number = ref("");
         const terms = ref("");
+        const reservation = ref("");
+        const landmark = ref("");
+        const note = ref("");
+
+
+
+
+        const selectedPayment = ref('card'); // Default selected payment method
+
+        const paymentMethods = [
+            { label: 'Credit/Debit Card', value: 'card', logo: '/images/credicardlogo.png' },
+            { label: 'Gcash', value: 'gcash', logo: '/images/gcashlogo.png' },
+            { label: 'Paymaya', value: 'paymaya', logo: '/images/paymayalogo.png' },
+            { label: 'GrabPay', value: 'grabpay', logo: '/images/grablogo.png' },
+        ];
+
+        // Watch for changes in the selected payment method
+        watch(selectedPayment, (newValue) => {
+            console.log(`Selected payment method changed to: ${newValue}`);
+            // You can perform additional actions based on the selected payment method
+        });
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+        const subscriptions = [
+            { label: 'Starter', value: 'starter', description: '3 Dorm Listings', price: 300},
+            { label: 'Basic', value: 'basic', description: '5 Dorm Listings', price: 500},
+            { label: 'Plus', value: 'plus', description: 'Unlimited Dorm Listings', price: 1000},
+        ];
+
+        const selectedSubscription = ref(subscriptions[0]);
+
+            // Watch for changes in the selected subscription
+        watch(() => selectedSubscription.value, (newValue) => {
+                console.log(`Selected subscription changed to: ${newValue.label}`);
+            });
 
         const roomAreasClick = (arg) => {
             document.getElementById(arg).click();
@@ -189,16 +231,48 @@ export default {
             };
         };
 
+        const idPictureChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                console.log(e);
+                form.id_picture = e.target.result;
+            };
+        };
+
+        //Dinagdag ko
+
+
+        const SelfieidPictureChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                console.log(e);
+                form.selfie_id_picture = e.target.result;
+            };
+        };
+
         const addRoom = () => {
             const totalRooms = parseInt(rooms_total.value);
             // Check if the total number of rooms added is equal to rooms_total
             if (rooms.value.length === totalRooms) {
                 VsToast.show({
-                    title: 'Warning',
-                    message: 'You can only add exactly ' + totalRooms + ' rooms. Please change total of rooms if you want to add more rooms',
-                    variant: 'warning',
+                    title: "Warning",
+                    message:
+                        "You can only add exactly " +
+                        totalRooms +
+                        " rooms. Please change total of rooms if you want to add more rooms",
+                    variant: "warning",
                 });
-                console.error('Please add exactly ' + totalRooms + ' rooms.');
+                console.error("Please add exactly " + totalRooms + " rooms.");
             } else {
                 rooms.value.push({
                     id: null,
@@ -225,16 +299,16 @@ export default {
         const addCommonAreas = () => {
             if (commonAreas.value.length < 5) {
                 commonAreas.value.push({
-                id: null,
-                name: null,
-                image: null,
-                src: null,
+                    id: null,
+                    name: null,
+                    image: null,
+                    src: null,
                 });
             } else {
                 VsToast.show({
-                    title: 'Warning',
-                    message: 'You can only add up to 5 common areas.',
-                    variant: 'warning',
+                    title: "Warning",
+                    message: "You can only add up to 5 common areas.",
+                    variant: "warning",
                 });
                 console.log();
             }
@@ -308,6 +382,9 @@ export default {
                     data.append("rooms_total", rooms_total.value);
                     data.append("dorm_image", dorm_image.value);
                     data.append("terms", terms.value);
+                    data.append("reservation", reservation.value);
+                    data.append("landmark", landmark.value);
+                    data.append("note", note.value);
                     data.append(
                         "business_permit_image_src",
                         business_permit_image_src.value
@@ -362,22 +439,56 @@ export default {
                 }
             );
         };
-
+        const statuss = ref('pending')
         const form = useForm({
             first_name: user.first_name,
             middle_name: user.middle_name,
             last_name: user.last_name,
             phone_number: user.phone_number,
-            email: user.email,
-            image: user.image,
-            bio: user.bio,
-            pk: user.pk,
-            sk: user.sk,
-            bank_name: user.bank_name,
-            account_name: user.account_name,
-            account_number: user.account_number,
-            payment_settings: true,
+            id_picture: '',
+            selfie_id_picture: '',
+            status: statuss.value
         });
+
+        const confirmSubmit = () => {
+            // form.post(route("submit.id"), {
+            //     onSuccess: () => {
+            //         location.reload();
+            //         VsToast.show({
+            //             title: "Submit",
+            //             message: "You've Submit successfuly",
+            //             variant: "success",
+            //         });
+            //     },
+            //     onError: (error) => {
+                    // VsToast.show({
+                    //     title: "Error",
+                    //     message: error,
+                    //     variant: "error",
+                    // });
+
+            //     },
+            // });
+
+            axios
+                .post(route("submit.id"), form)
+                .then((response) => {
+                    VsToast.show({
+                        title: "Submit",
+                        message: "You've Submit successfuly",
+                        variant: "success",
+                    });
+                    location.reload();
+                })
+                .catch((error) => {
+                    VsToast.show({
+                        title: "Error",
+                        message: error,
+                        variant: "error",
+                    });
+                });
+        };
+
         const openTermsModal = () => {
             var modal = document.getElementById("defaultModal");
 
@@ -428,46 +539,46 @@ export default {
 
             switch (active.value) {
                 case 1:
-                    isValid= true;
-                    break;
-                case 2:
                     isValid = commtotal && validateDormDetails();
                     break;
-                case 3:
+                case 2:
                     isValid = roomValidation && validateRoomsTotal();
                     break;
-                case 4:
+                case 3:
                     isValid = validateBusinessPermit();
                     break;
-                case 5:
+                case 4:
                     isValid = validateDormImage();
                     break;
-                case 6:
+                case 5:
                     isValid = validateAddress();
                     break;
-                case 7:
+                case 6:
                     isValid = validateRules();
                     break;
-                case 8:
+                case 7:
                     isValid = validateAmenities();
                     break;
-                case 9:
-                    isValid= true;
+                case 8:
+                    isValid
                     break;
-                case 10:
+                case 9:
                     isValid = validatePM();
                     break;
-                case 11:
+                case 10:
                     isValid = validateTerms();
                     break;
+                case 11:
+                    isValid
+                    break;
                 default:
-                    (isValid = true), (errors = {});
+                    (isValid = true), (errors.value = {});
             }
             return isValid;
         };
-        const validateCommonTotal = () => {
 
-            if (commonAreas.value.length < 2) {
+        const validateCommonTotal = () => {
+            if (commonAreas.value.length < 0) {
                 VsToast.show({
                     title: "Warning",
                     message: "Please add atleast 2 common areas",
@@ -478,6 +589,7 @@ export default {
 
             return true;
         };
+
         const validatePM = () => {
             let isValid = true;
             errorMessages.value.pk = "";
@@ -485,13 +597,11 @@ export default {
 
             if (pk.value.trim() === "") {
                 isValid = false;
-                errorMessages.value.pk =
-                    "Paymongo Public key is requred";
+                errorMessages.value.pk = "Paymongo Public key is requred";
             }
             if (sk.value.trim() === "") {
                 isValid = false;
-                errorMessages.value.sk =
-                    "Paymongo Secret key is requred";
+                errorMessages.value.sk = "Paymongo Secret key is requred";
             }
 
             return isValid;
@@ -543,6 +653,8 @@ export default {
             let isValid = true;
             errorMessages.value.address = "";
             errorMessages.value.detailed_address = "";
+            errorMessages.value.landmark = "";
+            errorMessages.value.note = "";
 
             if (address.value.trim() === "") {
                 isValid = false;
@@ -553,6 +665,18 @@ export default {
                 isValid = false;
                 errorMessages.value.detailed_address =
                     "Detailed address is required.";
+            }
+
+            if (landmark.value.trim() === "") {
+                isValid = false;
+                errorMessages.value.landmark =
+                    "Please input nearest landmark around your dorm.";
+            }
+
+            if (note.value.trim() === "") {
+                isValid = false;
+                errorMessages.value.note =
+                    "Navigate seekers to locate your dorm";
             }
 
             return isValid;
@@ -603,6 +727,7 @@ export default {
             errorMessages.value.description = "";
             errorMessages.value.floors_total = "";
             errorMessages.value.rooms_total = "";
+            errorMessages.value.reservation = "";
             errorMessages.value.commonArea = [];
 
             if (property_name.value.trim() === "") {
@@ -626,7 +751,12 @@ export default {
                 errorMessages.value.rooms_total =
                     "Number of rooms is required.";
             }
-            if (active.value === 2) {
+            if (reservation.value == null || reservation.value === "") {
+                isValid = false;
+                errorMessages.value.reservation =
+                    "Reservation fee is required.";
+            }
+            if (active.value === 1) {
                 errorMessages.value.commonArea = [];
 
                 commonAreas.value.forEach((commonArea, index) => {
@@ -667,7 +797,7 @@ export default {
             let isValid = true;
             errorMessages.value.room = [];
 
-            if (active.value === 3) {
+            if (active.value === 2) {
                 errorMessages.value.room = [];
                 rooms.value.forEach((room, index) => {
                     if (room) {
@@ -750,19 +880,49 @@ export default {
             return isValid;
         };
 
-        // Function to handle clicking "Next"
+
         const handleNext = () => {
             if (validateStep()) {
-                // Validation passed, proceed to the next step
                 active.value++;
             } else {
-                
             }
         };
+
+        const userStatus = ref(user.status)
+
+        const getUserStatus = () => {
+            if(userStatus.value == 'pending') {
+                axios
+                    .get(route("owner.status"))
+                    .then((response) => {
+                        userStatus.value = response.data
+                    })
+                    .catch((error) => {
+
+                    });
+            }
+
+        }
+
+        const recallTimer = ref(null);
+
+        onMounted(() => {
+            clearInterval(recallTimer.value);
+
+            recallTimer.value = setInterval(() => {
+                getUserStatus();
+            }, 10000);
+        });
+
 
         return {
             errorMessages,
             handleNext,
+            paymentMethods,
+            selectedSubscription,
+            subscriptions,
+            selectedPayment,
+            moneyFormat,
             form,
             active,
             loading,
@@ -774,6 +934,8 @@ export default {
             lat,
             long,
             detailed_address,
+            landmark,
+            note,
             property_name,
             description,
             floors_total,
@@ -787,6 +949,7 @@ export default {
             minimum_stay,
             rules,
             dorm_image,
+            reservation,
             dorm_image_src,
             business_permit_image,
             business_permit_image_src,
@@ -806,7 +969,10 @@ export default {
             dormImageChange,
             bpImageClick,
             bpImageChange,
+            idPictureChange,
+            SelfieidPictureChange,
             saveDorm,
+            confirmSubmit,
             validationError,
             openTermsModal,
             closeTermsModal,
@@ -821,211 +987,326 @@ export default {
             roomAreasChange,
             addCommonAreas,
             removeCommonAreas,
+            userStatus
         };
     },
 };
 </script>
 
 <template>
+
     <nav
         class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
-    <div
-                        class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4"
-                    >
-                    
-        <div class="px-3 py-3 lg:px-5 lg:pl-3">
-            <div class="flex items-center justify-between">
-                <a href="/">
-                    <ApplicationLogo />
-                </a>
+        <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-red-500" v-if="userStatus == 'decline'">
+            Your account has been declined. Reason: Please resubmit your valid id
+        </div>
+        <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-orange-400" v-if="userStatus == 'pending'">
+            You have pending status for user verication. Please wait for the system admin to approve you!
+        </div>
+        <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
+            <div class="px-3 py-3 lg:px-5 lg:pl-3">
+                <div class="flex items-center justify-between">
+                    <a href="/">
+                        <ApplicationLogo />
+                    </a>
 
-                <div class="flex items-center">
-                    <div class="flex items-center ml-3">
-                        <AppDropdown>
-                            <button
-                                type="button"
-                                class="flex text-sm text-black dark:text-white hover:text-gray-400"
-                                aria-expanded="false"
-                            >
-                                {{ $page.props.auth.user.first_name }}
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24"
-                                    class="ml-1 h-5 w-5 fill-current"
+                    <div class="flex items-center">
+                        <div class="flex items-center ml-3">
+                            <AppDropdown>
+                                <button
+                                    type="button"
+                                    class="flex text-sm text-black dark:text-white hover:text-gray-400"
+                                    aria-expanded="false"
                                 >
-                                    <path
-                                        d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
-                                    ></path>
-                                </svg>
-                            </button>
+                                    {{ $page.props.auth.user.first_name }}
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        class="ml-1 h-5 w-5 fill-current"
+                                    >
+                                        <path
+                                            d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
+                                        ></path>
+                                    </svg>
+                                </button>
 
-                            <AppDropdownContent class="">
-                                <AppDropdownItem
-                                    @click="logOut()"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                    role="menuitem"
-                                >
-                                    Logout
-                                </AppDropdownItem>
-                            </AppDropdownContent>
-                        </AppDropdown>
+                                <AppDropdownContent class="">
+                                    <AppDropdownItem
+                                        @click="logOut()"
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
+                                        role="menuitem"
+                                    >
+                                        Logout
+                                    </AppDropdownItem>
+                                </AppDropdownContent>
+                            </AppDropdown>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </nav>
-    <div class="max-w-[2520px] mt-16 xl:px-20 md:px-10 sm:px-2 px-4">
 
+    <div class="max-w-[2520px] mt-24 xl:px-20 md:px-10 sm:px-2 px-4" v-if="$page.props.auth.user.status == null || $page.props.auth.user.status == 'decline'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
-      
-            <div class="w-full items-center" v-if="active == 1">
-                <p class="font-bold text-2xl ">Step 1: Basic Info</p>
-                <p class="font-bold text-sm ">Add your profile details</p>
+            <div class="w-full items-center">
+                <p class="font-bold text-2xl">Verification Details</p>
                 <hr class="mt-5" />
-                <form>
-                    <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
-                                    Name:
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:w-1/3">
-                                <input
-                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="First Name">
-                            </div>
-                            <div class="w-full p-3 md:w-1/3">
-                                <input
-                                    class="w-full px-4 py-2.5 dark:bg-gray-800 placeholder-gray-400 dark:border-gray-800 dark:placeholder-gray-500 dark:text-gray-400  text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="Last Name">
-                            </div>
-                            
-                        </div>
-                    </div>
-                    </div>
-                    <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
-                                    Contact number:
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:flex-1">
-                                <input
-                                    class=" px-4 py-2.5 dark:bg-gray-800 dark:border-gray-800 dark:placeholder-gray-500 dark:text-gray-400  text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="number" placeholder="0915234876">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    </div>
-                    <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
-                                    Address:
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:w-1/2">
-                                <input
-                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="Address">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    </div>
-                    <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-400">Verificcation ID</p>
-                                <p class="text-xs font-semibold text-orange-400">(ex. Goverments ID, and School ID)</p>
-                            </div>
-                            <div class="w-full p-3 md:flex-1">
-                                <div class="flex items-center justify-center w-full md:w-1/2">
-                                    <label for="dropzone-file"
-                                        class="flex flex-col items-center justify-center w-full h-64 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                        <div class="flex flex-col items-center justify-center px-4 pt-5 pb-6">
-                                            <span class="text-blue-500 dark:text-gray-400"> <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="w-8 h-8 bi bi-cloud-upload"
-                                                    viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
-                                                </svg></span>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold text-blue-500">Click to upload</span> 
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                SVG, PNG, JPG or
-                                                GIF (upto 10MB)
-                                            </p>
-                                        </div>
-                                        <input type="file" class="hidden">
-                                    </label>
+                <form @submit.prevent="confirmSubmit">
+                    <div
+                        class="py-6 border-b border-gray-100 dark:border-gray-800"
+                    >
+                        <div class="w-full md:w-9/12">
+                            <div class="flex flex-wrap -m-3">
+                                <div class="w-full p-3 md:w-1/3">
+                                    <p
+                                        class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                    >
+                                        Name:
+                                    </p>
+                                </div>
+                                <div class="w-full p-3 md:w-1/3">
+                                    <input
+                                        class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                        type="text"
+                                        v-model='form.first_name'
+                                        placeholder="First Name"
+                                    />
+                                </div>
+                                <div class="w-full p-3 md:w-1/3">
+                                    <input
+                                        class="w-full px-4 py-2.5 dark:bg-gray-800 placeholder-gray-400 dark:border-gray-800 dark:placeholder-gray-500 dark:text-gray-400 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                        type="text"
+                                        v-model='form.last_name'
+                                        placeholder="Last Name"
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                </div>
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-400">Selfie with Verificcation ID</p>
-                                <p class="text-xs font-semibold text-orange-400">(Upload a selfie holding verification ID)</p>
-                            </div>
-                            <div class="w-full p-3 md:flex-1">
-                                <div class="flex items-center justify-center w-full md:w-1/2">
-                                    <label for="dropzone-file"
-                                        class="flex flex-col items-center justify-center w-full h-64 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                        <div class="flex flex-col items-center justify-center px-4 pt-5 pb-6">
-                                            <span class="text-blue-500 dark:text-gray-400"> <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="w-8 h-8 bi bi-cloud-upload"
-                                                    viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
-                                                </svg></span>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold text-blue-500">Click to upload</span> or drag
-                                                and drop
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                SVG, PNG, JPG or
-                                                GIF (upto 10MB)
-                                            </p>
-                                        </div>
-                                        <input type="file" class="hidden">
-                                    </label>
+                    <div
+                        class="py-6 border-b border-gray-100 dark:border-gray-800"
+                    >
+                        <div class="w-full md:w-9/12">
+                            <div class="flex flex-wrap -m-3">
+                                <div class="w-full p-3 md:w-1/3">
+                                    <p
+                                        class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                    >
+                                        Address:
+                                    </p>
+                                </div>
+                                <div class="w-full p-3 md:w-1/2">
+                                    <input
+                                        class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                        type="text"
+                                        placeholder="Address"
+                                    />
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                </div>
-                
+                    <div
+                        class="py-6 border-b border-gray-100 dark:border-gray-800"
+                    >
+                        <div class="w-full md:w-9/12">
+                            <div class="flex flex-wrap -m-3">
+                                <div class="w-full p-3 md:w-1/3">
+                                    <p
+                                        class="text-sm font-semibold text-gray-800 dark:text-gray-400"
+                                    >
+                                        Verificcation ID
+                                    </p>
+                                    <p
+                                        class="text-xs font-semibold text-orange-400"
+                                    >
+                                        (ex. Goverments ID, and School ID)
+                                    </p>
+                                </div>
+                                <div class="w-full p-3 md:flex-1">
+                                    <div
+                                        class="flex items-center justify-center w-full md:w-1/2"
+                                    >
+                                    <input
+                                        type="file"
+                                        id="idPicture"
+                                        class="hidden"
+                                        @change="idPictureChange($event)"
+                                        accept="image/*"
+                                        required
+                                    />
+                                        <label
+                                            for="idPicture"
+                                            class="flex flex-col items-center justify-center w-full h-64 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                                        >
+                                            <img
+                                                v-if="form.id_picture"
+                                                :src="form.id_picture"
+                                                alt="id picure"
+                                                class="h-64 w-full object-cover bg-no-repeat bg-center rounded-lg"
+                                            />
+                                            <div
+                                                v-else
+                                                class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                            >
+                                                <span
+                                                    class="text-blue-500 dark:text-gray-400"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        fill="currentColor"
+                                                        class="w-8 h-8 bi bi-cloud-upload"
+                                                        viewBox="0 0 16 16"
+                                                    >
+                                                        <path
+                                                            fill-rule="evenodd"
+                                                            d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                                        />
+                                                        <path
+                                                            fill-rule="evenodd"
+                                                            d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                                        /></svg></span>
+                                                <p
+                                                    class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                                                >
+                                                    <span
+                                                        class="font-semibold text-blue-500"
+                                                        >Click to upload</span
+                                                    >
+                                                </p>
+                                                <p
+                                                    class="text-xs text-gray-500 dark:text-gray-400"
+                                                >
+                                                    SVG, PNG, JPG or GIF (upto
+                                                    10MB)
+                                                </p>
+                                            </div>
+                                            <input type="file" class="hidden" />
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="py-6 border-b border-gray-100 dark:border-gray-800"
+                    >
+                        <div class="w-full md:w-9/12">
+                            <div class="flex flex-wrap -m-3">
+                                <div class="w-full p-3 md:w-1/3">
+                                    <p
+                                        class="text-sm font-semibold text-gray-800 dark:text-gray-400"
+                                    >
+                                        Selfie with Verificcation ID
+                                    </p>
+                                    <p
+                                        class="text-xs font-semibold text-orange-400"
+                                    >
+                                        (Upload a selfie holding verification
+                                        ID)
+                                    </p>
+                                </div>
+                                <div class="w-full p-3 md:flex-1">
+                                    <div
+                                        class="flex items-center justify-center w-full md:w-1/2"
+                                    >
+                                    <input
+                                        type="file"
+                                        id="selfie_id_picture"
+                                        class="hidden"
+                                        @change="SelfieidPictureChange($event)"
+                                        accept="image/*"
+                                        required
+                                    />
+
+                                        <label
+                                            for="selfie_id_picture"
+                                            class="flex flex-col items-center justify-center w-full h-64 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                                        >
+                                            <img
+                                                v-if="form.selfie_id_picture"
+                                                :src="form.selfie_id_picture"
+                                                alt="business permit"
+                                                class="h-64 w-full object-cover bg-no-repeat bg-center rounded-lg"
+                                            />
+                                            <div
+                                                class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                                v-else
+                                            >
+                                                <span
+                                                    class="text-blue-500 dark:text-gray-400"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        fill="currentColor"
+                                                        class="w-8 h-8 bi bi-cloud-upload"
+                                                        viewBox="0 0 16 16"
+                                                    >
+                                                        <path
+                                                            fill-rule="evenodd"
+                                                            d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                                        />
+                                                        <path
+                                                            fill-rule="evenodd"
+                                                            d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                                        /></svg></span>
+                                                <p
+                                                    class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                                                >
+                                                    <span
+                                                        class="font-semibold text-blue-500"
+                                                        >Click to upload</span
+                                                    >
+                                                    or drag and drop
+                                                </p>
+                                                <p
+                                                    class="text-xs text-gray-500 dark:text-gray-400"
+                                                >
+                                                    SVG, PNG, JPG or GIF (upto
+                                                    10MB)
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="px-4 py-2.5 rounded-lg bg-orange-400 text-white float-right mb-5">Submit</button>
                 </form>
             </div>
-            <div v-if="active == 11">
-                <div>
-                    <p class="text-2xl font-bold mt-1">Step 11: Term & Condition</p>
+        </div>
+    </div>
 
-                        <p class="text-xs mt-1">
-                            Set up your terms and condition
-                        </p>
+        <div class="flex items-center justify-center w-full h-screen" v-if="userStatus == 'pending'">
+            <div class="flex justify-center items-center space-x-1 text-sm text-gray-700">
+
+                        <svg fill='none' class="w-6 h-6 animate-spin" viewBox="0 0 32 32" xmlns='http://www.w3.org/2000/svg'>
+                            <path clip-rule='evenodd'
+                                d='M15.165 8.53a.5.5 0 01-.404.58A7 7 0 1023 16a.5.5 0 011 0 8 8 0 11-9.416-7.874.5.5 0 01.58.404z'
+                                fill='currentColor' fill-rule='evenodd' />
+                        </svg>
+
+
+                <div>Loading ...</div>
+            </div>
+        </div>
+
+    <div class="max-w-[2520px] mt-20 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == 'approved'">
+        <div class="px-3 py-3 lg:px-5 lg:pl-3">
+
+            <div v-if="active == 10">
+                <div>
+                    <p class="text-2xl font-bold mt-1">
+                        Step 10: Term & Condition
+                    </p>
+
+                    <p class="text-xs mt-1">Set up your terms and condition</p>
                     <hr class="my-5" />
                     <Editor
                         id="content"
@@ -1047,90 +1328,76 @@ export default {
                         >{{ errorMessages.terms }}
                     </span>
                 </div>
-                <div class="w-full mt-2">
-                    <input
-                        type="checkbox"
-                        value="I guarantee that all details provided are accurate and true."
-                        v-model="termsAndCondition"
-                    />
-                    <label class="ml-2 text-sn"
-                        >* I guarantee that all details provided are accurate
-                        and true.</label
-                    >
-                </div>
-
-                <div class="w-full mt-2">
-                    <input
-                        type="checkbox"
-                        value="I agree with the terms and condition."
-                        v-model="termsAndCondition"
-                    />
-                    <label class="ml-2 text-sm"
-                        >* I agree with the
-                        <span
-                            class="text-orange-400 cursor-pointer hover:underline"
-                            >terms and condition</span
-                        ></label
-                    >
-                </div>
             </div>
             <!--BusinessPermit-->
-            <div class="w-full" v-if="active == 4">
-                <p class="text-2xl font-bold mt-1 ">Step 3: Business Permit</p>
+            <div class="w-full" v-if="active == 3">
+                <p class="text-2xl font-bold mt-1">Step 3: Business Permit</p>
 
                 <p class="text-xs mt-1">Upload your business permit.</p>
                 <hr class="my-5" />
                 <div class="flex flex-col items-center w-full">
-                                    <input
-                                        type="file"
-                                        id="business_permit"
-                                        class="hidden"
-                                        @change="bpImageChange($event)"
-                                        accept="image/*"
-                                        required
-                                        >
-                                    <label
-                                            for="business_permit"
-                                            :class="{
-                                                'border-red-500':
-                                                    !!errorMessages.business_permit_image_src,
-                                            }"
-                                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                        <img
-                                            v-if="business_permit_image_src"
-                                            :src="business_permit_image_src"
-                                            alt="business permit"
-                                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
-                                        />
-                                        <div v-else class="flex flex-col items-center justify-center px-4 pt-5 pb-6">
-                                            <span class="text-blue-500 dark:text-gray-400"> <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="w-8 h-8 bi bi-cloud-upload"
-                                                    viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
-                                                </svg></span>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold text-blue-500">Click to upload</span> 
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                SVG, PNG, JPG or
-                                                GIF (upto 10MB)
-                                            </p>
-                                        </div>
-                                        <span class="text-xs text-red-500 ml-2"
-                                            >{{ errorMessages.business_permit_image_src }}
-                                        </span>
-                                                        
-                                        
-                                    </label>
-                                </div>
-
+                    <input
+                        type="file"
+                        id="business_permit"
+                        class="hidden"
+                        @change="bpImageChange($event)"
+                        accept="image/*"
+                        required
+                    />
+                    <label
+                        for="business_permit"
+                        :class="{
+                            'border-red-500':
+                                !!errorMessages.business_permit_image_src,
+                        }"
+                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                    >
+                        <img
+                            v-if="business_permit_image_src"
+                            :src="business_permit_image_src"
+                            alt="business permit"
+                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
+                        />
+                        <div
+                            v-else
+                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                        >
+                            <span class="text-blue-500 dark:text-gray-400">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="w-8 h-8 bi bi-cloud-upload"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                    />
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                    /></svg></span>
+                            <p
+                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                <span class="font-semibold text-blue-500"
+                                    >Click to upload</span
+                                >
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                SVG, PNG, JPG or GIF (upto 10MB)
+                            </p>
+                        </div>
+                        <span class="text-xs text-red-500 ml-2"
+                            >{{ errorMessages.business_permit_image_src }}
+                        </span>
+                    </label>
+                </div>
             </div>
             <!--Dorm Image-->
-            <div class="w-full" v-if="active == 5">
+            <div class="w-full" v-if="active == 4">
                 <p class="text-2xl font-bold mt-1 ml-2">Step 4: Dorm Image</p>
 
                 <p class="text-xs mt-1 ml-2">
@@ -1138,63 +1405,78 @@ export default {
                 </p>
                 <hr class="my-5" />
                 <div class="flex flex-col items-center w-full">
-                                    <input
-                                        type="file"
-                                        id="dorm_image"
-                                        class="hidden"
-                                        @change="dormImageChange($event)"
-                                        accept="image/*"
-                                        >
-                                    <label
-                                            for="dorm_image"
-                                            :class="{
-                                            'border-red-500':
-                                                !!errorMessages.dorm_image_src,
-                                            }"
-                                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                        <img
-                                            v-if="dorm_image_src"
-                                            :src="dorm_image_src"
-                                            alt="dorm_image"
-                                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
-                                        />
-                                        <div v-else class="flex flex-col items-center justify-center px-4 pt-5 pb-6">
-                                            <span class="text-blue-500 dark:text-gray-400"> <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="w-8 h-8 bi bi-cloud-upload"
-                                                    viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
-                                                </svg></span>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold text-blue-500">Click to upload</span> 
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                SVG, PNG, JPG or
-                                                GIF (upto 10MB)
-                                            </p>
-                                        </div>
-                                        <span class="text-xs text-red-500 ml-2"
-                                            >{{ errorMessages.dorm_image_src }}
-                                        </span>
-                                                        
-                                        
-                                    </label>
-                                </div>
-               
+                    <input
+                        type="file"
+                        id="dorm_image"
+                        class="hidden"
+                        @change="dormImageChange($event)"
+                        accept="image/*"
+                        >
+                    <label
+                        for="dorm_image"
+                        :class="{
+                            'border-red-500': !!errorMessages.dorm_image_src,
+                        }"
+                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                    >
+                        <img
+                            v-if="dorm_image_src"
+                            :src="dorm_image_src"
+                            alt="dorm_image"
+                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
+                        />
+                        <div
+                            v-else
+                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                        >
+                            <span class="text-blue-500 dark:text-gray-400">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="w-8 h-8 bi bi-cloud-upload"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                    />
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                    /></svg></span>
+                            <p
+                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                <span class="font-semibold text-blue-500"
+                                    >Click to upload</span
+                                >
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                SVG, PNG, JPG or GIF (upto 10MB)
+                            </p>
+                        </div>
+                        <span class="text-xs text-red-500 ml-2"
+                            >{{ errorMessages.dorm_image_src }}
+                        </span>
+                    </label>
+                </div>
             </div>
             <!--Address-->
-            <div class="flex flex-col w-full" v-if="active == 6">
-                <p class="font-bold text-2xl ">Step 5: Dorm Address</p>
-                <p class="font-bold text-sm ">Allow seekers to locate your dorm</p>
+            <div class="flex flex-col w-full" v-if="active == 5">
+                <p class="font-bold text-2xl">Step 5: Dorm Address</p>
+                <p class="font-bold text-sm">
+                    Allow seekers to locate your dorm
+                </p>
                 <hr class="mt-5" />
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Map Address:
                                 </p>
                             </div>
@@ -1202,56 +1484,92 @@ export default {
                                 <input
                                     id="address"
                                     v-model="address"
-                                    :class="{ 'border-red-500': !!errorMessages.address }"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.address,
+                                    }"
                                     required
                                     autocomplete="address"
                                     @input="changeAddress($event)"
                                     class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text">
+                                    type="text"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.address }}
+                                </span>
                             </div>
-                            
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Nearest Landmark:
                                 </p>
                             </div>
                             <div class="w-full p-3 md:w-1/2">
                                 <input
+                                    id="detailed_address"
+                                    v-model="landmark"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.landmark,
+                                    }"
+                                    required
+                                    autocomplete="landmark"
+                                    placeholder="Waltermart"
                                     class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="">
+                                    type="text"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.landmark }}
+                                </span>
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Note Direction(optional):
                                 </p>
                             </div>
                             <div class="w-full p-3 md:w-1/2">
                                 <input
+                                    id="detailed_address"
+                                    v-model="note"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.note,
+                                    }"
+                                    required
+                                    autocomplete="landmark"
+                                    placeholder="Kaliwa, kanan kaliwa"
                                     class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="">
+                                    type="text"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.note }}
+                                </span>
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
-                    <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Detailed Address:
                                 </p>
                             </div>
@@ -1260,26 +1578,33 @@ export default {
                                     id="detailed_address"
                                     v-model="detailed_address"
                                     :class="{
-                                        'border-red-500': !!errorMessages.detailed_address,
+                                        'border-red-500':
+                                            !!errorMessages.detailed_address,
                                     }"
                                     required
                                     autocomplete="detailed_address"
                                     placeholder="House No., Street, Barangay, Municipaluty, Province, Region"
                                     class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text">
+                                    type="text"
+                                />
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
-                    <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-sm font-semibold text-gray-800 dark:text-gray-400">Maps</p>
+                                <p
+                                    class="text-sm font-semibold text-gray-800 dark:text-gray-400"
+                                >
+                                    Maps
+                                </p>
                             </div>
                             <div class="w-full p-3 md:flex-1">
-                                <div class="flex items-center justify-center w-full md:w-1/2">
+                                <div
+                                    class="flex items-center justify-center w-full md:w-1/2"
+                                >
                                     <div class="w-full p-2">
                                         <MapboxMap
                                             style="height: 310px"
@@ -1299,23 +1624,19 @@ export default {
                             </div>
                         </div>
                     </div>
-                    
                 </div>
-
-                
             </div>
             <!--Dorm Desc-->
-            <div class="flex flex-col w-full" v-if="active == 2">
-                
-                <p class="text-2xl font-bold mt-1 mb-2">
-                    Step 2: Dorm Details
-                </p>
+            <div class="flex flex-col w-full" v-if="active == 1">
+                <p class="text-2xl font-bold mt-1 mb-2">Step 1: Dorm Details</p>
                 <hr class="mt-5" />
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Dorm Name:
                                 </p>
                             </div>
@@ -1324,23 +1645,30 @@ export default {
                                     id="property_name"
                                     v-model="property_name"
                                     :class="{
-                                        'border-red-500': !!errorMessages.property_name,
+                                        'border-red-500':
+                                            !!errorMessages.property_name,
                                     }"
                                     class="w-full md:w-2/3 dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="Dorm Name">
-                                    <span class="text-xs text-red-500 ml-2"
-                                        >{{ errorMessages.property_name }}
+                                    type="text"
+                                    placeholder="Dorm Name"
+                                />
+                                <div>
+                                    <span class="text-xs text-red-500 ml-2">
+                                        {{ errorMessages.property_name }}
                                     </span>
+                                </div>
+
                             </div>
-                            
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Describe your dorm:
                                 </p>
                             </div>
@@ -1349,23 +1677,27 @@ export default {
                                     id="description"
                                     v-model="description"
                                     :class="{
-                                    'border-red-500': !!errorMessages.description,
+                                        'border-red-500':
+                                            !!errorMessages.description,
                                     }"
                                     class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text" placeholder="Dorm Description">
-                                    <span class="text-xs text-red-500 ml-2"
-                                        >{{ errorMessages.description }}
-                                    </span>
+                                    type="text"
+                                    placeholder="Dorm Description"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.description }}
+                                </span>
                             </div>
-                            
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Total no. of Floors:
                                 </p>
                             </div>
@@ -1374,23 +1706,30 @@ export default {
                                     id="floors_total"
                                     v-model="floors_total"
                                     :class="{
-                                        'border-red-500': !!errorMessages.floors_total,
+                                        'border-red-500':
+                                            !!errorMessages.floors_total,
                                     }"
                                     class="w-full md:w-2/4 dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="number" placeholder="">
-                                    <span class="text-xs text-red-500 ml-2"
-                                        >{{ errorMessages.floors_total }}
-                                    </span>
+                                    type="number"
+                                    placeholder=""
+                                />
+                             <div>
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.floors_total }}
+                                </span>
+                             </div>
+
                             </div>
-                            
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Total no. of Rooms:
                                 </p>
                             </div>
@@ -1400,43 +1739,56 @@ export default {
                                     v-model="rooms_total"
                                     required
                                     :class="{
-                                        'border-red-500': !!errorMessages.rooms_total,
+                                        'border-red-500':
+                                            !!errorMessages.rooms_total,
                                     }"
                                     class="w-full md:w-2/4 dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="number" placeholder="">
+                                    type="number"
+                                    placeholder=""
+                                />
+                                <div>
                                     <span class="text-xs text-red-500 ml-2"
-                                        >{{ errorMessages.rooms_total }}
+                                    >{{ errorMessages.rooms_total }}
                                     </span>
+                                </div>
+
                             </div>
-                            
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Reservation Fee:
                                 </p>
                             </div>
                             <div class="w-full p-3 md:w-1/3">
                                 <input
-                                    id="res_fee"
+                                    id="reservation"
                                     required
+                                    v-model="reservation"
                                     :class="{
-                                        'border-red-500': !!errorMessages.res_fee,
+                                        'border-red-500':
+                                            !!errorMessages.reservation,
                                     }"
                                     class="w-full md:w-2/4 dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="number" placeholder="">
+                                    type="number"
+                                    placeholder=""
+                                />
+                                <div>
                                     <span class="text-xs text-red-500 ml-2"
-                                        >{{ errorMessages.res_fee }}
+                                    >{{ errorMessages.reservation }}
                                     </span>
+                                </div>
+
                             </div>
-                            
                         </div>
                     </div>
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
@@ -1449,112 +1801,173 @@ export default {
                                 </button>
                             </div>
                             <div class="w-full md:w-1/2">
-                                <div class="w-full flex flex-col p-3"
-                                v-for="(commonArea, index) in commonAreas"
-                                :key="index"
-                            >   
-                                <div class="flex flex-row gap-1 mb-2 w-full">
-                                    <div class="w-full">
-                                        <div class="flex flex-row justify-between items-center">
-                                            <p class="text-md font-bold">Description:</p>
-                                            <span
-                                                class="float-right cursor-pointer"
-                                                @click="removeCommonAreas(index)"
+                                <div
+                                    class="w-full flex flex-col p-3"
+                                    v-for="(commonArea, index) in commonAreas"
+                                    :key="index"
+                                >
+                                    <div
+                                        class="flex flex-row gap-1 mb-2 w-full"
+                                    >
+                                        <div class="w-full">
+                                            <div
+                                                class="flex flex-row justify-between items-center"
                                             >
-                                                <i class="fa-solid fa-trash-can"></i>
-                                            </span>
-                                        </div>
-                                        <select 
-                                        required
-                                        v-model="commonArea.name"
-                                        :class="{
-                                            'border-red-500':
-                                                !!errorMessages.commonArea[index]
-                                                    ?.name && !commonArea.name,
-                                        }"
-                                        class="w-full rounded-lg border-gray-300">
-                                            <option>Living Room</option>
-                                            <option>Kitchen</option>
-                                            <option>Bathroom</option>
-                                        </select>
-                                        <div v-if="errorMessages.commonArea[index]">
-                                            <p class="text-xs text-red-500 ml-2">
-                                                {{ errorMessages.commonArea[index].name }}
-                                            </p>
+                                                <p class="text-md font-bold">
+                                                    Description:
+                                                </p>
+                                                <span
+                                                    class="float-right cursor-pointer"
+                                                    @click="
+                                                        removeCommonAreas(index)
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fa-solid fa-trash-can"
+                                                    ></i>
+                                                </span>
+                                            </div>
+                                            <select
+                                                required
+                                                v-model="commonArea.name"
+                                                :class="{
+                                                    'border-red-500':
+                                                        !!errorMessages
+                                                            .commonArea[index]
+                                                            ?.name &&
+                                                        !commonArea.name,
+                                                }"
+                                                class="w-full rounded-lg border-gray-300"
+                                            >
+                                                <option>Living Room</option>
+                                                <option>Kitchen</option>
+                                                <option>Bathroom</option>
+                                            </select>
+                                            <div
+                                                v-if="
+                                                    errorMessages.commonArea[
+                                                        index
+                                                    ]
+                                                "
+                                            >
+                                                <p
+                                                    class="text-xs text-red-500 ml-2"
+                                                >
+                                                    {{
+                                                        errorMessages
+                                                            .commonArea[index]
+                                                            .name
+                                                    }}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                </div>
-                                
-                                <div class="flex flex-col items-center w-full">
-                                    <input
-                                         required
-                                         type="file"
-                                         :id="'areas_image' + index"
-                                         :ref="'areas_image_' + index"
-                                         @change="
-                                            roomAreasChange(
-                                                $event,
-                                                'areas_image' + index,
-                                                index
-                                            ) "
-                                         accept="image/*" 
-                                         class="hidden"
-                                        >
-                                    <label :for="'areas_image' + index"
-                                            :class="{
-                                            'border-red-500':
-                                                !!errorMessages.commonArea[index]
-                                                    ?.src && !commonArea.src,
-                                        }"
-                                        class="flex flex-col items-center justify-center w-full h-64 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                        <img
-                                            v-if="commonArea.src"
-                                            :src="commonArea.src"
-                                            alt="areas_image"
-                                            class="h-64 w-full rounded-lg object-cover bg-no-repeat bg-center"
-                                            @click="
-                                                roomAreasClick('areas_image' + index)
+
+                                    <div
+                                        class="flex flex-col items-center w-full"
+                                    >
+                                        <input
+                                            required
+                                            type="file"
+                                            :id="'areas_image' + index"
+                                            :ref="'areas_image_' + index"
+                                            @change="
+                                                roomAreasChange(
+                                                    $event,
+                                                    'areas_image' + index,
+                                                    index
+                                                )
                                             "
+                                            accept="image/*"
+                                            class="hidden"
                                         />
-                                        <div v-else class="flex flex-col items-center justify-center px-4 pt-5 pb-6">
-                                            <span class="text-blue-500 dark:text-gray-400"> <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="w-8 h-8 bi bi-cloud-upload"
-                                                    viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
-                                                </svg></span>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold text-blue-500">Click to upload</span> 
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                SVG, PNG, JPG or
-                                                GIF (upto 10MB)
-                                            </p>
-                                        </div>
-                                        <div v-if="errorMessages.commonArea[index]">
-                                            <p class="text-xs text-red-500 ml-2">
-                                                {{ errorMessages.commonArea[index].src }}
-                                            </p>
-                                        </div>
-                                       
-                                        
-                                    </label>
+                                        <label
+                                            :for="'areas_image' + index"
+                                            :class="{
+                                                'border-red-500':
+                                                    !!errorMessages.commonArea[
+                                                        index
+                                                    ]?.src && !commonArea.src,
+                                            }"
+                                            class="flex flex-col items-center justify-center w-full h-64 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                                        >
+                                            <img
+                                                v-if="commonArea.src"
+                                                :src="commonArea.src"
+                                                alt="areas_image"
+                                                class="h-64 w-full rounded-lg object-cover bg-no-repeat bg-center"
+                                                @click="
+                                                    roomAreasClick(
+                                                        'areas_image' + index
+                                                    )
+                                                "
+                                            />
+                                            <div
+                                                v-else
+                                                class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                            >
+                                                <span
+                                                    class="text-blue-500 dark:text-gray-400"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        width="16"
+                                                        height="16"
+                                                        fill="currentColor"
+                                                        class="w-8 h-8 bi bi-cloud-upload"
+                                                        viewBox="0 0 16 16"
+                                                    >
+                                                        <path
+                                                            fill-rule="evenodd"
+                                                            d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                                        />
+                                                        <path
+                                                            fill-rule="evenodd"
+                                                            d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                                        /></svg></span>
+                                                <p
+                                                    class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                                                >
+                                                    <span
+                                                        class="font-semibold text-blue-500"
+                                                        >Click to upload</span
+                                                    >
+                                                </p>
+                                                <p
+                                                    class="text-xs text-gray-500 dark:text-gray-400"
+                                                >
+                                                    SVG, PNG, JPG or GIF (upto
+                                                    10MB)
+                                                </p>
+                                            </div>
+                                            <div
+                                                v-if="
+                                                    errorMessages.commonArea[
+                                                        index
+                                                    ]
+                                                "
+                                            >
+                                                <p
+                                                    class="text-xs text-red-500 ml-2"
+                                                >
+                                                    {{
+                                                        errorMessages
+                                                            .commonArea[index]
+                                                            .src
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <hr class="my-5" />
                                 </div>
-                                <hr class="my-5" />
                             </div>
-                            </div>
-                            
                         </div>
                     </div>
-                    
                 </div>
             </div>
             <!--Rooms-->
-            <div class="w-full" v-if="active == 3">
+            <div class="w-full" v-if="active == 2">
                 <p class="text-2xl font-bold mt-1 ml-2 mb-2">
                     Step 2: Add rooms
                 </p>
@@ -1588,65 +2001,83 @@ export default {
                         <InputLabel value="Room Image" class="text-black" />
 
                         <div class="flex flex-col items-center w-full">
-                                    <input
-                                         type="file"
-                                        :id="'room_image' + index"
-                                        :ref="'room_image_' + index"
-                                        style="display: none"
-                                        @change="
-                                            roomImageChange(
-                                                $event,
-                                                'room_image' + index,
-                                                index
-                                            )
-                                        "
-                                        accept="image/*"
-                                        required
+                            <input
+                                type="file"
+                                :id="'room_image' + index"
+                                :ref="'room_image_' + index"
+                                style="display: none"
+                                @change="
+                                    roomImageChange(
+                                        $event,
+                                        'room_image' + index,
+                                        index
+                                    )
+                                "
+                                accept="image/*"
+                                required
+                            />
+                            <label
+                                :for="'room_image' + index"
+                                :class="{
+                                    'border-red-500':
+                                        !!errorMessages.room[index]?.src &&
+                                        !room.src,
+                                }"
+                                class="flex flex-col items-center justify-center w-full h-80 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                            >
+                                <img
+                                    v-if="room.src"
+                                    :src="room.src"
+                                    alt="room_image"
+                                    class="h-80 w-full rounded-lg object-cover bg-no-repeat bg-center"
+                                    @click="
+                                        roomImageClick('room_image' + index)
+                                    "
+                                />
+                                <div
+                                    v-else
+                                    class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                >
+                                    <span
+                                        class="text-blue-500 dark:text-gray-400"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            fill="currentColor"
+                                            class="w-8 h-8 bi bi-cloud-upload"
+                                            viewBox="0 0 16 16"
                                         >
-                                    <label :for="'room_image' + index"
-                                            :class="{
-                                                'border-red-500':
-                                                    !!errorMessages.room[index]?.src &&
-                                                    !room.src,
-                                            }"
-                                        class="flex flex-col items-center justify-center w-full h-80 bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 ">
-                                        <img
-                                            v-if="room.src"
-                                            :src="room.src"
-                                            alt="room_image"
-                                            class="h-80 w-full rounded-lg object-cover bg-no-repeat bg-center"
-                                            @click="
-                                                roomImageClick('room_image' + index)
-                                            "
-                                        />
-                                        <div v-else class="flex flex-col items-center justify-center px-4 pt-5 pb-6">
-                                            <span class="text-blue-500 dark:text-gray-400"> <svg
-                                                    xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                    fill="currentColor" class="w-8 h-8 bi bi-cloud-upload"
-                                                    viewBox="0 0 16 16">
-                                                    <path fill-rule="evenodd"
-                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z" />
-                                                    <path fill-rule="evenodd"
-                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z" />
-                                                </svg></span>
-                                            <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                                                <span class="font-semibold text-blue-500">Click to upload</span> 
-                                            </p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                                SVG, PNG, JPG or
-                                                GIF (upto 10MB)
-                                            </p>
-                                        </div>
-                                        <div v-if="errorMessages.room[index]">
-                                            <p class="text-xs text-red-500 ml-2">
-                                                {{ errorMessages.room[index].src }}
-                                            </p>
-                                        </div>
-                                       
-                                        
-                                    </label>
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                            />
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                            /></svg></span>
+                                    <p
+                                        class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                                    >
+                                        <span
+                                            class="font-semibold text-blue-500"
+                                            >Click to upload</span
+                                        >
+                                    </p>
+                                    <p
+                                        class="text-xs text-gray-500 dark:text-gray-400"
+                                    >
+                                        SVG, PNG, JPG or GIF (upto 10MB)
+                                    </p>
                                 </div>
-
+                                <div v-if="errorMessages.room[index]">
+                                    <p class="text-xs text-red-500 ml-2">
+                                        {{ errorMessages.room[index].src }}
+                                    </p>
+                                </div>
+                            </label>
+                        </div>
 
                         <div class="w-full mt-3">
                             <div class="flex flex-row mt-3">
@@ -1769,21 +2200,19 @@ export default {
                                 </div>
                             </div>
                             <div class="w-full mx-1">
-                                    <InputLabel
-                                        for="furnshiedDescription"
-                                        class="text-black"
-                                        value="Furnished Description"
-                                    />
-                                    <TextInput
+                                <InputLabel
+                                    for="furnshiedDescription"
+                                    class="text-black"
+                                    value="Furnished Description"
+                                />
+                                <TextInput
                                     id="fee"
                                     type="text"
                                     class="mt-1 block w-full text-black"
                                     placeholder="ex. With bed, refridgirator etc."
                                     required
                                 />
-                            
-                                    
-                                </div>
+                            </div>
                         </div>
 
                         <div class="w-full flex flex-row mt-3">
@@ -1855,30 +2284,30 @@ export default {
                         </div>
                     </div>
                 </div>
-
-                
             </div>
             <!--Rules-->
-            <div class="w-full" v-if="active == 7">
-                <p class="text-2xl font-bold mt-1  text-black">Step 6: Rules</p>
+            <div class="w-full" v-if="active == 6">
+                <p class="text-2xl font-bold mt-1 text-black">Step 6: Rules</p>
 
                 <p class="text-xs mt-1 text-black">
                     Your house your rules. Define the dos and dont of your
                     tenants.
                 </p>
-                <hr class="mt-5"/>
+                <hr class="mt-5" />
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Is short term stay allowed?:
                                 </p>
                             </div>
                             <div class="w-full p-3 md:flex-1">
                                 <select
                                     v-model="short_term"
-                                    class=" border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    class="border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                 >
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
@@ -1906,20 +2335,21 @@ export default {
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Is Co-ed mixed gender allowed ?:
                                 </p>
                             </div>
                             <div class="w-full p-3 md:flex-1">
                                 <select
                                     v-model="mix_gender"
-                                    class=" border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    class="border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                 >
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
@@ -1928,24 +2358,24 @@ export default {
                                 <span class="text-xs text-red-500 ml-2"
                                     >{{ errorMessages.mix_gender }}
                                 </span>
-                                
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
+                </div>
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
-                                <p class="text-base font-semibold text-gray-700 dark:text-gray-400">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
                                     Do you have a curfew?:
                                 </p>
                             </div>
                             <div class="w-full p-3 md:flex-1">
                                 <select
                                     v-model="curfew"
-                                    class=" border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                    class="border-gray-300 text-black focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                 >
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
@@ -1954,32 +2384,34 @@ export default {
                                 <span class="text-xs text-red-500 ml-2"
                                     >{{ errorMessages.curfew }}
                                 </span>
-                            <div class="mt-4" v-if="curfew == 'Yes'">
-                                <InputLabel
-                                    class="text-black"
-                                    value="What is the curfew hours ?"
-                                />
+                                <div class="mt-4" v-if="curfew == 'Yes'">
+                                    <InputLabel
+                                        class="text-black"
+                                        value="What is the curfew hours ?"
+                                    />
 
-                                <TextInput
-                                    id="curfew_hours"
-                                    type="text"
-                                    class="block w-full text-black"
-                                    v-model="curfew_hours"
-                                    required
-                                    autocomplete="curfew_hours"
-                                    placeholder="e. 12am-3am"
-                                />
-                                <span class="text-xs text-red-500 ml-2"
-                                    >{{ validationError("curfew_hours", errors) }}
-                                </span>
-                            </div>
-                                
+                                    <TextInput
+                                        id="curfew_hours"
+                                        type="text"
+                                        class="block w-full text-black"
+                                        v-model="curfew_hours"
+                                        required
+                                        autocomplete="curfew_hours"
+                                        placeholder="e. 12am-3am"
+                                    />
+                                    <span class="text-xs text-red-500 ml-2"
+                                        >{{
+                                            validationError(
+                                                "curfew_hours",
+                                                errors
+                                            )
+                                        }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    </div>
-                
+                </div>
 
                 <div class="w-full flex flex-col mt-5 px-1">
                     <div
@@ -2023,7 +2455,7 @@ export default {
                 </div>
             </div>
             <!--Amenities-->
-            <div class="w-full" v-if="active == 8">
+            <div class="w-full" v-if="active == 7">
                 <p class="text-2xl font-bold mt-1 ml-3">Step 7: Amenities</p>
 
                 <p class="text-xs mt-1 ml-3">Select all apply</p>
@@ -2143,7 +2575,7 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="w-full" v-if="active == 9">
+            <div class="w-full" v-if="active == 8">
                 <p class="text-2xl font-bold mt-1 ml-3">Step 8: Services</p>
 
                 <p class="text-xs mt-1 ml-3">Select all apply</p>
@@ -2190,12 +2622,9 @@ export default {
                             Cleaning Service
                         </button>
                     </div>
-
                 </div>
 
                 <div class="w-full flex flex-row mt-5">
-                    
-
                     <div class="w-full m-2">
                         <button
                             class="py-2 px-4 rounded-sm w-full"
@@ -2212,7 +2641,6 @@ export default {
                 </div>
 
                 <div class="w-full flex flex-row mt-5">
-                    
                     <div class="w-full m-2">
                         <button
                             class="py-2 px-4 rounded-sm w-full"
@@ -2228,21 +2656,19 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="w-full" v-if="active == 10">
-                <p class="text-2xl font-bold mt-1 ml-3">Step 9: Payment Method Setup</p>
-
-                <p class="text-xs mt-1 ml-3">
-                    Set up your payment method to receive payments.
+            <div class="w-full" v-if="active == 9">
+                <p class="text-2xl font-bold mt-1">
+                    Step 9: Payment Method Setup
                 </p>
 
-                <div class="w-full">
-                    <div
-                        class="flex-1 pl-6 pr-6 lg:pt-6"
-                        v-if="user.user_type == 'owner'"
-                    >
-                        <!--Paymongo-->
-                        <div class="mb-6 last:mb-0">
-                            <div>
+                <p class="text-xs mt-1">
+                    Set up your payment method to receive payments.
+                </p>
+                <hr class="mt-5" />
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
                                 <div>
                                     <div class="flex gap-2 items-center">
                                         <label class="block font-bold mb-2"
@@ -2265,170 +2691,288 @@ export default {
                                             />
                                         </svg>
                                     </div>
-                                    <span class="text-xs text-red-500"></span>
+                                    <span class="text-xs text-gray-400">Required. Paymongo</span>
                                 </div>
                             </div>
-
-                            <div class="grid grid-rows-2 gap-2">
-                                <!--PK-->
-                                <div class="relative">
+                            <div class="w-full md:w-2/6 p-3">
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-bold">Public Key:</p>
                                     <input
                                         id="pk"
                                         v-model="pk"
+                                        :class="{
+                                            'border-red-500':
+                                                !!errorMessages.pk
+                                        }"
                                         required=""
                                         placeholder="Paymongo Public Key"
                                         type="text"
-                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
-                                    /><span
-                                        class="inline-flex justify-center items-center w-10 h-12 absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="16"
-                                            height="16"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"
-                                            /></svg></span>
-                                <span class="text-xs text-red-500 ml-2"
-                                    >{{ errorMessages.pk }}
-                                </span>
+                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
+                                    />
+                                    <span class="text-xs text-red-500 ml-2"
+                                        >{{ errorMessages.pk }}
+                                    </span>
                                 </div>
-                                
-                                <!--SK-->
-                                <div class="relative">
+                                <div class="flex mt-4 flex-col">
+                                    <p class="text-sm font-bold">Secret Key:</p>
                                     <input
                                         id="sk"
                                         v-model="sk"
+                                        :class="{
+                                            'border-red-500':
+                                                !!errorMessages.sk
+                                        }"
                                         required=""
                                         placeholder="Paymongo Secret Key"
                                         type="text"
-                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
-                                    /><span
-                                        class="inline-flex justify-center items-center w-10 h-12 absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="16"
-                                            height="16"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"
-                                            /></svg></span>
+                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
+                                    />
                                     <span class="text-xs text-red-500 ml-2"
-                                        >{{ errorMessages.sk}}
+                                        >{{ errorMessages.sk }}
                                     </span>
                                 </div>
-                                
-                            </div>
-                            <div
-                                class="text-xs text-gray-500 dark:text-slate-400 mt-1"
-                            >
-                                Required. Paymongo
-                            </div>
-                        </div>
-                        <!--Bank-->
-                        <div
-                            class="mb-6 last:mb-0"
-                            v-if="user.user_type == 'owner'"
-                        >
-                            <div>
-                                <div>
-                                    <label class="block font-bold mb-2"
-                                        >Bank Details
-                                        <span class="text-sm text-gray-400"
-                                            >(Optional)</span
-                                        ></label
-                                    >
-                                </div>
-                            </div>
-
-                            <div class="grid grid-rows-2 gap-2">
-                                <!--Bank Name-->
-                                <div class="relative">
-                                    <input
-                                        id="bank_name"
-                                        v-model="bank_name"
-                                        placeholder="Bank Name"
-                                        type="text"
-                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
-                                    /><span
-                                        class="inline-flex justify-center items-center w-10 h-12 absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="16"
-                                            height="16"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"
-                                            /></svg></span>
-                                </div>
-                                <!--Account Name-->
-                                <div class="relative">
-                                    <input
-                                        id="acc_name"
-                                        v-model="account_name"
-                                        placeholder="Account Name"
-                                        type="text"
-                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
-                                    /><span
-                                        class="inline-flex justify-center items-center w-10 h-12 absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="16"
-                                            height="16"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
-                                            /></svg></span>
-                                </div>
-                                <!--Account Number-->
-                                <div class="relative">
-                                    <input
-                                        id="acc_number"
-                                        v-model="account_number"
-                                        placeholder="Account Number"
-                                        type="text"
-                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full md:w-[30%] 12 border bg-white pl-10"
-                                    /><span
-                                        class="inline-flex justify-center items-center w-10 h-12 absolute top-0 left-0 z-10 pointer-events-none text-gray-500 dark:text-slate-400"
-                                        ><svg
-                                            viewBox="0 0 24 24"
-                                            width="16"
-                                            height="16"
-                                            class="inline-block"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"
-                                            /></svg></span>
-                                </div>
-                            </div>
-                            <div
-                                class="text-xs text-gray-500 dark:text-slate-400 mt-1"
-                            >
-                                Optional. Bank Details
                             </div>
                         </div>
                     </div>
                 </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
+                                <div>
+                                    <div class="flex gap-2 items-center">
+                                        <label class="block font-bold mb-2"
+                                            >Bank Details <span class="text-gray-400 text-sm">(Optional)</span></label
+                                        >
+                                    </div>
+                                    <span class="text-xs text-gray-400">Optional. Bank Details</span>
+                                </div>
+                            </div>
+                            <div class="w-full md:w-2/6 p-3">
+                                <div class="flex flex-col">
+                                    <p class="text-sm font-bold">Bank Name:</p>
+                                    <input
+                                        id="bank_name"
+                                        v-model="bank_name"
+                                        required
+                                        type="text"
+                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
+                                    />
+                                </div>
+                                <div class="flex mt-4 flex-col">
+                                    <p class="text-sm font-bold">Account Name:</p>
+                                    <input
+                                        id="account_name"
+                                        v-model="account_name"
+                                        placeholder=""
+                                        type="text"
+                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
+                                    />
+                                </div>
+                                <div class="flex mt-4 flex-col">
+                                    <p class="text-sm font-bold">Account Number:</p>
+                                    <input
+                                        id="account_number"
+                                        v-model="account_number"
+                                        required
+                                        placeholder=""
+                                        type="text"
+                                        class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="w-full" v-if="active == 11">
+                <div clas="w-full grid grid-cols-3 gap-5">
+                    <div className=" max-w-screen-lg mx-auto ">
+                        <p class="text-4xl font-black text-orange-400">You're almost there! Complete your dormitory listing</p>
+                        <div>
+                        <p class="text-3xl font-extrabold mt-5 text-black">1. Choose a subscription</p>
+                        <ul class="grid w-full gap-6 md:grid-cols-3 mt-5">
+                            <!-- Your radio buttons -->
+                            <li v-for="subscription in subscriptions" :key="subscription.value">
+                                <input type="radio" :id="subscription.value" name="subscription" :value="subscription" class="hidden peer" v-model="selectedSubscription" required>
+                                <label :for="subscription.value" class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-orange-600 peer-checked:text-orange-400 hover:text-gray-600 hover:bg-gray-100 ">
+                                <div class="block">
+                                    <div class="w-full text-lg font-semibold">{{ subscription.label }}</div>
+                                    <div class="w-full">{{ subscription.description }}</div>
+                                    <div class="w-full">{{ moneyFormat(subscription.price) }} /month</div>
+                                </div>
+                                <svg class="w-5 h-5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                </svg>
+                                </label>
+                            </li>
+                        </ul>
+                        </div>
+                        <div>
+                            <p class="text-3xl font-extrabold mt-5 text-black">2. Select Payment</p>
+                            <div class="w-full grid grid-cols-1 md:grid-cols-5 gap-10 py-5">
+                                <ul class="col-span-3 md:col-span-2">
+                                    <li v-for="method in paymentMethods" :key="method.value" class="flex items-center mb-4 shadow rounded-lg">
+                                        <input :id="method.value" type="radio" :value="method.value" name="payment" v-model="selectedPayment" required class="w-4 h-4 ml-5 peer text-orange-500 bg-gray-100 border-gray-300 focus:ring-orange-500">
+                                        <label :for="method.value" class="flex items-center cursor-pointer justify-between text-sm font-medium p-5 w-full text-gray-900 dark:text-gray-300">
+                                        {{ method.label }}
+                                        <img :src="method.logo" class="h-7" />
+                                        </label>
+                                    </li>
+                                </ul>
+                                <div class="col-span-3">
+                                    <div>
+                                        <div class=" bg-white border rounded-lg shadow px-4 pt-8 lg:mt-0">
+                                            <p class="text-xl font-medium">Payment Details</p>
+                                            <p class="text-gray-400">Complete by providing your payment details.</p>
+                                            <!--Payment Method-->
+                                            <div class="mt-4" v-if="selectedPayment == 'card'">
+                                                <div class="mt-4 flex flex-row items-center gap-2">
+                                                    <div class="w-full">
+                                                    <label class="text-sm font-semibold">Name on Card:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="First Name"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+
+                                                    <div class="w-full">
+                                                    <label class="text-sm font-semibold">Card Number:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="1234 1234 1234 1234"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+                                                </div>
+                                                <div class="mt-4 w-full flex flex-row items-center gap-2">
+                                                    <div class="w-full">
+                                                    <label class="text-sm font-semibold">Expiry Date:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="MM / YY"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+
+                                                    <div class="w-full ">
+                                                    <label class="text-sm font-semibold">CVC:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="CVC"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+                                                </div>
+
+
+                                            </div>
+                                            <div class="mt-4" v-if="selectedPayment == 'gcash'">
+                                                <div class="mt-4 flex flex-row items-center gap-2">
+                                                    <div class="w-full">
+                                                    <label class="text-sm font-semibold">Name on Gcash:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="Gcash name"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4" v-if="selectedPayment == 'paymaya'">
+                                                <div class="mt-4 flex flex-row items-center gap-2">
+                                                    <div class="w-full">
+                                                    <label class="text-sm font-semibold">Name on Maya:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="Paymaya name"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4" v-if="selectedPayment == 'grabpay'">
+                                                <div class="mt-4 flex flex-row items-center gap-2">
+                                                    <div class="w-full">
+                                                    <label class="text-sm font-semibold">Name on GrabPay:</label>
+                                                    <TextInput
+                                                        type="text"
+                                                        placeholder="GrabPay name"
+                                                        class="placeholder:text-gray-400 w-full"
+                                                    />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--Total-->
+                                            <div class="mt-6 border-t border-b py-2">
+                                                <p class="text-md font-bold text-gray-900">Subscription</p>
+                                                <div class="flex items-center justify-between">
+                                                    <p class="text-sm font-medium text-gray-900">{{ selectedSubscription ? selectedSubscription.label : 'Select a subscription' }}</p>
+                                                    <p class="font-semibold text-gray-900">{{ moneyFormat(selectedSubscription.value ? selectedSubscription.price : 0) }} /month</p>
+                                                </div>
+                                                </div>
+                                                <div class="mt-6 flex items-center justify-between">
+                                                <p class="text-sm font-medium text-gray-900">Total</p>
+                                                <p class="text-2xl font-semibold text-gray-900">{{ moneyFormat(selectedSubscription? selectedSubscription.price : 0) }}</p>
+                                            </div>
+                                            <hr class="my-4"/>
+                                            <div class="w-full mt-2">
+                                                <input
+                                                    type="checkbox"
+                                                    value="I guarantee that all details provided are accurate and true."
+                                                    v-model="termsAndCondition"
+                                                />
+                                                <label class="ml-2 text-sm"
+                                                    >* I guarantee that all details provided are accurate
+                                                    and true.</label
+                                                >
+                                            </div>
+
+                                            <div class="w-full mt-2">
+                                                <input
+                                                    type="checkbox"
+                                                    value="I agree with the terms and condition."
+                                                    v-model="termsAndCondition"
+                                                />
+                                                <label class="ml-2 text-sm"
+                                                    >* I agree with the
+                                                    <span
+                                                        class="text-orange-400 cursor-pointer hover:underline"
+                                                        >terms and condition</span
+                                                    ></label
+                                                >
+                                            </div>
+                                            <button
+                                                :disabled="loading || termsAndCondition.length < 2"
+                                                :class="{
+                                                    'cursor-not-allowed bg-orange-200':
+                                                        loading || termsAndCondition.length < 2,
+                                                    'bg-orange-500 text-white':
+                                                        !loading && termsAndCondition.length === 2,
+                                                }"
+                                                v-if="selectedPayment" class="mt-4 mb-8 w-full rounded-md bg-orange-400 px-6 py-3 font-medium text-white">
+                                                Proceed to Payment
+                                                <span v-if="selectedPayment === 'card'"> using Credit/Debit Card</span>
+                                                <span v-else-if="selectedPayment === 'gcash'"> using Gcash</span>
+                                                <span v-else-if="selectedPayment === 'paymaya'"> using Paymaya</span>
+                                                <span v-else-if="selectedPayment === 'grabpay'"> using GrabPay</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <!--Button-->
             <div
                 class="items-center mt-5 space-x-2 border-gray-200 rounded-b dark:border-gray-600"
             >
-
                 <div class="w-full">
                     <button
                         data-modal-hide="defaultModal"
@@ -2453,149 +2997,146 @@ export default {
                         v-if="active == 11"
                         @click="saveDorm()"
                         type="button"
-                        :disabled="loading || termsAndCondition.length < 2"
-                        :class="{
-                            'cursor-not-allowed':
-                                loading || termsAndCondition.length < 2,
-                            'bg-cyan-500 text-white':
-                                !loading && termsAndCondition.length === 2,
-                        }"
+
                         class="text-gray-500 float-right bg-white focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                     >
                         {{ !!loading ? "Saving..." : "Submit" }}
-                        <pulse-loader :loading="loading"></pulse-loader>
                     </button>
                 </div>
             </div>
-        
-        <div
-            id="defaultModal"
-            tabindex="-1"
-            aria-hidden="true"
-            style="background-color: rgba(0, 0, 0, 0.7)"
-            class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
-        >
-            <div class="h-screen flex justify-center items-center">
-                <div class="relative w-full max-w-2xl max-h-full">
-                    <!-- Modal content -->
-                    <div class="relative bg-white rounded-lg shadow">
-                        <!-- Modal header -->
-                        <div
-                            class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
-                        >
-                            <h3 class="text-xl font-semibold text-black">
-                                Setup Paymongo Account
-                            </h3>
-                            <button
-                                type="button"
-                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                @click="closeTermsModal()"
+
+            <div
+                id="defaultModal"
+                tabindex="-1"
+                aria-hidden="true"
+                style="background-color: rgba(0, 0, 0, 0.7)"
+                class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="h-screen flex justify-center items-center">
+                    <div class="relative w-full max-w-2xl max-h-full">
+                        <!-- Modal content -->
+                        <div class="relative bg-white rounded-lg shadow">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
                             >
-                                <svg
-                                    class="w-3 h-3"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 14 14"
+                                <h3 class="text-xl font-semibold text-black">
+                                    Setup Paymongo Account
+                                </h3>
+                                <button
+                                    type="button"
+                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    @click="closeTermsModal()"
                                 >
-                                    <path
-                                        stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                    />
-                                </svg>
-                                <span class="sr-only">Close modal</span>
-                            </button>
-                        </div>
-                        <!-- Modal body -->
-                        <div class="p-6 space-y-6">
-                            <div class="mb-3">
-                                <span class="font-bold"
-                                    >1. Sign up for a Paymongo Account:</span
-                                >
-                                <p class="font-light">
-                                    If you haven't already, go to the
-                                    <a
-                                        href="https://shorturl.at/klpEO"
-                                        class="text-orange-400 underline cursor-pointer hover:text-opacity-25"
-                                        >Paymongo website</a
+                                    <svg
+                                        class="w-3 h-3"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
                                     >
-                                    and sign up for an account. You'll need a
-                                    Paymongo account to access your API keys.
-                                </p>
+                                        <path
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                        />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
                             </div>
-                            <div class="mb-3">
-                                <span class="font-bold"
-                                    >2. Log in to Your Paymongo Dashboard:</span
-                                >
-                                <p class="font-light">
-                                    After creating an account, log in to your
-                                    Paymongo dashboard.
-                                </p>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-6">
+                                <div class="mb-3">
+                                    <span class="font-bold"
+                                        >1. Sign up for a Paymongo
+                                        Account:</span
+                                    >
+                                    <p class="font-light">
+                                        If you haven't already, go to the
+                                        <a
+                                            href="https://shorturl.at/klpEO"
+                                            class="text-orange-400 underline cursor-pointer hover:text-opacity-25"
+                                            >Paymongo website</a
+                                        >
+                                        and sign up for an account. You'll need
+                                        a Paymongo account to access your API
+                                        keys.
+                                    </p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="font-bold"
+                                        >2. Log in to Your Paymongo
+                                        Dashboard:</span
+                                    >
+                                    <p class="font-light">
+                                        After creating an account, log in to
+                                        your Paymongo dashboard.
+                                    </p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="font-bold"
+                                        >3. Navigate to API Keys:</span
+                                    >
+                                    <p class="font-light">
+                                        Once you're logged in, you can find your
+                                        API keys in the dashboard. On the left
+                                        sidebar, click on "Settings," and then
+                                        select "API Keys."
+                                    </p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="font-bold"
+                                        >4. Generate API Keys:</span
+                                    >
+                                    <p class="font-light">
+                                        In the API Keys section, you'll see an
+                                        option to generate your keys. Click on
+                                        "Create a key." You'll typically need
+                                        two types of keys: a Secret Key (SK) for
+                                        server-side operations and a Publishable
+                                        Key (PK) for client-side operations.
+                                    </p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="font-bold"
+                                        >5. Copy and Save Your Keys:</span
+                                    >
+                                    <p class="font-light">
+                                        After generating your keys, Paymongo
+                                        will display them on the dashboard. Make
+                                        sure to copy them and store them
+                                        securely.
+                                    </p>
+                                </div>
+                                <div class="mb-3">
+                                    <span class="font-bold"
+                                        >6. Paste Your Keys:</span
+                                    >
+                                    <p class="font-light">
+                                        After copying your keys, input them on
+                                        the input field, PK for publik keys, SK
+                                        for secret key
+                                    </p>
+                                </div>
                             </div>
-                            <div class="mb-3">
-                                <span class="font-bold"
-                                    >3. Navigate to API Keys:</span
-                                >
-                                <p class="font-light">
-                                    Once you're logged in, you can find your API
-                                    keys in the dashboard. On the left sidebar,
-                                    click on "Settings," and then select "API
-                                    Keys."
-                                </p>
-                            </div>
-                            <div class="mb-3">
-                                <span class="font-bold"
-                                    >4. Generate API Keys:</span
-                                >
-                                <p class="font-light">
-                                    In the API Keys section, you'll see an
-                                    option to generate your keys. Click on
-                                    "Create a key." You'll typically need two
-                                    types of keys: a Secret Key (SK) for
-                                    server-side operations and a Publishable Key
-                                    (PK) for client-side operations.
-                                </p>
-                            </div>
-                            <div class="mb-3">
-                                <span class="font-bold"
-                                    >5. Copy and Save Your Keys:</span
-                                >
-                                <p class="font-light">
-                                    After generating your keys, Paymongo will
-                                    display them on the dashboard. Make sure to
-                                    copy them and store them securely.
-                                </p>
-                            </div>
-                            <div class="mb-3">
-                                <span class="font-bold"
-                                    >6. Paste Your Keys:</span
-                                >
-                                <p class="font-light">
-                                    After copying your keys, input them on the
-                                    input field, PK for publik keys, SK for
-                                    secret key
-                                </p>
-                            </div>
-                        </div>
-                        <!-- Modal footer -->
-                        <div
-                            class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
-                        >
-                            <button
-                                @click="closeTermsModal()"
-                                type="button"
-                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                             >
-                                Understood
-                            </button>
+                                <button
+                                    @click="closeTermsModal()"
+                                    type="button"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                >
+                                    Understood
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 </template>

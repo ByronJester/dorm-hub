@@ -359,7 +359,7 @@ export default {
 
         const setActiveTable = (table) =>{
             activeTable.value = table;
-            currentPage = 1;
+            currentPage.value = 1;
         }
 
 

@@ -4,12 +4,18 @@ import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { Link, useForm, usePage } from "@inertiajs/vue3";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 
 const props = defineProps({
     mustVerifyEmail: Boolean,
     status: String,
 });
 
+const toast = useToast();
+const confirm = useConfirm();
 const user = usePage().props.auth.user;
 
 const form = useForm({
@@ -29,39 +35,34 @@ const form = useForm({
 });
 
 const updateProfile = () => {
-    swal(
-        {
-            title: "Are you sure to update your profile?",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes",
-            closeOnConfirm: false,
-        },
-        function () {
-            form.patch(route("profile.update"), {
-                preserveScroll: true,
-                onSuccess: () => {
-                    swal(
-                        "Success!",
-                        "Your profile has been updated.",
-                        "success"
-                    );
-                    window.location.reload();
+    confirm.require({
+                message: 'Are you sure you want to update your profile?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    form.patch(route("profile.update"), {
+                        preserveScroll: true,
+                        onSuccess: () => {
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'You have successfully update your profile', life: 3000 });
+                            window.location.reload();
+                        },
+                        onError: () => {
+                            if (form.errors.password) {
+                                form.reset("password", "password_confirmation");
+                                passwordInput.value.focus();
+                            }
+                            if (form.errors.current_password) {
+                                form.reset("current_password");
+                                currentPasswordInput.value.focus();
+                            }
+                        },
+                    });
+                    
                 },
-                onError: () => {
-                    if (form.errors.password) {
-                        form.reset("password", "password_confirmation");
-                        passwordInput.value.focus();
-                    }
-                    if (form.errors.current_password) {
-                        form.reset("current_password");
-                        currentPasswordInput.value.focus();
-                    }
-                },
+                reject: () => {
+                    
+                }
             });
-        }
-    );
 };
 
 const imageClick = () => {
@@ -325,6 +326,8 @@ const imageChange = (e) => {
 
         <footer class="flex-1">
             <div class="flex items-center justify-start flex-wrap -mb-3">
+                <Toast />
+                <ConfirmDialog></ConfirmDialog>
                 <button
                     :disabled="form.processing"
                     class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-blue-600 dark:border-blue-500 ring-blue-300 dark:ring-blue-700 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 hover:border-blue-700 hover:dark:bg-blue-600 hover:dark:border-blue-600 py-2 px-3 mr-3 last:mr-0 mb-3"

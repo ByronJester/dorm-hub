@@ -12,7 +12,8 @@ class Dorm extends Model
 
     protected $fillable = [
         'map_address', 'detailed_address', 'lat', 'long', 'property_name',
-        'description', 'floors_total', 'rooms_total', 'dorm_image', 'business_permit_image', 'terms'
+        'description', 'floors_total', 'rooms_total', 'dorm_image', 'business_permit_image', 'terms', 'reservation',
+        'note', 'landmark'
     ];
 
     protected $with = [

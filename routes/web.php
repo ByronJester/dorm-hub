@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\{
-    ProfileController, AdminController, OwnerController, TenantController, SharedController, RegisteredUserController, AboutUsController, ContactUsController,
+    ProfileController, AdminController, OwnerController, TenantController, SharedController, AboutUsController, ContactUsController,
     PrivacyPolicyController, TermsUserController, HeroController, HelpController
 };
 
+use App\Http\Controllers\Auth\{
+    RegisteredUserController
+};
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,7 +36,7 @@ Route::get('/', function () {
     }
 
     if(Auth::user() && Auth::user()->user_type == 'admin') {
-        return redirect()->route('admin.dorms');
+        return redirect()->route('admin.dashboard');
     }
 
     $dorms = Dorm::where('status', 'approved')->get();
@@ -117,7 +120,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/backUp', [AdminController:: class, 'backUp'])->name('admin.backUp');
         Route::get('/archive', [AdminController:: class, 'archive'])->name('admin.archive');
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
-        Route::post('/tenant/change-staus', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
+        Route::post('/tenant/change-status/{status}', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
 
         Route::post('/backup', [AdminController:: class, 'backUpDatabase'])->name('admin.backup.execute');
@@ -135,7 +138,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
         Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
+        Route::get('/owner-status', [OwnerController::class, 'getOwnerStatus'])->name('owner.status');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
+        Route::post('/update', [RegisteredUserController::class, 'update'])->name('submit.id');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
         Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');
         Route::post('/application/decline/{id}', [OwnerController::class, 'declineApplication'])->name('decline.application');

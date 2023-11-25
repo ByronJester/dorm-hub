@@ -140,8 +140,6 @@ export default {
             user_type: "",
             password: "",
             password_confirmation: "",
-            id_picture: "",
-            selfie_id_picture: "",
             terms: false,
             code: "",
         });
@@ -283,8 +281,6 @@ export default {
             phone_number: "",
             username: "",
             user_type: "",
-            id_picture: "",
-            selfie_id_picture: "",
             terms: "",
         });
 
@@ -318,15 +314,6 @@ export default {
             if (form.user_type.trim() === "") {
                 isValid = false;
                 errorMessages.value.user_type = "User Type is required";
-            }
-            if (form.id_picture.trim() === "") {
-                isValid = false;
-                errorMessages.value.id_picture = "Id picture is required";
-            }
-            if (form.selfie_id_picture.trim() === "") {
-                isValid = false;
-                errorMessages.value.selfie_id_picture =
-                    "Selfie Id picture is required";
             }
             if (!validatePassword()) {
                 isValid = false;
@@ -936,120 +923,6 @@ export default {
                                     />
                                 </div>
 
-                                <div class="mb-4">
-                                    <div class="mb-4">
-                                        <div>
-                                            <div
-                                                class="flex gap-2 items-center"
-                                            >
-                                                <InputLabel
-                                                    for="id_picture"
-                                                    class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                    value="Valid ID"
-                                                />
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    color="orange"
-                                                    viewBox="0 0 24 24"
-                                                    stroke-width="1.5"
-                                                    stroke="currentColor"
-                                                    class="w-5 h-5 cursor-pointer hover:bg-orange-400 animate-bounce"
-                                                    @click="openTutModal()"
-                                                >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <span class="text-xs text-red-500"
-                                                >(ex: Passport, National Id, etc
-                                                For Student: School ID)</span
-                                            >
-                                        </div>
-                                    </div>
-
-                                    <input
-                                        type="file"
-                                        id="id_picture"
-                                        class="hidden"
-                                        @change="idPictureChange($event)"
-                                        accept="image/*"
-                                    />
-
-                                    <label
-                                        for="id_picture"
-                                        class="relative cursor-pointer"
-                                    >
-                                        <div
-                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                        >
-                                            <img
-                                                v-if="form.id_picture"
-                                                :src="form.id_picture"
-                                                alt="Valid ID"
-                                                class="h-48 w-auto rounded-lg"
-                                            />
-                                            <span v-else>Input</span>
-                                        </div>
-                                    </label>
-
-                                    <InputError
-                                        class="mt-2"
-                                        :message="errorMessages.id_picture"
-                                    />
-                                </div>
-                                <!--Selfie-->
-                                <div class="mb-4">
-                                    <div class="mb-4">
-                                        <InputLabel
-                                            for="selfie_id_picture"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                                            value="Selfie Verificaion"
-                                        />
-                                        <span class="text-xs text-red-500"
-                                            >Confirm your identity with a photo
-                                            of yourself holding your ID</span
-                                        >
-                                    </div>
-
-                                    <input
-                                        type="file"
-                                        id="selfie_id_picture"
-                                        class="hidden"
-                                        @change="SelfieidPictureChange($event)"
-                                        accept="image/*"
-                                    />
-
-                                    <label
-                                        for="selfie_id_picture"
-                                        class="relative cursor-pointer"
-                                    >
-                                        <div
-                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                        >
-                                            <img
-                                                v-if="form.selfie_id_picture"
-                                                :src="form.selfie_id_picture"
-                                                alt="Selfie with Valid ID"
-                                                class="h-48 w-auto rounded-lg"
-                                            />
-                                            <span v-else
-                                                >Select or Drag & Drop a
-                                                file</span
-                                            >
-                                        </div>
-                                    </label>
-
-                                    <InputError
-                                        class="mt-2"
-                                        :message="
-                                            errorMessages.selfie_id_picture
-                                        "
-                                    />
-                                </div>
                                 <hr class="mb-4" />
                                 <div class="flex justify-between mb-2">
                                     <div class="flex items-start gap-2">
@@ -1392,7 +1265,7 @@ export default {
             <slot />
         </main>
         <footer
-            class="bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
+            class="bottom-0 fixed w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
         >
             <div class="mx-auto p-4 md:flex md:items-center md:justify-between">
                 <span
