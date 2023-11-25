@@ -1,6 +1,7 @@
 <script>
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import DormitoriesReports from "@/Pages/Admin/Reports/DormitoriesReport.vue";
+import Lapuz from "@/Pages/Admin/Reports/LapuzReport.vue";
 import IncomeReport from "@/Pages/Admin/Reports/IncomeReports.vue";
 import UsersReport from "@/Pages/Admin/Reports/UsersReport.vue";
 import { usePage, router } from "@inertiajs/vue3";
@@ -12,7 +13,8 @@ export default {
         AuthenticatedLayout,
         DormitoriesReports,
         IncomeReport,
-        UsersReport
+        UsersReport,
+        Lapuz
     },setup(){
         const activeReport = ref('IncomeReport'); // Initially, no report is active
         const activeReportComponent = ref(IncomeReport);
@@ -31,6 +33,10 @@ export default {
             else if (reportName === 'UsersReport') {
                 activeReport.value = 'UsersReport';
                 activeReportComponent.value = UsersReport;
+            }
+            else if (reportName === 'LapuzReport') {
+                activeReport.value = 'LapuzReport';
+                activeReportComponent.value = Lapuz;
             }
 
             // You can add more conditions for other reports here
@@ -64,13 +70,17 @@ export default {
             <hr class="my-5" />
             <div class="w-full flex flex-row">
                 <div class="w-[15%] flex flex-col" style="border-right: 1px solid black">
+                    <!-- simuladito -->
                     <div class="w-full my-3"
                         :class="{'bg-gray-300': activeReport == 'IncomeReport'}"
                     >
+
+                    <!-- sidebarreport -->
                         <span class="cursor-pointer" @click="changeActiveReport('IncomeReport')">
                             Income Report
                         </span>
                     </div>
+                    <!-- hanggang dito -->
 
                     <div class="w-full my-3"
                         :class="{'bg-gray-300': activeReport == 'DormitoriesReports'}"
@@ -87,7 +97,20 @@ export default {
                             Users Report
                         </span>
                     </div>
+
+                    <div class="w-full my-3"
+                        :class="{'bg-gray-300': activeReport == 'LapuzReport'}"
+                    >
+
+                    <!-- sidebarreport -->
+                        <span class="cursor-pointer" @click="changeActiveReport('LapuzReport')">
+                            Lapuz Report
+                        </span>
+                    </div>
+
+
                 </div>
+                
 
                 <div class="w-[85%]">
                     <div class="pl-5">
