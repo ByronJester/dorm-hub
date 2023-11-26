@@ -999,7 +999,7 @@ export default {
         class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
         <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-red-500" v-if="userStatus == 'decline'">
-            Your account has been declined. Reason: Please resubmit your valid id
+            Your account has been declined. Reason: {{ user.reason }}
         </div>
         <div class="w-full flex items-center justify-center p-3 text-white text-sm font-semibold bg-orange-400" v-if="userStatus == 'pending'">
             You have pending status for user verication. Please wait for the system admin to approve you!

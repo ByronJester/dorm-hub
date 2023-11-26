@@ -155,16 +155,39 @@ class AdminController extends Controller
         ]);
     }
 
-    public function changeTenantStatus(Request $request, $status)
+    public function changeUserStatusApproved(Request $request)
     {
         $user = User::where('id', $request->id)->first();
-        $user->status = $status;
+        $user->status = 'approved';
         $user->save();
 
         $notification = new Notification;
 
         $notification->user_id = $user->id;
-        $notification->message = "Your account has been $status";
+        $notification->message = "Your account has been approved";
+        $notification->type = 'Account Status';
+        $notification->save();
+
+        return response()->json(["message" => true], 200);
+    }
+
+    public function changeUserStatusDecline(Request $request)
+    {
+        $user = User::where('id', $request->id)->first();
+        
+        if (!$user) {
+            return response()->json(["message" => "User not found"], 404);
+        }
+        $reason = $request->input('reason');
+
+        $user->status = 'decline';
+        $user->reason = $reason;
+        $user->save();
+
+        $notification = new Notification;
+
+        $notification->user_id = $user->id;
+        $notification->message = "Your account has been declined. Reason: $reason";
         $notification->type = 'Account Status';
         $notification->save();
 

@@ -120,8 +120,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/backUp', [AdminController:: class, 'backUp'])->name('admin.backUp');
         Route::get('/archive', [AdminController:: class, 'archive'])->name('admin.archive');
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
-        Route::post('/tenant/change-status/{status}', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
+        Route::post('/user/change-statuss', [AdminController::class, 'changeUserStatusApproved'])->name('user.approved');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
+       
+        Route::post('/user/change-status', [AdminController::class, 'changeUserStatusDecline'])->name('user.changestatus.decline');
 
         Route::post('/backup', [AdminController:: class, 'backUpDatabase'])->name('admin.backup.execute');
     });

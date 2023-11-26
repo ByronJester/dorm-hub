@@ -40,6 +40,8 @@
             const filters = ref();
             const confirm = useConfirm();
             const toast = useToast();
+            const reason = ref('');
+            const errors = ref('');
 
             onMounted(() => {
                 rows.value = page.props.users.filter(user => ['pending', 'decline', 'approved'].includes(user.status));
@@ -105,6 +107,20 @@
 
             }
 
+            const closeReasonModal = () => {
+                var modal = document.getElementById("reasonModal");
+
+                modal.style.display = "none";
+            }
+
+            const openReasonModal = (arg) => {
+                user.value = arg
+                var modal = document.getElementById("reasonModal");
+
+                modal.style.display = "block";
+
+            }
+
             const closeModal = () => {
                 var modal = document.getElementById("userModal");
 
@@ -112,14 +128,15 @@
             }
 
 
-        const decline = (status, id) => {
+
+        const decline = ( id, reason) => {
             confirm.require({
                 message: 'Are you sure you want to decline this user?',
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 accept: () => {
                     axios
-                        .post(route("tenant.change.status", status), { id: id })
+                        .post(route("user.changestatus.decline",  { reason: reason }), { id: id })
                         .then((response) => {
                             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully decline the user', life: 3000 });
                             setTimeout(function () {
@@ -137,14 +154,14 @@
             });
         };
 
-        const approved = (status, id) => {
+        const approved = (id) => {
             confirm.require({
                 message: 'Are you sure you want to approve this user?',
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 accept: () => {
                     axios
-                        .post(route("tenant.change.status", status), { id: id })
+                        .post(route('user.approved'), { id: id })
                         .then((response) => {
                             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully approve the user', life: 3000 });
                             setTimeout(function () {
@@ -163,11 +180,15 @@
 
         const id_picture = ref(null)
         const selfie_id_picture = ref(null)
+        const statuss = ref(null);
+        const reasons = ref(null)
         const user = ref(null)
         const openTermsModal = (arg) => {
             console.log(arg)
             id_picture.value = arg.id_picture
             selfie_id_picture.value = arg.selfie_id_picture
+            statuss.value = arg.status
+            reasons.value = arg.reason
             user.value = arg
 
             var modal = document.getElementById("defaultModal");
@@ -199,6 +220,11 @@
                 statuses,
                 decline,
                 approved,
+                reason,
+                statuss,
+                reasons,
+                openReasonModal,
+                closeReasonModal
             }
         }
     }
@@ -315,6 +341,82 @@
                     </Column>
                 </DataTable>
             </div>
+
+            <div
+                    id="reasonModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-sm max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Add reason
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeReasonModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your Reason:</label>
+                                    <textarea v-model="reason" id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write your reason here..."></textarea>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                    v-if="user"
+                                >
+                                    <Toast />
+                                    <ConfirmDialog></ConfirmDialog>
+                                    <button
+                                        v-if="user.status == 'pending'"
+                                        @click="closeReasonModal()"
+                                        type="button"
+                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        @click="decline(user.id, reason)"
+                                        type="button"
+                                        class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             <div
                     id="defaultModal"
                     tabindex="-1"
@@ -358,6 +460,13 @@
                                         <span class="sr-only">Close modal</span>
                                     </button>
                                 </div>
+                                
+                                <div class="w-full bg-red-400 p-3 text-white flex items-center justify-center" v-if="statuss=='decline'">
+                                    You declined this user. Reason: {{ reasons }}
+                                </div>
+                                <div class="w-full bg-orange-400 p-3 text-white flex items-center justify-center" v-if="statuss=='pending'">
+                                    This user is waiting for your approval
+                                </div>
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6">
                                     <label class="text-lg font-bold">ID Picture</label>
@@ -376,10 +485,9 @@
                                     v-if="user"
                                 >
                                     <Toast />
-                                    <ConfirmDialog></ConfirmDialog>
                                     <button
                                         v-if="user.status == 'pending'"
-                                        @click="decline('decline', user.id)"
+                                        @click="openReasonModal(user), closeTermsModal()"
                                         type="button"
                                         class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
@@ -387,7 +495,7 @@
                                     </button>
                                     <button
                                         v-if="user.status == 'pending'"
-                                        @click="approved('approved', user.id)"
+                                        @click="approved(user.id)"
                                         type="button"
                                         class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >

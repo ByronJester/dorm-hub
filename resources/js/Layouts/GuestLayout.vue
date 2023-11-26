@@ -796,7 +796,7 @@ export default {
                                             id="password-login"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                            
                                             v-model="form.password"
                                             required
                                             @input="handlePasswordChange()"
@@ -877,7 +877,7 @@ export default {
                                             id="password_confirmation"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                         
                                             v-model="form.password_confirmation"
                                             required
                                             @input="handleConfirmPasswordChange"
@@ -1194,7 +1194,7 @@ export default {
                                             id="password-login"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                     
                                             v-model="loginForm.password"
                                             required
                                             autofocus
