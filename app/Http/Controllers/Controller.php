@@ -10,6 +10,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Xendit\Xendit;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 class Controller extends BaseController
 {
@@ -64,33 +65,34 @@ class Controller extends BaseController
         return "INVOICE-$timestamp";
     }
 
-    public function createInvoice($pk = null, $sk = null)
+    public function createInvoice($request, $pk = null, $sk = null)
     {
         if(!$pk) {
-            $pk = 'xnd_public_development_tiwVzngSwy8AvuyaHGAiKYi8SIr1pBNmTJMEV+vgl67p9pOO0LSVAN0XNE6EeFP3';
+            $pk = 'xnd_public_development_tuyYcyfN3JWXFRdUX56GfEfubkcs25ERvUNos9yzA1HqlohquJqebcUq9bsdrEyd+vgl67p9pOO0LSVAN0XNE6EeFP3';
         }
 
         if(!$sk) {
-            $sk = 'xnd_development_o4VmcGFOZtqTqNst1ckDFEebZV39jZX02nKxu91Wg3Z0aLqmMNULPJCiEzrZgEc';
+            $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
         }
 
         Xendit::setApiKey($sk);
-        $version = Xendit::getVersion();
-        return response()->json($version);
 
-        $externalId = Str::random(15); // Unique ID for reference
+        $reference = substr(uniqid(), 1, 13);
         $amount = 100000; // Payment amount in IDR (Indonesian Rupiah)
-        $bankCode = 'MANDIRI'; // Bank code (example: Mandiri)
 
         try {
-            $payment = \Xendit\Invoice::create([
-                'external_id' => $externalId,
-                'amount' => $amount,
-                'payer_email' => 'payer@example.com',
-                'description' => 'Bank Payment',
-                'bank_code' => $bankCode,
-                'payment_method' => 'BankTransfer', // Specify bank transfer as payment method
-            ]);
+            // $payment = \Xendit\EWallets::createEWalletCharge([
+            //     'external_id' => $externalId,
+            //     'amount' => $amount, // Payment amount in IDR
+            //     'phone' => '09771023141',
+            //     'ewallet_type' => 'GCASH', // E-wallet type (e.g., OVO, GoPay, DANA)
+            //     'callback_url' => 'https://dormhub.onrender.com', // Optional callback URL
+            //     // Additional parameters based on Xendit's API
+            // ]);
+
+            $params = $this->setupParameters($amount, $reference);
+
+            $payment = \Xendit\EWallets::createEWalletCharge($params);
 
             // Handle successful payment response
             return response()->json($payment);
@@ -98,6 +100,28 @@ class Controller extends BaseController
             // Handle API exception (e.g., failed payment)
             return response()->json($e->getMessage());
         }
+    }
+
+
+    public function setupParameters(float $amount, string $reference) : array
+    {
+        $amount  = (float) number_format($amount, 2);
+        $reference = substr(uniqid(), 1, 13);
+
+        return [
+            'reference_id' => $reference,
+            'currency' => 'PHP',
+            'amount' => $amount,
+            'checkout_method' => 'ONE_TIME_PAYMENT',
+            'channel_code' => 'PH_GCASH',
+            'channel_properties' => [
+                'success_redirect_url' => route('payment.success') . "?reference_id={$reference}",
+                'failure_redirect_url' => route('payment.fail')
+            ],
+            'metadata' => [
+                'branch_code' => 'tree_branch'
+            ]
+        ];
     }
 
 

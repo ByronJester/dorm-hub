@@ -168,8 +168,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     Route::prefix('tenant')->group(function () {
         Route::get('/dorms', [TenantController::class, 'dormList'])->name('tenant.dorms');
         Route::get('/payments', [TenantController::class, 'paymentList'])->name('tenant.payments');
-        Route::get('/paymongo/success', [TenantController::class, 'successPage']);
-        Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
+        Route::get('/paymongo/success', [TenantController::class, 'successPage'])->name('payment.success');
+        Route::get('/paymongo/failed', [TenantController::class, 'failedPage'])->name('payment.fail');;
         Route::get('/mydorm', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
         Route::get('/myreservation', [TenantController::class, 'myreservation'])->name('tenant.reservation');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');

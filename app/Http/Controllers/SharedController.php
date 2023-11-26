@@ -276,8 +276,18 @@ class SharedController extends Controller
         return response()->json("Resrvation Expiration", 200);
     }
 
-    public function testXendit()
+    public function testXendit(Request $request)
     {
-        return $this->createInvoice();
+
+        $pk = 'xnd_public_development_tuyYcyfN3JWXFRdUX56GfEfubkcs25ERvUNos9yzA1HqlohquJqebcUq9bsdrEyd+vgl67p9pOO0LSVAN0XNE6EeFP3';
+
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+
+        $requestHeader = $request->header();
+        $requestHeader['callback_url'] = 'https://dormhub.onrender.com/';
+
+        $requestHeader['x-callback-token'] = 'https://dormhub.onrender.com/';
+
+        return $this->createInvoice($requestHeader, $pk, $sk);
     }
 }
