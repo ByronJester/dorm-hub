@@ -275,4 +275,9 @@ class SharedController extends Controller
 
         return response()->json("Resrvation Expiration", 200);
     }
+
+    public function testXendit()
+    {
+        return $this->createInvoice();
+    }
 }

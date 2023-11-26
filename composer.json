@@ -14,7 +14,8 @@
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.7",
         "shanmuga/laravel-cloudinary": "^1.1",
-        "tightenco/ziggy": "^1.0"
+        "tightenco/ziggy": "^1.0",
+        "xendit/xendit-php": "^3.6.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
@@ -66,6 +67,13 @@
             "pestphp/pest-plugin": true
         }
     },
+    "repositories": [
+        {
+          "type": "vcs",
+          "url": "https://github.com/xendit/xendit-php.git"
+        }
+    ],
     "minimum-stability": "stable",
     "prefer-stable": true
+
 }

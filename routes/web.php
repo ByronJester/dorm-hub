@@ -60,6 +60,10 @@ Route::get('/alive', function () {
     return response()->json("Keep Alive!", 200);
 });
 
+Route::prefix('xendit')->group(function () {
+    Route::get('/', [SharedController::class, 'testXendit']);
+});
+
 Route::prefix('cron')->group(function () {
     Route::get('/auto-bill', [SharedController::class, 'autoBill']);
     Route::get('/due-reminder', [SharedController::class, 'dueReminder']);
