@@ -8,6 +8,8 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use App\Models\User;
 use Carbon\Carbon;
+use Xendit\Xendit;
+use Illuminate\Support\Str;
 
 class Controller extends BaseController
 {
@@ -61,4 +63,42 @@ class Controller extends BaseController
 
         return "INVOICE-$timestamp";
     }
+
+    public function createInvoice($pk = null, $sk = null)
+    {
+        if(!$pk) {
+            $pk = 'xnd_public_development_tiwVzngSwy8AvuyaHGAiKYi8SIr1pBNmTJMEV+vgl67p9pOO0LSVAN0XNE6EeFP3';
+        }
+
+        if(!$sk) {
+            $sk = 'xnd_development_o4VmcGFOZtqTqNst1ckDFEebZV39jZX02nKxu91Wg3Z0aLqmMNULPJCiEzrZgEc';
+        }
+
+        Xendit::setApiKey($sk);
+        $version = Xendit::getVersion();
+        return response()->json($version);
+
+        $externalId = Str::random(15); // Unique ID for reference
+        $amount = 100000; // Payment amount in IDR (Indonesian Rupiah)
+        $bankCode = 'MANDIRI'; // Bank code (example: Mandiri)
+
+        try {
+            $payment = \Xendit\Invoice::create([
+                'external_id' => $externalId,
+                'amount' => $amount,
+                'payer_email' => 'payer@example.com',
+                'description' => 'Bank Payment',
+                'bank_code' => $bankCode,
+                'payment_method' => 'BankTransfer', // Specify bank transfer as payment method
+            ]);
+
+            // Handle successful payment response
+            return response()->json($payment);
+        } catch (\Xendit\Exceptions\ApiException $e) {
+            // Handle API exception (e.g., failed payment)
+            return response()->json($e->getMessage());
+        }
+    }
+
+
 }
