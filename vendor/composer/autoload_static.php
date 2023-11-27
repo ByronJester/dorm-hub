@@ -671,6 +671,7 @@ class ComposerStaticInitc8c4f721b4a735433ab4497e833e5b18
         'App\\Rules\\CodeExists' => __DIR__ . '/../..' . '/app/Rules/CodeExists.php',
         'App\\Rules\\CommonAreasRule' => __DIR__ . '/../..' . '/app/Rules/CommonAreasRule.php',
         'App\\Rules\\RoomRule' => __DIR__ . '/../..' . '/app/Rules/RoomRule.php',
+        'App\\Services\\XenditService' => __DIR__ . '/../..' . '/app/Services/XenditService.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',

@@ -20,6 +20,8 @@ use App\Rules\{RoomRule, CommonAreasRule};
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use App\Services\XenditService;
+
 
 class OwnerController extends Controller
 {
@@ -237,14 +239,31 @@ class OwnerController extends Controller
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
         }
 
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+
+        $amount = 0;
+        $description = 'Dorm Subscription: ' . $request->subscription;
+        $action = 'addDorm';
+
+        switch($request->subscription) {
+            case 'starter':
+                $amount = 300;
+                break;
+            case 'basic':
+                $amount = 500;
+                break;
+            case 'plus':
+                $amount = 1000;
+                break;
+        }
+
+        $xenditService = new XenditService($sk);
+        $response = $xenditService->create($amount, $description, $action);
+
         if($auth->first_logged_in) {
             auth()->user()->update([
                 'sk' => $request->sk,
-                'pk' => $request->pk,
-                'bank_name' => $request->bank_name,
-                'account_name' => $request->account_name,
-                'account_number' => $request->account_number,
-                'first_logged_in' => false
+                'pk' => $request->pk
             ]);
         }
 
@@ -271,6 +290,10 @@ class OwnerController extends Controller
         $dorm->floors_total = $request->floors_total;
         $dorm->rooms_total = $request->rooms_total;
         $dorm->terms = $request->terms;
+        $dorm->landmark = $request->landmark;
+        $dorm->note = $request->note;
+        $dorm->reservation = $request->reservation;
+        $dorm->status = 'temp';
 
         if($dorm_image = $request->dorm_image) {
 
@@ -368,11 +391,11 @@ class OwnerController extends Controller
 
             $rule->save();
 
-            return response()->json(['message' => 'Your dorm succesfully registered.', 'status' => 200], 200);
+            return $response['invoice_url'];
 
         }
 
-        return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 200);
+        return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 422);
     }
 
     public function updateDorm(Request $request, $id){
@@ -1348,5 +1371,27 @@ class OwnerController extends Controller
         $user = Auth::user();
 
         return response()->json($user->status, 200);
+    }
+
+    public function addDormSuccessPage($invoice)
+    {
+        $dorm = Dorm::where('status', 'temp')->first();
+        $dorm->status = 'pending';
+        $dorm->save();
+
+        $auth = Auth::user();
+
+        if($auth->first_logged_in) {
+            auth()->user()->update([
+                'first_logged_in' => false
+            ]);
+        }
+
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+        $xenditService = new XenditService($sk);
+
+        $response = $xenditService->get($invoice);
+
+        return response()->json($response);
     }
 }

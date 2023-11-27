@@ -90,6 +90,7 @@ return array(
     'App\\Rules\\CodeExists' => $baseDir . '/app/Rules/CodeExists.php',
     'App\\Rules\\CommonAreasRule' => $baseDir . '/app/Rules/CommonAreasRule.php',
     'App\\Rules\\RoomRule' => $baseDir . '/app/Rules/RoomRule.php',
+    'App\\Services\\XenditService' => $baseDir . '/app/Services/XenditService.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Brick\\Math\\BigDecimal' => $vendorDir . '/brick/math/src/BigDecimal.php',
     'Brick\\Math\\BigInteger' => $vendorDir . '/brick/math/src/BigInteger.php',

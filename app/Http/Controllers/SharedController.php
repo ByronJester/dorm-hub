@@ -280,8 +280,10 @@ class SharedController extends Controller
     {
         $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
 
+        $action = $request->action;
+
         $xenditService = new XenditService($sk);
-        $response = $xenditService->create(100000, 'Testtttt');
+        $response = $xenditService->create(100000, 'Testtttt', $action);
         return response()->json($response);
     }
 

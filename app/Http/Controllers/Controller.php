@@ -92,8 +92,8 @@ class Controller extends BaseController
     //         //     'payer_email' => 'byronjester.manalo@gmail.com',
     //         //     'description' => 'Test Xendit',
     //         //     'amount' => $amount,
-    //         //     'failure_redirect_url' => route('payment.success'),
-    //         //     'success_redirect_url' => route('payment.fail')
+                // 'failure_redirect_url' => route('payment.success'),
+                // 'success_redirect_url' => route('payment.fail')
     //         // ];
 
     //         // $response = \Xendit\Invoice::create($params);

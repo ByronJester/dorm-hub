@@ -126,7 +126,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
         Route::post('/user/change-statuss', [AdminController::class, 'changeUserStatusApproved'])->name('user.approved');
         Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
-       
+
         Route::post('/user/change-status', [AdminController::class, 'changeUserStatusDecline'])->name('user.changestatus.decline');
 
         Route::post('/backup', [AdminController:: class, 'backUpDatabase'])->name('admin.backup.execute');
@@ -145,6 +145,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
         Route::get('/owner-status', [OwnerController::class, 'getOwnerStatus'])->name('owner.status');
+        Route::get('/add-dorm-success/{invoice}', [OwnerController::class, 'addDormSuccessPage'])->name('add-dorm.success');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/update', [RegisteredUserController::class, 'update'])->name('submit.id');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');

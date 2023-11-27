@@ -158,10 +158,7 @@ export default {
             await fetch(url)
                 .then((response) => response.json())
                 .then((data) => {
-                    address.value =
-                        data.addresses[0].address.municipalitySubdivision +
-                        " " +
-                        data.addresses[0].address.municipality;
+                    address.value = data.addresses[0].address.freeformAddress;
                 });
         };
 
@@ -403,6 +400,9 @@ export default {
                     // Amenities Table
                     data.append("amenities", JSON.stringify(amenities.value));
 
+                    // Services Table
+                    // data.append("services", JSON.stringify(services.value));
+
                     // Rules Table
                     data.append("short_term", short_term.value);
                     data.append("mix_gender", mix_gender.value);
@@ -417,20 +417,25 @@ export default {
                     data.append("account_number", account_number.value);
                     data.append("account_name", account_name.value);
 
+                    // Subscription Table
+                    data.append("subscription", selectedSubscription.value.value);
+
+
                     axios
                         .post(route("save.dorm"), data)
                         .then((response) => {
                             loading.value = false;
 
-                            swal(
-                                "Success!",
-                                "Your dorm has been save.",
-                                "success"
-                            );
+                            // swal(
+                            //     "Success!",
+                            //     "Your dorm has been save.",
+                            //     "success"
+                            // );
 
-                            setTimeout(function () {
-                                router.get(route("owner.dashboard"));
-                            }, 1500);
+                            // setTimeout(function () {
+                            //     router.get(route("owner.dashboard"));
+                            // }, 1500);
+                            window.location.href = response.data
                         })
                         .catch((error) => {
                             // errors.value = error.response.data.errors;
@@ -2674,7 +2679,7 @@ export default {
                                 <div>
                                     <div class="flex gap-2 items-center">
                                         <label class="block font-bold mb-2"
-                                            >Paymongo</label
+                                            >Xendit</label
                                         >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -2693,7 +2698,7 @@ export default {
                                             />
                                         </svg>
                                     </div>
-                                    <span class="text-xs text-gray-400">Required. Paymongo</span>
+                                    <span class="text-xs text-gray-400">Required. Xendit</span>
                                 </div>
                             </div>
                             <div class="w-full md:w-2/6 p-3">
@@ -2737,7 +2742,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                <!-- <div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
@@ -2785,14 +2790,14 @@ export default {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
             </div>
             <div class="w-full" v-if="active == 11">
                 <div clas="w-full grid grid-cols-3 gap-5">
                     <div className=" max-w-screen-lg mx-auto ">
                         <p class="text-4xl font-black text-orange-400">You're almost there! Complete your dormitory listing</p>
-                    
+
                         <div>
                             <p class="text-3xl font-extrabold mt-5 text-black">1. Select Subscription</p>
                             <div class="w-full grid grid-cols-1 md:grid-cols-5 gap-10 py-5">
@@ -2864,7 +2869,7 @@ export default {
                                                 >
                                             </div>
                                             <button
-                                                :disabled="loading || termsAndCondition.length < 2"
+                                                @click="saveDorm()"
                                                 :class="{
                                                     'cursor-not-allowed bg-orange-200':
                                                         loading || termsAndCondition.length < 2,
@@ -2893,7 +2898,7 @@ export default {
                                 </div>
                             </div>
                         </div>
-                        
+
                     </div>
                 </div>
 
