@@ -15,9 +15,14 @@ import "../css/tooltip.css";
 import Tooltip from 'primevue/tooltip';
 // theme
 import 'primevue/resources/themes/lara-light-green/theme.css';
+import VueTelInput from 'vue-tel-input';
+import 'vue-tel-input/vue-tel-input.css';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
-
+const VueTelInputOptions = {
+    mode: "international",
+    onlyCountries: ['PH'],
+  }
 
 createInertiaApp({
     title: (title) => `${appName}`,
@@ -29,6 +34,7 @@ createInertiaApp({
             .use(PrimeVue)
             .use(ConfirmationService)
             .use(ToastService)
+            .use(VueTelInput, VueTelInputOptions)
             .directive('tooltip', Tooltip)
             .component('VueDatePicker', VueDatePicker)
             .component('VsToast', VsToast)

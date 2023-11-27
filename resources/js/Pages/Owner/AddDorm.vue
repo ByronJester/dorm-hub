@@ -15,6 +15,7 @@ import TextInput from "@/Components/TextInput.vue";
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import Editor from "@tinymce/tinymce-vue";
 import VsToast from "@vuesimple/vs-toast";
+import Image from 'primevue/image';
 
 export default {
     components: {
@@ -30,6 +31,7 @@ export default {
         LvProgressBar: LvProgressBar,
         Editor,
         VsToast,
+        Image
     },
     setup() {
         const active = ref(1);
@@ -2790,121 +2792,38 @@ export default {
                 <div clas="w-full grid grid-cols-3 gap-5">
                     <div className=" max-w-screen-lg mx-auto ">
                         <p class="text-4xl font-black text-orange-400">You're almost there! Complete your dormitory listing</p>
+                    
                         <div>
-                        <p class="text-3xl font-extrabold mt-5 text-black">1. Choose a subscription</p>
-                        <ul class="grid w-full gap-6 md:grid-cols-3 mt-5">
-                            <!-- Your radio buttons -->
-                            <li v-for="subscription in subscriptions" :key="subscription.value">
-                                <input type="radio" :id="subscription.value" name="subscription" :value="subscription" class="hidden peer" v-model="selectedSubscription" required>
-                                <label :for="subscription.value" class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-orange-600 peer-checked:text-orange-400 hover:text-gray-600 hover:bg-gray-100 ">
-                                <div class="block">
-                                    <div class="w-full text-lg font-semibold">{{ subscription.label }}</div>
-                                    <div class="w-full">{{ subscription.description }}</div>
-                                    <div class="w-full">{{ moneyFormat(subscription.price) }} /month</div>
-                                </div>
-                                <svg class="w-5 h-5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                                </svg>
-                                </label>
-                            </li>
-                        </ul>
-                        </div>
-                        <div>
-                            <p class="text-3xl font-extrabold mt-5 text-black">2. Select Payment</p>
+                            <p class="text-3xl font-extrabold mt-5 text-black">1. Select Subscription</p>
                             <div class="w-full grid grid-cols-1 md:grid-cols-5 gap-10 py-5">
-                                <ul class="col-span-3 md:col-span-2">
-                                    <li v-for="method in paymentMethods" :key="method.value" class="flex items-center mb-4 shadow rounded-lg">
-                                        <input :id="method.value" type="radio" :value="method.value" name="payment" v-model="selectedPayment" required class="w-4 h-4 ml-5 peer text-orange-500 bg-gray-100 border-gray-300 focus:ring-orange-500">
-                                        <label :for="method.value" class="flex items-center cursor-pointer justify-between text-sm font-medium p-5 w-full text-gray-900 dark:text-gray-300">
-                                        {{ method.label }}
-                                        <img :src="method.logo" class="h-7" />
+                                <ul class="col-span-3 md:col-span-2 ">
+                                    <li v-for="subscription in subscriptions" :key="subscription.value" class="mt-4">
+                                        <input type="radio" :id="subscription.value" name="subscription" :value="subscription" class="hidden peer" v-model="selectedSubscription" required>
+                                        <label :for="subscription.value" class="inline-flex items-center justify-between w-full p-5 text-gray-500 bg-white border border-gray-200 rounded-lg cursor-pointer peer-checked:border-orange-600 peer-checked:text-orange-400 hover:text-gray-600 hover:bg-gray-100 ">
+                                        <div class="block">
+                                            <div class="w-full text-lg font-semibold">{{ subscription.label }}</div>
+                                            <div class="w-full">{{ subscription.description }}</div>
+                                            <div class="w-full">{{ moneyFormat(subscription.price) }} /month</div>
+                                        </div>
+                                        <svg class="w-5 h-5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                                        </svg>
                                         </label>
                                     </li>
                                 </ul>
-                                <div class="col-span-3">
+                                <div class="col-span-3 mt-4">
                                     <div>
                                         <div class=" bg-white border rounded-lg shadow px-4 pt-8 lg:mt-0">
                                             <p class="text-xl font-medium">Payment Details</p>
                                             <p class="text-gray-400">Complete by providing your payment details.</p>
                                             <!--Payment Method-->
-                                            <div class="mt-4" v-if="selectedPayment == 'card'">
-                                                <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full">
-                                                    <label class="text-sm font-semibold">Name on Card:</label>
+                                                <div class="w-full">
+                                                    <label class="text-sm font-semibold">Name:</label>
                                                     <TextInput
                                                         type="text"
-                                                        placeholder="First Name"
                                                         class="placeholder:text-gray-400 w-full"
                                                     />
-                                                    </div>
-
-                                                    <div class="w-full">
-                                                    <label class="text-sm font-semibold">Card Number:</label>
-                                                    <TextInput
-                                                        type="text"
-                                                        placeholder="1234 1234 1234 1234"
-                                                        class="placeholder:text-gray-400 w-full"
-                                                    />
-                                                    </div>
                                                 </div>
-                                                <div class="mt-4 w-full flex flex-row items-center gap-2">
-                                                    <div class="w-full">
-                                                    <label class="text-sm font-semibold">Expiry Date:</label>
-                                                    <TextInput
-                                                        type="text"
-                                                        placeholder="MM / YY"
-                                                        class="placeholder:text-gray-400 w-full"
-                                                    />
-                                                    </div>
-
-                                                    <div class="w-full ">
-                                                    <label class="text-sm font-semibold">CVC:</label>
-                                                    <TextInput
-                                                        type="text"
-                                                        placeholder="CVC"
-                                                        class="placeholder:text-gray-400 w-full"
-                                                    />
-                                                    </div>
-                                                </div>
-
-
-                                            </div>
-                                            <div class="mt-4" v-if="selectedPayment == 'gcash'">
-                                                <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full">
-                                                    <label class="text-sm font-semibold">Name on Gcash:</label>
-                                                    <TextInput
-                                                        type="text"
-                                                        placeholder="Gcash name"
-                                                        class="placeholder:text-gray-400 w-full"
-                                                    />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mt-4" v-if="selectedPayment == 'paymaya'">
-                                                <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full">
-                                                    <label class="text-sm font-semibold">Name on Maya:</label>
-                                                    <TextInput
-                                                        type="text"
-                                                        placeholder="Paymaya name"
-                                                        class="placeholder:text-gray-400 w-full"
-                                                    />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="mt-4" v-if="selectedPayment == 'grabpay'">
-                                                <div class="mt-4 flex flex-row items-center gap-2">
-                                                    <div class="w-full">
-                                                    <label class="text-sm font-semibold">Name on GrabPay:</label>
-                                                    <TextInput
-                                                        type="text"
-                                                        placeholder="GrabPay name"
-                                                        class="placeholder:text-gray-400 w-full"
-                                                    />
-                                                    </div>
-                                                </div>
-                                            </div>
                                             <!--Total-->
                                             <div class="mt-6 border-t border-b py-2">
                                                 <p class="text-md font-bold text-gray-900">Subscription</p>
@@ -2952,19 +2871,29 @@ export default {
                                                     'bg-orange-500 text-white':
                                                         !loading && termsAndCondition.length === 2,
                                                 }"
-                                                v-if="selectedPayment" class="mt-4 mb-8 w-full rounded-md bg-orange-400 px-6 py-3 font-medium text-white">
+                                                class="mt-4 mb-8 w-full rounded-md bg-orange-400 px-6 py-3 font-medium text-white">
                                                 Proceed to Payment
-                                                <span v-if="selectedPayment === 'card'"> using Credit/Debit Card</span>
-                                                <span v-else-if="selectedPayment === 'gcash'"> using Gcash</span>
-                                                <span v-else-if="selectedPayment === 'paymaya'"> using Paymaya</span>
-                                                <span v-else-if="selectedPayment === 'grabpay'"> using GrabPay</span>
                                             </button>
                                         </div>
                                     </div>
-
+                                    <div class="flex flex-col items-center mt-5 justify-center">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <p class="text-gray-800 font-bold">Payment processed by:</p>
+                                            <Image src="/images/xenditlogo.png" alt="xendit logo" width="220" />
+                                        </div>
+                                        <div>
+                                            <Image src="/images/credicardlogo.png" alt="Credit card logo" width="200" />
+                                        </div>
+                                        <div class="flex flex-row mt-3 gap-3">
+                                            <Image src="/images/paymayalogo.png" alt="Maya logo" width="100" />
+                                            <Image src="/images/grablogo.png" alt="Grab pay logo" width="50" />
+                                            <Image src="/images/gcashlogo.png" alt="Gcash logo" width="100" />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
 
