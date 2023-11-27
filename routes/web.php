@@ -61,7 +61,7 @@ Route::get('/alive', function () {
 });
 
 Route::prefix('xendit')->group(function () {
-    Route::get('/', [SharedController::class, 'testXendit']);
+    Route::get('/', [SharedController::class, 'createInvoice']);
 });
 
 Route::prefix('cron')->group(function () {

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Rules\CodeExists;
 use Illuminate\Validation\Rules;
+use App\Services\XenditService;
 
 class SharedController extends Controller
 {
@@ -275,18 +276,21 @@ class SharedController extends Controller
         return response()->json("Resrvation Expiration", 200);
     }
 
-    public function testXendit(Request $request)
+    public function createInvoice(Request $request)
     {
-
-        $pk = 'xnd_public_development_tuyYcyfN3JWXFRdUX56GfEfubkcs25ERvUNos9yzA1HqlohquJqebcUq9bsdrEyd+vgl67p9pOO0LSVAN0XNE6EeFP3';
-
         $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
 
-        $requestHeader = $request->header();
-        $requestHeader['callback_url'] = 'https://dormhub.onrender.com/';
+        $xenditService = new XenditService($sk);
+        $response = $xenditService->create(100000, 'Testtttt');
+        return response()->json($response);
+    }
 
-        $requestHeader['x-callback-token'] = 'https://dormhub.onrender.com/';
+    public function getTransaction(Request $request)
+    {
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
 
-        return $this->createInvoice($requestHeader, $pk, $sk);
+        $xenditService = new XenditService($sk);
+        $response = $xenditService->get('INV-1700979640');
+        return response()->json($response['data'][0]);
     }
 }
