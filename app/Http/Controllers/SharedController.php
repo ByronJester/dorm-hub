@@ -278,7 +278,7 @@ class SharedController extends Controller
 
     public function createInvoice(Request $request)
     {
-        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+        $sk = 'xnd_development_bLtvroN1lzNODbLFeFOGdLXwg4RMjSx1D7XSsTXQPEsxHfMk8FbTnpYMusBZmJ';
 
         $action = $request->action;
 
@@ -289,7 +289,7 @@ class SharedController extends Controller
 
     public function getTransaction(Request $request)
     {
-        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+        $sk = 'xnd_development_bLtvroN1lzNODbLFeFOGdLXwg4RMjSx1D7XSsTXQPEsxHfMk8FbTnpYMusBZmJ';
 
         $xenditService = new XenditService($sk);
         $response = $xenditService->get('INV-1700979640');

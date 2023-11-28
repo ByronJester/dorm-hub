@@ -145,7 +145,7 @@ export default {
     <div v-if="redirectToHome">Not allowed</div>
     <div v-else>
         <nav
-            class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
+            class="fixed top-0 z-40 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
         >
             <div class="px-3 py-3 lg:px-5 lg:pl-3">
                 <div class="flex items-center justify-between">
@@ -277,7 +277,7 @@ export default {
                 'translate-x-0': showSidebar,
                 '-translate-x-full': !showSidebar,
             }"
-            class="fixed top-0 left-0 z-40 w-64 shadow-lg h-screen overflow-auto 2xl:overflow-clip pt-16 transition-transform bg-white -translate-x-full dark:bg-gray-800 lg:-translate-x-0 dark:border-gray-700"
+            class="fixed top-0 left-0 z-30 w-64 shadow-lg h-screen overflow-auto 2xl:overflow-clip pt-16 transition-transform bg-white -translate-x-full dark:bg-gray-800 lg:-translate-x-0 dark:border-gray-700"
         >
         <div class="p-3 w-full flex flex-col items-center justify-center">
             <div class="w-full"> 

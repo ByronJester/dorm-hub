@@ -64,6 +64,9 @@ export default {
         const curfew_hours = ref("");
         const minimum_stay = ref("");
         const rules = ref([]);
+        const reservation = ref("");
+        const landmark = ref("");
+        const note = ref("");
         const dorm_image = ref("");
         const dorm_image_src = ref(null);
         const business_permit_image = ref("");
@@ -74,9 +77,7 @@ export default {
         const account_name = ref("");
         const account_number = ref("");
         const terms = ref("");
-        const reservation = ref("");
-        const landmark = ref("");
-        const note = ref("");
+        
 
 
 

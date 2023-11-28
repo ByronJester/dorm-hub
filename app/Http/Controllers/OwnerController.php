@@ -239,7 +239,7 @@ class OwnerController extends Controller
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
         }
 
-        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+        $sk = 'xnd_development_y7JSE79cprUc1m4IkUh9PwOmwEnr0bdZlJ649WPxoRYfV4DRLeStBm99XcJ0Y';
 
         $amount = 0;
         $description = 'Dorm Subscription: ' . $request->subscription;
@@ -1375,10 +1375,14 @@ class OwnerController extends Controller
 
     public function addDormSuccessPage($invoice)
     {
-        $dorm = Dorm::where('status', 'temp')->first();
-        $dorm->status = 'pending';
-        $dorm->save();
 
+        $dorm = Dorm::where('status', 'temp')->first();
+
+        if($dorm){
+            $dorm->status = 'pending';
+            $dorm->save();
+        }
+        
         $auth = Auth::user();
 
         if($auth->first_logged_in) {
@@ -1392,6 +1396,11 @@ class OwnerController extends Controller
 
         $response = $xenditService->get($invoice);
 
-        return response()->json($response);
+        return $response;
+        // return Inertia::render('Xendit/Success', [
+        //     'dorm' => $dorm,
+        //     'invoice' => $response['data']
+        // ]);
+        
     }
 }

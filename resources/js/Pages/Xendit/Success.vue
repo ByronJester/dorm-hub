@@ -114,48 +114,6 @@ export default {
                     Download Receipt
                 </button>
         </div>
-        <!--
-        <div class="main w-full">
-            <div class="w-full flex justify-center items-center">
-                <div style="height: 100%; border: 1px solid #E4B934; border-radius: 10px" class="mt-32 flex flex-col" :style="{'width': isMobileView ? '90%': '30%'}">
-                    <div class="w-full text-center mt-5" style="font-size: 40px">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-
-                    <div class="w-full text-center mt-5" style="font-size: 23px" v-if="owner">
-                        {{ owner.name }}
-                    </div>
-
-                    <div class="w-full text-center mt-1" style="font-size: 12px" v-if="owner">
-                        {{ owner.phone_number }}
-                    </div>
-
-                    <div class="w-full text-center mt-7" style="font-size: 20px">
-                        ₱ {{ parseFloat(amount).toFixed(2) }}
-                    </div>
-
-                    <div class="w-full text-center mt-5" style="font-size: 15px">
-                        GCash Payment
-                    </div>
-
-
-                    <div class="w-full flex flex-row mt-4 px-3" style="font-size: 15px" >
-                        <div class="w-full">
-                            <span>
-                                {{ billing.billing.name }}
-
-                            </span>
-                        </div>
-
-                        <div class="w-full">
-                            <span class="float-right">
-                               {{ billing.billing.phone }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>-->
     </AuthenticatedLayout>
 </template>
 
