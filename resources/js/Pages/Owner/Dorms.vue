@@ -1,7 +1,7 @@
 <script>
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 // import AuthenticatedLayout from '@/Layouts/ResponsiveLayout.vue';
-import { usePage, useForm } from "@inertiajs/vue3";
+import { usePage, useForm, Link } from "@inertiajs/vue3";
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import { ref, reactive, watch, onMounted, computed } from "vue";
@@ -28,6 +28,7 @@ export default {
         PulseLoader,
         Editor,
         VsToast,
+        Link
     },
     setup() {
         const page = usePage();
@@ -722,6 +723,29 @@ export default {
         return isValid;
         };
 
+        const canAddDorm = ref(false);
+
+        console.log(page.props.dorms.length);
+
+        const checkSubscription = () => {
+            const subscription = user.value.subscription;
+
+            if (subscription == 'starter' && page.props.dorms.length < 3) {
+                canAddDorm.value = true;
+            } else if (subscription == 'basic' && page.props.dorms.length < 5) {
+                canAddDorm.value = true;
+            } else if (subscription == 'plus') {
+                canAddDorm.value = true;
+            } else {
+                canAddDorm.value = false;
+            }
+        };
+
+        watch(() => user, checkSubscription);
+
+        onMounted(() => {
+            checkSubscription();
+        });
 
         // Function to handle clicking "Next"
         const handleNext = () => {
@@ -733,6 +757,7 @@ export default {
         };
 
         return {
+            canAddDorm,
             errorMessages,
             selectedStatus,
             filteredDorms,
@@ -798,19 +823,33 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div class="px-4 pt-14 lg:ml-64">
+            
             <div class="flex items-center justify-start mt-4">
                 <span class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black mr-3">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"/></svg>                </span>
                 <h3 class="text-3xl">Manage Dormitories</h3>
             </div>
-            <hr class="h-px my-5 bg-orange-400 border-1" />
-
+            
+            <hr class="h-px mt-5 bg-orange-400 border-1" />
+            <div v-if="!canAddDorm" class="w-full py-4 px-6 text-white flex justify-between items-center font-bold text-sm bg-orange-400">
+                <p>
+                    Ready to unlock even more benefits? Upgrade your subscription now to create more dorm listings
+                </p>
+                <Link class="px-3 py-1.5 rounded border border-white hover:bg-white hover:text-orange-400">
+                    Upgrade
+                </Link>
+            </div>
             <div class="flex flex-col pr-5 pt-5">
                 <div class="w-full">
                     <p class="float-right">
                         <button
                             class="bg-orange-400 text-white rounded-md py-2 px-5"
                             @click="[openFormModal(), (active = 0)]"
+                            :disabled="!canAddDorm"
+                            v-tooltip="'Enter your username'"
+                            :class="{
+                                'hidden' : !canAddDorm
+                            }"
                         >
                             ADD DORM
                         </button>
@@ -828,10 +867,7 @@ export default {
                         <p class="text-2xl mb-2">
                             {{
                                 dorms.filter((x) => {
-                                    return (
-                                        x.status != "approved" &&
-                                        x.status != "pending"
-                                    );
+                                    return x.status == "decline";
                                 }).length
                             }}
                         </p>

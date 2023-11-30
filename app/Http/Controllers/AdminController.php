@@ -201,23 +201,52 @@ class AdminController extends Controller
         return response()->json(["data" => $dorms], 200);
     }
 
-    public function changeDormStatus(Request $request, $status)
+    public function changeDormStatusDecline(Request $request)
     {
-        // Dorm::where('id', $request->id)->update(['status', $status]);
         $dorm = Dorm::where('id', $request->id)->first();
-        $dorm->status = $status;
+        
+        if (!$dorm) {
+            return response()->json(["message" => "Dorm not found"], 404);
+        }
+        $reason = $request->input('reason');
+
+        $dorm->status = 'decline';
+        $dorm->reason = $reason;
         $dorm->save();
 
         $notification = new Notification;
 
         $notification->user_id = $dorm->user_id;
-        $notification->message = "Your dorm named $dorm->property_name has been $status";
+        $notification->message = "Your account has been declined. Reason: $reason";
         $notification->type = 'Dorm Status';
         $notification->redirection = 'owner.dorms';
         $notification->save();
 
         return response()->json(["message" => "Success"], 200);
     }
+
+    public function changeDormStatusApprove(Request $request)
+    {
+        $dorm = Dorm::where('id', $request->id)->first();
+        
+        if (!$dorm) {
+            return response()->json(["message" => "Dorm not found"], 404);
+        }
+
+        $dorm->status = 'approved';
+        $dorm->save();
+
+        $notification = new Notification;
+
+        $notification->user_id = $dorm->user_id;
+        $notification->message = "Your dorm named $dorm->property_name has been approved";
+        $notification->type = 'Dorm Status';
+        $notification->redirection = 'owner.dorms';
+        $notification->save();
+
+        return response()->json(["message" => "Success"], 200);
+    }
+
 
     public function backUpDatabase(DatabaseBackup $databaseBackup)
     {

@@ -239,7 +239,7 @@ class OwnerController extends Controller
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
         }
 
-        $sk = 'xnd_development_y7JSE79cprUc1m4IkUh9PwOmwEnr0bdZlJ649WPxoRYfV4DRLeStBm99XcJ0Y';
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
 
         $amount = 0;
         $description = 'Dorm Subscription: ' . $request->subscription;
@@ -584,6 +584,184 @@ class OwnerController extends Controller
         return response()->json(['message' => 'Error updating dorm.', 'status' => 500], 500);
 
 
+    }
+
+    public function dormplus(Request $request)
+    {
+        $auth = Auth::user();
+
+        $req = [
+            'map_address' => 'required',
+            'lat' => 'required',
+            'long' => 'required',
+            'detailed_address' => 'required',
+            'property_name' => 'required',
+            'description' => 'required',
+            'floors_total' => 'required',
+            'rooms_total' => 'required',
+            'dorm_image' => 'required',
+            'business_permit_image_src' => 'required',
+            'short_term' => 'required',
+            'mix_gender' => 'required',
+            'curfew' => 'required',
+            'terms' => 'required',
+        ];
+
+        if($request->curfew == 'Yes') {
+            $req['curfew_hours'] = 'required';
+        }
+
+        if($request->short_term == 'Yes') {
+            $req['minimum_stay'] = 'required';
+        }
+
+        if($auth->first_logged_in) {
+            $req['sk'] = 'required';
+            $req['pk'] = 'required';
+
+        }
+
+        $validator = Validator::make($request->all(), $req);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
+        }
+
+        
+        if($auth->first_logged_in) {
+            auth()->user()->update([
+                'sk' => $request->sk,
+                'pk' => $request->pk
+            ]);
+        }
+
+        $dorm = null;
+
+        if($id = $request->id) {
+            $dorm = Dorm::where('id', $id)->first();
+
+            if($dorm) {
+                Amenity::where('dorm_id', $id)->delete();
+                Rule::where('dorm_id', $id)->delete();
+            }
+        } else {
+            $dorm = new Dorm;
+        }
+
+        $dorm->user_id = Auth::user()->id;
+        $dorm->map_address = $request->map_address;
+        $dorm->detailed_address = $request->detailed_address;
+        $dorm->lat = $request->lat;
+        $dorm->long = $request->long;
+        $dorm->property_name = $request->property_name;
+        $dorm->description = $request->description;
+        $dorm->floors_total = $request->floors_total;
+        $dorm->rooms_total = $request->rooms_total;
+        $dorm->terms = $request->terms;
+        $dorm->landmark = $request->landmark;
+        $dorm->note = $request->note;
+        $dorm->reservation = $request->reservation;
+
+        if($dorm_image = $request->dorm_image) {
+
+            $filename = Str::random(10) . '_dorm_image';
+
+            $uploadFile = $this->uploadFile($dorm_image, $filename);
+            $dorm->dorm_image = $filename;
+        }
+
+        if($business_permit_src = $request->business_permit_image_src) {
+            $business_permit_src = $request->business_permit_image_src;
+
+            $filename = Str::random(10) . '_business_permit' ;
+
+            $uploadFile = $this->uploadFile($business_permit_src, $filename);
+            $dorm->business_permit_image = $filename;
+        }
+
+        if($dorm->save()) {
+            $rooms = json_decode($request->rooms);
+
+            foreach($rooms as $key => $r) {
+                $filename = Str::random(10) . '_room_image';
+
+
+                if($r->id){
+                    $room = Room::where('id', $id)->first();
+                } else {
+                    $room = new Room;
+                }
+
+                $room->dorm_id = $dorm->id;
+                $room->name = $r->name;
+                $room->type_of_room = $r->type_of_room;
+                $room->is_aircon = $r->is_aircon;
+                $room->furnished_type = $r->furnished_type;
+                $room->fee = $r->fee;
+                $room->deposit = $r->deposit;
+                $room->advance = $r->advance;
+
+                $uploadFile = $this->uploadFile($r->src, $filename);
+                $room->image = $filename;
+
+                $room->save();
+            }
+
+            $commonAreas = json_decode($request->commonAreas);
+
+            foreach($commonAreas as $key => $b) {
+                $filename = Str::random(10) . '_areas_image';
+
+
+                if($b->id){
+                    $commonArea = CommonAreas::where('id', $id)->first();
+                } else {
+                    $commonArea = new CommonAreas;
+                }
+
+                $commonArea->dorm_id = $dorm->id;
+                $commonArea->name = $b->name;
+
+                $uploadFile = $this->uploadFile($b->src, $filename);
+                $commonArea->image = $filename;
+
+                $commonArea->save();
+            }
+
+            $amenities = json_decode($request->amenities);
+
+            foreach($amenities as $a) {
+                $amenity = new Amenity;
+
+                $amenity->dorm_id = $dorm->id;
+                $amenity->amenity = $a;
+
+                $amenity->save();
+            }
+
+            $rule = new Rule;
+
+            $rule->dorm_id = $dorm->id;
+            $rule->short_term = $request->short_term;
+            $rule->mix_gender = $request->mix_gender;
+            $rule->curfew = $request->curfew;
+            $rule->curfew_hours = $request->curfew_hours;
+            $rule->minimum_stay = $request->minimum_stay;
+
+            $rules = [];
+
+            foreach(json_decode($request->rules) as $r) {
+                array_push($rules, $r->name);
+            }
+
+            $rule->rules = implode(',', $rules);
+
+            $rule->save();
+
+            return response()->json(['message' => 'Dorm added successfully.', 'status' => 200], 200);
+        }
+
+        return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 422);
     }
 
 
@@ -1396,11 +1574,16 @@ class OwnerController extends Controller
 
         $response = $xenditService->get($invoice);
 
-        return $response;
-        // return Inertia::render('Xendit/Success', [
-        //     'dorm' => $dorm,
-        //     'invoice' => $response['data']
-        // ]);
+        $dorms = Dorm::where('status', 'pending')
+            ->where('user_id', auth()->user()->id)
+            ->latest()
+            ->first();
+
+       
+        return Inertia::render('Xendit/Success', [
+            'dorm' => $dorms,
+            'invoice' => $response['data'][0]
+        ]);
         
     }
 }

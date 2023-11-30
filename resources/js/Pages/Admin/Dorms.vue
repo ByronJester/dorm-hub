@@ -17,6 +17,10 @@ import ColumnGroup from "primevue/columngroup"; // optional
 import Row from "primevue/row";
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 import Image from "primevue/image";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         AuthenticatedLayout,
@@ -28,12 +32,17 @@ export default {
         Button,
         Tag,
         Image,
+        Toast,
+        ConfirmDialog
     },
     setup() {
         const page = usePage();
         const rows = ref([]);
         const statuses = ref(["approved", "decline", "pending"]);
         const filters = ref();
+        const confirm = useConfirm();
+        const toast = useToast();
+        const reason = ref('');
 
         onMounted(() => {
             rows.value = page.props.dorms;
@@ -112,28 +121,17 @@ export default {
             initFilters();
         };
 
-        const changeStatus = (status, id) => {
-            var s = status == "declined" ? "decline" : "approved";
 
-            swal(
-                {
-                    title: `Are you sure to ${s} this dorm?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+        const decline = ( id, reason) => {
+            confirm.require({
+                message: 'Are you sure you want to decline this dorm?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
-                        .post(route("dorm.change.status", status), { id: id })
+                        .post(route("dorm.changestatus.decline",  { reason: reason }), { id: id })
                         .then((response) => {
-                            swal(
-                                "Success!",
-                                `You successfully ${status} this dorm.`,
-                                "success"
-                            );
-
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully decline the dorm', life: 3000 });
                             setTimeout(function () {
                                 location.reload();
                             }, 1500);
@@ -141,17 +139,48 @@ export default {
                         .catch((error) => {
                             errors.value = error.response.data.errors;
                         });
+                    
+                },
+                reject: () => {
+                    
                 }
-            );
+            });
+        };
+
+        const approved = (id) => {
+            confirm.require({
+                message: 'Are you sure you want to approve this dorm?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios
+                        .post(route('dorm.changestatus.approve'), { id: id })
+                        .then((response) => {
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully approve the dorm', life: 3000 });
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1500);
+                        })
+                        .catch((error) => {
+                            errors.value = error.response.data.errors;
+                        });
+                    
+                },
+                reject: () => {
+                }
+            });
         };
 
         const business_permit = ref(null);
         const dorm = ref(null);
+        const statuss = ref(null);
+        const reasons = ref(null)
         const openTermsModal = (arg) => {
             business_permit.value = arg.business_permit_image;
             dorm.value = arg;
             var modal = document.getElementById("defaultModal");
-
+            statuss.value = arg.status
+            reasons.value = arg.reason
             modal.style.display = "block";
         };
 
@@ -160,6 +189,33 @@ export default {
 
             modal.style.display = "none";
         };
+
+
+        const openImageModal = (src) => {
+            var modalImg = document.getElementById('modal-img');
+            var modal = document.getElementById("modal");
+            modalImg.src = src;
+
+            modal.style.display = "block";
+        };
+
+        const closeImageModal = () => {
+            var modal = document.getElementById("modal");
+
+            modal.style.display = "none";
+        };
+        const closeReasonModal = () => {
+            var modal = document.getElementById("reasonModal");
+
+            modal.style.display = "none";
+        }
+
+        const openReasonModal = (arg) => {
+            dorm.value = arg
+            var modal = document.getElementById("reasonModal");
+
+            modal.style.display = "block";
+        }
 
         console.log(rows.dorm_owner);
         const moneyFormat = (amount) => {
@@ -176,13 +232,20 @@ export default {
             formatDate,
             moneyFormat,
             statuses,
+            statuss,
             rows,
             business_permit,
-
+            openImageModal,
+            closeImageModal,
             dorm,
-            changeStatus,
+            reasons,
+            reason,
             openTermsModal,
             closeTermsModal,
+            openReasonModal,
+            closeReasonModal,
+            decline,
+            approved
         };
     },
 };
@@ -408,7 +471,7 @@ export default {
                                 class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
                             >
                                 <h3 class="text-xl font-semibold text-black">
-                                    Dorm Verified
+                                    
                                 </h3>
                                 <button
                                     type="button"
@@ -432,10 +495,11 @@ export default {
                                     </svg>
                                     <span class="sr-only">Close modal</span>
                                 </button>
-                                <!-- <div class="w-full bg-red-400 p-3 text-white flex items-center justify-center" v-if="statuss=='decline'">
-                                        You declined this user. Reason: {{ reasons }}
-                                    </div> -->
+                                
                             </div>
+                            <div class="w-full bg-red-400 p-3 text-white flex items-center justify-center" v-if="statuss=='decline'">
+                                        You declined this Dorm. Reason: {{ reasons }}
+                                    </div>
                             <!-- Modal body -->
                             <div class="p-6 space-y-6">
                                 <div v-if="dorm">
@@ -450,11 +514,11 @@ export default {
                                                     >
                                                         Dorm Image
                                                     </p>
-                                                    <Image
+                                                    <img
                                                         :src="dorm.dorm_image"
                                                         alt="Image"
-                                                        width="400"
-                                                        preview
+                                                        class="w-[400px] h-[200px] rounded-lg cursor-pointer hover:brightness-75"
+                                                        @click="openImageModal(dorm.dorm_image)"
                                                     />
                                                 </div>
                                             </div>
@@ -471,14 +535,13 @@ export default {
                                                     class="w-full"
                                                     v-if="business_permit"
                                                 >
-                                                    <Image
+                                                    <img
                                                         :src="
                                                             dorm.business_permit_image
                                                         "
                                                         alt="Image"
-                                                        width="400"
-                                                        class="text-white"
-                                                        preview
+                                                        class="w-[400px] h-[200px] cursor-pointer hover:brightness-75 rounded"
+                                                        @click="openImageModal(dorm.business_permit_image)"
                                                     />
                                                 </div>
                                             </div>
@@ -505,13 +568,13 @@ export default {
                                                     >
                                                         {{ commonArea.name }}
                                                     </p>
-                                                    <Image
+                                                    <img
                                                         :src="commonArea.image"
                                                         alt="Image"
-                                                        width="500"
-                                                        class="text-white"
-                                                        preview
+                                                        class="text-white w-[500px] h-[150px] cursor-pointer hover:brightness-75 rounded"
+                                                        @click="openImageModal(commonArea.image)"
                                                     />
+                                                    
                                                 </div>
                                             </div>
                                         </div>
@@ -533,11 +596,11 @@ export default {
                                                     >
                                                         {{ room.name }}
                                                     </p>
-                                                    <Image
+                                                    <img
                                                         :src="room.image"
                                                         alt="Image"
-                                                        width="300"
-                                                        preview
+                                                        class="text-white w-[500px] h-[150px] cursor-pointer hover:brightness-75 rounded"
+                                                        @click="openImageModal(room.image)"
                                                     />
                                                 </div>
                                             </div>
@@ -594,7 +657,6 @@ export default {
                                         </div>
                                         <hr class="block md:hidden"/>
                                         <div>
-                                            <p class="text-lg font-bold text-black">Hosted by:</p>
                                         </div>
                                     </div>
                                 </div>
@@ -606,15 +668,15 @@ export default {
                                 v-if="dorm"
                             >
                                 <button
-                                    @click="changeStatus('declined', dorm.id)"
-                                    type="button"
-                                    v-if="dorm.status == 'pending'"
-                                    class="bg-red-500 text-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                >
-                                    Decline
+                                        v-if="dorm.status == 'pending'"
+                                        @click="openReasonModal(dorm), closeTermsModal()"
+                                        type="button"
+                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Decline
                                 </button>
                                 <button
-                                    @click="changeStatus('approved', dorm.id)"
+                                    @click="approved(dorm.id)"
                                     v-if="dorm.status == 'pending'"
                                     type="button"
                                     class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -626,61 +688,91 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="w-full">
-                <div id="bpModal" class="bpModal hidden mt-20 md:mt-0">
-                    <div
-                        class="bp-modal-content flex flex-col"
-                        :style="{ width: isMobileView ? '97%' : '30%' }"
-                    >
-                        <div class="w-full">
-                            <span class="text-lg font-bold"> </span>
-                            <span
-                                class="float-right cursor-pointer"
-                                @click="closeModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
+            <div id="modal"
+                    class="z-50 fixed top-0 left-0 right-0 w-full h-screen bg-black/70 flex justify-center items-center hidden">
 
-                        <div class="w-full mt-5" v-if="business_permit">
-                            <img
-                                :src="business_permit"
-                                alt="business_permit"
-                                style="width: 100%; height: 250px"
-                            />
-                        </div>
-                        <p v-if="note">{{ note }}</p>
-                        <div
-                            class="w-full mt-5"
-                            v-if="dorm && dorm.status == 'pending'"
-                        >
-                            <img
-                                :src="dorm.user.id_picture"
-                                alt="business_permit"
-                                style="width: 100%; height: 250px"
-                            />
-                        </div>
+                    <!-- The close button -->
+                    <a class="fixed z-90 top-6 right-8 text-white text-5xl font-bold" href="javascript:void(0)"
+                        @click="closeImageModal()">&times;</a>
 
-                        <div class="w-full mt-5" v-if="dorm">
-                            <button
-                                class="bg-cyan-900 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="dorm.status == 'pending'"
-                                @click="changeStatus('approved', dorm.id)"
-                            >
-                                Approve
-                            </button>
-
-                            <button
-                                class="bg-rose-500 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="dorm.status == 'pending'"
-                                @click="changeStatus('declined', dorm.id)"
-                            >
-                                Decline
-                            </button>
+                    <!-- A big image will be displayed here -->
+                    <Image id="modal-img" width="800" class="h-full flex items-center justify-center" />
+                </div>
+        </div>
+        <div
+                    id="reasonModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-sm max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Add reason
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeReasonModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your Reason:</label>
+                                    <textarea v-model="reason" id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write your reason here..."></textarea>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                    v-if="dorm"
+                                >
+                                    <Toast />
+                                    <ConfirmDialog></ConfirmDialog>
+                                    <button
+                                        v-if="dorm.status == 'pending'"
+                                        @click="closeReasonModal()"
+                                        type="button"
+                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        @click="decline(dorm.id, reason )"
+                                        type="button"
+                                        class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
     </AuthenticatedLayout>
 </template>
