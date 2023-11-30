@@ -344,7 +344,7 @@ export default {
         </div>    
 
         <div class="mt-5">
-        <p class="text-lg">Depatment:</p>
+        <p class="text-lg">Department:</p>
         <input placeholder="Enter the department" type="tel" class="px-3 py-2 max-w-full focus:ring focus:outline-none rounded w-full dark:placeholder-gray-400 h-12 border bg-white ">
         </div>
 
