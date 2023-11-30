@@ -32,8 +32,7 @@ import VsToast from "@vuesimple/vs-toast";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-
-
+import InputMask from 'primevue/inputmask';
 export default {
     components: {
         ApplicationLogo,
@@ -48,6 +47,7 @@ export default {
         AppDropdown,
         AppDropdownContent,
         AppDropdownItem,
+        InputMask,  
     },
     methods: {
         togglePasswordVisibility(field) {
@@ -688,30 +688,7 @@ export default {
                                     </div>
 
                                     <div>
-                                        <InputLabel
-                                            for="middle_name"
-                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            value="Middle Name"
-                                        />
-
-                                        <TextInput
-                                            id="middle_name"
-                                            type="text"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="ex: Casimero"
-                                            v-model="form.middle_name"
-                                            autofocus
-                                            autocomplete="middle_name"
-                                        />
-
-                                        <InputError
-                                            class="mt-2"
-                                            :message="form.errors.middle_name"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                        
                                     <div>
                                         <InputLabel
                                             for="last_name"
@@ -735,24 +712,23 @@ export default {
                                             :message="errorMessages.last_name"
                                         />
                                     </div>
+                                    </div>
+                                </div>
 
                                     <div>
                                         <InputLabel
                                             for="phone_number"
                                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            value="Contact"
+                                            value="Phone number"
                                         />
 
-                                        <TextInput
-                                            id="phone_number"
-                                            type="text"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="ex: 09112233445"
+                                        <vue-tel-input 
                                             v-model="form.phone_number"
-                                            required
-                                            autocomplete="phone_number"
-                                        />
-
+                                            autoFormat
+                                            validCharactersOnly
+                                            :maxlength = '16'
+                                        ></vue-tel-input>
+                                                                            
                                         <InputError
                                             class="mt-2"
                                             :message="
@@ -760,9 +736,8 @@ export default {
                                             "
                                         />
                                     </div>
-                                </div>
 
-                                <div class="mb-2">
+                                <div class="my-2">
                                     <InputLabel
                                         for="email-login"
                                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -796,7 +771,7 @@ export default {
                                             id="password-login"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                            
                                             v-model="form.password"
                                             required
                                             @input="handlePasswordChange()"
@@ -877,7 +852,7 @@ export default {
                                             id="password_confirmation"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                         
                                             v-model="form.password_confirmation"
                                             required
                                             @input="handleConfirmPasswordChange"
@@ -923,7 +898,7 @@ export default {
                                     />
                                 </div>
 
-                                <hr class="mb-4" />
+                                <hr class="mb-4 bg-gray-400" />
                                 <div class="flex justify-between mb-2">
                                     <div class="flex items-start gap-2">
                                         <Checkbox
@@ -1194,7 +1169,7 @@ export default {
                                             id="password-login"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                     
                                             v-model="loginForm.password"
                                             required
                                             autofocus

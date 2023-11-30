@@ -26,7 +26,13 @@ export default {
 <template>
     <div  v-for="(dorm, index) in props.dorms" :key="index" class="w-full cursor-pointer bg-white rounded-lg ">
     <div @click="viewDorm(dorm.id)">
-        <img class="rounded-lg w-full h-64 " :src="dorm.dorm_image" alt="dorm image" />
+        <img class="rounded-t-lg w-full h-64 shadow-lg " :src="dorm.dorm_image" alt="dorm image" />
+        <div class="bg-red-400 py-2 px-3 text-white text-center text-xs" v-if="dorm && dorm.status=='decline'">
+            <i class="fa-solid fa-circle-exclamation"></i> This dorm has been decline. Reason:{{ dorm.reason }}
+        </div>
+        <div class="bg-orange-400 py-2 px-3 text-white text-center text-xs" v-if="dorm && dorm.status=='pending'">
+            <i class="fa-solid fa-circle-exclamation"></i> This dorm is waiting for system admin approval.
+        </div>
     </div>
 
 

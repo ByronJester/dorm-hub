@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Rules\CodeExists;
 use Illuminate\Validation\Rules;
+use App\Services\XenditService;
 
 class SharedController extends Controller
 {
@@ -124,7 +125,6 @@ class SharedController extends Controller
         $request->validate([
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
-            'phone_number' => 'required|numeric|digits:11',
             'user_type' => 'required',
             'username' => 'required|string|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -274,5 +274,25 @@ class SharedController extends Controller
         }
 
         return response()->json("Resrvation Expiration", 200);
+    }
+
+    public function createInvoice(Request $request)
+    {
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+
+        $action = $request->action;
+
+        $xenditService = new XenditService($sk);
+        $response = $xenditService->create(100000, 'Testtttt', $action);
+        return response()->json($response);
+    }
+
+    public function getTransaction(Request $request)
+    {
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+
+        $xenditService = new XenditService($sk);
+        $response = $xenditService->get('INV-1700979640');
+        return response()->json($response['data'][0]);
     }
 }
