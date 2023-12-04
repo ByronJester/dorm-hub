@@ -1,5 +1,5 @@
 <script>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue'
 import { usePage, useForm, router } from '@inertiajs/vue3'
 import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { MapboxMap, MapboxMarker } from '@studiometa/vue-mapbox-gl';
@@ -133,13 +133,8 @@ export default{
 </script>
 <template>
     <AuthenticatedLayout>
-        <div class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
-            <div
-                className="
-                        max-w-screen-lg
-                        mx-auto
-                        "
-            ><div class="flex items-center justify-start">
+        <div class="p-4 mt-16 lg:ml-64">
+            <div class="flex items-center justify-start">
                     <span
                         class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
                     >
@@ -354,7 +349,7 @@ export default{
                 <div v-if="!reservation" class="p-5 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
                     You dont have reservation yet. Go to <a href="/" class="text-orange-400 underline mx-1"> Home Page </a>to make reservation
                 </div>
-            </div>
+            
 
             
 

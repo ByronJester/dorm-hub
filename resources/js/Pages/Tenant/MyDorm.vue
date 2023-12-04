@@ -1,5 +1,5 @@
 <script>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import {ref} from 'vue'
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
@@ -241,14 +241,9 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div
-            class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
+            class="p-4 mt-16 lg:ml-64"
         >
-            <div
-                className="
-                        max-w-screen-lg
-                        mx-auto
-                        "
-            >
+            
                 <div class="flex items-center justify-start">
                     <span
                         class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
@@ -579,7 +574,7 @@ export default {
                     </div>
 
                 </div>
-            </div>
+            
             <!--Complain Modal-->
             <div
                     id="complainModal"
@@ -752,13 +747,13 @@ export default {
                                     </form>
                                     <div>
                                         <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit Refund Information:</p>
-                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{myDorm.room.name}}</p>
-                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit: {{moneyFormat(myDorm.room.deposit)}}</p>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{myDorm && myDorm.room.name}}</p>
+                                        <p class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Deposit: {{moneyFormat(myDorm && myDorm.room.deposit)}}</p>
                                         <form class="mt-4">
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
                                             <select
                                                 id="subject"
-                                                v-model="selectedPaymentMethod"
+                                                v-model="selectedPaymentMethod" 
                                                  @change="toggleTransfer"
                                                 class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 "
                                             >

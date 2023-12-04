@@ -1,5 +1,5 @@
 <script setup>
-import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
+import TenantLayout from "@/Layouts/SidebarLayout.vue";
 import OtherLayout from "@/Layouts/SidebarLayout.vue";
 import DeleteUserForm from "./Partials/DeleteUserForm.vue";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";

@@ -13,7 +13,7 @@ use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification, UserIncomeInformation,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs, Service
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -88,7 +88,7 @@ class OwnerController extends Controller
                 $query->where('is_available', true);
             }])
             ->where('user_id', $auth->id)
-            ->get(['id', 'property_name']);
+            ->get(['id', 'property_name', 'status']);
 
         $tenants = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user', 'billings'])
             ->where('is_active', true)
@@ -371,6 +371,18 @@ class OwnerController extends Controller
 
                 $amenity->save();
             }
+
+            $services = json_decode($request->services);
+            foreach($services as $a) {
+                $service = new Service;
+
+                $service->dorm_id = $dorm->id;
+                $service->service = $a;
+
+                
+                $service->save();
+            }
+
 
             $rule = new Rule;
 
@@ -737,6 +749,16 @@ class OwnerController extends Controller
                 $amenity->amenity = $a;
 
                 $amenity->save();
+            }
+
+            $services = json_decode($request->services);
+            foreach($services as $a) {
+                $service = new Service;
+
+                $service->dorm_id = $dorm->id;
+                $service->service = $a;
+
+                $service->save();
             }
 
             $rule = new Rule;

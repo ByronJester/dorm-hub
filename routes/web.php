@@ -150,6 +150,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
         Route::post('/update', [RegisteredUserController::class, 'update'])->name('submit.id');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
+        Route::post('/register-dorm', [OwnerController::class, 'dormPlus'])->name('dorm.plus');
         Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');
         Route::post('/application/decline/{id}', [OwnerController::class, 'declineApplication'])->name('decline.application');
         Route::post('/reservation/decline/{id}', [OwnerController::class, 'declineReservation'])->name('decline.reservation');

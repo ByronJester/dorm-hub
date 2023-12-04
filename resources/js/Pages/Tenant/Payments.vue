@@ -1,5 +1,5 @@
 <script>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import { usePage, useForm, router } from "@inertiajs/vue3";
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
@@ -426,14 +426,8 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div
-            class="max-w-[2520px] mt-16 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
+            class="p-4 mt-16 lg:ml-64"
         >
-            <div
-                className="
-                        max-w-screen-lg
-                        mx-auto
-                        "
-            >
                 <section class="pt-6 mb-6 flex items-center justify-between">
                     <div class="flex items-center justify-start">
                         <span
@@ -448,7 +442,7 @@ export default {
                                     fill="currentColor"
                                     d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
                                 ></path></svg></span>
-                        <h1 class="text-3xl leading-tight">Billing overview</h1>
+                        <h1 class="text-3xl leading-tight">Billing Statement</h1>
                     </div>
                 </section>
                 <div class="grid grid-cols-12 gap-6 mb-6">
@@ -948,7 +942,6 @@ export default {
                             </div>
                         </div>
                     </div>
-                </div>
 
 
 

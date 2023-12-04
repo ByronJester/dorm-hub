@@ -16,6 +16,11 @@ import { ref, reactive, watch, onMounted, computed } from "vue";
 import Editor from "@tinymce/tinymce-vue";
 import VsToast from "@vuesimple/vs-toast";
 import Image from 'primevue/image';
+import MultiSelect from 'primevue/multiselect';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 
 export default {
     components: {
@@ -31,12 +36,17 @@ export default {
         LvProgressBar: LvProgressBar,
         Editor,
         VsToast,
-        Image
+        Image,
+        MultiSelect,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const active = ref(1);
         const loading = ref(false);
         const page = usePage();
+        const confirm = useConfirm();
+        const toast = useToast();
 
         const user = page.props.auth.user;
 
@@ -57,7 +67,6 @@ export default {
         const rooms_total = ref("");
         const rooms = ref([]);
         const commonAreas = ref([]);
-        const amenities = ref([]);
         const short_term = ref("No");
         const mix_gender = ref("No");
         const curfew = ref("No");
@@ -77,7 +86,22 @@ export default {
         const account_name = ref("");
         const account_number = ref("");
         const terms = ref("");
-        
+        const amenities = ref([]);
+        const services = ref([]);
+        const service = ref([
+            { name: 'Service1'},
+            { name: 'Service2' },
+            { name: 'Service3'},
+            { name: 'Service4' },
+            { name: 'Service5'}
+        ]);
+
+        const amenity = ref([
+            { name: 'WIFI'},
+            { name: 'Laundry'},
+            { name: 'Parking'},
+            { name: 'Kitchen'}
+        ]);
 
 
 
@@ -353,19 +377,18 @@ export default {
 
             return null;
         };
+
+        
+         
         const saveDorm = () => {
-            swal(
-                {
-                    title: "Are you sure to save this dorm?",
-                    type: "success",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: true,
-                },
-                function () {
-                    // swal("Deleted!", "Your imaginary file has been deleted.", "success");
+            confirm.require({
+                message: 'Are you sure you want to decline this user?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     loading.value = true;
+                    const selectedServices = services.value.map(service => service.name);
+                    const selectedAmenities = amenities.value.map(amenity => amenity.name);
 
                     if (!!id.value) {
                         data.append("id", id.value);
@@ -398,12 +421,13 @@ export default {
                         JSON.stringify(commonAreas.value)
                     );
 
+                    
                     // Amenities Table
-                    data.append("amenities", JSON.stringify(amenities.value));
-
+                    data.append("amenities", JSON.stringify(selectedAmenities));
+                    console.log(selectedAmenities)
                     // Services Table
-                    // data.append("services", JSON.stringify(services.value));
-
+                    data.append("services", JSON.stringify(selectedServices));
+                    console.log(selectedServices)
                     // Rules Table
                     data.append("short_term", short_term.value);
                     data.append("mix_gender", mix_gender.value);
@@ -444,8 +468,11 @@ export default {
                             // console.log(error);
                             // loading.value = false;
                         });
+                },
+                reject: ()=>{
+
                 }
-            );
+            });
         };
         const statuss = ref('pending')
         const form = useForm({
@@ -459,25 +486,6 @@ export default {
         });
 
         const confirmSubmit = () => {
-            // form.post(route("submit.id"), {
-            //     onSuccess: () => {
-            //         location.reload();
-            //         VsToast.show({
-            //             title: "Submit",
-            //             message: "You've Submit successfuly",
-            //             variant: "success",
-            //         });
-            //     },
-            //     onError: (error) => {
-                    // VsToast.show({
-                    //     title: "Error",
-                    //     message: error,
-                    //     variant: "error",
-                    // });
-
-            //     },
-            // });
-
             axios
                 .post(route("submit.id"), form)
                 .then((response) => {
@@ -586,10 +594,10 @@ export default {
         };
 
         const validateCommonTotal = () => {
-            if (commonAreas.value.length < 0) {
+            if (commonAreas.value.length < 2) {
                 VsToast.show({
                     title: "Warning",
-                    message: "Please add atleast 2 common areas",
+                    message: "Please add atleast 2 common areas and must have bathroom and kitchen",
                     variant: "warning",
                 });
                 return false;
@@ -950,6 +958,9 @@ export default {
             rooms_total,
             rooms,
             amenities,
+            amenity,
+            services,
+            service,
             short_term,
             mix_gender,
             curfew,
@@ -1002,7 +1013,7 @@ export default {
 </script>
 
 <template>
-
+    
     <nav
         class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
@@ -2464,125 +2475,42 @@ export default {
             </div>
             <!--Amenities-->
             <div class="w-full" v-if="active == 7">
-                <p class="text-2xl font-bold mt-1 ml-3">Step 7: Amenities</p>
+                                <p class="text-2xl font-bold mt-1 ">
+                                    Amenities
+                                </p>
 
-                <p class="text-xs mt-1 ml-3">Select all apply</p>
+                                <p class="text-xs mt-1 ">
+                                    Select all apply
+                                </p>
 
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('WIFI')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('WIFI'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            WIFI
-                        </button>
-                    </div>
+                                
+                                <div class="card flex justify-content-center border rounded mt-5">
+                                        <MultiSelect v-model="amenities" :options="amenity" optionLabel="name" placeholder="Select Amenities"
+                                            :maxSelectedLabels="3" class="w-full md:w-20rem" />
+                                </div>
+                                <div class="flex flex-row gap-5 mt-5 text-sm font-bold text-gray-800">
+                                    <div v-for="(selected, index) in amenities" :key="index" class="rounded-full bg-orange-400 px-5 py-2 text-white">
+                                        {{  selected.name }}
+                                    </div>
+                                </div>
+                                <hr class="my-5" />
+                                <p class="text-2xl font-bold ">
+                                    Services
+                                </p>
 
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Security')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Security'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Security
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Cleaning Service')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Cleaning Service'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Cleaning Service
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Parking')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Parking'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Parking
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Mailboxes')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Mailboxes'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Mailboxes
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Vending Machines')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Vending Machines'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Vending Machines
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Laundry')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Laundry'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Laundry
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Pet Friendly')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Pet Friendly'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Pet Friendly
-                        </button>
-                    </div>
-                </div>
-            </div>
+                                <p class="text-xs mt-1 ">
+                                    Select all apply
+                                </p>
+                                    <div class="card flex justify-content-center border rounded mt-5">
+                                        <MultiSelect v-model="services" :options="service" optionLabel="name" placeholder="Select Services"
+                                            :maxSelectedLabels="1" class="w-full md:w-20rem" />
+                                    </div>
+                                    <div class="flex flex-row gap-5 mt-5 text-sm font-bold text-gray-800">
+                                    <div v-for="(selected, index) in services" :key="index" class="rounded-full bg-orange-400 px-5 py-2 text-white">
+                                        {{  selected.name }}
+                                    </div>
+                                </div>
+                            </div>
             <div class="w-full" v-if="active == 8">
                 <p class="text-2xl font-bold mt-1 ml-3">Step 8: Services</p>
 
@@ -2869,6 +2797,8 @@ export default {
                                                     ></label
                                                 >
                                             </div>
+                                            <Toast />
+                                            <ConfirmDialog />
                                             <button
                                                 @click="saveDorm()"
                                                 :class="{

@@ -9,6 +9,13 @@ import axios from "axios";
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import InputError from "@/Components/InputError.vue";
+import DataTable from "primevue/datatable";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+import Column from "primevue/column";
+import ColumnGroup from "primevue/columngroup"; // optional
+import Row from "primevue/row";
+import { FilterMatchMode, FilterOperator } from "primevue/api";
 
 export default {
     components: {
@@ -19,9 +26,15 @@ export default {
         InputLabel,
         TextInput,
         InputError,
+        DataTable,
+        Button,
+        Tag,
+        Column,
+        Row
     },
     setup() {
         const page = usePage();
+        const filters = ref();
         const headerTenants = [
             "Room Name",
             "Tenant Name",
@@ -31,52 +44,60 @@ export default {
             "Balance",
         ];
 
-        const searchQueryReserve = ref("");
-            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
-            const currentPageReserve = ref(1); // Initialize to the first page
+        const getSeverity = (status) => {
+                switch (status) {
+                    case 'decline':
+                        return 'danger';
 
-            
-            const filteredDataReserve = computed(() => {
-                const query = searchQueryReserve.value.toLowerCase().trim();
-                if (!query) {
-                    return tenantsData; // Return all data if the search query is empty.
-                }
+                    case 'approved':
+                        return 'success';
 
-                return tenantsData.filter((row) => {
-                    // Modify the conditions as needed for your specific search criteria.
-                    return (
-                        row.dorm_name.toLowerCase().includes(query) ||
-                        row.room_name.toLowerCase().includes(query) ||
-                        row.tenant_name.toLowerCase().includes(query)
-                    );
-                });
-            });
+                    case 'pending':
+                        return 'warning';
 
-            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
-
-            const slicedRows = computed(() => {
-                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
-                const endIndex = startIndex + itemsPerPageReserve;
-
-                const slicedAndSorted = filteredDataReserve.value
-                    .slice(startIndex, endIndex)
-                    .sort((a, b) => {
-                        const dateA = new Date(a.created_at);
-                        const dateB = new Date(b.created_at);
-                        return dateB - dateA;
-                    });
-
-                return slicedAndSorted;
-                });
-
-            const changePageReserve = (pageChange) => {
-                const newPage = currentPageReserve.value + pageChange;
-                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
-                    currentPageReserve.value = newPage;
                 }
             };
 
-        const options = page.props.dorms;
+            const initFilters = () => {
+                filters.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    room_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    tenant_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    fee: { value: null, matchMode: FilterMatchMode.IN },
+                    move_in: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+                   
+                };
+            };
+
+            initFilters();
+
+            const formatDate = (value) => {
+                // Check if value is a string and convert it to a Date object
+                const date = typeof value === 'string' ? new Date(value) : value;
+
+                // Check if date is a valid Date object
+                if (isNaN(date.getTime())) {
+                    // If not a valid Date, you can handle it according to your requirements
+                    return "Invalid Date"; // or return value.toString() or any other representation
+                }
+
+                // If it's a valid Date object, format it
+                return date.toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            };
+
+            const clearFilter = () => {
+                initFilters();
+            };
+
+
+            const options = page.props.dorms.filter(dorm => {
+                console.log('Current dorm:', dorm);
+                return dorm && dorm.status === 'approved';
+            });
 
         const selectedDorm = ref(options[0].id);
 
@@ -336,9 +357,10 @@ export default {
             proofImageChange,
             imageClick,
             createTenant,
-            currentPageReserve,
-            totalPagesReserve,
-            changePageReserve
+            filters,
+            clearFilter,
+            getSeverity,
+            formatDate,
         };
     },
 };
@@ -382,163 +404,58 @@ export default {
                         </option>
                     </select>
                 </div>
-                <div class="w-full mt-2">
-                    <div class="w-full mb-5 mt-5">
-                        <div
-                            class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                        >
-                            <div class="rounded-t mb-0 px-4 py-3 border-0">
-                                <div class="flex flex-wrap items-center">
-                                <div
-                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
-                                >
-                                <p class="text-xl mb-5 font-bold">Tenants Records</p>
-                                <div class="flex-row flex items-center justify-between">
-                                    <form class="flex items-center">
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                                <input
-                                                    type="text"
-                                                    id="simple-search"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5"
-                                                    placeholder="Search in table..."
-                                                    v-model="searchQueryReserve"
-                                                    required
-                                                />
-                                        </div>
-                                       
-                                         
-                                    </form> 
-                                    <div class="flex flex-row items-center gap-2 font-semibold">
-                                                <button 
-                                                @click="exportToPDF()"
-                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    PDF
-                                                </button>
-                                                <button
-                                                @click="printTable()"
-                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    Print
-                                                </button>    
-                                            </div>
-                                </div>
-                                </div>
-                            </div>
-                                <div class="block w-full overflow-x-auto mt-5">
-                                    <table
-                                        class="items-center w-full bg-transparent border-collapse"
-                                    >
-                                        <thead>
-                                            <tr>
-                                                <th
-                                                    class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                                    v-for="header in headerTenants"
-                                                    :key="header"
-                                                >
-                                                    {{ header }}
-                                                </th>
-                                                <th
-                                                    class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                                >
-                                                    Actions
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr
-                                                v-for="(
-                                                    item, rowIndex
-                                                ) in tenantsData"
-                                                :key="rowIndex"
-                                            >
-                                                <td
-                                                    class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                                    v-for="(
-                                                        value, colIndex
-                                                    ) in objectRemoveKey(item)"
-                                                    :key="colIndex"
-                                                >
-                                                    {{
-                                                        colIndex == "fee" ||
-                                                        colIndex == "balance"
-                                                            ? moneyFormat(value)
-                                                            : value
-                                                    }}
-                                                </td>
-                                                <td
-                                                    class="border-t-0 px-6 align-middle text-center border-l-0 border-r-0 text-green-500 text-xs whitespace-nowrap p-4"
-                                                >
-                                                    <AppDropdown class="">
-                                                        <button>
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                height="24"
-                                                                viewBox="0 0 448 512"
-                                                            >
-                                                                <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-                                                                <path
-                                                                    d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"
-                                                                />
-                                                            </svg>
-                                                        </button>
-                                                        <AppDropdownContent
-                                                            class="bg-white z-50"
-                                                        >
-                                                        <AppDropdownItem @click="noticeTermination(item)">
-                                                        Notice Termination
-                                                    </AppDropdownItem>
-                                                            <AppDropdownItem @click="removeTenant(item)">
-                                                                Remove Tenant
-                                                            </AppDropdownItem>
-                                                        </AppDropdownContent>
-                                                    </AppDropdown>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
-                    <div class="block w-full overflow-x-auto">
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-start flex-wrap mb-3"
+                <div class="card mt-5">
+                <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                :globalFilterFields="['room_name', 'tenant_name', 'fee', 'move_in']">
+                <template #header>
+                    <div class="flex items-center justify-between">
+                        <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                        <span class="p-input-icon-left">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
+                        </span>
+                    </div>
+                </template>
+                <template #empty> No tenants found. </template>
+                    <Column field="room_name" header="Room Name" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ tenantsData }">
+                            {{ tenantsData.room_name }}
+                        </template>
+                    </Column>
+                    <Column field="tenant_name" header="Tenant Name" sortable dataType="date" style="min-width: 10rem" class="border-b">
+                        <template #body="{ tenantsData }">
+                            {{ tenantsData.tenant_name }}
+                        </template>
+                    </Column>
+                    <Column field="fee" header="Room Price" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ tenantsData }">
+                            {{ moneyFormat(tenantsData.fee) }}
+                        </template>
+                    </Column>
+                    <Column header="Moved-In Date" field="move_in" sortable style="min-width: 12rem" class="border-b">
+                        <template #body="{ tenantsData }">
+                            <Tag :value="tenantsData.move_in" />
+                        </template>
+                    </Column>
+                    <Column header="Action" style="min-width: 5rem" class="border-b">
+                        <template #body ="{tenantsData}">
+                            <button
+                                class="hover:text-orange-400"
+                                :class="{
+                                    'cursor-not-allowed': data.status == 'approved',
+                                    'cursor-pointer': data.status == 'pending' && data.status == 'decline'
+                                }"
+                                :disabled="data.status=='approved'"
+                                @click="openTermsModal(data)"
                             >
-                                <button
-                                    @click="changePageReserve(-1)"
-                                    :disabled="currentPageReserve == 1"
-                                    :class="{
-                                        hidden: currentPageReserve == 1,
-                                    }"
-                                    type="button"
-                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    @click="changePageReserve(1)"
-                                    :disabled="currentPageReserve === totalPagesReserve"
-                                    type="button"
-                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page {{ currentPageReserve }}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <!-- Use v-if to conditionally render the appropriate icon -->
+                                <i v-if="data.status =='pending' || data.status == 'decline' || data.status == null" class="fa-solid fa-eye"></i>
+                                <i v-else class="fa-solid fa-eye-slash"></i>
+                            </button>
+                        </template>
+                    </Column>
+                </DataTable>
+            </div>
 
                 <div
                     id="complainModal"

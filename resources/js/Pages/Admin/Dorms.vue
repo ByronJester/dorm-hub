@@ -656,7 +656,24 @@ export default {
                                         </span>
                                         </div>
                                         <hr class="block md:hidden"/>
-                                        <div>
+                                        <div class="">
+                                            <div>
+                                                <p>Amenities</p>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <p v-for="(amenity, index) in dorm.amenities" :key="index" class="bg-orange-400 text-center text-white px-2 py-1 rounded-full">
+                                                    {{ amenity.amenity }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-5">
+                                                <p>Services</p>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <p v-for="(name, index) in dorm.services" :key="index" class="bg-orange-400 text-center text-white px-2 py-1 rounded-full">
+                                                    {{ name.service }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
