@@ -52,7 +52,7 @@ class SharedController extends Controller
 
         return Inertia::render('Dorm', [
             'dorm' => $dorm,
-            'notAllowedToRentReserve' => $reservation || $application ? true : false
+            'notAllowedToRentReserve' => false
         ]);
     }
 

@@ -5,6 +5,7 @@ import DeleteUserForm from "./Partials/DeleteUserForm.vue";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm.vue";
 import IncomeInformation from "./Partials/IncomeInformation.vue";
+import AddProfile from "./Partials/AddProfile.vue";
 import { Head } from "@inertiajs/vue3";
 import { Link, usePage } from "@inertiajs/vue3";
 
@@ -18,13 +19,8 @@ defineProps({
 
 <template>
     <TenantLayout v-if="user.user_type == 'tenant'">
-        <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 pt-20 px-4">
-                    <div 
-                        className="
-                        max-w-screen-lg 
-                        mx-auto
-                        "
-                    >
+        <div class="p-4 mt-16 lg:ml-64">
+                   
             <section class="mb-6 flex items-center justify-between">
                 <div class="flex items-center justify-start">
                     <span
@@ -67,14 +63,12 @@ defineProps({
                         
 
                 <div
-                    class="w-full mx-auto shadow-md sm:px-6 lg:px-8 space-y-6 mt-5"
                     v-if="user.user_type == 'tenant'"
                 >
                    
-                        <IncomeInformation />
+                      <AddProfile />
                   
                 </div>
-            </div>
             </div>
         </div>
     </TenantLayout>

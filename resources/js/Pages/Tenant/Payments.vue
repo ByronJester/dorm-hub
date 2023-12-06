@@ -8,10 +8,12 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue'
 
 export default {
     components: {
         AuthenticatedLayout,
+        TenantVerif
     },
     methods: {
 
@@ -424,7 +426,8 @@ export default {
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <TenantVerif :user="user" />
+    <AuthenticatedLayout v-if="user.status == 'approved'">
         <div
             class="p-4 mt-16 lg:ml-64"
         >

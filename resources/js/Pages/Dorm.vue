@@ -202,8 +202,8 @@
 <template>
     <div>
         <div class="w-full" v-if="user">
-            <TenantLayout v-if="user.user_type == 'tenant'">
-                <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
+            <OtherLayout v-if="user.user_type == 'tenant'">
+                <div class="p-4 lg:ml-64">
                     <div
                         className="
                         max-w-screen-lg
@@ -221,7 +221,8 @@
                     </div>
                     </div>
                 </div>
-            </TenantLayout>
+                    
+            </OtherLayout>
 
 
             <OtherLayout v-else>

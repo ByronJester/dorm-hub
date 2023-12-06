@@ -6,7 +6,8 @@ import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
 import { VueGoodTable } from "vue-good-table-next";
 import { format } from 'date-fns';
-import SidebarLayout from '@/Layouts/SidebarLayout.vue'
+import SidebarLayout from '@/Layouts/SidebarLayout.vue';
+import Image from 'primevue/image';
 
 export default {
     props: ["dorm", "user", "application"],
@@ -17,6 +18,7 @@ export default {
         MapboxMarker,
         Carousel,
         Slide,
+        Image,
         Pagination,
         Navigation,
     },
@@ -340,7 +342,7 @@ export default {
 </script>
 
 <template>
-    <SidebarLayout v-if="props.user">
+    <div v-if="props.user">
     <!-- IF LOGGED IN USER IS OWNER -->
     <!-- props.dorm.rooms para maccess yun mga room -->
         <div class="w-full" v-if="props.user && props.user.user_type == 'owner'">
@@ -481,23 +483,16 @@ export default {
         </div>
 
         <div
-            class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4"
             v-if="!props.user || (!!props.user && props.user.user_type == 'tenant')"
         >
-            <div
-                className="
-                            max-w-screen-lg
-                            mx-auto
-                            "
-            >
                 <div
                     class="w-full flex flex-col justify-center items-center overflow-y-scroll"
                 >
                     <!--Header-->
                     <div class="w-full px-5">
                         <p class="w-full">
-                            <span v-tooltip="'yow'" class="text-xl cursor-pointer">
-                                {{ props.dorm.map_address }}
+                            <span v-tooltip="'yow'" class="text-3xl font-bold cursor-pointer">
+                                {{ props.dorm.property_name }}
                             </span>
                         </p>
 
@@ -505,7 +500,7 @@ export default {
 
                         <div class="grid gap-4 mt-4">
                             <div>
-                                <img class="h-[450px] w-full bg-no-repeat rounded-lg" :src="props.dorm.dorm_image" alt="">
+                                <img class="md:h-[400px] lg:h-[450px] xl:h-[600px] w-full bg-no-repeat rounded-lg" :src="props.dorm.dorm_image" alt="">
                             </div>
                             <p class="font-semibold text-lg ">Common Areas</p>
 
@@ -728,7 +723,7 @@ export default {
                                 gap-2
                             "
                                 >
-                                    <div>{{ props.dorm.property_name }}</div>
+                                    <div>{{ props.dorm.detailed_address }}</div>
                                 </div>
                                 <div className="flex flex-row items-center gap-1 ">
                                     <div
@@ -1116,9 +1111,149 @@ export default {
                             </div>-->
                         </div>
                     </div>
+                    <div
+                    id="roomModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                                >
+                                    <h3
+                                        class="text-2xl font-bold text-black"
+                                    >
+                                        {{ room && room.name }}
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                        @click="closeModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <div class="w-full bg-green-400 text-center text-white font-bold text-lg" v-if="room && room.is_available">Available</div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        <div>
+                                            <Image :src="room && room.image" width="500" preview />
+                                        </div>
+                                        <div class="px-4">
+                                            <p class="text-xl font-bold">Room Details</p>
+                                            <div class="w-full flex items-center justify-between">
+                                                <p class="text-lg font-semibold">Deposit Fee:</p>
+                                                <p class="text-lg text-gray-600">
+                                                    {{ moneyFormat(room && room.deposit) }}
+                                                </p>
+                                            </div>
+                                            <div class="w-full flex items-center justify-between">
+                                                <p class="text-lg font-semibold">Advance Fee:</p>
+                                                <p class="text-lg text-gray-600">
+                                                    {{ moneyFormat(room && room.advance) }}
+                                                </p>
+                                            </div>
+                                            <div class="w-full flex items-center justify-between">
+                                                <p class="text-lg font-semibold">Monthly Fee:</p>
+                                                <p class="text-lg text-gray-600">
+                                                    {{ moneyFormat(room && room.fee) }}
+                                                </p>
+                                            </div>
+                                            <div class="w-full flex items-center justify-between">
+                                                <div class="flex items-center gap-1">
+                                                    <i class="fa-solid fa-users fa-lg" style="color: #000000;"></i>
+                                                    <p class="text-lg font-semibold">Capacity:</p>
+                                                </div>
+                                                
+                                                <p class="text-lg text-gray-600">
+                                                    {{ room && room.type_of_room }}
+                                                </p>
+                                            </div>
+                                            <div class="w-full flex items-center justify-between">
+                                                <div class="flex items-center gap-1">
+                                                    <i class="fa-solid fa-fan fa-spin fa-lg" style="color: #050505;"></i>
+                                                    <p class="text-lg font-semibold">Air-condition:</p>
+                                                </div>
+                                                
+                                                <p class="text-lg text-gray-600">
+                                                    {{ room && room.is_aircon }}
+                                                </p>
+                                            </div>
+                                            <div class="w-full flex items-center justify-between">
+                                                <div class="flex items-center gap-1">
+                                                    <i class="fa-solid fa-couch fa-lg" style="color: #000000;"></i>
+                                                    <p class="text-lg font-semibold">Furnished Type:</p>
+                                                </div>
+                                                
+                                                <p class="text-lg text-gray-600">
+                                                    {{ room && room.furnished_type }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                >
+                                    <button
+                                        class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
+                                        @click="
+                                            redirectToBillingInfo(room, 'reserve')
+                                        "
+                                        :class="{
+                                            'cursor-not-allowed':
+                                                !room.is_available || notAllowedToRentReserve,
+                                        }"
+                                        :disabled="!room.is_available || notAllowedToRentReserve"
+                                        v-if="user.is_approved && room.is_available"
+                                    >
+                                        Reserve
+                                    </button>
 
+                                    <button
+                                        class="text-md bg-cyan-500 text-white mx-2 p-5 rounded-md"
+                                        @click="redirectToBillingInfo(room, 'rent')"
+                                        :class="{
+                                            'cursor-not-allowed':
+                                                !room.is_available || notAllowedToRentReserve,
+                                        }"
+                                        :disabled="!room.is_available || notAllowedToRentReserve"
+                                        v-if="user.is_approved && room.is_available"
+                                    >
+                                        Rent
+                                    </button>
+                                
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                     <!--Room modal-->
-                    <div class="w-full">
+                    <!-- <div class="w-full">
                         <div id="roomModal" class="roomModal mt-10 md:mt-0">
                             <div
                                 class="room-modal-content flex flex-col"
@@ -1201,44 +1336,14 @@ export default {
                                     </div>
                                 </div>
 
-                                <div
-                                    class="w-full flex justify-center items-center mt-10"
-                                >
-                                    <button
-                                        class="text-md bg-orange-500 mx-2 text-white p-5 rounded-md"
-                                        @click="
-                                            redirectToBillingInfo(room, 'reserve')
-                                        "
-                                        :class="{
-                                            'cursor-not-allowed':
-                                                !room.is_available || notAllowedToRentReserve,
-                                        }"
-                                        :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.is_approved && room.is_available"
-                                    >
-                                        Reserve
-                                    </button>
-
-                                    <button
-                                        class="text-md bg-cyan-500 text-white mx-2 p-5 rounded-md"
-                                        @click="redirectToBillingInfo(room, 'rent')"
-                                        :class="{
-                                            'cursor-not-allowed':
-                                                !room.is_available || notAllowedToRentReserve,
-                                        }"
-                                        :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.is_approved && room.is_available"
-                                    >
-                                        Rent
-                                    </button>
-                                </div>
+                                
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
-            </div>
         </div>
-    </SidebarLayout>
+    </div>
+
     <div v-else>
 
         <div
@@ -2003,79 +2108,10 @@ export default {
 </template>
 
 <style>
-.room-image {
-    width: 100%;
-    height: 200px;
-    border-radius: 5px;
-    border: 1px solid gray;
+/* Assuming "primevue-custom-class" is the class added to the PrimeVue component or parent element */
+.p-image img {
+  border-radius: 5%;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)
 }
 
-.generic-image {
-    width: 100%;
-    height: 300px;
-    border-radius: 5px;
-    border: 1px solid black;
-}
-
-hr {
-    border: 0;
-    clear: both;
-    display: block;
-    width: 100%;
-    background-color: black;
-    height: 1px;
-}
-
-.roomModal {
-    display: none;
-    position: fixed; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-}
-
-/* Modal Content */
-.room-modal-content {
-    background-color: #fefefe;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 100%;
-}
-
-/* The Close Button */
-.close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-::-webkit-scrollbar {
-    width: 0px;
-    background: transparent; /* make scrollbar transparent */
-}
-
-.zoomed {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        z-index: 1000;
-        cursor: pointer;
-    }
 </style>

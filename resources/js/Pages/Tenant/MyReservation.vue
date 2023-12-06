@@ -7,15 +7,17 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
-
+import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue'
 export default{
     components:{
         AuthenticatedLayout,
+        TenantVerif
     },
     setup(){
         const page = usePage();
 
-        const reservation = page.props.reservation
+        const reservation = page.props.reservation;
+        const user = page.props.user;
 
         console.log(reservation)
 
@@ -119,6 +121,7 @@ export default{
         }
 
         return {
+            user,
             reservation,
             formatDate,
             formatTime,
@@ -132,7 +135,8 @@ export default{
 
 </script>
 <template>
-    <AuthenticatedLayout>
+    <TenantVerif :user="user" />
+    <AuthenticatedLayout v-if="user.status =='approved'">
         <div class="p-4 mt-16 lg:ml-64">
             <div class="flex items-center justify-start">
                     <span

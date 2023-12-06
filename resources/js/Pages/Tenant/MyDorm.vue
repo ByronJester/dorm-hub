@@ -5,11 +5,13 @@ import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import axios from "axios";
+import TenantVerif from "@/Pages/Tenant/Component/TenantVerif.vue"
 
 export default {
     components: {
         VueDatePicker,
         AuthenticatedLayout,
+        TenantVerif
     },
     setup() {
         const headers = ["Subject", "Message", "Status"];
@@ -46,6 +48,7 @@ export default {
 
         const page = usePage();
 
+        const user = page.props.user;
         const myDorm = ref()
         myDorm.value = page.props.myDorm
 
@@ -203,7 +206,10 @@ export default {
             );
         };
 
+        console.log(user)
+
         return {
+            user,
             myApplication,
             headers,
             date,
@@ -239,7 +245,8 @@ export default {
 };
 </script>
 <template>
-    <AuthenticatedLayout>
+    <TenantVerif :user="user" />
+    <AuthenticatedLayout v-if="user.status == 'approved'">
         <div
             class="p-4 mt-16 lg:ml-64"
         >

@@ -48,6 +48,7 @@ class TenantController extends Controller
         }
 
         return Inertia::render('Tenant/MyDorm', [
+            'user' => $auth,
             'myApplication' => $myApplication,
             'myDorm' => $myDorm,
             'rating' => $rating,
@@ -66,6 +67,7 @@ class TenantController extends Controller
             ->first();
 
         return Inertia::render('Tenant/MyReservation', [
+            'user' => $auth,
             'myApplication' => $myApplication,
             'reservation' => $reservation
         ]);
@@ -352,6 +354,10 @@ class TenantController extends Controller
         );
 
         return $source;
+    }
+
+    public function tenantverif(){
+        return Inertia::render('Tenant/TenantVerif');
     }
 
     public function messageOwner($owner_id)

@@ -1067,7 +1067,7 @@ export default {
         </div>
     </nav>
 
-    <div class="max-w-[2520px] mt-24 xl:px-20 md:px-10 sm:px-2 px-4" v-if="$page.props.auth.user.status == null || $page.props.auth.user.status == 'decline'">
+    <div class="max-w-[2520px] mt-24 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == null || userStatus == 'decline'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="w-full items-center">
                 <p class="font-bold text-2xl">Verification Details</p>

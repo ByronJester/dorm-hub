@@ -8,12 +8,14 @@ import axios from "axios";
 import { router } from "@inertiajs/vue3";
 import DormList from "@/Components/DormList.vue";
 import Hero from "@/Components/Hero.vue";
+import TenantVerif from "@/Pages/Tenant/Component/TenantVerif.vue"
 
 export default {
     components: {
         AuthenticatedLayout,
         DormList,
-        Hero
+        Hero,
+        TenantVerif
     },
     setup() {
         const page = usePage();
@@ -46,6 +48,8 @@ export default {
 
             modal.style.display = "none";
         };
+
+        
         
 
         return {
@@ -61,7 +65,8 @@ export default {
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <TenantVerif :user="user" />
+    <AuthenticatedLayout v-if="user.status == 'approved'">
         <div class="p-4 lg:ml-64">
             <div class="flex items-center mx-5 justify-center">
                 <div

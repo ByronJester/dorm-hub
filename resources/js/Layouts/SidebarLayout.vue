@@ -169,8 +169,8 @@ export default {
                             <button>
                                 <i class="fa-regular fa-bell fa-lg"></i>
                                 <span
-                                    class="absolute right-4 cursor-pointer text-white font-bold"
-                                    style="font-size: 8px"
+                                    class="absolute right-2 top-2 cursor-pointer text-xs bg-red-400 rounded-full py-1 px-2 text-white font-bold"
+                                    
                                     v-if="
                                         notifications.filter((x) => {
                                             return !x.is_read;
