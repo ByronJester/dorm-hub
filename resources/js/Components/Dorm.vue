@@ -1186,7 +1186,7 @@ export default {
                                                     <i class="fa-solid fa-users fa-lg" style="color: #000000;"></i>
                                                     <p class="text-lg font-semibold">Capacity:</p>
                                                 </div>
-                                                
+
                                                 <p class="text-lg text-gray-600">
                                                     {{ room && room.type_of_room }}
                                                 </p>
@@ -1196,7 +1196,7 @@ export default {
                                                     <i class="fa-solid fa-fan fa-spin fa-lg" style="color: #050505;"></i>
                                                     <p class="text-lg font-semibold">Air-condition:</p>
                                                 </div>
-                                                
+
                                                 <p class="text-lg text-gray-600">
                                                     {{ room && room.is_aircon }}
                                                 </p>
@@ -1206,7 +1206,7 @@ export default {
                                                     <i class="fa-solid fa-couch fa-lg" style="color: #000000;"></i>
                                                     <p class="text-lg font-semibold">Furnished Type:</p>
                                                 </div>
-                                                
+
                                                 <p class="text-lg text-gray-600">
                                                     {{ room && room.furnished_type }}
                                                 </p>
@@ -1228,7 +1228,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.is_approved && room.is_available"
+                                        v-if="user.status == 'approved' && room.is_available"
                                     >
                                         Reserve
                                     </button>
@@ -1241,11 +1241,11 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.is_approved && room.is_available"
+                                        v-if="user.status == 'approved' && room.is_available"
                                     >
                                         Rent
                                     </button>
-                                
+
 
                                 </div>
                             </div>
@@ -1336,7 +1336,7 @@ export default {
                                     </div>
                                 </div>
 
-                                
+
                             </div>
                         </div>
                     </div> -->
