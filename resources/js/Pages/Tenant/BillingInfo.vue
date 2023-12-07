@@ -7,13 +7,15 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import VsToast from '@vuesimple/vs-toast';
 import Checkbox from "@/Components/Checkbox.vue";
+import FileUpload from "primevue/fileupload"
 
 export default {
     components: {
         VueDatePicker,
         TenantLayout,
         VsToast,
-        Checkbox
+        Checkbox,
+        FileUpload
     },
     setup() {
         const page = usePage();
@@ -81,7 +83,7 @@ export default {
         const terms = ref(false);
 
         if (action == "reserve") {
-            amount_to_paid.value = 300;
+            amount_to_paid.value = dorm.reservation;
         } else {
             amount_to_paid.value =
                 parseInt(room.advance) + parseInt(room.deposit);
@@ -339,8 +341,9 @@ export default {
                 </div>
                 <div class="flex w-full flex-col lg:flex-row gap-10">
                     <div
-                        class="py-5 px-10 border rounded-lg bg-white border-gray-300 flex-wrap"
+                        class="rounded-lg bg-white flex-wrap"
                     >
+                        <p class="text-2xl font-bold mb-5">Dorm Details</p>
                         <div class="flex flex-row gap-4">
                             <img
                                 :src="room.image"
@@ -348,7 +351,7 @@ export default {
                             />
                             <div class="">
                                 <p class="text-xl font-semibold">
-                                    Room {{ room.name }}
+                                    {{ room.name }}
                                 </p>
                                 <p class="text-sm font-light text-gray-500">
                                     {{ dorm.map_address }}
@@ -692,6 +695,7 @@ export default {
                         </div>
 
                         <div
+                            class="p-4 rounded-xl shadow bg-white border border-gray-200"
                             v-if="
                                 (!!hasExistingApplication &&
                                     !hasExistingApplication.move_in &&
@@ -706,22 +710,129 @@ export default {
                             "
                         >
                             <p class="text-2xl font-semibold">
-                                Your Application
+                                Application Information
                             </p>
-                            <div class="flex flex-row gap-2 items-center">
-                                <i
-                                    class="fa-solid fa-circle-exclamation fa-sm"
-                                    style="color: #ff8800"
-                                ></i>
-                                <p class="text-xs text-gray-600">
-                                    Make sure to fix your income information in
-                                    <a
-                                        :href="route('profile.edit')"
-                                        class="text-orange-400 underline"
-                                        >Profile page</a
+                            
+                            <div class="mt-5">
+                                <p class="text-lg font-bold">Select Profile</p>
+                                <p class="text-xs text-gray-500">(Select or add profile who will rent this room)</p>
+                                <select class="rounded-xl w-full border-gray-300 border">
+                                    <option>New</option>
+                                    <option>Me</option>
+                                </select>
+                            </div>
+                            
+                            <p class="mt-5 text-lg font-bold">Profile Information</p>
+                            <div class="flex flex-col gap-2 w-full items-center justify-center">
+                                            <div class="">
+                                                <img
+                                                    src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                                    alt="Profile picture"
+                                                    class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                                                />
+                                            </div>
+                                            <div>
+                                                <p></p>
+                                                <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000" />
+                                            </div>
+                                        </div>
+                                    <hr class="my-2"/>
+                            <label for="subject" class="block mb-2">Relationship</label>
+                            <select id="subject" v-model="subject" class="block w-full text-base mb-3 text-gray-900 border border-gray-300 rounded-lg bg-gray-50">
+                                <option selected>Choose</option>
+                                <option value="Father">Father</option>
+                                <option value="Mother">Mother</option>
+                                <option value="Brother">Brother</option>
+                                <option value="Sister">Sister</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Classmate">Classmate</option>
+                                <option value="Others">Others</option>
+
+                            </select>
+                            <div class=" w-full grid grid-cols-1 md:grid-cols-2 gap-2">
+                                <div>
+                                    <p>First Name</p>
+                                    <input class="rounded-xl w-full border border-gray-300 " type="text" />
+                                </div>
+                                <div>
+                                    <p>Last Name</p>
+                                    <input class="rounded-xl w-full border border-gray-300 " type="text" />
+                                </div>
+                            </div>
+                            <div class="mt-1">
+                                <p>Contact</p>
+                                <vue-tel-input 
+                                            autoFormat
+                                            validCharactersOnly
+                                            :maxlength = '16'
+                                        ></vue-tel-input>
+                            </div>
+                            <div class="mt-5">
+                                <p class="text-lg font-bold">Income Information</p>
+                                <div class="mb-2">
+                                    <p class="font-semibold">Source of Income</p>
+                                    <select class="rounded-xl w-full border-gray-300 border">
+                                        <option>New</option>
+                                    </select>
+                                </div>
+
+                                <p class="font-semibold">Proof of Income</p>
+                                <div class="flex flex-col items-center w-full">
+                                    <input
+                                        type="file"
+                                        id="business_permit"
+                                        class="hidden"
+                                        accept="image/*"
+                                        required
+                                    />
+                                    <label
+                                        for="business_permit"
+                                        class="flex flex-col items-center justify-center w-full h-[300px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
                                     >
-                                    to submit application
-                                </p>
+                                        <img
+                                            v-if="business_permit_image_src"
+                                            :src="business_permit_image_src"
+                                            alt="business permit"
+                                            class="h-[300px] w-full object-cover bg-no-repeat bg-center rounded-lg"
+                                        />
+                                        <div
+                                            v-else
+                                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                        >
+                                            <span class="text-blue-500 dark:text-gray-400">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="16"
+                                                    height="16"
+                                                    fill="currentColor"
+                                                    class="w-8 h-8 bi bi-cloud-upload"
+                                                    viewBox="0 0 16 16"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                                    />
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                                    /></svg></span>
+                                            <p
+                                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                                            >
+                                                <span class="font-semibold text-blue-500"
+                                                    >Click to upload</span
+                                                >
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                SVG, PNG, JPG or GIF (upto 10MB)
+                                            </p>
+                                        </div>
+                                        <span class="text-xs text-red-500 ml-2"
+                                            >error
+                                        </span>
+                                    </label>
+                                </div>
+
                             </div>
 
                             <label

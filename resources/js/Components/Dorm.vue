@@ -1,6 +1,6 @@
 <script>
 import { ref, onMounted, reactive } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { router, usePage, Link } from "@inertiajs/vue3";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
 import "vue3-carousel/dist/carousel.css";
 import { Carousel, Slide, Pagination, Navigation } from "vue3-carousel";
@@ -14,6 +14,7 @@ export default {
     components: {
         SidebarLayout,
         VueGoodTable,
+        Link,
         MapboxMap,
         MapboxMarker,
         Carousel,
@@ -1228,7 +1229,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.status == 'approved' && room.is_available"
+                                        v-if="user.status == 'approved' && room && room.is_available"
                                     >
                                         Reserve
                                     </button>
@@ -1241,7 +1242,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.status == 'approved' && room.is_available"
+                                        v-if="user.status == 'approved' && room &&room.is_available"
                                     >
                                         Rent
                                     </button>
@@ -2080,7 +2081,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.is_approved && room.is_available"
+                                        v-if="user.status == 'approved' && room && room.is_available"
                                     >
                                         Reserve
                                     </button>
@@ -2093,7 +2094,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.is_approved && room.is_available"
+                                        v-if="user.status == 'approved' && room && room.is_available"
                                     >
                                         Rent
                                     </button>
