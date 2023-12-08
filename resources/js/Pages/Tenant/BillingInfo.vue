@@ -1,5 +1,5 @@
 <script>
-import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
+import TenantLayout from "@/Layouts/SidebarLayout.vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -20,14 +20,42 @@ export default {
     setup() {
         const page = usePage();
         const user = page.props.auth.user;
-
+        const selectedProfile = ref('Me');
         const dorm = page.props.dorm;
         const room = page.props.room;
         const action = page.props.action;
         const hasExistingApplication = page.props.hasExistingApplication;
         const hasExistingReservation = page.props.hasExistingReservation;
 
+        const userInformation = ref({
+            firstName: '',
+            lastName: '',
+            contact: '',
+            image: '',
+        })
+
         const options = ref(["Bank Transfer", "Online Payment"]);
+
+        const selectProfile = () =>{
+            if(selectedProfile.value == 'New'){
+                userInformation.value = {
+                    firstName: '',
+                    lastName: '',
+                    contact: '',
+                    image:''
+                }
+                console.log(userInformation.value);
+            }
+            else{
+                userInformation.value = {
+                    firstName: user.first_name,
+                    lastName: user.last_name,
+                    contact: user.phone_number,
+                    image: user.image
+                }
+                console.log(userInformation);
+            }
+        }
 
         if(action == 'reserve') {
             options.value = ["Online Payment"];
@@ -45,7 +73,7 @@ export default {
             var url = null;
 
             if (user) {
-                router.get(route("view.dorm", room.dorm_id));
+                router.get(route("view.rooms", room.dorm_id));
             } else {
                 router.get(route("landing.page"));
             }
@@ -296,7 +324,10 @@ export default {
             openTermsModal,
             closeTermsModal,
             acceptClose,
-            terms
+            terms,
+            selectProfile,
+            selectedProfile,
+            userInformation
         };
     },
 };
@@ -304,9 +335,7 @@ export default {
 
 <template>
     <TenantLayout>
-        <div
-            class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
-        >
+        <div class="p-4 mt-16 lg:ml-64">
             <div
                 className="
                         max-w-screen-lg
@@ -716,7 +745,7 @@ export default {
                             <div class="mt-5">
                                 <p class="text-lg font-bold">Select Profile</p>
                                 <p class="text-xs text-gray-500">(Select or add profile who will rent this room)</p>
-                                <select class="rounded-xl w-full border-gray-300 border">
+                                <select v-model="selectedProfile" @change="selectProfile()" class="rounded-xl w-full border-gray-300 border">
                                     <option>New</option>
                                     <option>Me</option>
                                 </select>
@@ -733,12 +762,12 @@ export default {
                                             </div>
                                             <div>
                                                 <p></p>
-                                                <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000" />
+                                                <FileUpload mode="basic" v-if="selectedProfile == 'New'" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000" />
                                             </div>
                                         </div>
                                     <hr class="my-2"/>
-                            <label for="subject" class="block mb-2">Relationship</label>
-                            <select id="subject" v-model="subject" class="block w-full text-base mb-3 text-gray-900 border border-gray-300 rounded-lg bg-gray-50">
+                            <label v-if="selectedProfile == 'New'" for="relationship" class="block mb-2">Relationship</label>
+                            <select v-if="selectedProfile == 'New'" id="relationship" v-model="relationship" class="block w-full text-base mb-3 text-gray-900 border border-gray-300 rounded-lg bg-gray-50">
                                 <option selected>Choose</option>
                                 <option value="Father">Father</option>
                                 <option value="Mother">Mother</option>
@@ -752,16 +781,17 @@ export default {
                             <div class=" w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <div>
                                     <p>First Name</p>
-                                    <input class="rounded-xl w-full border border-gray-300 " type="text" />
+                                    <input v-model="userInformation.firstName" class="rounded-xl w-full border border-gray-300 " type="text" />
                                 </div>
                                 <div>
                                     <p>Last Name</p>
-                                    <input class="rounded-xl w-full border border-gray-300 " type="text" />
+                                    <input v-model="userInformation.lastName" class="rounded-xl w-full border border-gray-300 " type="text" />
                                 </div>
                             </div>
                             <div class="mt-1">
                                 <p>Contact</p>
                                 <vue-tel-input 
+                                            v-model="userInformation.contact"
                                             autoFormat
                                             validCharactersOnly
                                             :maxlength = '16'
@@ -972,5 +1002,6 @@ export default {
                 </div>
             </div>
         </div>
+            
     </TenantLayout>
 </template>

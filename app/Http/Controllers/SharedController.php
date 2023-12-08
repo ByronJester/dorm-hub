@@ -56,6 +56,15 @@ class SharedController extends Controller
         ]);
     }
 
+    public function rooms($dorm_id){
+        $auth = Auth::user();
+        $dorm = Dorm::where('id', $dorm_id)->first();
+        return Inertia::render('RoomList', [
+            'dorm' => $dorm,
+            'user' => $auth,
+        ]);
+    }
+
     public function notificationMarkAsRead($id)
     {
         $auth = Auth::user();

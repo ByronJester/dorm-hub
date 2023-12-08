@@ -204,6 +204,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
 Route::get('/aboutUs', [SharedController::class, 'show'])->name('about.us');
 Route::get('/policy', [SharedController::class, 'showPolicy'])->name('privacy.policy');
 Route::get('/contactUs', [SharedController::class, 'showContact'])->name('contact.us');
+Route::get('/rooms/{dorm_id}', [SharedController::class, 'rooms'])->name('view.rooms');
 Route::get('/view-dorm/{dorm_id}', [SharedController::class, 'viewDorm'])->name('view.dorm');
 Route::get('/FAQs', [SharedController::class, 'help'])->name('user.help');
 
