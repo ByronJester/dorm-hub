@@ -15,14 +15,16 @@ return new class extends Migration
     {
         Schema::create('billings', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('tenant_id')->nullable()->comment('Foreign key from table tenants');
-            $table->bigInteger('reservation_id')->nullable()->comment('Foreign key from table reservations');
-            $table->bigInteger('user_id')->nullable()->comment('Foreign key from table users');
+            $table->bigInteger('f_id');
+            $table->bigInteger('profile_id');
             $table->float('amount')->default(0);
-            $table->string('subject')->nullable();
             $table->longText('description')->nullable();
-            $table->date('date')->nullable();
+            $table->string('type');
+            $table->string('invoice_number')->nullable();
             $table->boolean('is_paid')->default(false);
+            $table->date('payment_date')->nullable();
+            $table->date('for_the_month')->nullable();
+            $table->boolean('is_active')->default(true);
 
             $table->timestamps();
         });

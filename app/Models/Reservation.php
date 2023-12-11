@@ -10,7 +10,7 @@ class Reservation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'owner', 'tenant', 'dorm_id', 'room_id', 'check_date', 'check_time', 'date', 'expired_at',
+        'owner', 'tenant', 'dorm_id', 'room_id', 'check_date', 'check_time', 'date', 'expired_at', 'is_active'
     ];
 
     public function dorm()

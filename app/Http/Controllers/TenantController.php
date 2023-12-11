@@ -9,12 +9,13 @@ use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
     Thread, ThreadMember, ThreadMessage,Hero, DormRating, TenantComplaint,
     //TenantApplication, TenantRefund, , TenantReservation, TenantBilling, TenantPayment,
-    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs
+    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs, Profile
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use App\Services\XenditService;
 
 class TenantController extends Controller
 {
@@ -443,67 +444,52 @@ class TenantController extends Controller
 
             $auth = Auth::user();
 
-            $existingReseravtion = Reservation::where('owner', $request->owner_id)
-                ->where('tenant', $request->tenant_id)
-                ->where('dorm_id', $request->dorm_id)
-                ->where('room_id', $request->room_id)
-                ->first();
+            $owner = User::where('id', $request->owner_id)->first();
 
-            if($existingReseravtion) {
-                Reservation::where('id', $existingReseravtion->id)->delete();
-                Billing::where('reservation_id', $existingReseravtion->id)->delete();
-                UserPayment::where('reservation_id', $existingReseravtion->id)->delete();
+            $amount = $request->reservation_fee;
+            $description = 'Reservation Fee';
+            $action = 'tenantPayment';
+
+            $xenditService = new XenditService($owner->sk);
+
+            $response = $xenditService->create($amount, $description, $action);
+
+            if(!!$response) {
+                $profile = Profile::where('user_id', $auth->id)->where('relationship', 'Me')->first();
+
+                $reservation = Reservation::create([
+                    'owner' => $request->owner_id,
+                    'tenant' => $request->tenant_id,
+                    'dorm_id' => $request->dorm_id,
+                    'room_id' => $request->room_id,
+                    'check_date' => Carbon::parse($request->check_date),
+                    'check_time' => $request->check_time,
+                    'date' => Carbon::now(),
+                    'expired_at' => Carbon::now()->addDays(7),
+                    'is_active' => false
+                ]);
+
+                $billing = Billing::create([
+                    'f_id' => $reservation->id,
+                    'profile_id' => $profile->id,
+                    'amount' => $amount,
+                    'description' => $description,
+                    'type' => 'reservation',
+                    'invoice_number' => $response['external_id'],
+                    'is_paid' => false,
+                    'payment_date' => null,
+                    'for_the_month' => null,
+                    'is_active' => false
+                ]);
+
+                DB::commit();
+
+                return $response['invoice_url'];
             }
 
-            $reservation = Reservation::create([
-                'owner' => $request->owner_id,
-                'tenant' => $request->tenant_id,
-                'dorm_id' => $request->dorm_id,
-                'room_id' => $request->room_id,
-                'check_date' => Carbon::parse($request->check_date),
-                'check_time' => $request->check_time,
-                'date' => Carbon::now(),
-                'expired_at' => Carbon::now()->addDays(7)
-            ]);
+            return null;
 
-            $billing = Billing::create([
-                'reservation_id' => $reservation->id,
-                'amount' => $request->amount,
-                'description' => 'reservation_fee',
-                'date' => Carbon::now(),
-                'user_id' => $auth->id
-            ]);
 
-            $proof_of_payment = null;
-
-            if($request->payment_method == "Bank Transfer") {
-                $filename = Str::random(10) . '_proof_of_payment';
-                $uploadFile = $this->uploadFile($request->proof_of_payment, $filename);
-                $proof_of_payment = $filename;
-            }
-
-            $payment = UserPayment::create([
-                'reservation_id' => $reservation->id,
-                'billing_id' => $billing->id,
-                'payment_method' => $request->payment_method,
-                'proof_of_payment' => $proof_of_payment,
-                'description' => 'reservation_fee',
-                'date' => Carbon::now(),
-                'user_id' => $auth->id
-            ]);
-
-            DB::commit(); // Commit the transaction
-
-            session()->put('room_id', $request->room_id);
-
-            // Return the data
-            return [
-                'success' => true,
-                'data' => $request->payment_method == "Bank Transfer"
-                    ? $payment
-                    : $this->payOnline($request->amount, $request->owner_id, $request->tenant_id, 'Reservation Fee', $payment->id),
-                'payment_method' => $request->payment_method
-            ];
         } catch (Exception $e) {
             // Handle exceptions
             DB::rollBack(); // Rollback the transaction
@@ -800,6 +786,98 @@ class TenantController extends Controller
         ]);
 
         return Refund::create($request->all());
+    }
+
+    public function createSubProfile(Request $request)
+    {
+        $auth = Auth::user();
+
+        $data = $request->toArray();
+
+        $data['user_id'] = $auth->id;
+
+        Profile::create($data);
+
+        return response()->json(["success" => true], 200);
+    }
+
+    public function tenantPaymentSuccessPage($invoice)
+    {
+        $billing = Billing::where('invoice_number', $invoice)->first();
+
+        $xxx = null;
+
+        $response = [];
+
+        if($billing) {
+            $sk = null;
+
+            if($billing->type == 'reservation') {
+                $reservation = Reservation::where('id', $billing->f_id)->first();
+
+                if($reservation) {
+                    $xxx = $reservation;
+                    $xxx->is_active = true;
+
+                    $owner = User::where('id', $reservation->owner)->first();
+
+                    if($owner) {
+                        $sk = $owner->sk;
+                    }
+                }
+            } else {
+                $application = Application::where('id', $billing->f_id)->first();
+
+                if($application) {
+                    $xxx = $application;
+                    $xxx->is_active = true;
+
+                    $owner = User::where('id', $application->owner)->first();
+
+                    if($owner) {
+                        $sk = $owner->sk;
+                    }
+                }
+            }
+
+            $billing->is_paid = true;
+            $billing->payment_date = Carbon::now();
+            $billing->is_active = true;
+
+            if($sk != null) {
+                $xenditService = new XenditService($sk);
+
+                $response = $xenditService->get($invoice);
+
+                $billing->save();
+
+                $xxx->save();
+
+                UserPayment::create([
+                    'f_id' => $billing->f_id,
+                    'profile_id' => $billing->profile_id,
+                    'amount' => $billing->amount,
+                    'description' => $billing->description,
+                    'type' => $billing->description,
+                    'invoice_number' => $invoice,
+                    'is_paid' => true,
+                    'payment_date' => Carbon::now(),
+                    'for_the_month' => $billing->for_the_month,
+                    'is_active' => true,
+                    'payment_method' => $response['data'][0]['channel_code']
+                ]);
+            }
+        }
+
+        $res = [
+            'billing' => $billing,
+            'invoice' => count($response['data'])  > 0 ? $response['data'][0] : null
+        ];
+
+        return $res;
+
+        return Inertia::render('Xendit/Success', $res);
+
     }
 }
 

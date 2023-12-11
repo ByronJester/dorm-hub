@@ -122,7 +122,7 @@ export default {
         });
 
         const moneyFormat = (amount) => {
-            amount = parseFloat(amount).toFixed(2);
+            amount = parseFloat(amount).toFixe d(2);
 
             return (
                 "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
@@ -378,8 +378,8 @@ export default {
             return null;
         };
 
-        
-         
+
+
         const saveDorm = () => {
             confirm.require({
                 message: 'Are you sure you want to decline this user?',
@@ -421,7 +421,7 @@ export default {
                         JSON.stringify(commonAreas.value)
                     );
 
-                    
+
                     // Amenities Table
                     data.append("amenities", JSON.stringify(selectedAmenities));
                     console.log(selectedAmenities)
@@ -1013,7 +1013,7 @@ export default {
 </script>
 
 <template>
-    
+
     <nav
         class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
@@ -2483,7 +2483,7 @@ export default {
                                     Select all apply
                                 </p>
 
-                                
+
                                 <div class="card flex justify-content-center border rounded mt-5">
                                         <MultiSelect v-model="amenities" :options="amenity" optionLabel="name" placeholder="Select Amenities"
                                             :maxSelectedLabels="3" class="w-full md:w-20rem" />

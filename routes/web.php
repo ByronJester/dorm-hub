@@ -179,6 +179,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/myreservationlist', [TenantController::class, 'myReservationList'])->name('tenant.reservationlist');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
         Route::get('/billing-info/{param}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
+        Route::get('/payment-success/{invoice}', [TenantController::class, 'tenantPaymentSuccessPage'])->name('tenant-payment.success');
         // Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
         // Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
         Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');
@@ -192,6 +193,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/verif', [TenantController::class, 'tenantverif'])->name('tenant.verif');
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
         Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
+        Route::post('/sub-profile', [TenantController::class, 'createSubProfile'])->name('tenant.sub-profile');
     });
 
     Route::prefix('shared')->group(function () {
