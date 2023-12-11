@@ -35,7 +35,7 @@ export default {
 
         var routes = [];
 
-        if (user.user_type == "owner") {
+        if (user && user.user_type == "owner") {
             routes = [
                 {
                     route: "owner.dashboard",
@@ -57,7 +57,7 @@ export default {
                 },
             ];
         }
-        if (user.user_type == "admin") {
+        if (user && user.user_type == "admin") {
             routes = [
                 {
                     route: "#",
@@ -255,7 +255,7 @@ export default {
                 'translate-x-0': showSidebar,
                 '-translate-x-full': !showSidebar,
             }"
-            class="fixed top-0 left-0 z-30 w-64 shadow-lg h-screen overflow-auto 2xl:overflow-clip pt-16 transition-transform bg-white -translate-x-full lg:-translate-x-0 "
+            class="fixed top-0 left-0 z-30 w-64 shadow-lg h-screen overflow-y-scroll pt-16 transition-transform bg-white -translate-x-full lg:-translate-x-0 "
         >
         <div class="p-3 w-full flex flex-col items-center justify-center">
             <div class="w-full"> 
@@ -716,11 +716,11 @@ export default {
                                 :class="{
                                     'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.mydorm'
                                 }"
-                                :href="route('tenant.mydorm')"
+                                :href="route('tenant.mydormlist')"
                                 class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                             >
                                 <i class="fa-solid fa-building-user" style="color: #000000;"></i>
-                                <span class="ml-1">My Dorm</span>
+                                <span class="ml-1">My Rooms</span>
                             </Link>
                     </li>
                     <li>
@@ -728,7 +728,7 @@ export default {
                         :class="{
                                     'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.reservation'
                                 }"
-                            :href="route('tenant.reservation')"
+                            :href="route('tenant.reservationlist')"
                             class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
                             <i class="fa-regular fa-calendar" style="color: #000000;"></i>

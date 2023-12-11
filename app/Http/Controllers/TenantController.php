@@ -28,7 +28,7 @@ class TenantController extends Controller
         ]);
     }
 
-    public function mydorm()
+    public function mydorm($room_id)
     {
         $auth = Auth::user();
 
@@ -37,6 +37,7 @@ class TenantController extends Controller
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('tenant', $auth->id)
             ->where('is_active', true)
+            ->where('id', $room_id)
             ->first();
 
         $rating = DormRating::where('tenant_id', $auth->id)->first();
@@ -56,7 +57,43 @@ class TenantController extends Controller
         ]);
     }
 
-    public function myreservation()
+    public function myDormList(){
+        $auth = Auth::user();
+
+        $myApplication = Application::where('tenant_id', $auth->id)->first();
+
+        $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->get();
+        
+        return Inertia::render('Tenant/MyDormList', [
+            'user' => $auth,
+            'myApplication' => $myApplication,
+            'myDorm' => $myDorm,
+        ]);
+    }
+
+    public function myreservation($room_id)
+    {   $auth = Auth::user();
+
+        $myApplication = Application::where('tenant_id', $auth->id)->first();
+
+        $reservation = Reservation::with(['dorm', 'room'])
+            ->where('id', $room_id)
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->first();
+
+        return Inertia::render('Tenant/MyReservation', [
+            'user' => $auth,
+            'myApplication' => $myApplication,
+            'reservation' => $reservation
+        ]);
+    }
+
+    public function myReservationList()
+
     {   $auth = Auth::user();
 
         $myApplication = Application::where('tenant_id', $auth->id)->first();
@@ -64,9 +101,9 @@ class TenantController extends Controller
         $reservation = Reservation::with(['dorm', 'room'])
             ->where('tenant', $auth->id)
             ->where('is_active', true)
-            ->first();
+            ->get();
 
-        return Inertia::render('Tenant/MyReservation', [
+        return Inertia::render('Tenant/MyReservationList', [
             'user' => $auth,
             'myApplication' => $myApplication,
             'reservation' => $reservation

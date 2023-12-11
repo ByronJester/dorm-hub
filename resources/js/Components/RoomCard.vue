@@ -191,7 +191,7 @@ export default {
                     }"
                     :disabled="!room.is_available "
                     v-if="
-                        props.user.status == 'approved' && room && room.is_available
+                        props.user && props.user.status == 'approved' && room && room.is_available
                     "
                     class="bg-orange-400 text-white px-4 py-2"
                     label="Reserve"
@@ -204,7 +204,7 @@ export default {
                     }"
                     :disabled="!room.is_available "
                     v-if="
-                        props.user.status == 'approved' && room && room.is_available
+                        props.user && props.user.status == 'approved' && room && room.is_available
                     "
                     class="bg-orange-400 text-white px-4 py-2"
                     label="Rent"
