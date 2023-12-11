@@ -1,13 +1,15 @@
 <script>
 
 import FileUpload from 'primevue/fileupload';
+import { ref } from 'vue';
+import axios from "axios";
 
 export default{
     components:{
         FileUpload
     },
     setup(){
-    const openComplainModal = () => {
+        const openComplainModal = () => {
             var modal = document.getElementById("complainModal");
 
             modal.style.display = "block";
@@ -19,9 +21,37 @@ export default{
             modal.style.display = "none";
         };
 
+        const form = ref({
+            relationship : null,
+            // image: null,
+            first_name: null,
+            last_name: null,
+            contact: null
+        })
+
+        const onUploadImage = (arg) => {
+            alert()
+            console.log(arg)
+        }
+
+
+        const saveProfile = () => {
+            console.log(form.value)
+            axios.post(route('tenant.sub-profile'), form.value)
+                    .then(response => {
+                        location.reload()
+                    })
+                    .catch(error => {
+
+                    })
+        }
+
         return{
             openComplainModal,
-            closeComplainModal
+            closeComplainModal,
+            form,
+            onUploadImage,
+            saveProfile
         }
     }
 }
@@ -93,14 +123,12 @@ export default{
                                 <div class="p-6 space-y-6">
                                     <form>
                                         <label for="subject" class="block mb-2 font-bold text-xl">Relationship</label>
-                                            <select id="subject" v-model="subject" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
+                                            <select id="subject" v-model="form.relationship" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
                                                 <option selected>Choose</option>
-                                                <option value="Maintenance">Father</option>
-                                                <option value="Cleanliness">Mother</option>
-                                                <option value="Noise">Brother</option>
-                                                <option value="Safety and Security">Sister</option>
-                                                <option value="Bill Concerns">Friend</option>
-                                                <option value="General Inquiries">Classmate</option>
+                                                <option value="Parent">Parent</option>
+                                                <option value="Sibling">Sibling</option>
+                                                <option value="Friend">Friend</option>
+                                                <option value="Classmate">Classmate</option>
                                                 <option value="Others">Others</option>
 
                                             </select>
@@ -119,7 +147,7 @@ export default{
                                             </div>
                                         </div> -->
                                         <p class="mt-5 font-bold text-xl">Profile Information</p>
-                                        <div class="flex flex-col gap-2 w-full items-center justify-center">
+                                        <!-- <div class="flex flex-col gap-2 w-full items-center justify-center">
                                             <div class="">
                                                 <img
                                                     src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
@@ -129,25 +157,28 @@ export default{
                                             </div>
                                             <div>
                                                 <p></p>
-                                                <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000" />
+                                                <FileUpload mode="basic" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000"
+                                                    @upload="onUploadImage()"
+                                                />
                                             </div>
-                                        </div>
+                                        </div> -->
                                         <hr class="my-3" />
                                         <div class="grid grid-cols-1 md:grid-cols-2 my-2 gap-2">
                                             <div>
                                                 <p>First Name</p>
-                                                <input class="rounded-xl w-full border-gray-400" type="text" />
+                                                <input class="rounded-xl w-full border-gray-400" type="text" v-model="form.first_name"/>
                                             </div>
                                             <div>
                                                 <p>Last Name</p>
-                                                <input class="rounded-xl w-full border-gray-400" type="text" />
+                                                <input class="rounded-xl w-full border-gray-400" type="text" v-model="form.last_name"/>
                                             </div>
                                         </div>
                                         <p>Contact</p>
-                                         <vue-tel-input 
+                                         <vue-tel-input
                                             autoFormat
                                             validCharactersOnly
                                             :maxlength = '16'
+                                            v-model="form.contact"
                                         ></vue-tel-input>
                                     </form>
                                 </div>
@@ -156,7 +187,7 @@ export default{
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <button
-                                        @click.prevent="submitComplain()"
+                                        @click.prevent="saveProfile()"
                                         type="button"
                                         class="py-2 px-4 bg-orange-400 text-white rounded-full float-right hover:opacity-75"
                                     >

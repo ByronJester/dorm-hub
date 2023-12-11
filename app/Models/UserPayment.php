@@ -11,48 +11,8 @@ class UserPayment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'tenant_id', 'reservation_id', 'billing_id', 'payment_method', 'proof_of_payment',
-        'status', 'description', 'date', 'user_id'
+        'f_id', 'profile_id', 'amount', 'description', 'type', 'invoice_number',
+        'is_paid', 'payment_date', 'for_the_month', 'is_active', 'payment_method'
     ];
 
-    protected $appends = [
-        'display_date', 'display_created_date'
-    ];
-
-    protected $with = [
-        'billing'
-    ];
-
-    public function getDisplayDateAttribute()
-    {
-        $date = Carbon::parse($this->date);
-
-
-        return $date->isoFormat('LL');
-    }
-
-    public function getDisplayCreatedDateAttribute()
-    {
-        $date = Carbon::parse($this->created_at);
-
-
-        return $date->isoFormat('LL');
-    }
-
-    public function getProofOfPaymentAttribute($value)
-    {
-        if(!$value) return null;
-
-        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
-    }
-
-    public function billing()
-    {
-        return $this->belongsTo(Billing::class);
-    }
-
-    public function tenant()
-    {
-        return $this->belongsTo(Tenant::class);
-    }
 }

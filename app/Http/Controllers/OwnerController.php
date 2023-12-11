@@ -364,12 +364,14 @@ class OwnerController extends Controller
             $amenities = json_decode($request->amenities);
 
             foreach($amenities as $a) {
-                $amenity = new Amenity;
+                if(!!$a) {
+                    $amenity = new Amenity;
 
-                $amenity->dorm_id = $dorm->id;
-                $amenity->amenity = $a;
+                    $amenity->dorm_id = $dorm->id;
+                    $amenity->amenity = $a;
 
-                $amenity->save();
+                    $amenity->save();
+                }
             }
 
             $services = json_decode($request->services);
@@ -379,7 +381,7 @@ class OwnerController extends Controller
                 $service->dorm_id = $dorm->id;
                 $service->service = $a;
 
-                
+
                 $service->save();
             }
 
@@ -402,6 +404,14 @@ class OwnerController extends Controller
             $rule->rules = implode(',', $rules);
 
             $rule->save();
+
+
+            if(!$auth->subscription) {
+                User::where('id', $auth->id)->update([
+                    'subscription' => $request->subscription
+                ]);
+            }
+
 
             return $response['invoice_url'];
 
@@ -639,7 +649,7 @@ class OwnerController extends Controller
             return response()->json(['errors' => $validator->messages(), 'status' => 422], 422);
         }
 
-        
+
         if($auth->first_logged_in) {
             auth()->user()->update([
                 'sk' => $request->sk,
@@ -1582,7 +1592,7 @@ class OwnerController extends Controller
             $dorm->status = 'pending';
             $dorm->save();
         }
-        
+
         $auth = Auth::user();
 
         if($auth->first_logged_in) {
@@ -1601,11 +1611,11 @@ class OwnerController extends Controller
             ->latest()
             ->first();
 
-       
+
         return Inertia::render('Xendit/Success', [
             'dorm' => $dorms,
             'invoice' => $response['data'][0]
         ]);
-        
+
     }
 }

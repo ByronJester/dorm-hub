@@ -186,69 +186,90 @@ export default {
         };
 
         const reserveRoom = () => {
-            if(!user.income_information) {
-                router.get(route("profile.edit"));
-                return
-            }
-
-            if(validateSelectPM())
-            {
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
                 dorm_id: dorm.id,
                 room_id: room.id,
-                status: "reserve",
-                amount: amount_to_paid.value,
+                reservation_fee: dorm.reservation,
                 check_date: date.value,
                 check_time: time.value.hours + ":" + time.value.minutes,
-                first_name: first_name.value,
-                last_name: last_name.value,
-                phone_number: phone_number.value,
-                payment_method: selectedPaymentMethod.value,
-                proof_of_payment: proof_of_payment.value,
             };
 
-            swal(
-                {
-                    title: `Are you sure to reserve this room?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
-                    axios
-                        .post(route("reserve.room"), request)
-                        .then((response) => {
-                            if (
-                                response.data.payment_method == "Online Payment"
-                            ) {
-                                window.location.href =
-                                    response.data.data.redirect.checkout_url;
-                            } else {
-                                swal(
-                                    "Reservation submitted.",
-                                    `Wait for dorm owner approval.\n Note: If your reservation has decline you will be notify and you can refund your payment.`,
-                                    "success"
-                                );
+            axios.post(route("reserve.room"), request)
+                .then((response) => {
+                    if(!!response.data) {
+                        window.location.href = response.data
+                    }
+                })
+                .catch((error) => {
 
-                                setTimeout(function () {
-                                    router.get(route("landing.page"));
-                                }, 3000);
-                            }
-                        })
-                        .catch((error) => {});
-                }
-            );
-            }else{
-                VsToast.show({
-                    title: 'Error',
-                    message: 'Please input all fields',
-                    variant: 'error',
                 });
-            }
+
+
+            // if(!user.income_information) {
+            //     router.get(route("profile.edit"));
+            //     return
+            // }
+
+            // if(validateSelectPM())
+            // {
+            // const request = {
+            //     owner_id: dorm.user_id,
+            //     tenant_id: user.id,
+            //     dorm_id: dorm.id,
+            //     room_id: room.id,
+            //     status: "reserve",
+            //     amount: amount_to_paid.value,
+            //     check_date: date.value,
+            //     check_time: time.value.hours + ":" + time.value.minutes,
+            //     first_name: first_name.value,
+            //     last_name: last_name.value,
+            //     phone_number: phone_number.value,
+            //     payment_method: selectedPaymentMethod.value,
+            //     proof_of_payment: proof_of_payment.value,
+            // };
+
+            // swal(
+            //     {
+            //         title: `Are you sure to reserve this room?`,
+            //         type: "warning",
+            //         showCancelButton: true,
+            //         confirmButtonColor: "#DD6B55",
+            //         confirmButtonText: "Yes",
+            //         closeOnConfirm: false,
+            //     },
+            //     function () {
+                    // axios
+                    //     .post(route("reserve.room"), request)
+                    //     .then((response) => {
+                    //         if (
+                    //             response.data.payment_method == "Online Payment"
+                    //         ) {
+                    //             window.location.href =
+                    //                 response.data.data.redirect.checkout_url;
+                    //         } else {
+                    //             swal(
+                    //                 "Reservation submitted.",
+                    //                 `Wait for dorm owner approval.\n Note: If your reservation has decline you will be notify and you can refund your payment.`,
+                    //                 "success"
+                    //             );
+
+                    //             setTimeout(function () {
+                    //                 router.get(route("landing.page"));
+                    //             }, 3000);
+                    //         }
+                    //     })
+                    //     .catch((error) => {});
+            //     }
+            // );
+            // }else{
+            //     VsToast.show({
+            //         title: 'Error',
+            //         message: 'Please input all fields',
+            //         variant: 'error',
+            //     });
+            // }
 
         }
 
@@ -741,7 +762,7 @@ export default {
                             <p class="text-2xl font-semibold">
                                 Application Information
                             </p>
-                            
+
                             <div class="mt-5">
                                 <p class="text-lg font-bold">Select Profile</p>
                                 <p class="text-xs text-gray-500">(Select or add profile who will rent this room)</p>
@@ -750,7 +771,7 @@ export default {
                                     <option>Me</option>
                                 </select>
                             </div>
-                            
+
                             <p class="mt-5 text-lg font-bold">Profile Information</p>
                             <div class="flex flex-col gap-2 w-full items-center justify-center">
                                             <div class="">
@@ -790,7 +811,7 @@ export default {
                             </div>
                             <div class="mt-1">
                                 <p>Contact</p>
-                                <vue-tel-input 
+                                <vue-tel-input
                                             v-model="userInformation.contact"
                                             autoFormat
                                             validCharactersOnly
@@ -1002,6 +1023,6 @@ export default {
                 </div>
             </div>
         </div>
-            
+
     </TenantLayout>
 </template>

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\{ User, Code };
+use App\Models\{ User, Code, Profile };
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -50,8 +50,6 @@ class RegisteredUserController extends Controller
             'code' => ['required', new CodeExists('codes', 'code')]
         ]);
 
-
-
         $user = User::create([
             'first_name' => $request->first_name,
             'middle_name' => $request->middle_name,
@@ -67,23 +65,31 @@ class RegisteredUserController extends Controller
 
         Code::where('code', $request->code)->delete();
 
-        // Auth::login($user);
+        Auth::login($user);
 
-        // $redirect = null;
+        $redirect = null;
 
-        // if($user->user_type == 'owner') {
-        //     $redirect = RouteServiceProvider::OWNER;
-        // }
+        if($user->user_type == 'owner') {
+            $redirect = RouteServiceProvider::OWNER;
+        }
 
-        // if($user->user_type == 'tenant') {
-        //     $redirect = RouteServiceProvider::TENANT;
-        // }
+        if($user->user_type == 'tenant') {
+            $profile = Profile::create([
+                'user_id' => $user->id,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'relationship' => 'Me',
+                'contact' => $request->phone_number
+            ]);
 
-        // if($user->user_type == 'admin') {
-        //     $redirect = RouteServiceProvider::ADMIN;
-        // }
+            $redirect = RouteServiceProvider::TENANT;
+        }
 
-        // // return redirect($redirect);
+        if($user->user_type == 'admin') {
+            $redirect = RouteServiceProvider::ADMIN;
+        }
+
+        return redirect($redirect);
         // 'id_picture' => $id_picture,
         // 'selfie_id_picture' => $selfie_picture,
         // 'is_approved' => false,
