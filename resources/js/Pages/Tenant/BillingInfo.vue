@@ -280,24 +280,6 @@ export default {
                     terms:'',
         });
 
-        const validateSelectPM = () =>{
-            let isValid = true;
-            errorMessages.value.sm = "";
-            errorMessages.value.dates = "";
-            if(date.value == null){
-                errorMessages.value.dates='Please input visiting date';
-                isValid = false;
-            }
-            if(selectedPaymentMethod && selectedPaymentMethod.value.trim()===''){
-                errorMessages.value.sm='Please Select Payment Method';
-                isValid = false;
-            }
-            if(!terms){
-                errorMessages.value.terms='Please tick terms and condition';
-                isValid = false;
-            }
-            return isValid
-        }
         const openTermsModal = () => {
             var modal = document.getElementById("defaultModal");
 
@@ -358,6 +340,7 @@ export default {
     <TenantLayout>
         <div class="p-4 mt-16 lg:ml-64">
             <div
+                v-if="room.is_available"
                 className="
                         max-w-screen-lg
                         mx-auto
@@ -667,73 +650,6 @@ export default {
                                         v-model="amount_to_paid"
                                     />
                                 </div>
-                                <div>
-                                    <label
-                                        for="amount"
-                                        class="block mb-2 text-sm font-medium text-gray-900"
-                                        >Payment Method</label
-                                    >
-                                    <select
-                                        id="subject"
-                                        v-model="selectedPaymentMethod"
-                                        :class="{ 'border-red-500': !!errorMessages.sm }"
-                                        @change="toggleBankTransfer"
-                                        class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-300 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    >
-                                        <option :value="null" disabled>
-                                            Select Payment Method
-                                        </option>
-                                        <option
-                                            v-for="option in options"
-                                            :key="option"
-                                        >
-                                            {{ option }}
-                                        </option>
-                                    </select>
-                                   <p class="text-red-500 text-xs">{{  errorMessages.sm }}</p>
-                                </div>
-                                <div id="bankpayment" v-if="showBankTransfer">
-                                    <label
-                                        for="amount"
-                                        class="block mb-2 text-sm font-medium text-gray-900"
-                                        >Bank Transfer</label
-                                    >
-
-                                    <div class="mb-4">
-                                        <span class="text-xs text-gray-500"
-                                            >Submit a proof of payment</span
-                                        >
-                                    </div>
-
-                                    <input
-                                        type="file"
-                                        id="proof_payment"
-                                        class="hidden"
-                                        @change="proofPaymentChange($event)"
-                                        accept="image/*"
-                                    />
-
-                                    <label
-                                        for="proof_payment"
-                                        class="relative cursor-pointer"
-                                    >
-                                        <div
-                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                        >
-                                            <img
-                                                v-if="!!proof_of_payment"
-                                                alt="Proof of Payment"
-                                                :src="proof_of_payment"
-                                                class="h-48 w-auto rounded-lg"
-                                            />
-                                            <span v-else
-                                                >Click to Input Image</span
-                                            >
-                                        </div>
-                                    </label>
-
-                                    <InputError class="mt-2" />
-                                </div>
                             </div>
 
                             <button
@@ -1021,6 +937,10 @@ export default {
                     </div>
                 </div>
                 </div>
+            </div>
+            <div v-else class="flex mt-40 items-center justify-center">
+                <p v-if="room.status=='reserve'">This Room Is Already Reserved</p>
+                <p v-if="room.status=='rent'">This Room Is Already Occupied</p>
             </div>
         </div>
 

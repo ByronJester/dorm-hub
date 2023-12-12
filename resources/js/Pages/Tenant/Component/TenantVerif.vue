@@ -49,7 +49,6 @@ export default{
         const statuss = ref('pending')
         const form = useForm({
             first_name: user.first_name,
-            middle_name: user.middle_name,
             last_name: user.last_name,
             phone_number: user.phone_number,
             id_picture: '',

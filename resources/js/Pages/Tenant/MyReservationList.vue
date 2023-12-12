@@ -29,8 +29,8 @@ export default {
 </script>
 <template>
     <SidebarLayout>
-        <div class="p-4 mt-20 lg:ml-64">
-            <p class="text-4xl mb-5 font-bold">My Reservations</p>
+        <div class="p-4 lg:ml-64">
+            <p class="text-4xl mb-5 mt-20  font-bold">My Reservations</p>
             <div v-if="reservation">
                 <div
                     class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"

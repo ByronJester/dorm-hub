@@ -8,18 +8,24 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
 import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue'
+import { useConfirm } from "primevue/useconfirm";
+    import { useToast } from "primevue/usetoast";
+    import ConfirmDialog from 'primevue/confirmdialog';
+    import Toast from 'primevue/toast';
 export default{
     components:{
         AuthenticatedLayout,
-        TenantVerif
+        TenantVerif,
+        ConfirmDialog,
+        Toast,
     },
     setup(){
         const page = usePage();
 
         const reservation = page.props.reservation;
         const user = page.props.user;
-
-        console.log(reservation)
+        const confirm = useConfirm();
+        const toast = useToast();
 
         const formatDate = (d) => {
             const date = new Date(d); // Your date object
@@ -54,32 +60,25 @@ export default{
         }
 
         const cancelReservation = () => {
-            swal(
-                {
-                    title: `Are you sure to cancel this reservation?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to cancel your reservation for this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
                         .post(route("cancel.reservation"), {reservation_id: reservation.id})
                         .then((response) => {
-                            swal(
-                                "Reservation",
-                                `You sucessfully cancel this reservation`,
-                                "success"
-                            );
-
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Cancellation success', life: 3000 });
                             setTimeout(function () {
                                 location.reload()
                             }, 3000);
                         })
                         .catch((error) => {});
-                }
-            );
+                },
+                reject: () => {
+
+                },
+            });
         }
 
         const move_in = ref();
@@ -340,6 +339,8 @@ export default{
                         <div>
                             <p>If you cancel your reservation you will not get a refund</p>
                         </div>
+                        <ConfirmDialog />
+                        <Toast />
                         <button class="py-2 px-5 rounded-full bg-red-500 text-white font-semibold mt-5"
                             @click="cancelReservation()"
                         >

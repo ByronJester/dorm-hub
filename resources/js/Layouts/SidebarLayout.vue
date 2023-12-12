@@ -750,7 +750,7 @@ export default {
                 </ul>
             </div>
         </div>
-        <main class="flex-grow mb-16 sm:mb-24">
+        <main class="flex-grow bg-gray-50  min-h-screen">
             <slot />
         </main>
     </div>

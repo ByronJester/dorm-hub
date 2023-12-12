@@ -36,6 +36,7 @@ export default {
             currentTab.value = "terms";
         };
 
+      
         const viewRooms = (id) => {
             router.get(route('view.rooms', id));
         }
@@ -76,13 +77,12 @@ export default {
             room.value = r;
             openModal();
         };
-
+        
         const redirectToBillingInfo = (arg, action) => {
             const routeParam = arg.id + "-" + action;
 
             router.get(route("tenant.billing_info", routeParam));
         };
-
         const reserveRoom = (arg) => {
             if (!props.user.income_information) {
                 router.get(route("profile.edit"));
@@ -942,19 +942,7 @@ export default {
                             </div>
                             
                             <div
-                                class="flex items-center cursor-pointer hover:text-orange-400 justify-center mb-8"
-                                v-if="
-                                    props.user && props.user.user_type == 'tenant'
-                                "
-                            >
-                                <a @click="openReviewModal()">
-                                    <i class="hp-icon fas fa-star"></i>
-                                    <span class="text-xl">Write a Review</span>
-                                </a>
-                            </div>
-
-                            <div
-                                className="bg-white rounded-xl border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
+                                className="bg-white rounded-xl mt-4 border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
                             >
 
 
