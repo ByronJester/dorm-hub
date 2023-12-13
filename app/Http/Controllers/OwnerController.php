@@ -90,8 +90,7 @@ class OwnerController extends Controller
             ->where('user_id', $auth->id)
             ->get(['id', 'property_name', 'status']);
 
-        $tenants = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user', 'billings'])
-            ->where('is_active', true)
+        $tenants = Tenant::where('is_active', true)
             ->where('owner', $auth->id)->get();
 
         return Inertia::render('Owner/Tenants', [
@@ -1247,7 +1246,7 @@ class OwnerController extends Controller
         $billing = Billing::create([
             'f_id' => $tenant->id,
             'profile_id' => $request->profile_id,
-            'user_id' => $auth->id,
+            'user_id' => $request->tenant_id,
             'amount' => (int) $room->deposit + (int) $room->advance,
             'description' => 'Advance and Deposit Fee',
             'type' => 'rent',

@@ -139,7 +139,7 @@ class SharedController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $length = 8;
+        $length = 4;
         $message = '';
 
         for ($i = 0; $i < $length; $i++) {
@@ -209,15 +209,6 @@ class SharedController extends Controller
 
                 $billing = Billing::create([
                     'tenant_id' => $tenant->id,
-                    'user_id' => $tenant->tenant,
-                    'amount' => $room->fee,
-                    'description' => 'monthly_fee',
-                    'date' => $date1
-                ]);
-
-                $payments = UserPayment::create([
-                    'tenant_id' => $tenant->id,
-                    'billing_id' => $billing->id,
                     'user_id' => $tenant->tenant,
                     'amount' => $room->fee,
                     'description' => 'monthly_fee',
