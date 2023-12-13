@@ -340,7 +340,7 @@ export default {
     <TenantLayout>
         <div class="p-4 mt-16 lg:ml-64">
             <div
-                v-if="room.is_available"
+                v-if="room.is_available || room.status == 'reserve'"
                 className="
                         max-w-screen-lg
                         mx-auto
@@ -939,7 +939,7 @@ export default {
                 </div>
             </div>
             <div v-else class="flex mt-40 items-center justify-center">
-                <p v-if="room.status=='reserve'">This Room Is Already Reserved</p>
+                <!-- <p v-if="room.status=='reserve'">This Room Is Already Reserved</p> -->
                 <p v-if="room.status=='rent'">This Room Is Already Occupied</p>
             </div>
         </div>

@@ -67,7 +67,7 @@ class TenantController extends Controller
             ->where('tenant', $auth->id)
             ->where('is_active', true)
             ->get();
-        
+
         return Inertia::render('Tenant/MyDormList', [
             'user' => $auth,
             'myApplication' => $myApplication,
@@ -820,6 +820,7 @@ class TenantController extends Controller
                     $xxx->is_active = true;
 
                     Room::where('id', $reservation->room_id)->update([
+                        'status' => 'reserve',
                         'is_available' => false
                     ]);
 
@@ -837,6 +838,7 @@ class TenantController extends Controller
                     $xxx->is_active = true;
 
                     Room::where('id', $reservation->room_id)->update([
+                        'status' => 'reserve',
                         'is_available' => false
                     ]);
 
