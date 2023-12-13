@@ -11,7 +11,7 @@ class Tenant extends Model
 
     protected $fillable = [
         'owner', 'tenant', 'dorm_id', 'room_id', 'status', 'move_in', 'move_out', 'reason', 'reason_description',
-        'is_active', 'auto_bill', 'auto_bill_date'
+        'is_active', 'auto_bill', 'auto_bill_date', 'profile_id'
     ];
 
     public function dorm()

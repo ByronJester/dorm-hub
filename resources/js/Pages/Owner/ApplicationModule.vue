@@ -180,10 +180,18 @@
                     tenant_name: applications[y].tenant.name,
                     source_of_income: applications[y].income_information.source_of_income,
                     monthly_income: moneyFormat(applications[y].income_information.monthly_income),
+                    proof: applications[y].income_information.proof,
                     move_in: !applications[y].move_in ? 'N/A' : formatDate(applications[y].move_in),
                     move_out: 'N/A',
+                    id: applications[y].id,
                     status: applications[y].status,
-                    action: applications[y]
+                    profile_id: applications[y].profile_id,
+                    action: applications[y],
+                    is_approved: applications[y].is_approved,
+                    owner_id: applications[y].owner_id,
+                    tenant_id: applications[y].tenant_id,
+                    room_id: applications[y].room.id,
+                    dorm_id: applications[y].dorm.id,
                 });
             }
 
@@ -215,6 +223,8 @@
             const openProofModal = (arg) => {
                 selectedApplication.value = arg
 
+                console.log(arg)
+
                 var modal = document.getElementById("proofModal");
 
                 modal.style.display = "block";
@@ -241,24 +251,7 @@
             }
 
             const approveApplication = (arg) => {
-                const data = {
-                    tenant_id: arg.tenant_id,
-                    owner_id: arg.owner_id,
-                    dorm_id: arg.dorm_id,
-                    room_id: arg.room_id,
-                    move_in: arg.move_in
-                }
-
-                swal({
-                    title: `Are you sure to approve this application?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false
-                },
-                function(){
-                    axios.post(route('approve.application', arg.id), data)
+                axios.post(route('approve.application', arg.id), arg)
                         .then(response => {
                             swal("Success!", `You successfully approved this application.`, "success");
 
@@ -269,7 +262,6 @@
                         .catch(error => {
                             errors.value = error.response.data.errors
                         })
-                });
             }
 
             const declineApplication = (arg) => {
@@ -388,7 +380,7 @@
                         <template #body ="{data}">
                             <button
                                 class="hover:text-orange-400"
-                                
+
                                 @click="openProofModal(data)"
                             >
                                 <!-- Use v-if to conditionally render the appropriate icon -->
@@ -407,7 +399,7 @@
                     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
                 >
                     <div class="h-screen flex justify-center items-center">
-                        <div class="relative w-full max-w-lg max-h-full">
+                        <div class="relative w-full max-w-lg max-h-full" v-if="selectedApplication">
                             <!-- Modal content -->
                             <div class="relative bg-white rounded-lg shadow">
                                 <!-- Modal header -->
@@ -444,7 +436,7 @@
                                 </div>
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6" v-if="selectedApplication">
-                                    <img :src="selectedApplication.tenant.income_information.proof" class="w-full h-[300px]"/>
+                                    <img :src="selectedApplication.proof" class="w-full h-[300px]"/>
                                 </div>
                                 <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
@@ -452,7 +444,7 @@
                                     <button
                                         @click="openReasonModal(selectedApplication)"
                                         type="button"
-                                        v-if="selectedApplication && selectedApplication.status == 'rent' && !selectedApplication.is_approved"
+                                        v-if="selectedApplication && selectedApplication.status == 'pending' && !selectedApplication.is_approved"
                                         class="text-white bg-red-600 hover:bg-opacity-25 focus:ring-4 focus:outline-none focus:ring-rose-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-rose-500 dark:hover:bg-rose-700 dark:focus:ring-rose-800"
                                     >
                                         Decline
@@ -460,7 +452,7 @@
                                     <button
                                         @click="approveApplication(selectedApplication)"
                                         type="button"
-                                        v-if="selectedApplication && selectedApplication.status == 'rent' && !selectedApplication.is_approved"
+                                        v-if="selectedApplication && selectedApplication.status == 'pending' && !selectedApplication.is_approved"
                                         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
                                         Approve
@@ -522,7 +514,6 @@
                                 <!-- Modal footer -->
                                 <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
-                                    v-if="application"
                                 >
                                     <Toast />
                                     <ConfirmDialog></ConfirmDialog>

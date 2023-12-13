@@ -1221,6 +1221,8 @@ class OwnerController extends Controller
     {
         $now = Carbon::now();
 
+        $auth = Auth::user();
+
         $room = Room::where('id', $request->room_id)->first();
 
         $application = Application::with(['tenant'])->where('id', $id)->first();
@@ -1237,25 +1239,22 @@ class OwnerController extends Controller
             'dorm_id' => $request->dorm_id,
             'room_id' => $request->room_id,
             'status' => 'approved',
-            'move_in' => $request->move_in
+            'move_in' => Carbon::parse($request->move_in),
+            'profile_id' => $request->profile_id,
         ]);
 
 
         $billing = Billing::create([
-            'tenant_id' => $tenant->id,
-            'user_id' => $request->tenant_id,
+            'f_id' => $tenant->id,
+            'profile_id' => $request->profile_id,
+            'user_id' => $auth->id,
             'amount' => (int) $room->deposit + (int) $room->advance,
-            'description' => 'advance_and_deposit_fee',
-            'date' => $now,
-        ]);
-
-        UserPayment::create([
-            'tenant_id' => $tenant->id,
-            'user_id' => $request->tenant_id,
-            'amount' => (int) $room->deposit + (int) $room->advance,
-            'billing_id' => $billing->id,
-            'description' => 'advance_and_deposit_fee',
-            'date' => $now,
+            'description' => 'Advance and Deposit Fee',
+            'type' => 'rent',
+            'is_paid' => false,
+            'payment_date' => null,
+            'for_the_month' => Carbon::now(),
+            'is_active' => true
         ]);
 
         return true;
