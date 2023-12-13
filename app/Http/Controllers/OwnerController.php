@@ -90,8 +90,9 @@ class OwnerController extends Controller
             ->where('user_id', $auth->id)
             ->get(['id', 'property_name', 'status']);
 
-        $tenants = Tenant::where('is_active', true)
+        $tenants = Tenant::with('room')->where('is_active', true)
             ->where('owner', $auth->id)->get();
+
 
         return Inertia::render('Owner/Tenants', [
             'tenants' => $tenants,
