@@ -173,8 +173,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/payments', [TenantController::class, 'paymentList'])->name('tenant.payments');
         Route::get('/paymongo/success', [TenantController::class, 'successPage'])->name('payment.success');
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage'])->name('payment.fail');;
-        Route::get('/mydorm', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
-        Route::get('/myreservation', [TenantController::class, 'myreservation'])->name('tenant.reservation');
+        Route::get('/mydorm/{room_id}', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
+        Route::get('/mydormlist', [TenantController::class, 'myDormList'])->name('tenant.mydormlist');
+        Route::get('/myreservation/{room_id}', [TenantController::class, 'myreservation'])->name('tenant.reservation');
+        Route::get('/myreservationlist', [TenantController::class, 'myReservationList'])->name('tenant.reservationlist');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
         Route::get('/billing-info/{param}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
         Route::get('/payment-success/{invoice}', [TenantController::class, 'tenantPaymentSuccessPage'])->name('tenant-payment.success');

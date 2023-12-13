@@ -13,7 +13,7 @@ import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue'
 export default {
     components: {
         AuthenticatedLayout,
-        TenantVerif
+        TenantVerif,
     },
     methods: {
 
@@ -429,8 +429,11 @@ export default {
     <TenantVerif :user="user" />
     <AuthenticatedLayout v-if="user.status == 'approved'">
         <div
-            class="p-4 mt-16 lg:ml-64"
+            class="p-4  lg:ml-64"
         >
+        <div class="min-w-screen
+                        2xl:mx-40
+                        mt-16">
                 <section class="pt-6 mb-6 flex items-center justify-between">
                     <div class="flex items-center justify-start">
                         <span
@@ -445,143 +448,65 @@ export default {
                                     fill="currentColor"
                                     d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
                                 ></path></svg></span>
-                        <h1 class="text-3xl leading-tight">Billing Statement</h1>
+                        <h1 class="text-3xl leading-tight">Payments</h1>
                     </div>
                 </section>
-                <div class="grid grid-cols-12 gap-6 mb-6">
-                    <!--Eto yung amount para sa upcoming payment-->
-                    <div v-if="myDorm" class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
-                        <div
-                            class="flex-col dark:bg-slate-900/70 bg-white flex"
-                        >
-                            <div class="flex-1 p-6">
-
-                                <div class="justify-between items-center flex">
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="text-lg leading-tight text-green-500 dark:text-slate-400"
-                                            >
-                                                Upcoming Payment
-                                            </h3>
-                                            <!--Dito kasama na din yung balance pero pag nabayaran ni tenant ahead yung balance yung bill lang every month-->
-                                            <h1
-                                                class="text-3xl leading-tight font-semibold"
-                                            >
-                                                <div>
-                                                    {{ !!nexPayment ?  moneyFormat(nexPayment.billing.amount) : 0.00 }}
-                                                </div>
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!---->
+                <hr />
+                <div class="mt-5">
+                    <div class="flex justify-end">
+                        <div class="block">
+                            <p>Select profile</p>
                         </div>
                     </div>
-                    <!--Dito lalabas yung balance ni user-->
-                    <div  v-if="myDorm" class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
-                        <div
-                            class="flex-col dark:bg-slate-900/70 bg-white flex"
-                        >
-                            <div class="flex-1 p-6">
-
-                                <div class="justify-between items-center flex">
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="text-lg leading-tight text-red-500 dark:text-slate-400"
-                                            >
-                                                Balance
-                                            </h3>
-                                            <h1
-                                                class="text-3xl leading-tight font-semibold"
-                                            >
-                                                <div>{{moneyFormat(balance)}}</div>
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 text-lg">
+                        <div class="bg-white rounded-lg p-4 gap-6 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] justify-center items-center flex">
+                            <img
+                                src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                alt="Profile picture"
+                                class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                            />
+                            <div>
+                                <p>Hello!</p>
+                                <p>Jear</p>
                             </div>
-                            <!---->
                         </div>
-                    </div>
-                    <!--Dito yung total na nabayad na ni user-->
-                    <div class="col-span-12 rounded-2xl shadow-lg sm:col-span-6 xl:col-span-3">
-                        <div
-                            class="flex-col dark:bg-slate-900/70 bg-white flex"
-                        >
-                            <div class="flex-1 p-6">
-
-                                <div class="justify-between items-center flex">
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="text-lg leading-tight text-orange-500 dark:text-slate-400"
-                                            >
-                                                Total Amount Paid
-                                            </h3>
-                                            <h1
-                                                class="text-3xl leading-tight font-semibold"
-                                            >
-                                                <div>{{moneyFormat(totalAmountPaid)}}</div>
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!---->
-                        </div>
-                    </div>
-
-                </div>
-
-                <div  v-if="myDorm" class="flex-1 shadow-lg rounded-lg p-6">
-
-                    <div class="md:flex md:justify-between md:items-center">
-                        <div class="md:flex md:items-center">
-                            <div
-                                class="mb-6 text-center md:mr-6 md:mb-0 md:text-left"
-                            >
-                                <!--Date kung kelan yung billing-->
-                                <p class="text-gray-500">Next payment on</p>
-                                <h1 class="text-xl font-semibold">
+                        <div class="rounded-lg bg-black text-gray-200 grid grid-cols-2 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                            <div class="flex flex-col gap-10">
+                                <div>
+                                    <p class="text-xl font-bold">Next Payment on</p>
                                     {{ !!nexPayment ? nexPayment.display_date : '' }}
-                                </h1>
+                                </div>
+                                <div>
+                                    <p class="text-xl font-bold">Last Billed on</p>
+                                    {{ !! lastBilled ? lastBilled.display_created_date : ''}}
+                                </div>
+                                
                             </div>
-                            <div class="mb-6 text-center md:mb-0 md:text-left">
-                                <p class="text-gray-500">Last billed on</p>
-                                <h1 class="text-xl">{{ !! lastBilled ? lastBilled.display_created_date : ''}}</h1>
+                            <div class="">
+                                <p class="text-xl font-bold">Amount Due</p>
+                                {{ !!nexPayment ? moneyFormat(nexPayment.billing.amount) : moneyFormat(0) }}
                             </div>
                         </div>
-                        <div class="text-center md:text-right">
-                            <p class="text-gray-500">Amount due</p>
-                            <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
-                            <h1 class="text-2xl font-semibold">{{ !!nexPayment ? moneyFormat(nexPayment.billing.amount) : 0.00 }}</h1>
+                        <div class="w-full flex flex-col gap-3 text-gray-900" >
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-orange-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Upcoming Payment</p>
+                                {{ !!nexPayment ?  moneyFormat(nexPayment.billing.amount) : moneyFormat(0.00) }}
+                            </div>
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-red-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Balance</p>
+                                {{moneyFormat(balance)}}
+                            </div>
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-green-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Total Amount Paid</p>
+                                <p>{{moneyFormat(totalAmountPaid)}}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="flex items-center mt-5 justify-start">
-                    <span
-                        class="inline-flex justify-center items-center w-6 h-6 mr-2"
-                        ><svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            class="inline-block"
-                        >
-                            <path
-                                fill="currentColor"
-                                d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
-                            ></path></svg></span>
-                    <h1 class="text-3xl leading-tight">Payment(s)</h1>
+                <div class="flex items-center mt-5 gap-10 text-lg justify-start">
+                    <p>All</p>
+                    <p>Paid</p>
+                    <p>Unpaid</p>
                 </div>
                 <!--Payments-->
                 <div class="w-full mt-2 mb-5">
@@ -949,7 +874,7 @@ export default {
 
 
             </div>
-
+        </div>
 
     </AuthenticatedLayout>
 </template>

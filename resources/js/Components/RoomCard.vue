@@ -30,7 +30,13 @@ export default {
                     :src="room.image"
                     class="h-[300px] w-full rounded-t-lg"
                 />
-                <div class="w-full bg-orange-400 text-center py-2 text-white font-semibold">{{
+                <div class="w-full text-center py-2 text-white font-semibold"
+                    :class="{
+                        'bg-gray-400' : room.status == 'reserve',
+                        'bg-orange-400' : room.status == 'rent',
+                        'bg-green-400' : room.status == null
+                    }"
+                >{{
                                                         room.status == 'reserve'
                                                             ? "Reserved"
                                                             : room.status == 'rent'
@@ -191,7 +197,7 @@ export default {
                     }"
                     :disabled="!room.is_available "
                     v-if="
-                        props.user.status == 'approved' && room && room.is_available
+                        props.user && props.user.status == 'approved' && room && room.is_available
                     "
                     class="bg-orange-400 text-white px-4 py-2"
                     label="Reserve"
@@ -204,7 +210,7 @@ export default {
                     }"
                     :disabled="!room.is_available "
                     v-if="
-                        props.user.status == 'approved' && room && room.is_available
+                        props.user && props.user.status == 'approved' && room && room.is_available
                     "
                     class="bg-orange-400 text-white px-4 py-2"
                     label="Rent"

@@ -36,6 +36,11 @@ export default {
             currentTab.value = "terms";
         };
 
+      
+        const viewRooms = (id) => {
+            router.get(route('view.rooms', id));
+        }
+
         isMobileView.value = screen.width < 600;
 
         const openModal = () => {
@@ -72,13 +77,12 @@ export default {
             room.value = r;
             openModal();
         };
-
+        
         const redirectToBillingInfo = (arg, action) => {
             const routeParam = arg.id + "-" + action;
 
             router.get(route("tenant.billing_info", routeParam));
         };
-
         const reserveRoom = (arg) => {
             if (!props.user.income_information) {
                 router.get(route("profile.edit"));
@@ -306,6 +310,7 @@ export default {
         console.log(ratings)
 
         return {
+            viewRooms,
             props,
             dorm,
             isMobileView,
@@ -909,9 +914,9 @@ export default {
                                     Rooms
                                 </p>
                                 <p class="text-xs mb-5 text-gray-400">(Click to view list of rooms and make reservation or rent)</p>
-                                <a :href="route('view.rooms', props.dorm.id)" class=" bg-orange-400 text-white">
+                                <button @click="viewRooms(props.dorm.id)" class=" bg-orange-400 p-2 w-full rounded-xl text-white">
                                     View Rooms
-                                </a>
+                                </button>
                             </div>
                             <div class="w-full mt-5">
                                 <p
@@ -937,19 +942,7 @@ export default {
                             </div>
                             
                             <div
-                                class="flex items-center cursor-pointer hover:text-orange-400 justify-center mb-8"
-                                v-if="
-                                    props.user && props.user.user_type == 'tenant'
-                                "
-                            >
-                                <a @click="openReviewModal()">
-                                    <i class="hp-icon fas fa-star"></i>
-                                    <span class="text-xl">Write a Review</span>
-                                </a>
-                            </div>
-
-                            <div
-                                className="bg-white rounded-xl border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
+                                className="bg-white rounded-xl mt-4 border-[1px] shadow-lg p-12 border-neutral-200 overflow-hidden"
                             >
 
 
@@ -1129,7 +1122,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.status == 'approved' && room && room.is_available"
+                                        v-if="user && user.status == 'approved' && room && room.is_available"
                                     >
                                         Reserve
                                     </button>
@@ -1142,7 +1135,7 @@ export default {
                                                 !room.is_available || notAllowedToRentReserve,
                                         }"
                                         :disabled="!room.is_available || notAllowedToRentReserve"
-                                        v-if="user.status == 'approved' && room &&room.is_available"
+                                        v-if="user && user.status == 'approved' && room &&room.is_available"
                                     >
                                         Rent
                                     </button>

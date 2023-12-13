@@ -29,7 +29,7 @@ class TenantController extends Controller
         ]);
     }
 
-    public function mydorm()
+    public function mydorm($room_id)
     {
         $auth = Auth::user();
 
@@ -38,6 +38,7 @@ class TenantController extends Controller
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('tenant', $auth->id)
             ->where('is_active', true)
+            ->where('id', $room_id)
             ->first();
 
         $rating = DormRating::where('tenant_id', $auth->id)->first();
@@ -57,12 +58,30 @@ class TenantController extends Controller
         ]);
     }
 
-    public function myreservation()
+    public function myDormList(){
+        $auth = Auth::user();
+
+        $myApplication = Application::where('tenant_id', $auth->id)->first();
+
+        $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->get();
+        
+        return Inertia::render('Tenant/MyDormList', [
+            'user' => $auth,
+            'myApplication' => $myApplication,
+            'myDorm' => $myDorm,
+        ]);
+    }
+
+    public function myreservation($room_id)
     {   $auth = Auth::user();
 
         $myApplication = Application::where('tenant_id', $auth->id)->first();
 
         $reservation = Reservation::with(['dorm', 'room'])
+            ->where('id', $room_id)
             ->where('tenant', $auth->id)
             ->where('is_active', true)
             ->first();
@@ -74,19 +93,37 @@ class TenantController extends Controller
         ]);
     }
 
+    public function myReservationList()
+
+    {   $auth = Auth::user();
+
+        $myApplication = Application::where('tenant_id', $auth->id)->first();
+
+        $reservation = Reservation::with(['dorm', 'room'])
+            ->where('tenant', $auth->id)
+            ->where('is_active', true)
+            ->get();
+
+        return Inertia::render('Tenant/MyReservationList', [
+            'user' => $auth,
+            'myApplication' => $myApplication,
+            'reservation' => $reservation
+        ]);
+    }
+
 
     public function paymentList()
     {
         $auth = Auth::user();
 
-        $payments = UserPayment::where('user_id', $auth->id)->get();
-        $nexPayment = UserPayment::where('status', 'pending')->where('user_id', $auth->id)->where('description', 'monthly_fee')->first();
-        $lastBilled = UserPayment::orderBy('created_at', 'desc')->where('status', 'paid')
+        $payments = UserPayment::where('profile_id', $auth->id)->get();
+        $nexPayment = UserPayment::where('is_paid', false)->where('profile_id', $auth->id)->where('description', 'monthly_fee')->first();
+        $lastBilled = UserPayment::orderBy('created_at', 'desc')->where('is_paid', false)
             ->whereIn('description', ['monthly_fee', 'advance_and_deposit_fee'])
-            ->where('user_id', $auth->id)
+            ->where('profile_id', $auth->id)
             ->first();
 
-        $paid = UserPayment::where('status', 'paid')->where('user_id', $auth->id)->get();
+        $paid = UserPayment::where('is_paid', true)->where('profile_id', $auth->id)->get();
 
         $totalAmountPaid = 0;
 
@@ -843,14 +880,12 @@ class TenantController extends Controller
             }
         }
 
-        $res = [
+
+
+        return Inertia::render('Xendit/SuccessTenant', [
             'billing' => $billing,
             'invoice' => count($response['data'])  > 0 ? $response['data'][0] : null
-        ];
-
-        return $res;
-
-        return Inertia::render('Xendit/Success', $res);
+        ]);
 
     }
 }
