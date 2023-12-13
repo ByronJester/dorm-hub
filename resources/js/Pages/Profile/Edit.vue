@@ -10,6 +10,7 @@ import { Head } from "@inertiajs/vue3";
 import { Link, usePage } from "@inertiajs/vue3";
 
 const user = usePage().props.auth.user;
+const profile = usePage().props.profile;
 
 defineProps({
     mustVerifyEmail: Boolean,
@@ -20,7 +21,10 @@ defineProps({
 <template>
     <TenantLayout v-if="user.user_type == 'tenant'">
         <div class="p-4 mt-16 lg:ml-64">
-                   
+            <div class="min-w-screen
+                        2xl:mx-40
+                        ">
+            
             <section class="mb-6 flex items-center justify-between">
                 <div class="flex items-center justify-start">
                     <span
@@ -66,10 +70,13 @@ defineProps({
                     v-if="user.user_type == 'tenant'"
                 >
                    
-                      <AddProfile />
+                      <AddProfile :profile="profile" />
                   
                 </div>
             </div>
+                    
+                    
+        </div>
         </div>
     </TenantLayout>
 

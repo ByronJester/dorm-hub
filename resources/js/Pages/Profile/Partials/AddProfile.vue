@@ -5,10 +5,11 @@ import { ref } from 'vue';
 import axios from "axios";
 
 export default{
+    props:['profile'],
     components:{
         FileUpload
     },
-    setup(){
+    setup(props){
         const openComplainModal = () => {
             var modal = document.getElementById("complainModal");
 
@@ -51,7 +52,8 @@ export default{
             closeComplainModal,
             form,
             onUploadImage,
-            saveProfile
+            saveProfile,
+            props
         }
     }
 }
@@ -64,15 +66,15 @@ export default{
             <i class="fa-solid fa-user-plus" style="color: #FFF;"></i>
             Add
         </button>
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-5">
-            <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center">
+        <div v-if="props.profile" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-5 mb-16">
+            <div v-for="(profile, index) in props.profile" :key="index" class="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center">
                 <img
                     src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
                     alt="Profile picture"
                     class="rounded-full block md:h-40 w-40  bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
                 />
-                <p class="mt-2 text-gray-700 text-lg font-bold">Jear De La Rea</p>
-                <p class="mt-2 text-gray-400 text-lg font-bold">Father</p>
+                <p class="mt-2 text-gray-700 text-lg font-bold">{{ profile.first_name }}</p>
+                <p class="mt-2 text-gray-400 text-lg font-bold">{{ profile.relationship }}</p>
             </div>
         </div>
 

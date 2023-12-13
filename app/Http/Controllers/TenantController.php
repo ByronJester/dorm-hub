@@ -115,21 +115,23 @@ class TenantController extends Controller
     public function paymentList()
     {
         $auth = Auth::user();
-
-        $payments = UserPayment::where('profile_id', $auth->id)->get();
+        
+        $payments = UserPayment::where('user_id', $auth->id)->get();
         $nexPayment = UserPayment::where('is_paid', false)->where('profile_id', $auth->id)->where('description', 'monthly_fee')->first();
         $lastBilled = UserPayment::orderBy('created_at', 'desc')->where('is_paid', false)
             ->whereIn('description', ['monthly_fee', 'advance_and_deposit_fee'])
             ->where('profile_id', $auth->id)
             ->first();
+        $id = 1;
+        $paid = UserPayment::where('is_paid', true)->where('profile_id', $id)->get();
+        $profile = Profile::where('user_id', $auth->id)->get();
+        $bills = Billing::where('user_id', $auth->id)->get();
 
-        $paid = UserPayment::where('is_paid', true)->where('profile_id', $auth->id)->get();
 
         $totalAmountPaid = 0;
 
         foreach ($paid as $p) {
-            $billing = (object) $p->billing;
-            $totalAmountPaid += $billing->amount;
+            $totalAmountPaid += $p->amount;
         }
 
         $balance = 0;
@@ -150,10 +152,12 @@ class TenantController extends Controller
         return Inertia::render('Tenant/Payments', [
             'contact' => $contact,
             'myDorm' => $myDorm,
+            'bills'=> $bills,
             'payments' => $payments,
             'nexPayment' => $nexPayment,
             'lastBilled' => $lastBilled,
             'balance' => $balance,
+            'profile' => $profile,
             'totalAmountPaid' => $totalAmountPaid,
         ]);
     }
@@ -166,6 +170,7 @@ class TenantController extends Controller
 
         $room = Room::where('id', $routeParam[0])->first();
         $dorm = Dorm::where('id', $room->dorm_id)->first();
+        $profile = Profile::where('user_id', $auth->id)->get();
 
         $now = Carbon::now();
         $expiredDate = Carbon::now()->addDay(7);
@@ -179,6 +184,7 @@ class TenantController extends Controller
         //     ->where('is_active', true)->first();
 
         return Inertia::render('Tenant/BillingInfo', [
+            'profile' => $profile,
             'room' => $room,
             'dorm' => $dorm,
             'action' => $routeParam[1],
@@ -472,6 +478,7 @@ class TenantController extends Controller
                 $billing = Billing::create([
                     'f_id' => $reservation->id,
                     'profile_id' => $profile->id,
+                    'user_id' => $auth->id,
                     'amount' => $amount,
                     'description' => $description,
                     'type' => 'reservation',
@@ -856,6 +863,7 @@ class TenantController extends Controller
                 UserPayment::create([
                     'f_id' => $billing->f_id,
                     'profile_id' => $billing->profile_id,
+                    'user_id' => $billing -> user_id,
                     'amount' => $billing->amount,
                     'description' => $billing->description,
                     'type' => $billing->description,

@@ -7,7 +7,8 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import VsToast from '@vuesimple/vs-toast';
 import Checkbox from "@/Components/Checkbox.vue";
-import FileUpload from "primevue/fileupload"
+import FileUpload from "primevue/fileupload";
+import DropDown from 'primevue/dropdown';
 
 export default {
     components: {
@@ -15,18 +16,48 @@ export default {
         TenantLayout,
         VsToast,
         Checkbox,
-        FileUpload
+        FileUpload,
+        DropDown
     },
     setup() {
         const page = usePage();
         const user = page.props.auth.user;
-        const selectedProfile = ref('Me');
         const dorm = page.props.dorm;
         const room = page.props.room;
+        
         const action = page.props.action;
         const hasExistingApplication = page.props.hasExistingApplication;
         const hasExistingReservation = page.props.hasExistingReservation;
+        
 
+
+        const profile = page.props.profile;
+        const selectProfile = ref(profile[0].id);
+        const selectedProfile = ref([]);
+
+        const constructData = (dorm_id) => {
+            // Use map to transform the profiles
+            return profile
+                .filter((x) => x.id == dorm_id)
+                .map((p) => ({
+                    id: p.id,
+                    firstName: p.first_name,
+                    lastName: p.last_name, // Fix the typo here
+                    contact: p.contact,
+                    relationship: p.relationship,
+                }))[0]; // Take the first profile from the filtered array
+        };
+
+        onMounted(() => {
+            selectedProfile.value = constructData(selectProfile.value);
+        });
+
+        const profilechange = (evt) => {
+            let dorm_id = evt.target.value;
+
+            selectedProfile.value = constructData(dorm_id);
+        };
+        
         const userInformation = ref({
             firstName: '',
             lastName: '',
@@ -34,29 +65,9 @@ export default {
             image: '',
         })
 
-        const options = ref(["Bank Transfer", "Online Payment"]);
+        
 
-        const selectProfile = () =>{
-            if(selectedProfile.value == 'New'){
-                userInformation.value = {
-                    firstName: '',
-                    lastName: '',
-                    contact: '',
-                    image:''
-                }
-                console.log(userInformation.value);
-            }
-            else{
-                userInformation.value = {
-                    firstName: user.first_name,
-                    lastName: user.last_name,
-                    contact: user.phone_number,
-                    image: user.image
-                }
-                console.log(userInformation);
-            }
-        }
-
+        const options = ref('');
         if(action == 'reserve') {
             options.value = ["Online Payment"];
         }
@@ -299,6 +310,8 @@ export default {
         };
 
         return {
+            profile,
+            profilechange,
             errorMessages,
             back,
             toggleBankTransfer,
@@ -313,7 +326,6 @@ export default {
             allowedDates,
             time,
             dateRange,
-            options,
             amount_to_paid,
             first_name,
             last_name,
@@ -374,7 +386,7 @@ export default {
                 </div>
                 <div class="flex w-full flex-col lg:flex-row gap-10">
                     <div
-                        class="rounded-lg bg-white flex-wrap"
+                        class="flex-wrap"
                     >
                         <p class="text-2xl font-bold mb-5">Dorm Details</p>
                         <div class="flex flex-row gap-4">
@@ -682,9 +694,14 @@ export default {
                             <div class="mt-5">
                                 <p class="text-lg font-bold">Select Profile</p>
                                 <p class="text-xs text-gray-500">(Select or add profile who will rent this room)</p>
-                                <select v-model="selectedProfile" @change="selectProfile()" class="rounded-xl w-full border-gray-300 border">
-                                    <option>New</option>
-                                    <option>Me</option>
+                                <select v-model="selectProfile" @change="profilechange($event)" class="rounded-xl w-full border-gray-300 border">
+                                    <option
+                                        v-for="option in profile"
+                                        :key="option.id"
+                                        :value="option.id"
+                                    >
+                                        {{ option.relationship }}
+                                    </option>
                                 </select>
                             </div>
 
@@ -718,17 +735,17 @@ export default {
                             <div class=" w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <div>
                                     <p>First Name</p>
-                                    <input v-model="userInformation.firstName" class="rounded-xl w-full border border-gray-300 " type="text" />
+                                    <input v-model="selectedProfile.firstName" class="rounded-xl w-full border border-gray-300 " type="text" />
                                 </div>
                                 <div>
                                     <p>Last Name</p>
-                                    <input v-model="userInformation.lastName" class="rounded-xl w-full border border-gray-300 " type="text" />
+                                    <input v-model="selectedProfile.lastName" class="rounded-xl w-full border border-gray-300 " type="text" />
                                 </div>
                             </div>
                             <div class="mt-1">
                                 <p>Contact</p>
                                 <vue-tel-input
-                                            v-model="userInformation.contact"
+                                            v-model="selectedProfile.contact"
                                             autoFormat
                                             validCharactersOnly
                                             :maxlength = '16'

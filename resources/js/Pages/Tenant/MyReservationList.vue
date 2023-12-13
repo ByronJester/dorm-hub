@@ -33,7 +33,7 @@ export default {
             <p class="text-4xl mb-5 mt-20  font-bold">My Reservations</p>
             <div v-if="reservation">
                 <div
-                    class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"
+                    class="mb-10 grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"
                 >
                     <div  
                         v-for="(reser, index) in reservation"
