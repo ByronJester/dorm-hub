@@ -931,23 +931,23 @@ class OwnerController extends Controller
         //     }
         // }
 
-        $applications = Application::where('owner_id', $auth->id)->where('is_active', true)->count();
-        $tenants = Tenant::where('owner', $auth->id)->where('is_active', true)->count();
-        $paidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
-            $query->where('owner', $auth->id);
-        })
-        ->where('is_paid', true)->sum('amount');
+        // $applications = Application::where('owner_id', $auth->id)->where('is_active', true)->count();
+        // $tenants = Tenant::where('owner', $auth->id)->where('is_active', true)->count();
+        // $paidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
+        //     $query->where('owner', $auth->id);
+        // })
+        // ->where('is_paid', true)->sum('amount');
 
-        $unPaidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
-            $query->where('owner', $auth->id);
-        })
-        ->where('is_paid', false)->sum('amount');
+        // $unPaidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
+        //     $query->where('owner', $auth->id);
+        // })
+        // ->where('is_paid', false)->sum('amount');
 
         return Inertia::render('Owner/Dashboard', [
-            'paidAmount' => $paidAmount,
-            'unpaidAmount' => $unPaidAmount,
-            'totalTenants' => $tenants,
-            'totalApplications' => $applications
+            // 'paidAmount' => $paidAmount,
+            // 'unpaidAmount' => $unPaidAmount,
+            // 'totalTenants' => $tenants,
+            // 'totalApplications' => $applications
         ]);
     }
 

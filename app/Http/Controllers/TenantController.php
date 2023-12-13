@@ -9,7 +9,8 @@ use App\Models\{
     Dorm, Room, Amenity, Rule, Payment, User, Notification,
     Thread, ThreadMember, ThreadMessage,Hero, DormRating, TenantComplaint,
     //TenantApplication, TenantRefund, , TenantReservation, TenantBilling, TenantPayment,
-    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs, Profile
+    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs, Profile,
+    UserIncomeInformation
 };
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
@@ -164,8 +165,13 @@ class TenantController extends Controller
 
         $routeParam = explode("-", $param);
 
+        // return $routeParam[0];
+
         $room = Room::where('id', $routeParam[0])->first();
         $dorm = Dorm::where('id', $room->dorm_id)->first();
+        $profile = Profile::where('user_id', $auth->id)
+            ->whereDoesntHave('applications')
+            ->get();
 
         $now = Carbon::now();
         $expiredDate = Carbon::now()->addDay(7);
@@ -179,6 +185,7 @@ class TenantController extends Controller
         //     ->where('is_active', true)->first();
 
         return Inertia::render('Tenant/BillingInfo', [
+            'profile' => $profile,
             'room' => $room,
             'dorm' => $dorm,
             'action' => $routeParam[1],
@@ -412,10 +419,33 @@ class TenantController extends Controller
 
     public function submitApplication(Request $request)
     {
+        $auth = Auth::user();
+
         Room::where('id', $request->room_id)->update([
             'status' => 'rent',
             'is_available' => false
         ]);
+
+        Reservation::where('room_id', $request->room_id)->where('tenant', $auth->id)
+            ->update([
+                'is_active' => false
+            ]);
+
+        $incomeInfo = new UserIncomeInformation;
+        $incomeInfo->profile_id = $request->profile_id;
+        $incomeInfo->source_of_income = $request->source_of_income;
+        $incomeInfo->monthly_income = $request->monthly_income;
+
+        if($proof = $request->proof_of_income) {
+
+            $filename = Str::random(10) . '_proof';
+
+            $uploadFile = $this->uploadFile($proof, $filename);
+
+            $incomeInfo->proof = $filename;
+        }
+
+        $incomeInfo->save();
 
         return Application::updateOrCreate(
             [
@@ -423,6 +453,7 @@ class TenantController extends Controller
                 "tenant_id" => $request->tenant_id,
                 "room_id" => $request->room_id,
                 "dorm_id" => $request->dorm_id,
+                "profile_id" => $request->profile_id,
                 "is_active" => true,
             ],
             [
@@ -432,6 +463,7 @@ class TenantController extends Controller
                 "dorm_id" => $request->dorm_id,
                 "is_active" => true,
                 "move_in" => Carbon::parse($request->move_in),
+                "profile_id" => $request->profile_id,
                 "status" => "pending"
             ],
         );
