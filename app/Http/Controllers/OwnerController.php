@@ -1247,7 +1247,7 @@ class OwnerController extends Controller
         $billing = Billing::create([
             'f_id' => $tenant->id,
             'profile_id' => $request->profile_id,
-            'user_id' => $auth->id,
+            'user_id' => $request->tenant_id,
             'amount' => (int) $room->deposit + (int) $room->advance,
             'description' => 'Advance and Deposit Fee',
             'type' => 'rent',

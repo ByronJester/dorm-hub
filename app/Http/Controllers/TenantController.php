@@ -431,10 +431,12 @@ class TenantController extends Controller
             'is_available' => false
         ]);
 
-        Reservation::where('room_id', $request->room_id)->where('tenant', $auth->id)
-            ->update([
-                'is_active' => false
-            ]);
+        $reservation = Reservation::where('room_id', $request->room_id)->where('tenant', $auth->id)
+            ->first();
+
+        if($reservation) {
+            $reservation->is_active = false;
+        }
 
         $incomeInfo = new UserIncomeInformation;
         $incomeInfo->profile_id = $request->profile_id;

@@ -15,7 +15,7 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';   // optional
-import Row from 'primevue/row';      
+import Row from 'primevue/row';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
 export default {
@@ -385,8 +385,8 @@ export default {
 
         const myDorm = ref()
         myDorm.value = page.props.myDorm
-        
-        const selectedProfile = ref();
+
+        const selectedProfile = ref(profile.length > 0 ? profile[0].id : null);
         const optionProfile = profile.map((p) => ({
             id: p.id,
             label: p.first_name,
@@ -394,7 +394,7 @@ export default {
 
         const rows = ref([])
         const filters = ref();
-        
+
         const statuses = ref([0, 1]);
         const getSeverity = (status) => {
                 switch (status) {
@@ -407,14 +407,14 @@ export default {
                 }
             };
         onMounted(() => {
-                rows.value = page.props.bills;
+            rows.value = page.props.bills.filter(x => { return x.profile_id == selectedProfile.value});
         });
         const initFilters = () => {
                 filters.value = {
                     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
                     description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
                     amount: { value: null, matchMode: FilterMatchMode.IN },
-                   
+
                 };
             };
 
@@ -441,6 +441,12 @@ export default {
             const clearFilter = () => {
                 initFilters();
             };
+
+            const changeSelectedProfile = (evt) => {
+                console.log(evt)
+                console.log(page.props.bills)
+                rows.value = page.props.bills.filter(x => { return x.profile_id == evt.value.id});
+            }
         return {
             filters,
             clearFilter,
@@ -495,7 +501,8 @@ export default {
             wallet_name,
             account_name,
             account_number,
-            submitRefund
+            submitRefund,
+            changeSelectedProfile
         };
     },
 };
@@ -533,9 +540,9 @@ export default {
                         <div class="block">
                             <p>Select profile</p>
                             <div class="card flex justify-content-center">
-                                <DropDown v-model="selectedProfile" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
+                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
                             </div>
-                            
+
                         </div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 text-lg">
@@ -560,7 +567,7 @@ export default {
                                     <p class="text-xl font-bold">Last Billed on</p>
                                     {{ !! lastBilled ? lastBilled.display_created_date : ''}}
                                 </div>
-                                
+
                             </div>
                             <div class="">
                                 <p class="text-xl font-bold">Amount Due</p>
@@ -611,12 +618,12 @@ export default {
                                                 <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
                                                 <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold">Pay Now</button>
                                             </div>
-                                            
+
                                         </div>
                                     </template>
                                 </Column>
-                                
-                               
+
+
                             </DataTable>
                         </div>
                     </div>
@@ -628,9 +635,9 @@ export default {
                                 <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
                                         <div class="flex w-full items-center justify-between">
-                                            <p>{{data.category}}</p> 
+                                            <p>{{data.category}}</p>
                                             <p>{{ moneyFormat(data.amount) }}</p>
-                                            
+
                                         </div>
                                     </template>
                                 </Column>
