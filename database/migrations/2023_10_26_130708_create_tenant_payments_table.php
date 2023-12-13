@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('f_id');
             $table->bigInteger('profile_id');
+            $table->bigInteger('user_id');
             $table->float('amount')->default(0);
             $table->longText('description')->nullable();
             $table->string('type');

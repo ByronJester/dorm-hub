@@ -8,12 +8,27 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
-import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue'
+import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue';
+import DropDown from 'primevue/dropdown';
+import DataTable from 'primevue/datatable';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';   // optional
+import Row from 'primevue/row';      
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
 export default {
     components: {
         AuthenticatedLayout,
         TenantVerif,
+        DropDown,
+        DataTable,
+        Column,
+        ColumnGroup,
+        Row,
+        Button,
+        Tag,
     },
     methods: {
 
@@ -78,6 +93,7 @@ export default {
         const page = usePage();
         const user = computed(() => page.props.auth.user);
         const payments = page.props.payments;
+        const profile = page.props.profile;
         const application = ref({});
         const owner = ref({});
         const methods = ref([]);
@@ -91,6 +107,8 @@ export default {
         const balance = page.props.balance
         const totalAmountPaid = page.props.totalAmountPaid
         const options = ["E-Wallet", "Cash", "Bank Transfer"];
+
+        console.log(totalAmountPaid)
 
         onMounted(() => {
             application.value = page.props.application;
@@ -236,7 +254,7 @@ export default {
                     // id: payments[p].id,
                     date: payments[p].display_date,
                     payment_method: payments[p].payment_method,
-                    amount: payments[p].billing.amount,
+                    amount: payments[p].amount,
                     category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].description),
                     status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
                     receipt: '',
@@ -367,10 +385,68 @@ export default {
 
         const myDorm = ref()
         myDorm.value = page.props.myDorm
+        
+        const selectedProfile = ref();
+        const optionProfile = profile.map((p) => ({
+            id: p.id,
+            label: p.first_name,
+        }));
 
-        console.log(totalAmountPaid)
+        const rows = ref([])
+        const filters = ref();
+        
+        const statuses = ref(['paid', 'unpaid']);
+        const getSeverity = (status) => {
+                switch (status) {
+                    case 'unpaid':
+                        return 'danger';
 
+                    case 'paid':
+                        return 'success';
+
+                }
+            };
+        onMounted(() => {
+                rows.value = page.props.bills;
+        });
+        const initFilters = () => {
+                filters.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    amount: { value: null, matchMode: FilterMatchMode.IN },
+                   
+                };
+            };
+
+            initFilters();
+
+            const formatDate = (value) => {
+                // Check if value is a string and convert it to a Date object
+                const date = typeof value === 'string' ? new Date(value) : value;
+
+                // Check if date is a valid Date object
+                if (isNaN(date.getTime())) {
+                    // If not a valid Date, you can handle it according to your requirements
+                    return "Invalid Date"; // or return value.toString() or any other representation
+                }
+
+                // If it's a valid Date object, format it
+                return date.toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            };
+
+            const clearFilter = () => {
+                initFilters();
+            };
         return {
+            filters,
+            clearFilter,
+            rows,
+            selectedProfile,
+            optionProfile,
             setActiveTable,
             activeTable,
             myDorm,
@@ -456,6 +532,10 @@ export default {
                     <div class="flex justify-end">
                         <div class="block">
                             <p>Select profile</p>
+                            <div class="card flex justify-content-center">
+                                <DropDown v-model="selectedProfile" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem" />
+                            </div>
+                            
                         </div>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 text-lg">
@@ -503,13 +583,52 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center mt-5 gap-10 text-lg justify-start">
-                    <p>All</p>
-                    <p>Paid</p>
-                    <p>Unpaid</p>
+                <div class="grid grid-cols-3 mt-5 gap-2">
+                    <div class="col-span-2">
+                        <div class="card">
+                            <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                            :globalFilterFields="['description', 'amount']">
+                            <template #header>
+                                <div class="flex items-center justify-between">
+                                    <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                                    <span class="p-input-icon-left">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
+                                    </span>
+                                </div>
+                            </template>
+                            <template #empty> No bills found. </template>
+                                <Column field="name" header="Name" sortable style="min-width: 14rem" class="border-b">
+                                    <template #body="{ data }">
+                                        {{ data.name }}
+                                    </template>
+                                </Column>
+                                
+                                <Column header="Action" style="min-width: 5rem" class="border-b">
+                                    <template #body ="{data}">
+                                        <button
+                                            class="hover:text-orange-400"
+                                            :class="{
+                                                'cursor-not-allowed': data.status == 'approved',
+                                                'cursor-pointer': data.status == 'pending' && data.status == 'decline'
+                                            }"
+                                            :disabled="data.status=='approved'"
+                                            @click="openTermsModal(data)"
+                                        >
+                                            <i v-if="data.status =='pending' || data.status == 'decline' || data.status == null" class="fa-solid fa-eye"></i>
+                                            <i v-else class="fa-solid fa-eye-slash"></i>
+                                        </button>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
+                    </div>
+                    <div>
+
+                    </div>
                 </div>
                 <!--Payments-->
-                <div class="w-full mt-2 mb-5">
+                <!-- <div class="w-full mt-2 mb-5">
                         <div class="w-full mb-12 mt-5">
                             <div
                                     class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -676,7 +795,7 @@ export default {
                                     </div>
                                 </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div id="payModal" class="payModal mt-10 md:mt-0">
                         <div class="pay-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">

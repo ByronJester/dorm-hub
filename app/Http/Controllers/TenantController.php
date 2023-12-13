@@ -472,6 +472,7 @@ class TenantController extends Controller
                 $billing = Billing::create([
                     'f_id' => $reservation->id,
                     'profile_id' => $profile->id,
+                    'user_id' => $auth->id,
                     'amount' => $amount,
                     'description' => $description,
                     'type' => 'reservation',
@@ -867,6 +868,7 @@ class TenantController extends Controller
                 if(!$billing->is_paid) {
                     UserPayment::create([
                         'f_id' => $billing->f_id,
+                        'user_id' => $billing->user_id,
                         'profile_id' => $billing->profile_id,
                         'amount' => $billing->amount,
                         'description' => $billing->description,

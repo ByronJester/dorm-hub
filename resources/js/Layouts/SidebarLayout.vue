@@ -6,8 +6,8 @@ import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue"
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Image from "primevue/image";
-
-
+import Sidebar from 'primevue/sidebar';
+import Button from 'primevue/button'
 export default {
     components: {
         AppDropdown,
@@ -15,10 +15,12 @@ export default {
         AppDropdownItem,
         ApplicationLogo,
         Image,
-        Link
+        Link,
+        Sidebar,
+        Button
     },
     setup() {
-        const showSidebar = ref(false);
+        const showSidebar = ref(true);
         const isDropDownOpen = ref(false);
 
         const toggleDropDown = () => {
@@ -35,61 +37,6 @@ export default {
 
         var routes = [];
 
-        if (user && user.user_type == "owner") {
-            routes = [
-                {
-                    route: "owner.dashboard",
-                },
-                {
-                    route: "owner.dorms",
-                },
-                {
-                    route: "owner.manage.tenants",
-                },
-                {
-                    route: "owner.manage.application",
-                },
-                {
-                    route: "#",
-                },
-                {
-                    route: "#",
-                },
-            ];
-        }
-        if (user && user.user_type == "admin") {
-            routes = [
-                {
-                    route: "#",
-                    label: "Dashboard",
-                    icon: "fa-solid fa-chart-line",
-                },
-                {
-                    route: "admin.dorms",
-                    label: "Dorm Verificartion",
-                    icon: "fa-solid fa-chart-simple",
-                },
-                {
-                    route: "admin.tenants",
-                    label: "User Verification",
-                    icon: "fa-solid fa-building",
-                },
-                {
-                    route: "#",
-                    label: "Reports",
-                    icon: "fa-solid fa-users",
-                },
-                {
-                    route: "#",
-                    label: "Utilities",
-                    icon: "fa-solid fa-comments-dollar",
-                },
-            ];
-        }
-
-        const redirectPage = (r) => {
-            router.get(route(r));
-        };
         const notifications = page.props.notifications;
 
         const openModal = () => {
@@ -128,7 +75,6 @@ export default {
             isDropDownOpen,
             routes,
             notifications,
-            redirectPage,
             toggleDropDown,
             openModal,
             closeModal,
@@ -248,7 +194,6 @@ export default {
                 </div>
             </div>
         </nav>
-
         <div
             id="sidebarModal"
             :class="{
