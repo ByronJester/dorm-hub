@@ -84,39 +84,41 @@ export default{
         const move_in = ref();
 
         const rentNow = () => {
-            swal(
-                {
-                    title: `Are you sure to rent this room?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
-                    axios
-                        .post(route("rent.now"), {
-                            "owner_id" : reservation.owner,
-                            "tenant_id" : reservation.tenant,
-                            "dorm_id": reservation.dorm_id,
-                            "room_id": reservation.room_id,
-                            "move_in": move_in.value,
-                            "reservation_id" : reservation.id
-                        })
-                        .then((response) => {
-                            swal(
-                                "Rent",
-                                `You sucessfully rent this room.`,
-                                "success"
-                            );
+            router.get(route('tenant.billing_info', reservation.room_id + '-rent'))
 
-                            setTimeout(function () {
-                                location.reload()
-                            }, 3000);
-                        })
-                        .catch((error) => {});
-                }
-            );
+            // swal(
+            //     {
+            //         title: `Are you sure to rent this room?`,
+            //         type: "warning",
+            //         showCancelButton: true,
+            //         confirmButtonColor: "#DD6B55",
+            //         confirmButtonText: "Yes",
+            //         closeOnConfirm: false,
+            //     },
+            //     function () {
+            //         axios
+            //             .post(route("rent.now"), {
+            //                 "owner_id" : reservation.owner,
+            //                 "tenant_id" : reservation.tenant,
+            //                 "dorm_id": reservation.dorm_id,
+            //                 "room_id": reservation.room_id,
+            //                 "move_in": move_in.value,
+            //                 "reservation_id" : reservation.id
+            //             })
+            //             .then((response) => {
+            //                 swal(
+            //                     "Rent",
+            //                     `You sucessfully rent this room.`,
+            //                     "success"
+            //                 );
+
+            //                 setTimeout(function () {
+            //                     location.reload()
+            //                 }, 3000);
+            //             })
+            //             .catch((error) => {});
+            //     }
+            // );
         }
 
         return {
@@ -305,8 +307,8 @@ export default{
                                     <p>{{reservation.room.furnished_type }}</p>
                                 </div>
                                 <div>
-                                    <p class="mt-5">When will you move in?</p>
-                                    <input type="date" class="rounded-md mr-2" v-model="move_in"/>
+                                    <!-- <p class="mt-5">When will you move in?</p> -->
+                                    <!-- <input type="date" class="rounded-md mr-2" v-model="move_in"/> -->
 
                                     <button class="py-2 px-5 rounded-md bg-orange-400 text-white font-semibold "
                                         @click="rentNow()"

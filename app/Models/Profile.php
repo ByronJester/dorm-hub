@@ -17,4 +17,9 @@ class Profile extends Model
         'contact',
         'image'
     ];
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
 }

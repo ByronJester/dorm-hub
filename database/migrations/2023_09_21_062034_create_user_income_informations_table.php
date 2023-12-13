@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('user_income_informations', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->unsigned()->comment('Foreign key from table users');
+            $table->bigInteger('profile_id')->unsigned()->comment('Foreign key from table profiles');
             $table->string('source_of_income', 100);
             $table->string('monthly_income', 100);
             $table->string('monthly_expenses', 100)->nullable();

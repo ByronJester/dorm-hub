@@ -24,15 +24,15 @@ export default {
         const user = page.props.auth.user;
         const dorm = page.props.dorm;
         const room = page.props.room;
-        
+
         const action = page.props.action;
         const hasExistingApplication = page.props.hasExistingApplication;
         const hasExistingReservation = page.props.hasExistingReservation;
-        
+
 
 
         const profile = page.props.profile;
-        const selectProfile = ref(profile[0].id);
+        const selectProfile = ref(profile.length > 0 ? profile[0].id : null);
         const selectedProfile = ref([]);
 
         const constructData = (dorm_id) => {
@@ -57,7 +57,7 @@ export default {
 
             selectedProfile.value = constructData(dorm_id);
         };
-        
+
         const userInformation = ref({
             firstName: '',
             lastName: '',
@@ -65,7 +65,7 @@ export default {
             image: '',
         })
 
-        
+
 
         const options = ref('');
         if(action == 'reserve') {
@@ -144,19 +144,27 @@ export default {
             };
         };
 
+        const proof_of_income = ref(null)
+
+        const proofIncome = () => {
+            document.getElementById("proof_of_income").click();
+        };
+
+        const proofOfIncomeChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                proof_of_income.value = e.target.result;
+            };
+        }
+
         const move_in = ref();
 
         const submitApplication = () => {
-            if(!user.income_information) {
-                router.get(route("profile.edit"));
-                VsToast.show({
-                    title: 'Warning',
-                    message: 'Please add income information to make rent and reservation',
-                    variant: 'warning',
-                });
-                return
-            }
-
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
@@ -164,36 +172,20 @@ export default {
                 room_id: room.id,
                 status: "rent",
                 move_in: move_in.value,
+                profile_id: selectProfile.value,
+                source_of_income: source_of_income.value,
+                monthly_income: monthly_income.value,
+                proof_of_income: proof_of_income.value,
             };
 
-            swal(
-                {
-                    title: `Are you sure to submit this application?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
-                    axios
-                        .post(route("application.apply"), request)
-                        .then((response) => {
-                            swal(
-                                "Application submitted.",
-                                `Wait for dorm owner approval.\n Note: Once its approved you will pay advance and deposit fee.`,
-                                "success"
-                            );
+            axios
+                .post(route("application.apply"), request)
+                .then((response) => {
+                    // location.reload()
+                })
+                .catch((error) => {
 
-                            setTimeout(function () {
-                                router.get(route("landing.page"));
-                            }, 3000);
-                        })
-                        .catch((error) => {
-
-                        });
-                }
-            );
+                });
         };
 
         const reserveRoom = () => {
@@ -309,6 +301,9 @@ export default {
             terms.value = true;
         };
 
+        const source_of_income = ref(null)
+        const monthly_income = ref(null)
+
         return {
             profile,
             profilechange,
@@ -342,7 +337,12 @@ export default {
             terms,
             selectProfile,
             selectedProfile,
-            userInformation
+            userInformation,
+            proofOfIncomeChange,
+            proof_of_income,
+            source_of_income,
+            monthly_income,
+            proofIncome
         };
     },
 };
@@ -352,7 +352,7 @@ export default {
     <TenantLayout>
         <div class="p-4 mt-16 lg:ml-64">
             <div
-                v-if="room.is_available"
+                v-if="room.is_available || room.status == 'reserve'"
                 className="
                         max-w-screen-lg
                         mx-auto
@@ -384,7 +384,7 @@ export default {
                         {{ action == "reserve" ? "Billing" : "Apply" }}
                     </h1>
                 </div>
-                <div class="flex w-full flex-col lg:flex-row gap-10">
+                <div class="flex w-full flex-col lg:flex-row gap-10 mb-20">
                     <div
                         class="flex-wrap"
                     >
@@ -706,7 +706,7 @@ export default {
                             </div>
 
                             <p class="mt-5 text-lg font-bold">Profile Information</p>
-                            <div class="flex flex-col gap-2 w-full items-center justify-center">
+                            <!-- <div class="flex flex-col gap-2 w-full items-center justify-center">
                                             <div class="">
                                                 <img
                                                     src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
@@ -718,7 +718,7 @@ export default {
                                                 <p></p>
                                                 <FileUpload mode="basic" v-if="selectedProfile == 'New'" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000" />
                                             </div>
-                                        </div>
+                                        </div> -->
                                     <hr class="my-2"/>
                             <label v-if="selectedProfile == 'New'" for="relationship" class="block mb-2">Relationship</label>
                             <select v-if="selectedProfile == 'New'" id="relationship" v-model="relationship" class="block w-full text-base mb-3 text-gray-900 border border-gray-300 rounded-lg bg-gray-50">
@@ -735,11 +735,11 @@ export default {
                             <div class=" w-full grid grid-cols-1 md:grid-cols-2 gap-2">
                                 <div>
                                     <p>First Name</p>
-                                    <input v-model="selectedProfile.firstName" class="rounded-xl w-full border border-gray-300 " type="text" />
+                                    <input v-model="selectedProfile.firstName" class="rounded-xl w-full border border-gray-300 " type="text" disabled/>
                                 </div>
                                 <div>
                                     <p>Last Name</p>
-                                    <input v-model="selectedProfile.lastName" class="rounded-xl w-full border border-gray-300 " type="text" />
+                                    <input v-model="selectedProfile.lastName" class="rounded-xl w-full border border-gray-300 " type="text"  disabled/>
                                 </div>
                             </div>
                             <div class="mt-1">
@@ -749,39 +749,49 @@ export default {
                                             autoFormat
                                             validCharactersOnly
                                             :maxlength = '16'
+                                            disabled
                                         ></vue-tel-input>
                             </div>
                             <div class="mt-5">
                                 <p class="text-lg font-bold">Income Information</p>
                                 <div class="mb-2">
                                     <p class="font-semibold">Source of Income</p>
-                                    <select class="rounded-xl w-full border-gray-300 border">
-                                        <option>New</option>
+                                    <select class="rounded-xl w-full border-gray-300 border" v-model="source_of_income">
+                                        <option value="salary">Salary</option>
+                                        <option value="scholar">Scholar</option>
+                                        <option value="pension">Pension</option>
                                     </select>
+                                </div>
+
+                                <div>
+                                    <p class="font-semibold">Monthly Income</p>
+                                    <input v-model="monthly_income" class="rounded-xl w-full border border-gray-300 " type="number" />
                                 </div>
 
                                 <p class="font-semibold">Proof of Income</p>
                                 <div class="flex flex-col items-center w-full">
                                     <input
                                         type="file"
-                                        id="business_permit"
+                                        id="proof_of_income"
                                         class="hidden"
                                         accept="image/*"
                                         required
+                                        @change="proofOfIncomeChange($event)"
                                     />
                                     <label
                                         for="business_permit"
                                         class="flex flex-col items-center justify-center w-full h-[300px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
                                     >
                                         <img
-                                            v-if="business_permit_image_src"
-                                            :src="business_permit_image_src"
+                                            v-if="proof_of_income"
+                                            :src="proof_of_income"
                                             alt="business permit"
                                             class="h-[300px] w-full object-cover bg-no-repeat bg-center rounded-lg"
                                         />
                                         <div
                                             v-else
                                             class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                            @click="proofIncome()"
                                         >
                                             <span class="text-blue-500 dark:text-gray-400">
                                                 <svg
@@ -863,20 +873,9 @@ export default {
                         </div>
                         <div
                             class="mt-5 w-full"
-                            v-if="
-                                (!!hasExistingApplication &&
-                                    !hasExistingApplication.move_in &&
-                                    action == 'rent') ||
-                                (!hasExistingApplication &&
-                                    hasExistingReservation &&
-                                    hasExistingReservation.is_approved &&
-                                    action == 'rent') ||
-                                (!hasExistingApplication &&
-                                    !hasExistingReservation &&
-                                    action == 'rent')
-                            "
                         >
                             <button
+                                v-if="action == 'rent'"
                                 class="py-2 px-3 bg-orange-400 text-white rounded-full float-right"
                                 @click="submitApplication()"
                             >
@@ -956,7 +955,7 @@ export default {
                 </div>
             </div>
             <div v-else class="flex mt-40 items-center justify-center">
-                <p v-if="room.status=='reserve'">This Room Is Already Reserved</p>
+                <!-- <p v-if="room.status=='reserve'">This Room Is Already Reserved</p> -->
                 <p v-if="room.status=='rent'">This Room Is Already Occupied</p>
             </div>
         </div>

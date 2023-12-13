@@ -16,7 +16,7 @@
     import Tag from 'primevue/tag';
     import Column from 'primevue/column';
     import ColumnGroup from 'primevue/columngroup';   // optional
-    import Row from 'primevue/row';      
+    import Row from 'primevue/row';
     import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
     export default {
@@ -178,10 +178,10 @@
                     dorm_name: applications[y].dorm.property_name,
                     room_name: applications[y].room.name,
                     tenant_name: applications[y].tenant.name,
-                    source_of_income: applications[y].tenant.income_information.source_of_income,
-                    monthly_income: moneyFormat(applications[y].tenant.income_information.monthly_income),
+                    source_of_income: applications[y].income_information.source_of_income,
+                    monthly_income: moneyFormat(applications[y].income_information.monthly_income),
                     move_in: !applications[y].move_in ? 'N/A' : formatDate(applications[y].move_in),
-                    move_out: !applications[y].move_out ? 'N/A' : formatDate(applications[y].move_out),
+                    move_out: 'N/A',
                     status: applications[y].status,
                     action: applications[y]
                 });
@@ -198,7 +198,7 @@
                     move_in: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
                     move_out: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
                     status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-                   
+
                 };
             };
 
@@ -338,7 +338,7 @@
                     </Column>
                     <Column field="room_name" header="Room Name" sortable dataType="date" style="min-width: 10rem" class="border-b">
                         <template #body="{ data }">
-                            {{ data.room_name }}                        
+                            {{ data.room_name }}
                         </template>
                     </Column>
                     <Column field="tenant_name" header="Tenant Name" sortable style="min-width: 14rem" class="border-b">
@@ -442,7 +442,7 @@
                         </div>
                     </div>
                 </div>
-            
+
 
         </div>
     </AuthenticatedLayout>
