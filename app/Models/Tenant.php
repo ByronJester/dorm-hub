@@ -14,6 +14,10 @@ class Tenant extends Model
         'is_active', 'auto_bill', 'auto_bill_date', 'profile_id'
     ];
 
+    protected $appends = [
+        'profile'
+    ];
+
     public function dorm()
     {
         return $this->belongsTo(Dorm::class);
@@ -37,5 +41,10 @@ class Tenant extends Model
     public function billings()
     {
         return $this->hasMany(Billing::class);
+    }
+
+    public function getProfileAttribute()
+    {
+        return Profile::where('id', $this->profile_id)->first();
     }
 }

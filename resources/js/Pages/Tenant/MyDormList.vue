@@ -14,9 +14,9 @@ export default {
         const dorm = page.props.myDorm;
         const user = page.props.user;
         const myApplication = page.props.myApplication;
-    
+
         const viewRooms = (id) => {
-            router.get(route('tenant.myreservation', id));
+            router.get(route('tenant.mydorm', id));
         }
 
         console.log(dorm);
@@ -33,7 +33,7 @@ export default {
     <SidebarLayout>
         <div class="p-4 lg:ml-64">
             <p class="text-4xl mb-5 mt-20  font-bold">My Rooms</p>
-            <div v-if="dorm.room">
+            <div v-if="dorm.length > 0">
                 <div
                     class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"
                 >
@@ -212,6 +212,10 @@ export default {
                                                 : "Not-Arconditioned"
                                         }}</span>
                                     </div>
+                                </div>
+
+                                <div class="w-full">
+                                    {{ myDorm.profile.first_name + ' ' + myDorm.profile.last_name}}
                                 </div>
                             </template>
                         </Card>
