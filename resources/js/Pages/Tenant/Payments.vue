@@ -590,7 +590,7 @@ export default {
                         <div class="block">
                             <p>Select profile</p>
                             <div class="card flex justify-content-center">
-                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
+                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label"  class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
                             </div>
 
                         </div>
@@ -657,9 +657,9 @@ export default {
                             <template #empty> No bills found. </template>
                                 <Column field="description" header="Bills" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
-                                        <div class="grid grid-cols-4 items-center justify-between">
+                                        <div class="grid grid-cols-4 place-items-center justify-between">
                                             <p>{{data.description}}</p>
-                                            <div class="w-16 text-center">
+                                            <div class="w-16 text-center ">
                                                 <p class="bg-green-400  text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
                                                 <p class="bg-red-400  text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
                                             </div>
@@ -694,7 +694,7 @@ export default {
                                                 <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
                                                 <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
                                                 <img v-if="data.payment_method == 'VISA'" src="/images/visa.png" class="w-10"/>
-                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-16"/>
                                                 <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
                                             </div>
                                             <p class="text-end">{{ moneyFormat(data.amount) }}</p>

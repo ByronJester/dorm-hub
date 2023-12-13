@@ -35,7 +35,7 @@ export default {
             <p class="text-4xl mb-5 mt-20  font-bold">My Rooms</p>
             <div v-if="dorm.length > 0">
                 <div
-                    class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"
+                    class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 mb-10 gap-2"
                 >
                     <div
                         v-for="(myDorm, index) in dorm"
@@ -49,6 +49,9 @@ export default {
                                     class="h-[300px] w-full rounded-t-lg"
                                     @click="viewRooms(myDorm.id)"
                                 />
+                                <div class="w-full text-center text-white bg-orange-400">
+                                    Room for {{ myDorm.profile.first_name + ' ' + myDorm.profile.last_name}}
+                                </div>
                             </template>
                             <template #title>
                                 {{ myDorm.room.name }}
@@ -214,9 +217,7 @@ export default {
                                     </div>
                                 </div>
 
-                                <div class="w-full">
-                                    {{ myDorm.profile.first_name + ' ' + myDorm.profile.last_name}}
-                                </div>
+                               
                             </template>
                         </Card>
                     </div>

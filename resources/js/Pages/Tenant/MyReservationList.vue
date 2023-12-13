@@ -31,7 +31,7 @@ export default {
     <SidebarLayout>
         <div class="p-4 lg:ml-64">
             <p class="text-4xl mb-5 mt-20  font-bold">My Reservations</p>
-            <div v-if="reservation">
+            <div v-if="reservation.length">
                 <div
                     class="mb-10 grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"
                 >
