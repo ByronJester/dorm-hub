@@ -65,7 +65,7 @@ export default {
                     tenant_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
                     fee: { value: null, matchMode: FilterMatchMode.IN },
                     move_in: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-                   
+
                 };
             };
 
@@ -95,7 +95,6 @@ export default {
 
 
             const options = page.props.dorms.filter(dorm => {
-                console.log('Current dorm:', dorm);
                 return dorm && dorm.status === 'approved';
             });
 
@@ -109,25 +108,14 @@ export default {
             var arrTenant = [];
 
             for (let t = 0; t < tenants.length; t++) {
-                var balance = 0;
-
-                let billings = tenants[t].billings;
-
-                for (let b = 0; b < billings.length; b++) {
-                    if (billings[b].is_paid == 0) {
-                        balance = balance + billings[b].amount;
-                    }
-                }
-
                 arrTenant.push({
                     id: tenants[t].id,
                     dorm_id: tenants[t].dorm_id,
                     room_name: tenants[t].room.name,
-                    tenant_name: tenants[t].tenant_user.name,
+                    tenant_name: tenants[t].profile.first_name,
                     fee: tenants[t].room.fee,
                     move_in: tenants[t].move_in,
                     move_out: tenants[t].move_out,
-                    balance: balance,
                 });
             }
 
@@ -405,7 +393,7 @@ export default {
                     </select>
                 </div>
                 <div class="card mt-5">
-                <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                <DataTable v-model:filters="filters" :value="tenantsData" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                 :globalFilterFields="['room_name', 'tenant_name', 'fee', 'move_in']">
                 <template #header>
                     <div class="flex items-center justify-between">
@@ -418,27 +406,27 @@ export default {
                 </template>
                 <template #empty> No tenants found. </template>
                     <Column field="room_name" header="Room Name" sortable style="min-width: 14rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            {{ tenantsData.room_name }}
+                        <template #body="{ data }">
+                            {{ data.room_name }}
                         </template>
                     </Column>
                     <Column field="tenant_name" header="Tenant Name" sortable dataType="date" style="min-width: 10rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            {{ tenantsData.tenant_name }}
+                        <template #body="{ data }">
+                            {{ data.tenant_name }}
                         </template>
                     </Column>
                     <Column field="fee" header="Room Price" sortable style="min-width: 14rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            {{ moneyFormat(tenantsData.fee) }}
+                        <template #body="{ data }">
+                            {{ moneyFormat(data.fee) }}
                         </template>
                     </Column>
                     <Column header="Moved-In Date" field="move_in" sortable style="min-width: 12rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            <Tag :value="tenantsData.move_in" />
+                        <template #body="{ data }">
+                            <Tag :value="data.move_in" />
                         </template>
                     </Column>
                     <Column header="Action" style="min-width: 5rem" class="border-b">
-                        <template #body ="{tenantsData}">
+                        <template #body ="{data}">
                             <button
                                 class="hover:text-orange-400"
                                 :class="{
