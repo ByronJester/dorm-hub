@@ -395,14 +395,14 @@ export default {
         const rows = ref([])
         const filters = ref();
         
-        const statuses = ref(['paid', 'unpaid']);
+        const statuses = ref([0, 1]);
         const getSeverity = (status) => {
                 switch (status) {
-                    case 'unpaid':
+                    case '0':
                         return 'danger';
 
                     case 'paid':
-                        return 'success';
+                        return '1';
 
                 }
             };
@@ -529,7 +529,7 @@ export default {
                 </section>
                 <hr />
                 <div class="mt-5">
-                    <div class="flex justify-end">
+                    <div>
                         <div class="block">
                             <p>Select profile</p>
                             <div class="card flex justify-content-center">
@@ -583,7 +583,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 mt-5 gap-2">
+                <div class="grid grid-cols-3 mt-5 gap-2 mb-10">
                     <div class="col-span-2">
                         <div class="card">
                             <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
@@ -598,28 +598,25 @@ export default {
                                 </div>
                             </template>
                             <template #empty> No bills found. </template>
-                                <Column field="name" header="Name" sortable style="min-width: 14rem" class="border-b">
+                                <Column field="description" header="Bills" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
-                                        {{ data.name }}
+                                        <div class="flex w-full items-center justify-between">
+                                            <p>{{data.description}}</p>
+                                            <div>
+                                                <p class="bg-green-400 px-4 text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
+                                                <p class="bg-red-400 px-4 text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
+                                            </div>
+                                            <p>{{ moneyFormat(data.amount) }}</p>
+                                            <div>
+                                                <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
+                                                <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold">Pay Now</button>
+                                            </div>
+                                            
+                                        </div>
                                     </template>
                                 </Column>
                                 
-                                <Column header="Action" style="min-width: 5rem" class="border-b">
-                                    <template #body ="{data}">
-                                        <button
-                                            class="hover:text-orange-400"
-                                            :class="{
-                                                'cursor-not-allowed': data.status == 'approved',
-                                                'cursor-pointer': data.status == 'pending' && data.status == 'decline'
-                                            }"
-                                            :disabled="data.status=='approved'"
-                                            @click="openTermsModal(data)"
-                                        >
-                                            <i v-if="data.status =='pending' || data.status == 'decline' || data.status == null" class="fa-solid fa-eye"></i>
-                                            <i v-else class="fa-solid fa-eye-slash"></i>
-                                        </button>
-                                    </template>
-                                </Column>
+                               
                             </DataTable>
                         </div>
                     </div>
@@ -999,6 +996,7 @@ export default {
 </template>
 
 <style>
+
 .main {
     height: 100%;
     min-height: 92vh;
