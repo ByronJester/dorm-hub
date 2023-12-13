@@ -29,7 +29,10 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Checkbox from "@/Components/Checkbox.vue";
 import Terms from "@/Components/Terms.vue"; //dinagdag ko pati nasa component
 import VsToast from "@vuesimple/vs-toast";
-
+import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
+import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
+import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
+import InputMask from 'primevue/inputmask';
 export default {
     components: {
         ApplicationLogo,
@@ -41,6 +44,10 @@ export default {
         Terms,
         Checkbox,
         VsToast,
+        AppDropdown,
+        AppDropdownContent,
+        AppDropdownItem,
+        InputMask,  
     },
     methods: {
         togglePasswordVisibility(field) {
@@ -109,6 +116,13 @@ export default {
             modal.style.display = "none";
         };
 
+        const isDropdownOpen = ref(false);
+
+    // Function to toggle dropdown visibility
+    const toggleDropdown = () => {
+      isDropdownOpen.value = !isDropdownOpen.value;
+    };
+
         const showingNavigationDropdown = ref(false);
 
         const isMobileView = ref(false);
@@ -126,8 +140,6 @@ export default {
             user_type: "",
             password: "",
             password_confirmation: "",
-            id_picture: "",
-            selfie_id_picture: "",
             terms: false,
             code: "",
         });
@@ -186,7 +198,7 @@ export default {
             modal.style.display = "none";
         };
 
-        const isLoadingRegister = ref(false)
+        const isLoadingRegister = ref(false);
 
         const submit = () => {
             if (validateForm()) {
@@ -208,7 +220,7 @@ export default {
         };
 
         const confirmSubmit = () => {
-            isLoadingRegister.value = true
+            isLoadingRegister.value = true;
 
             form.post(route("user.register"), {
                 onSuccess: () => {
@@ -219,7 +231,7 @@ export default {
                         variant: "success",
                     });
 
-                    isLoadingRegister.value = false
+                    isLoadingRegister.value = false;
                 },
                 onError: (error) => {
                     VsToast.show({
@@ -228,7 +240,7 @@ export default {
                         variant: "error",
                     });
 
-                    isLoadingRegister.value = false
+                    isLoadingRegister.value = false;
                 },
             });
         };
@@ -268,11 +280,8 @@ export default {
             last_name: "",
             phone_number: "",
             username: "",
-            user_type:"",
-            id_picture:"",
-            selfie_id_picture:"",
-            terms:"",
-
+            user_type: "",
+            terms: "",
         });
 
         const validateForm = () => {
@@ -306,26 +315,18 @@ export default {
                 isValid = false;
                 errorMessages.value.user_type = "User Type is required";
             }
-            if (form.id_picture.trim() === "") {
-                isValid = false;
-                errorMessages.value.id_picture = "Id picture is required";
-            }
-            if (form.selfie_id_picture.trim() === "") {
-                isValid = false;
-                errorMessages.value.selfie_id_picture = "Selfie Id picture is required";
-            }
             if (!validatePassword()) {
                 isValid = false;
             }
             if (!form.terms) {
                 isValid = false;
-                errorMessages.value.terms = "You must accept the terms and conditions";
+                errorMessages.value.terms =
+                    "You must accept the terms and conditions";
             }
 
             return isValid;
         };
         const errorMessagespassword = ref({
-
             password: "",
             password_length: "",
             password_uppercase: "",
@@ -333,7 +334,6 @@ export default {
             password_number: "",
             password_special: "",
             password_confirmation: "",
-
         });
 
         const passwordTouched = ref(false);
@@ -352,7 +352,8 @@ export default {
                 return true;
             }
 
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            const passwordRegex =
+                /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
             if (!passwordRegex.test(form.password)) {
                 isValid = false;
@@ -388,11 +389,10 @@ export default {
                 isValid = false;
                 errorMessagespassword.value.confirm_password =
                     "Passwords do not match.";
-            };
+            }
 
-            return isValid
-        }
-
+            return isValid;
+        };
 
         const handlePasswordChange = () => {
             validatePassword();
@@ -434,14 +434,18 @@ export default {
             confirmSubmit,
             acceptClose,
             not_approved,
-            isLoadingRegister
+            isLoadingRegister,
+
+            isDropdownOpen,
+
+            toggleDropdown,
         };
     },
 };
 </script>
 
 <template>
-    <div class="mb-20">
+    <div>
         <div class="h-full">
             <nav class="fixed top-0 z-50 w-full bg-white">
                 <div class="py-4">
@@ -452,11 +456,60 @@ export default {
                             class="flex flex-row items-center justify-between gap-3 md:gap-0"
                         >
                             <div class="flex items-center justify-start">
-                                <a href="/">
+                                <div class="flex items-center">
+                            <AppDropdown>
+                                <button
+                                    class="inline-flex items-center p-2 text-sm rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                                >
+                                    <span class="sr-only">Open sidebar</span>
+                                    <svg
+                                        class="w-6 h-6"
+                                        aria-hidden="true"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            clip-rule="evenodd"
+                                            fill-rule="evenodd"
+                                            d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
+                                        ></path>
+                                    </svg>
+                                </button>
+                                <AppDropdownContent class="left-0 origin-top-left lg:hidden block">
+                                    <AppDropdownItem>
+                                        <Link href="/" >Find a home</Link>
+                                    </AppDropdownItem>
+                                    <AppDropdownItem>
+                                        <Link :href="route('about.us')" >Pricing</Link>
+                                    </AppDropdownItem>
+                                    <AppDropdownItem>
+                                        <Link :href="route('about.us')" class="hover:text-orange-400">About us</Link>
+                                    </AppDropdownItem>
+                                    <AppDropdownItem>
+                                        <Link :href="route('user.help')" class="hover:text-orange-400">FAQ</Link>
+                                    </AppDropdownItem>
+                                </AppDropdownContent>
+                            </AppDropdown>
+                                </div>
+                            
+                                <a href="/" class="ml-2 md:mr-24">
                                     <ApplicationLogo />
                                 </a>
                             </div>
-                            <div class="flex items-center">
+                            <div class="flex flex-row gap-5 items-center">
+                                <div
+                                    class="lg:flex-row flex-col z-50 bg-white gap-5 items-center hidden sm:hidden md:hidden lg:flex"
+                                >
+                                    <!-- Button for large screens -->
+                                    <Link href="/" class="hover:text-orange-400">Find a dorm</Link>
+                                    <Link :href="route('about.us')" class="hover:text-orange-400">Pricing</Link>
+                                    <Link :href="route('about.us')" class="hover:text-orange-400">About us</Link>
+                                    <Link :href="route('user.help')" class="hover:text-orange-400">FAQ</Link>
+                                </div>
+
+                                
+
                                 <div class="grid grid-cols-2 gap-2">
                                     <button
                                         @click.prevent="openLoginModal()"
@@ -477,6 +530,7 @@ export default {
                     </div>
                 </div>
             </nav>
+
 
             <!--New UI register modal-->
             <div
@@ -545,7 +599,10 @@ export default {
                                         <button
                                             class="float-right rounded-md px-4 py-2 bg-cyan-300"
                                             :disabled="isLoadingRegister"
-                                            :class="{'cursor-not-allowed': isLoadingRegister}"
+                                            :class="{
+                                                'cursor-not-allowed':
+                                                    isLoadingRegister,
+                                            }"
                                             @click="confirmSubmit()"
                                         >
                                             Submit
@@ -631,30 +688,7 @@ export default {
                                     </div>
 
                                     <div>
-                                        <InputLabel
-                                            for="middle_name"
-                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            value="Middle Name"
-                                        />
-
-                                        <TextInput
-                                            id="middle_name"
-                                            type="text"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="ex: Casimero"
-                                            v-model="form.middle_name"
-                                            autofocus
-                                            autocomplete="middle_name"
-                                        />
-
-                                        <InputError
-                                            class="mt-2"
-                                            :message="form.errors.middle_name"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                        
                                     <div>
                                         <InputLabel
                                             for="last_name"
@@ -678,32 +712,32 @@ export default {
                                             :message="errorMessages.last_name"
                                         />
                                     </div>
+                                    </div>
+                                </div>
 
                                     <div>
                                         <InputLabel
                                             for="phone_number"
                                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                                            value="Contact"
+                                            value="Phone number"
                                         />
 
-                                        <TextInput
-                                            id="phone_number"
-                                            type="text"
-                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="ex: 09112233445"
+                                        <vue-tel-input 
                                             v-model="form.phone_number"
-                                            required
-                                            autocomplete="phone_number"
-                                        />
-
+                                            autoFormat
+                                            validCharactersOnly
+                                            :maxlength = '16'
+                                        ></vue-tel-input>
+                                                                            
                                         <InputError
                                             class="mt-2"
-                                            :message="errorMessages.phone_number"
+                                            :message="
+                                                errorMessages.phone_number
+                                            "
                                         />
                                     </div>
-                                </div>
 
-                                <div class="mb-2">
+                                <div class="my-2">
                                     <InputLabel
                                         for="email-login"
                                         class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -737,7 +771,7 @@ export default {
                                             id="password-login"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                            
                                             v-model="form.password"
                                             required
                                             @input="handlePasswordChange()"
@@ -818,7 +852,7 @@ export default {
                                             id="password_confirmation"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                         
                                             v-model="form.password_confirmation"
                                             required
                                             @input="handleConfirmPasswordChange"
@@ -864,119 +898,7 @@ export default {
                                     />
                                 </div>
 
-                                <div class="mb-4">
-                                    <div class="mb-4">
-                                        <div>
-                                            <div
-                                                class="flex gap-2 items-center"
-                                            >
-                                                <InputLabel
-                                                    for="id_picture"
-                                                    class="block text-sm font-medium text-gray-900 dark:text-white"
-                                                    value="Valid ID"
-                                                />
-                                                <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    color="orange"
-                                                    viewBox="0 0 24 24"
-                                                    stroke-width="1.5"
-                                                    stroke="currentColor"
-                                                    class="w-5 h-5 cursor-pointer hover:bg-orange-400 animate-bounce"
-                                                    @click="openTutModal()"
-                                                >
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <span class="text-xs text-red-500"
-                                                >(ex: Passport, National Id, etc
-                                                For Student: School ID)</span
-                                            >
-                                        </div>
-                                    </div>
-
-                                    <input
-                                        type="file"
-                                        id="id_picture"
-                                        class="hidden"
-                                        @change="idPictureChange($event)"
-                                        accept="image/*"
-                                    />
-
-                                    <label
-                                        for="id_picture"
-                                        class="relative cursor-pointer"
-                                    >
-                                        <div
-                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                        >
-                                            <img
-                                                v-if="form.id_picture"
-                                                :src="form.id_picture"
-                                                alt="Valid ID"
-                                                class="h-48 w-auto rounded-lg"
-                                            />
-                                            <span v-else>Input</span>
-                                        </div>
-                                    </label>
-
-                                    <InputError
-                                        class="mt-2"
-                                        :message="errorMessages.id_picture"
-                                    />
-                                </div>
-                                <!--Selfie-->
-                                <div class="mb-4">
-                                    <div class="mb-4">
-                                        <InputLabel
-                                            for="selfie_id_picture"
-                                            class="block text-sm font-medium text-gray-900 dark:text-white"
-                                            value="Selfie Verificaion"
-                                        />
-                                        <span class="text-xs text-red-500"
-                                            >Confirm your identity with a photo
-                                            of yourself holding your ID</span
-                                        >
-                                    </div>
-
-                                    <input
-                                        type="file"
-                                        id="selfie_id_picture"
-                                        class="hidden"
-                                        @change="SelfieidPictureChange($event)"
-                                        accept="image/*"
-                                    />
-
-                                    <label
-                                        for="selfie_id_picture"
-                                        class="relative cursor-pointer"
-                                    >
-                                        <div
-                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                        >
-                                            <img
-                                                v-if="form.selfie_id_picture"
-                                                :src="form.selfie_id_picture"
-                                                alt="Selfie with Valid ID"
-                                                class="h-48 w-auto rounded-lg"
-                                            />
-                                            <span v-else
-                                                >Select or Drag & Drop a
-                                                file</span
-                                            >
-                                        </div>
-                                    </label>
-
-                                    <InputError
-                                        class="mt-2"
-                                        :message="errorMessages.selfie_id_picture"
-                                    />
-                                </div>
-                                <hr class="mb-4" />
+                                <hr class="mb-4 bg-gray-400" />
                                 <div class="flex justify-between mb-2">
                                     <div class="flex items-start gap-2">
                                         <Checkbox
@@ -993,14 +915,12 @@ export default {
                                                 >Terms and Condition</a
                                             >
                                         </div>
-
                                     </div>
-
                                 </div>
                                 <InputError
-                                        class="mt-2"
-                                        :message="errorMessages.terms"
-                                        />
+                                    class="mt-2"
+                                    :message="errorMessages.terms"
+                                />
                                 <button
                                     :class="{
                                         'opacity-25': form.processing,
@@ -1249,7 +1169,7 @@ export default {
                                             id="password-login"
                                             type="password"
                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
-                                            placeholder="*********"
+                                     
                                             v-model="loginForm.password"
                                             required
                                             autofocus
@@ -1320,7 +1240,7 @@ export default {
             <slot />
         </main>
         <footer
-            class="fixed bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
+            class="bottom-0 fixed w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
         >
             <div class="mx-auto p-4 md:flex md:items-center md:justify-between">
                 <span

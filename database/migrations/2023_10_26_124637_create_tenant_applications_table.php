@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table users');
             $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
             $table->bigInteger('room_id')->unsigned()->comment('Foreign key from table rooms');
+            $table->bigInteger('profile_id');
             $table->string('status');
             $table->date('move_in')->nullable();
             $table->boolean('is_approved')->default(false);

@@ -9,82 +9,129 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import ExcelJS from "exceljs";
-
+import DataTable from "primevue/datatable";
+import Button from "primevue/button";
+import Tag from "primevue/tag";
+import Column from "primevue/column";
+import ColumnGroup from "primevue/columngroup"; // optional
+import Row from "primevue/row";
+import { FilterMatchMode, FilterOperator } from "primevue/api";
+import Image from "primevue/image";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         AuthenticatedLayout,
         VueGoodTable,
+        DataTable,
+        Column,
+        ColumnGroup,
+        Row,
+        Button,
+        Tag,
+        Image,
+        Toast,
+        ConfirmDialog
     },
     setup() {
-        const isMobileView = ref(false);
         const page = usePage();
         const rows = ref([]);
-     
-
-        const columns = ref([
-            {
-                label: "Dorm Owner",
-                field: "dorm_owner",
-            },
-            {
-                label: "Contact Number",
-                field: "contact_number",
-            },
-            {
-                label: "Dorm Name",
-                field: "property_name",
-            },
-            {
-                label: "Dorm Address",
-                field: "detailed_address",
-            },
-            {
-                label: "Storey Total",
-                field: "floors_total",
-            },
-
-            {
-                label: "Room Total",
-                field: "rooms_total",
-            },
-            {
-                label: "Status",
-                field: "status",
-            },
-            {
-                label: "Actions",
-                field: "action",
-            },
-        ]);
+        const statuses = ref(["approved", "decline", "pending"]);
+        const filters = ref();
+        const confirm = useConfirm();
+        const toast = useToast();
+        const reason = ref('');
 
         onMounted(() => {
             rows.value = page.props.dorms;
         });
 
+        const getSeverity = (status) => {
+            switch (status) {
+                case "decline":
+                    return "danger";
 
+                case "approved":
+                    return "success";
 
-        const changeStatus = (status, id) => {
-            var s = status == "declined" ? "decline" : "approved";
+                case "pending":
+                    return "warning";
+            }
+        };
 
-            swal(
-                {
-                    title: `Are you sure to ${s} this dorm?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
+        const initFilters = () => {
+            filters.value = {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                property_name: {
+                    operator: FilterOperator.AND,
+                    constraints: [
+                        { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                    ],
                 },
-                function () {
-                    axios
-                        .post(route("dorm.change.status", status), { id: id })
-                        .then((response) => {
-                            swal(
-                                "Success!",
-                                `You successfully ${status} this dorm.`,
-                                "success"
-                            );
+                dorm_owner: {
+                    operator: FilterOperator.AND,
+                    constraints: [
+                        { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                    ],
+                },
+                detailed_address: {
+                    operator: FilterOperator.AND,
+                    constraints: [
+                        { value: null, matchMode: FilterMatchMode.STARTS_WITH },
+                    ],
+                },
+                created_at: {
+                    operator: FilterOperator.AND,
+                    constraints: [
+                        { value: null, matchMode: FilterMatchMode.DATE_IS },
+                    ],
+                },
+                status: {
+                    operator: FilterOperator.OR,
+                    constraints: [
+                        { value: null, matchMode: FilterMatchMode.EQUALS },
+                    ],
+                },
+            };
+        };
 
+        initFilters();
+
+        const formatDate = (value) => {
+            // Check if value is a string and convert it to a Date object
+            const date = typeof value === "string" ? new Date(value) : value;
+
+            // Check if date is a valid Date object
+            if (isNaN(date.getTime())) {
+                // If not a valid Date, you can handle it according to your requirements
+                return "Invalid Date"; // or return value.toString() or any other representation
+            }
+
+            // If it's a valid Date object, format it
+            return date.toLocaleDateString("en-US", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+            });
+        };
+
+        const clearFilter = () => {
+            initFilters();
+        };
+
+
+        const decline = ( id, reason) => {
+            confirm.require({
+                message: 'Are you sure you want to decline this dorm?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios
+                        .post(route("dorm.changestatus.decline",  { reason: reason }), { id: id })
+                        .then((response) => {
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully decline the dorm', life: 3000 });
                             setTimeout(function () {
                                 location.reload();
                             }, 1500);
@@ -92,56 +139,48 @@ export default {
                         .catch((error) => {
                             errors.value = error.response.data.errors;
                         });
+                    
+                },
+                reject: () => {
+                    
                 }
-            );
-        };
-        //pagination
-        const currentPage = ref(1); // Initialize to the first page
-        const itemsPerPage = 10;
-        const totalPages = computed(() => Math.ceil(rows.value.length / itemsPerPage));
-    
-        const slicedRows = computed(() => {
-        const startIndex = (currentPage.value - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return filteredRows.value.slice(startIndex, endIndex);
-        });
-
-        const changePage = (pageChange) => {
-            const newPage = currentPage.value + pageChange;
-            if (newPage >= 1 && newPage <= totalPages.value) {
-                currentPage.value = newPage;
-            }
+            });
         };
 
-        //search function
-        const searchQuery = ref('');
-        const filteredRows = computed(() => {
-        const query = searchQuery.value.toLowerCase().trim();
-        if (!query) {
-            return rows.value; // Return all rows if the search query is empty.
-        }
+        const approved = (id) => {
+            confirm.require({
+                message: 'Are you sure you want to approve this dorm?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios
+                        .post(route('dorm.changestatus.approve'), { id: id })
+                        .then((response) => {
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully approve the dorm', life: 3000 });
+                            setTimeout(function () {
+                                location.reload();
+                            }, 1500);
+                        })
+                        .catch((error) => {
+                            errors.value = error.response.data.errors;
+                        });
+                    
+                },
+                reject: () => {
+                }
+            });
+        };
 
-        return rows.value.filter(row => {
-            // Modify the conditions as needed for your specific search criteria.
-            return (
-            row.user.first_name.toLowerCase().includes(query) ||
-            row.user.last_name.toLowerCase().includes(query) ||
-            row.user.phone_number.toLowerCase().includes(query)||
-            row.status.toLowerCase().includes(query)||
-            row.floors_total.toLowerCase().includes(query)||
-            row.property_name.toLowerCase().includes(query)
-            // Add more conditions for other columns as needed
-            );
-        });
-        }); 
         const business_permit = ref(null);
         const dorm = ref(null);
+        const statuss = ref(null);
+        const reasons = ref(null)
         const openTermsModal = (arg) => {
             business_permit.value = arg.business_permit_image;
             dorm.value = arg;
-
             var modal = document.getElementById("defaultModal");
-
+            statuss.value = arg.status
+            reasons.value = arg.reason
             modal.style.display = "block";
         };
 
@@ -151,24 +190,62 @@ export default {
             modal.style.display = "none";
         };
 
-       
 
+        const openImageModal = (src) => {
+            var modalImg = document.getElementById('modal-img');
+            var modal = document.getElementById("modal");
+            modalImg.src = src;
+
+            modal.style.display = "block";
+        };
+
+        const closeImageModal = () => {
+            var modal = document.getElementById("modal");
+
+            modal.style.display = "none";
+        };
+        const closeReasonModal = () => {
+            var modal = document.getElementById("reasonModal");
+
+            modal.style.display = "none";
+        }
+
+        const openReasonModal = (arg) => {
+            dorm.value = arg
+            var modal = document.getElementById("reasonModal");
+
+            modal.style.display = "block";
+        }
+
+        console.log(rows.dorm_owner);
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
         return {
-            isMobileView,
-            columns,
+            filters,
+            clearFilter,
+            getSeverity,
+            formatDate,
+            moneyFormat,
+            statuses,
+            statuss,
             rows,
             business_permit,
+            openImageModal,
+            closeImageModal,
             dorm,
-            filteredRows,
-            searchQuery,
-            currentPage,
-            itemsPerPage,
-            itemsPerPage,
-            changePage,
-            slicedRows,
-            changeStatus,
+            reasons,
+            reason,
             openTermsModal,
             closeTermsModal,
+            openReasonModal,
+            closeReasonModal,
+            decline,
+            approved
         };
     },
 };
@@ -181,15 +258,15 @@ export default {
                 <span
                     class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
                 >
-                        <svg
-                            class="w-10 h-10 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            viewBox="0 0 384 512"
-                            fill="currentColor"
-                        >
-                            <path
-                                d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"
-                            />
-                        </svg>
+                    <svg
+                        class="w-10 h-10 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        viewBox="0 0 384 512"
+                        fill="currentColor"
+                    >
+                        <path
+                            d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"
+                        />
+                    </svg>
                 </span>
                 <h3 class="text-3xl">Dorm Verification</h3>
             </div>
@@ -244,208 +321,399 @@ export default {
                     </div>
                 </div>
             </div>
-            <div class="w-full mb-5 mt-5">
-                <div
-                    class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
+
+            <div class="card">
+                <DataTable
+                    v-model:filters="filters"
+                    :value="rows"
+                    tableStyle="min-width: 50rem"
+                    :rowsPerPageOptions="[5, 10, 20, 50]"
+                    class="border"
+                    paginator
+                    :rows="10"
+                    :globalFilterFields="[
+                        'dorm_owner',
+                        'dorm_name',
+                        'detailed_address',
+                        'created_at',
+                        'status',
+                    ]"
                 >
-                    <div class="rounded-t mb-0 px-4 py-3 border-0">
-                        <div class="flex flex-wrap items-center">
-                            <div
-                                    class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
-                                >
-                                <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    
-                                    <div class="flex flex-row gap-2">
-                                    <button class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white">
-                                        Csv
-                                    </button>
-                                    
-                                    </div>
-                                </div>
-                                    <form class="flex items-center">
-                                        
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                v-model="searchQuery"
-                                            />
-                                        </div>
-                                    </form>
-                                </div>
+                    <template #header>
+                        <div class="flex items-center justify-between">
+                            <Button
+                                type="button"
+                                class="rounded-lg border-green-400 border px-3 py-2.5"
+                                icon="fa-solid fa-filter-circle-xmark"
+                                label="Clear"
+                                outlined
+                                @click="clearFilter()"
+                            />
+                            <span class="p-input-icon-left">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input
+                                    v-model="filters['global'].value"
+                                    placeholder="Keyword Search"
+                                    class="pl-10 rounded-lg"
+                                />
+                            </span>
                         </div>
-                    </div>
-                    <div class="block w-full overflow-x-auto">
-                        <table
-                            class="items-center w-full bg-transparent border-collapse"
-                        >
-                            <thead>
-                                <tr>
-                                    <th
-                                        class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                        v-for="column in columns"
-                                        :key="column.field"
-                                    >
-                                        {{ column.label }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    v-for="(row, rowIndex) in slicedRows"
-                                    :key="rowIndex"
+                    </template>
+                    <template #empty> No dormitory found. </template>
+                    <Column
+                        field="dorm_name"
+                        header="Dorm Name"
+                        sortable
+                        style="min-width: 14rem"
+                        class="border-b"
+                    >
+                        <template #body="{ data }">
+                            {{ data.property_name }}
+                        </template>
+                    </Column>
+                    <Column
+                        field="dorm_owner"
+                        header="Dorm Owner"
+                        sortable
+                        style="min-width: 14rem"
+                        class="border-b"
+                    >
+                        <template #body="{ data }">
+                            <p>
+                                {{ data.user.first_name }}
+                                {{ data.user.last_name }}
+                            </p>
+                        </template>
+                    </Column>
+                    <Column
+                        field="detailed_address"
+                        header="Address"
+                        sortable
+                        style="min-width: 14rem"
+                        class="border-b"
+                    >
+                        <template #body="{ data }">
+                            {{ data.detailed_address }}
+                        </template>
+                    </Column>
+                    <Column
+                        field="created_at"
+                        header="Register Date"
+                        sortable
+                        dataType="date"
+                        style="min-width: 10rem"
+                        class="border-b"
+                    >
+                        <template #body="{ data }">
+                            {{ formatDate(data.created_at) }}
+                        </template>
+                    </Column>
+                    <Column
+                        header="Status"
+                        field="status"
+                        sortable
+                        style="min-width: 12rem"
+                        class="border-b"
+                    >
+                        <template #body="{ data }">
+                            <Tag
+                                :value="data.status"
+                                :severity="getSeverity(data.status)"
+                            />
+                        </template>
+                    </Column>
+                    <Column
+                        header="Action"
+                        style="min-width: 5rem"
+                        class="border-b"
+                    >
+                        <template #body="{ data }">
+                            <button
+                                class="hover:text-orange-400"
+                                :class="{
+                                    'cursor-not-allowed':
+                                        data.status == 'approved',
+                                    'cursor-pointer':
+                                        data.status == 'pending' &&
+                                        data.status == 'decline',
+                                }"
+                                :disabled="data.status == 'approved'"
+                                @click="openTermsModal(data)"
+                            >
+                                <!-- Use v-if to conditionally render the appropriate icon -->
+                                <i
+                                    v-if="
+                                        data.status == 'pending' ||
+                                        data.status == 'decline' ||
+                                        data.status == null
+                                    "
+                                    class="fa-solid fa-eye"
+                                ></i>
+                                <i v-else class="fa-solid fa-eye-slash"></i>
+                            </button>
+                        </template>
+                    </Column>
+                </DataTable>
+            </div>
+            <div
+                id="defaultModal"
+                tabindex="-1"
+                aria-hidden="true"
+                style="background-color: rgba(0, 0, 0, 0.7)"
+                class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="h-screen flex justify-center items-center">
+                    <div class="relative w-full max-w-2xl max-h-full">
+                        <!-- Modal content -->
+                        <div class="relative bg-white rounded-lg shadow">
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                            >
+                                <h3 class="text-xl font-semibold text-black">
+                                    {{  dorm && dorm.property_name }}
+                                </h3>
+                                <button
+                                    type="button"
+                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    @click="closeTermsModal()"
                                 >
-                                    <td
-                                        class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                        v-for="(value, colIndex) in columns"
-                                        :key="colIndex"
+                                    <svg
+                                        class="w-3 h-3"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                    >
+                                        <path
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                        />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                                
+                            </div>
+                            <div class="w-full bg-red-400 p-3 text-white flex items-center justify-center" v-if="statuss=='decline'">
+                                        You declined this Dorm. Reason: {{ reasons }}
+                                    </div>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-6">
+                                <div v-if="dorm">
+                                    <div
+                                        class="grid grid-rows md:grid-cols-2 gap-4"
                                     >
                                         <div>
-                                            <div
-                                                v-if="
-                                                    value.field === 'dorm_owner'
-                                                "
-                                            >
-                                                {{ row.user.first_name }}
-                                                {{ row.user.last_name }}
-                                            </div>
-
-                                            <div
-                                                v-if="
-                                                    value.field ===
-                                                    'contact_number'
-                                                "
-                                            >
-                                                {{ row.user.phone_number }}
-                                            </div>
-                                            <div
-                                                v-if="value.field === 'status'"
-                                                class="mt-2"
-                                            >
-                                                <button
-                                                    class="bg-orange-500 p-1 mx-1 text-white rounded-sm text-xs"
-                                                    v-if="
-                                                        row.status === 'pending'
-                                                    "
-                                                    :disabled="true"
-                                                >
-                                                    Pending
-                                                </button>
-
-                                                <button
-                                                    class="bg-rose-500 p-1 mx-1 text-white rounded-md text-xs"
-                                                    v-if="
-                                                        row.status ===
-                                                        'declined'
-                                                    "
-                                                    :disabled="true"
-                                                >
-                                                    DECLINED
-                                                </button>
-
-                                                <button
-                                                    class="bg-cyan-900 p-1 text-white rounded-md text-xs"
-                                                    v-if="
-                                                        row.status ===
-                                                        'approved'
-                                                    "
-                                                    :disabled="true"
-                                                >
-                                                    {{ row.status }}
-                                                </button>
-                                            </div>
-
-                                            <div
-                                                v-if="value.field === 'action'"
-                                            >
-                                                <button
-                                                    class="bg-orange-500 p-3 mx-1 text-white rounded-md text-xs"
-                                                    @click="openTermsModal(row)"
-                                                >
-                                                    View
-                                                </button>
-                                            </div>
-                                            <div v-else>
-                                                {{ row[value.field] }}
+                                            <div class="block">
+                                                <div>
+                                                    <p
+                                                        class="font-bold text-lg text-gray-900"
+                                                    >
+                                                        Dorm Image
+                                                    </p>
+                                                    <img
+                                                        :src="dorm.dorm_image"
+                                                        alt="Image"
+                                                        class="w-[400px] h-[200px] rounded-lg cursor-pointer hover:brightness-75"
+                                                        @click="openImageModal(dorm.dorm_image)"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div
-                            class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                        >
-                        <div class="block w-full overflow-x-auto">
-                                <div class="justify-between items-center block md:flex">
-                                    <div class="flex items-center justify-start flex-wrap mb-3">
-                                    <button                                        
-                                        @click="changePage(-1)"
-                                        :disabled="currentPage == 1"
-                                        :class="{
-                                            'hidden': currentPage == 1,
-                                        }"
-                                        type="button"
-                                        class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                                        <div>
+                                            <div>
+                                                <p
+                                                    class="font-bold text-lg text-gray-900"
+                                                >
+                                                    Business Permit
+                                                </p>
 
-                                    >
-                                        Previous
-                                    </button>
-                                    <button
-                                        @click="changePage(1)"
-                                        :disabled="currentPage === totalPages"
-                                        type="button"
-                                        class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-
-                                    >
-                                        Next
-                                    </button>
+                                                <div
+                                                    class="w-full"
+                                                    v-if="business_permit"
+                                                >
+                                                    <img
+                                                        :src="
+                                                            dorm.business_permit_image
+                                                        "
+                                                        alt="Image"
+                                                        class="w-[400px] h-[200px] cursor-pointer hover:brightness-75 rounded"
+                                                        @click="openImageModal(dorm.business_permit_image)"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="flex items-center justify-center">
-                                    <small>Page {{ currentPage }}</small>
+                                    <hr class="my-3" />
+                                    <div class="block text-neutral-600">
+                                        <div>
+                                            <p
+                                                class="font-bold text-lg text-gray-900"
+                                            >
+                                                Common Areas
+                                            </p>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <div
+                                                    class="w-full"
+                                                    v-for="(
+                                                        commonArea, index
+                                                    ) in dorm.common_areas"
+                                                    :key="index"
+                                                >
+                                                    <p
+                                                        class="text-sm font-semibold"
+                                                    >
+                                                        {{ commonArea.name }}
+                                                    </p>
+                                                    <img
+                                                        :src="commonArea.image"
+                                                        alt="Image"
+                                                        class="text-white w-[500px] h-[150px] cursor-pointer hover:brightness-75 rounded"
+                                                        @click="openImageModal(commonArea.image)"
+                                                    />
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p
+                                                class="font-bold text-lg text-gray-900"
+                                            >
+                                                Rooms
+                                            </p>
+                                            <div class="grid grid-cols-3 gap-2">
+                                                <div
+                                                    v-for="(
+                                                        room, index
+                                                    ) in dorm.rooms"
+                                                    :key="index"
+                                                >
+                                                    <p
+                                                        class="text-sm font-semibold"
+                                                    >
+                                                        {{ room.name }}
+                                                    </p>
+                                                    <img
+                                                        :src="room.image"
+                                                        alt="Image"
+                                                        class="text-white w-[500px] h-[150px] cursor-pointer hover:brightness-75 rounded"
+                                                        @click="openImageModal(room.image)"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr class="my-3" />
+                                    <div class="text-neutral-600 grid grid-rows md:grid-cols-2 gap-3">
+                                        <div>
+                                        <p class="text-lg font-bold text-black">Dorm Details</p>
+                                        <div className="font-light text-neutral-600">
+                                            {{ moneyFormat(dorm.range_from) }} -
+                                            {{ moneyFormat(dorm.range_to) }} a
+                                            months
+                                        </div>
+                                        <span
+                                            class="flex flex-row gap-1 items-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-location-dot"
+                                            ></i>
+                                            <p>
+                                                {{ dorm.detailed_address }}
+                                            </p>
+                                        </span>
+                                        <span
+                                            class="flex flex-row gap-1 items-center"
+                                        >
+                                            <i
+                                                class="fa-solid fa-door-open"
+                                            ></i>
+                                            <p>
+                                                Total no. of rooms
+                                                {{ dorm.rooms_total }}
+                                            </p>
+                                        </span>
+                                        <span
+                                            class="flex flex-row gap-1 items-center"
+                                        >
+                                            <i class="fa-solid fa-building"></i>
+                                            <p>
+                                                Total no. of floors
+                                                {{ dorm.floors_total }}
+                                            </p>
+                                        </span>
+                                        <span
+                                            class="flex flex-row gap-1 items-center"
+                                        >
+                                            <i class="fa-solid fa-landmark"></i>
+                                            <p>
+                                                Near
+                                                {{ dorm.landmark }}
+                                            </p>
+                                        </span>
+                                        </div>
+                                        <hr class="block md:hidden"/>
+                                        <div class="">
+                                            <div>
+                                                <p>Amenities</p>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <p v-for="(amenity, index) in dorm.amenities" :key="index" class="bg-orange-400 text-center text-white px-2 py-1 rounded-full">
+                                                    {{ amenity.amenity }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-5">
+                                                <p>Services</p>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <p v-for="(name, index) in dorm.services" :key="index" class="bg-orange-400 text-center text-white px-2 py-1 rounded-full">
+                                                    {{ name.service }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                        </div>
                                     </div>
                                 </div>
-                           
+                            </div>
+
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                                v-if="dorm"
+                            >
+                                <button
+                                        v-if="dorm.status == 'pending'"
+                                        @click="openReasonModal(dorm), closeTermsModal()"
+                                        type="button"
+                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                    >
+                                        Decline
+                                </button>
+                                <button
+                                    @click="approved(dorm.id)"
+                                    v-if="dorm.status == 'pending'"
+                                    type="button"
+                                    class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                >
+                                    Approve
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div
-                    id="defaultModal"
+                    id="reasonModal"
                     tabindex="-1"
                     aria-hidden="true"
                     style="background-color: rgba(0, 0, 0, 0.7)"
                     class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
                 >
                     <div class="h-screen flex justify-center items-center">
-                        <div class="relative w-full max-w-2xl max-h-full">
+                        <div class="relative w-full max-w-sm max-h-full">
                             <!-- Modal content -->
                             <div class="relative bg-white rounded-lg shadow">
                                 <!-- Modal header -->
@@ -455,12 +723,12 @@ export default {
                                     <h3
                                         class="text-xl font-semibold text-black"
                                     >
-                                        Business Permit
+                                        Add reason
                                     </h3>
                                     <button
                                         type="button"
                                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-                                        @click="closeTermsModal()"
+                                        @click="closeReasonModal()"
                                     >
                                         <svg
                                             class="w-3 h-3"
@@ -482,95 +750,46 @@ export default {
                                 </div>
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6">
-                                    <div class="w-full mt-5" v-if="business_permit">
-                                        <img
-                                            :src="business_permit"
-                                            alt="business_permit"
-                                            style="width: 100%; height: 250px"
-                                        />
-                                    </div>
+                                    <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your Reason:</label>
+                                    <textarea v-model="reason" id="message" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 " placeholder="Write your reason here..."></textarea>
                                 </div>
                                 <!-- Modal footer -->
                                 <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                     v-if="dorm"
                                 >
+                                    <Toast />
+                                    <ConfirmDialog></ConfirmDialog>
                                     <button
-                                        @click="changeStatus('approved', dorm.id)"
                                         v-if="dorm.status == 'pending'"
+                                        @click="closeReasonModal()"
+                                        type="button"
+                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        @click="decline(dorm.id, reason)"
                                         type="button"
                                         class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
-                                        Approve
-                                    </button>
-                                    <button
-                                        @click="changeStatus('declined', dorm.id)"
-                                        type="button"
-                                        v-if="dorm.status == 'pending'"
-                                        class=" bg-red-500 text-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                                    >
-                                        Decline
+                                        Submit
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            <div class="w-full">
-                <div id="bpModal" class="bpModal hidden mt-20 md:mt-0">
-                    <div
-                        class="bp-modal-content flex flex-col"
-                        :style="{ width: isMobileView ? '97%' : '30%' }"
-                    >
-                        <div class="w-full">
-                            <span class="text-lg font-bold"> </span>
-                            <span
-                                class="float-right cursor-pointer"
-                                @click="closeModal()"
-                            >
-                                <i class="fa-solid fa-xmark"></i>
-                            </span>
-                        </div>
+            <div id="modal"
+                    class="z-50 fixed top-0 left-0 right-0 w-full h-screen bg-black/70 flex justify-center items-center hidden">
 
-                        <div class="w-full mt-5" v-if="business_permit">
-                            <img
-                                :src="business_permit"
-                                alt="business_permit"
-                                style="width: 100%; height: 250px"
-                            />
-                        </div>
+                    <!-- The close button -->
+                    <a class="fixed z-90 top-6 right-8 text-white text-5xl font-bold" href="javascript:void(0)"
+                        @click="closeImageModal()">&times;</a>
 
-                        <div
-                            class="w-full mt-5"
-                            v-if="dorm && dorm.status == 'pending'"
-                        >
-                            <img
-                                :src="dorm.user.id_picture"
-                                alt="business_permit"
-                                style="width: 100%; height: 250px"
-                            />
-                        </div>
-
-                        <div class="w-full mt-5" v-if="dorm">
-                            <button
-                                class="bg-cyan-900 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="dorm.status == 'pending'"
-                                @click="changeStatus('approved', dorm.id)"
-                            >
-                                Approve
-                            </button>
-
-                            <button
-                                class="bg-rose-500 p-3 mx-1 text-white rounded-md text-xs float-right"
-                                v-if="dorm.status == 'pending'"
-                                @click="changeStatus('declined', dorm.id)"
-                            >
-                                Decline
-                            </button>
-                        </div>
-                    </div>
+                    <!-- A big image will be displayed here -->
+                    <Image id="modal-img" width="800" class="h-full flex items-center justify-center" />
                 </div>
-            </div>
         </div>
     </AuthenticatedLayout>
 </template>

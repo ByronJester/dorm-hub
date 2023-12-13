@@ -1,20 +1,26 @@
 <script>
-import { usePage, router } from "@inertiajs/vue3";
+import { usePage, router, Link } from "@inertiajs/vue3";
 import { ref } from "vue";
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
-
+import Image from "primevue/image";
+import Sidebar from 'primevue/sidebar';
+import Button from 'primevue/button'
 export default {
     components: {
         AppDropdown,
         AppDropdownContent,
         AppDropdownItem,
         ApplicationLogo,
+        Image,
+        Link,
+        Sidebar,
+        Button
     },
     setup() {
-        const showSidebar = ref(false);
+        const showSidebar = ref(true);
         const isDropDownOpen = ref(false);
 
         const toggleDropDown = () => {
@@ -31,61 +37,6 @@ export default {
 
         var routes = [];
 
-        if (user.user_type == "owner") {
-            routes = [
-                {
-                    route: "owner.dashboard",
-                },
-                {
-                    route: "owner.dorms",
-                },
-                {
-                    route: "owner.manage.tenants",
-                },
-                {
-                    route: "owner.manage.application",
-                },
-                {
-                    route: "#",
-                },
-                {
-                    route: "#",
-                },
-            ];
-        }
-        if (user.user_type == "admin") {
-            routes = [
-                {
-                    route: "#",
-                    label: "Dashboard",
-                    icon: "fa-solid fa-chart-line",
-                },
-                {
-                    route: "admin.dorms",
-                    label: "Dorm Verificartion",
-                    icon: "fa-solid fa-chart-simple",
-                },
-                {
-                    route: "admin.tenants",
-                    label: "User Verification",
-                    icon: "fa-solid fa-building",
-                },
-                {
-                    route: "#",
-                    label: "Reports",
-                    icon: "fa-solid fa-users",
-                },
-                {
-                    route: "#",
-                    label: "Utilities",
-                    icon: "fa-solid fa-comments-dollar",
-                },
-            ];
-        }
-
-        const redirectPage = (r) => {
-            router.get(route(r));
-        };
         const notifications = page.props.notifications;
 
         const openModal = () => {
@@ -124,7 +75,6 @@ export default {
             isDropDownOpen,
             routes,
             notifications,
-            redirectPage,
             toggleDropDown,
             openModal,
             closeModal,
@@ -138,120 +88,35 @@ export default {
 </script>
 
 <template>
-    <div v-if="redirectToHome">Not allowed</div>
-    <div v-else>
+    <div>
         <nav
-            class="fixed top-0 z-50 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
+            class="fixed top-0 z-40 w-full bg-white shadow-md "
         >
-            <div class="px-3 py-3 lg:px-5 lg:pl-3">
-                <div class="flex items-center justify-between">
+            <div class="px-3 py-5 lg:px-5 lg:pl-3">
+                <div class="flex items-center justify-between mx-10">
                     <div class="flex items-center justify-start">
                         <button
                             @click="clickShowSideBar()"
-                            class="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                            class="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 "
                         >
                             <span class="sr-only">Open sidebar</span>
-                            <svg
-                                class="w-6 h-6"
-                                aria-hidden="true"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    clip-rule="evenodd"
-                                    fill-rule="evenodd"
-                                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-                                ></path>
-                            </svg>
+                            <i class="fa-solid fa-bars fa-xl"></i>
                         </button>
-                        <a href="/" class="ml-2 md:mr-24">
+                        <Link href="/" class="ml-2 md:mr-24">
                             <ApplicationLogo />
-                        </a>
+                        </Link>
                     </div>
-                    <div class="flex items-center">
-                        <div class="flex items-center ml-1">
-                            <AppDropdown>
-                                <button
-                                    type="button"
-                                    class="flex text-sm text-black dark:text-white hover:text-gray-400"
-                                    aria-expanded="false"
-                                >
-                                    {{ $page.props.auth.user.first_name }}
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24"
-                                        class="ml-1 h-5 w-5 fill-current"
-                                    >
-                                        <path
-                                            d="M15.3 9.3a1 1 0 0 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 1.4-1.4l3.3 3.29 3.3-3.3z"
-                                        ></path>
-                                    </svg>
-                                </button>
-
-                                <AppDropdownContent class="">
-                                    <AppDropdownItem
-                                        :href="route('profile.edit')"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                    >
-                                        Profile
-                                    </AppDropdownItem>
-                                    <AppDropdownItem
-                                        :href="route('view.user.messages')"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                    >
-                                        Message
-                                    </AppDropdownItem>
-                                    <AppDropdownItem
-                                        v-if="user.user_type == 'owner'"
-                                        :href="
-                                            route('profile.payment-settings')
-                                        "
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                        role="menuitem"
-                                    >
-                                        Payment Setting
-                                    </AppDropdownItem>
-
-                                    <AppDropdownItem
-                                        v-if="user.user_type == 'tenant'"
-                                        @click=""
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                        role="menuitem"
-                                    >
-                                        Payments
-                                    </AppDropdownItem>
-                                    <hr />
-                                    <AppDropdownItem
-                                        @click="logOut()"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-orange-400 hover:text-white dark:text-black dark:hover:bg-orange-400 dark:hover:text-white"
-                                        role="menuitem"
-                                    >
-                                        Logout
-                                    </AppDropdownItem>
-                                </AppDropdownContent>
-                            </AppDropdown>
-                        </div>
-
+                    <div class="flex flex-row gap-6 items-center text-gray-700">
+                        <a :href="route('view.user.messages')" class="inline-flex p-3 items-center text-sm cursor-pointer rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 ">
+                            <i class="fa-regular fa-comments fa-lg"></i>
+                        </a>
+                        
                         <AppDropdown >
                             <button>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-6 h-6 dark:text-white"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-                                    />
-                                </svg>
+                                <i class="fa-regular fa-bell fa-lg"></i>
                                 <span
-                                    class="absolute right-4 cursor-pointer text-white font-bold"
-                                    style="font-size: 8px"
+                                    class="absolute right-2 top-2 cursor-pointer text-xs bg-red-400 rounded-full py-1 px-2 text-white font-bold"
+                                    
                                     v-if="
                                         notifications.filter((x) => {
                                             return !x.is_read;
@@ -325,25 +190,48 @@ export default {
                             </AppDropdownContent>
                         </AppDropdown>
                     </div>
+                    
                 </div>
             </div>
         </nav>
-
         <div
             id="sidebarModal"
             :class="{
                 'translate-x-0': showSidebar,
                 '-translate-x-full': !showSidebar,
             }"
-            class="fixed top-0 left-0 z-40 w-64 shadow-lg h-screen pt-20 transition-transform bg-white -translate-x-full dark:bg-gray-800 lg:-translate-x-0 dark:border-gray-700"
+            class="fixed top-0 left-0 z-30 w-64 shadow-lg h-screen overflow-y-scroll pt-16 transition-transform bg-white -translate-x-full lg:-translate-x-0 "
         >
-            <div class="h-full overflow-y-auto bg-white dark:bg-gray-800">
+        <div class="p-3 w-full flex flex-col items-center justify-center">
+            <div class="w-full"> 
+                <Link @click="logOut()"  class="cursor-pointer float-right hover:text-gray-400 ">
+                        <i v-tooltip.bottom="'Logout'" class="fa-solid fa-right-from-bracket"></i>
+                </Link>
+            </div>
+            <img
+                :src="user.image ?? 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
+                alt="Profile picture"
+                class="rounded-full block md:h-28 w-28 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 "
+            />
+            <p class="mt-2 text-gray-700 font-bold text-lg">
+                {{  user.first_name }}
+            </p>
+            <p class="mt-1 text-gray-400">
+                {{  user.user_type }}
+            </p>
+            <Link :href="route('profile.edit')" class="py-2 px-3 mt-3 bg-orange-400 text-white rounded-lg">
+                Manage Profile
+            </Link>
+            
+        </div>
+        <hr class="mt-3 mx-5"/>
+            <div class="h-full overflow-y-auto p-5 bg-white">
                 <ul
                     class="space-y-5 font-medium"
                     v-if="user.user_type == 'admin'"
                 >
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'admin.dashboard',
@@ -355,27 +243,14 @@ export default {
                                     route().current() == 'admin.dashboard',
                             }"
                             :href="route('admin.dashboard')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 22 21"
-                            >
-                                <path
-                                    d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"
-                                />
-                                <path
-                                    d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-house"></i>
                             <span class="ml-1">Dashboard</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'admin.dorms',
@@ -387,22 +262,14 @@ export default {
                                     route().current() == 'admin.dorms',
                             }"
                             :href="route('admin.dorms')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                viewBox="0 0 384 512"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M48 0C21.5 0 0 21.5 0 48V464c0 26.5 21.5 48 48 48h96V432c0-26.5 21.5-48 48-48s48 21.5 48 48v80h96c26.5 0 48-21.5 48-48V48c0-26.5-21.5-48-48-48H48zM64 240c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V240zm112-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V240c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V240zM80 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16zm80 16c0-8.8 7.2-16 16-16h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H176c-8.8 0-16-7.2-16-16V112zM272 96h32c8.8 0 16 7.2 16 16v32c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-building fa-md"></i>
                             <span class="ml-1">Dorm Verification</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'admin.tenants',
@@ -414,23 +281,15 @@ export default {
                                     route().current() == 'admin.tenants',
                             }"
                             :href="route('admin.tenants')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                viewBox="0 0 384 512"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M335.5 4l288 160c15.4 8.6 21 28.1 12.4 43.5s-28.1 21-43.5 12.4L320 68.6 47.5 220c-15.4 8.6-34.9 3-43.5-12.4s-3-34.9 12.4-43.5L304.5 4c9.7-5.4 21.4-5.4 31.1 0zM320 160a40 40 0 1 1 0 80 40 40 0 1 1 0-80zM144 256a40 40 0 1 1 0 80 40 40 0 1 1 0-80zm312 40a40 40 0 1 1 80 0 40 40 0 1 1 -80 0zM226.9 491.4L200 441.5V480c0 17.7-14.3 32-32 32H120c-17.7 0-32-14.3-32-32V441.5L61.1 491.4c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l37.9-70.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c16.3 0 31.9 4.5 45.4 12.6l33.6-62.3c15.3-28.5 45.1-46.3 77.5-46.3h19.5c32.4 0 62.1 17.8 77.5 46.3l33.6 62.3c13.5-8.1 29.1-12.6 45.4-12.6h19.5c32.4 0 62.1 17.8 77.5 46.3l37.9 70.3c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8L552 441.5V480c0 17.7-14.3 32-32 32H472c-17.7 0-32-14.3-32-32V441.5l-26.9 49.9c-6.3 11.7-20.8 16-32.5 9.8s-16-20.8-9.8-32.5l36.3-67.5c-1.7-1.7-3.2-3.6-4.3-5.8L376 345.5V400c0 17.7-14.3 32-32 32H296c-17.7 0-32-14.3-32-32V345.5l-26.9 49.9c-1.2 2.2-2.6 4.1-4.3 5.8l36.3 67.5c6.3 11.7 1.9 26.2-9.8 32.5s-26.2 1.9-32.5-9.8z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-user fa-md"></i>
                             <span class="ml-1">User Verification</span>
-                        </a>
+                        </Link>
                     </li>
 
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'admin.reports',
@@ -442,47 +301,15 @@ export default {
                                     route().current() == 'admin.reports',
                             }"
                             :href="route('admin.reports')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                viewBox="0 0 384 512"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V288H216c-13.3 0-24 10.7-24 24s10.7 24 24 24H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM384 336V288H494.1l-39-39c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l80 80c9.4 9.4 9.4 24.6 0 33.9l-80 80c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l39-39H384zm0-208H256V0L384 128z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-file-export"></i>
                             <span class="ml-1">Report</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a
-                            :class="{
-                                'text-white':
-                                    route().current() == 'admin.refund',
-                                'bg-gradient-to-r':
-                                    route().current() == 'admin.refund',
-                                'from-orange-400':
-                                    route().current() == 'admin.refund',
-                                'to-red-600':
-                                    route().current() == 'admin.refund',
-                            }"
-                            :href="route('admin.refund')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
-                        >
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" height="20" width="40" version="1.1" id="Capa_1" viewBox="0 0 492.153 492.153" xml:space="preserve">
-                                        <g>
-                                            <path d="M426.638,87.91c-42.247-42.247-98.418-65.514-158.166-65.514c-5.799,0-10.5,4.701-10.5,10.5v56.531   c0,5.799,4.701,10.5,10.5,10.5c80.587,0,146.148,65.561,146.148,146.147c0,80.587-65.561,146.148-146.148,146.148   c-73.915,0-135.549-54.985-144.913-127.088h36.91c0.008,0,0.013,0.001,0.02,0c5.799,0,10.5-4.701,10.5-10.5   c0-2.887-1.165-5.502-3.051-7.4l-75.345-84.401c-1.993-2.232-4.842-3.508-7.833-3.508c-0.017,0-0.034,0-0.05,0   c-3.009,0.015-5.867,1.319-7.85,3.583L2.6,247.719c-2.714,3.101-3.365,7.502-1.663,11.254c1.702,3.753,5.442,6.163,9.563,6.163   h35.11c4.553,54.02,28.36,104.134,67.69,142.033c41.883,40.359,96.99,62.587,155.171,62.587   c59.748,0,115.919-23.267,158.166-65.515c42.248-42.248,65.515-98.419,65.515-158.166   C492.153,186.328,468.886,130.157,426.638,87.91z M268.472,448.756c-109.242,0-198.191-85.45-202.501-194.535   c-0.223-5.633-4.854-10.085-10.492-10.085H33.65l51.186-58.457l52.185,58.457H112.06c-2.883,0-5.639,1.186-7.621,3.278   c-1.983,2.092-3.018,4.908-2.863,7.786c4.774,88.611,78.084,158.023,166.897,158.023c92.166,0,167.148-74.982,167.148-167.148   c0-88.639-69.355-161.384-156.648-166.821V43.665c106.9,5.479,192.181,94.173,192.181,202.41   C471.153,357.834,380.231,448.756,268.472,448.756z"/>
-                                            <path d="M255.41,255.643v79.405h-25.332c-5.799,0-10.5,4.701-10.5,10.5s4.701,10.5,10.5,10.5h25.332v13.028   c0,5.799,4.701,10.5,10.5,10.5c5.799,0,10.5-4.701,10.5-10.5v-13.964c28.222-4.984,49.733-29.669,49.733-59.3   c0-29.63-21.512-54.314-49.733-59.299v-79.407l22.119-0.001c5.799,0,10.5-4.701,10.5-10.5c0-5.799-4.701-10.5-10.5-10.5   l-22.119,0.001v-13.03c0-5.799-4.701-10.5-10.5-10.5c-5.799,0-10.5,4.701-10.5,10.5v13.965c-28.224,4.985-49.736,29.67-49.736,59.3   C205.674,225.973,227.186,250.658,255.41,255.643z M305.143,295.813c0,17.998-12.184,33.193-28.733,37.797v-75.593   C292.959,262.62,305.143,277.816,305.143,295.813z M255.41,158.545v75.595c-16.551-4.604-28.736-19.8-28.736-37.799   C226.674,178.344,238.859,163.149,255.41,158.545z"/>
-                                        </g>
-                                        </svg>
-                            <span class="ml-1">Refund Request</span>
-                        </a>
+                        </Link>
                     </li>
 
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'admin.maintenance',
@@ -494,65 +321,34 @@ export default {
                                     route().current() == 'admin.maintenance',
                             }"
                             :href="route('admin.maintenance')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
-                            <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                                viewBox="0 0 384 512"
-                                fill="currentColor"
-                            >
-                                <path
-                                    d="M78.6 5C69.1-2.4 55.6-1.5 47 7L7 47c-8.5 8.5-9.4 22-2.1 31.6l80 104c4.5 5.9 11.6 9.4 19 9.4h54.1l109 109c-14.7 29-10 65.4 14.3 89.6l112 112c12.5 12.5 32.8 12.5 45.3 0l64-64c12.5-12.5 12.5-32.8 0-45.3l-112-112c-24.2-24.2-60.6-29-89.6-14.3l-109-109V104c0-7.5-3.5-14.5-9.4-19L78.6 5zM19.9 396.1C7.2 408.8 0 426.1 0 444.1C0 481.6 30.4 512 67.9 512c18 0 35.3-7.2 48-19.9L233.7 374.3c-7.8-20.9-9-43.6-3.6-65.1l-61.7-61.7L19.9 396.1zM512 144c0-10.5-1.1-20.7-3.2-30.5c-2.4-11.2-16.1-14.1-24.2-6l-63.9 63.9c-3 3-7.1 4.7-11.3 4.7H352c-8.8 0-16-7.2-16-16V102.6c0-4.2 1.7-8.3 4.7-11.3l63.9-63.9c8.1-8.1 5.2-21.8-6-24.2C388.7 1.1 378.5 0 368 0C288.5 0 224 64.5 224 144l0 .8 85.3 85.3c36-9.1 75.8 .5 104 28.7L429 274.5c49-23 83-72.8 83-130.5zM56 432a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z"
-                                />
-                            </svg>
+                            <i class="fa-regular fa-window-restore"></i>
                             <span class="ml-1">Site Maintenance</span>
-                        </a>
+                        </Link>
                     </li>
 
                     <li>
                         <button
                             type="button"
-                            class="flex items-center w-full text-base text-gray-900 transition duration-75 rounded-lg group dark:text-white"
+                            class="flex items-center w-full text-base text-gray-900 transition duration-75 rounded-lg group "
                             aria-controls="dropdown-example"
                             @click="toggleDropDown()"
                         >
-                            <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="currentColor"
-                                viewBox="0 0 22 21"
-                            >
-                                <path
-                                    d="M16.975 11H10V4.025a1 1 0 0 0-1.066-.998 8.5 8.5 0 1 0 9.039 9.039.999.999 0 0 0-1-1.066h.002Z"
-                                />
-                                <path
-                                    d="M12.5 0c-.157 0-.311.01-.565.027A1 1 0 0 0 11 1.02V10h8.975a1 1 0 0 0 1-.935c.013-.188.028-.374.028-.565A8.51 8.51 0 0 0 12.5 0Z"
-                                />
-                            </svg>
+                            <i class="fa-solid fa-gear"></i>
                             <span
                                 class="flex-1 ml-1 text-left whitespace-nowrap"
                                 >Utilities</span
                             >
-                            <svg
-                                class="w-3 h-3"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 10 6"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="m1 1 4 4 4-4"
-                                />
-                            </svg>
+                            <i
+                                class="block fa-solid fa-caret-left cursor-pointer"
+                                :class="{ hidden: isDropDownOpen }"
+                            ></i>
+                            <i class="fa-solid fa-caret-down block" :class="{ hidden: !isDropDownOpen }"></i>
                         </button>
-                        <ul id="dropdown-example" class="block my-3 ml-10" :class="{ hidden: !isDropDownOpen }">
+                        <ul id="dropdown-example" class="block my-3 ml-5" :class="{ hidden: !isDropDownOpen }">
                             <li>
-                                <a
+                                <Link
                                 :class="{
                                 'text-white':
                                     route().current() == 'admin.addUser',
@@ -564,13 +360,13 @@ export default {
                                     route().current() == 'admin.addUser',
                             }"
                             :href="route('admin.addUser')"
-                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                                 >
                                     Add User
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                 :class="{
                                 'text-white':
                                     route().current() == 'admin.backUp',
@@ -582,13 +378,13 @@ export default {
                                     route().current() == 'admin.backUp',
                             }"
                             :href="route('admin.backUp')"
-                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                                 >
                                     BackUp and Restore
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                 :class="{
                                 'text-white':
                                     route().current() == 'admin.archive',
@@ -600,10 +396,10 @@ export default {
                                     route().current() == 'admin.archive',
                             }"
                             :href="route('admin.archive')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                                  >
                                     Archive
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </li>
@@ -613,7 +409,7 @@ export default {
                     v-if="user.user_type == 'owner'"
                 >
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'owner.dashboard',
@@ -625,10 +421,10 @@ export default {
                                     route().current() == 'owner.dashboard',
                             }"
                             :href="route('owner.dashboard')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -642,10 +438,10 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Dashboard</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'owner.dorms',
@@ -657,10 +453,10 @@ export default {
                                     route().current() == 'owner.dorms',
                             }"
                             :href="route('owner.dorms')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -669,10 +465,10 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Manage Dormitories</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'owner.manage.tenants',
@@ -684,10 +480,10 @@ export default {
                                     route().current() == 'owner.manage.tenants',
                             }"
                             :href="route('owner.manage.tenants')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -696,10 +492,10 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Manage Tenants</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() ==
@@ -715,10 +511,10 @@ export default {
                                     'owner.manage.application',
                             }"
                             :href="route('owner.manage.application')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -727,10 +523,10 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Applicants</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() ==
@@ -746,7 +542,7 @@ export default {
                                     'owner.manage.reservation',
                             }"
                             :href="route('owner.manage.reservation')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                         <svg class=" ml-2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="30" height="25" viewBox="0 0 256 256" xml:space="preserve">     
                                     <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10;  opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
@@ -760,10 +556,10 @@ export default {
                                     </g>
                                     </svg>
                             <span class="ml-1">Reservation</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'owner.billing',
@@ -775,10 +571,10 @@ export default {
                                     route().current() == 'owner.billing',
                             }"
                             :href="route('owner.billing')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -787,10 +583,10 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Billing</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'owner.maintenance',
@@ -802,10 +598,10 @@ export default {
                                     route().current() == 'owner.maintenance',
                             }"
                             :href="route('owner.maintenance')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -814,10 +610,10 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Requests</span>
-                        </a>
+                        </Link>
                     </li>
                     <li>
-                        <a
+                        <Link
                             :class="{
                                 'text-white':
                                     route().current() == 'owner.reports',
@@ -829,10 +625,10 @@ export default {
                                     route().current() == 'owner.reports',
                             }"
                             :href="route('owner.reports')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -841,48 +637,101 @@ export default {
                                 />
                             </svg>
                             <span class="ml-1">Reports</span>
-                        </a>
+                        </Link>
+                    </li>
+                </ul>
+                <ul 
+                    class="space-y-5 font-medium"
+                    v-if="user.user_type == 'tenant'"
+                >
+                <li>
+                        <Link
+                            :class="{
+                                'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.dorms'
+                            }"
+                            :href="route('tenant.dorms')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-solid fa-house"></i>
+                            <span class="ml-1">Home</span>
+                        </Link>
+                    </li>
+                    <li>
+                            <Link
+                                :class="{
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.mydorm'
+                                }"
+                                :href="route('tenant.mydormlist')"
+                                class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                            >
+                                <i class="fa-solid fa-building-user" style="color: #000000;"></i>
+                                <span class="ml-1">My Rooms</span>
+                            </Link>
+                    </li>
+                    <li>
+                        <Link
+                        :class="{
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.reservation'
+                                }"
+                            :href="route('tenant.reservationlist')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-regular fa-calendar" style="color: #000000;"></i>
+                            <span class="ml-1">My Reservation</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                        :class="{
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.payements'
+                                }"
+                            :href="route('tenant.payments')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-regular fa-credit-card" style="color: #000000;"></i>
+                            <span class="ml-1">Payment</span>
+                        </Link>
                     </li>
                 </ul>
             </div>
         </div>
-        <main class="flex-grow mb-16 sm:mb-24">
+        <main class="flex-grow bg-gray-50  min-h-screen">
             <slot />
         </main>
     </div>
 
     <footer
-        class="fixed bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
+        class="fixed bottom-0 w-full z-20 bg-white rounded-lg border"
     >
         <div
             class="mx-auto p-4 lg:ml-64 md:flex md:items-center md:justify-between"
         >
             <span
-                class="text-sm  sm:text-center dark:text-gray-400"
+                class="text-sm  sm:text-center "
                 >© 2023
-                <a href="https://dormhub.onrender.com/" class="hover:underline"
-                    >Dormhub™</a
+                <Link href="https://dormhub.onrender.com/" class="hover:underline"
+                    >Dormhub™</Link
                 >. All Rights Reserved.</span
             >
             <ul
-                class="flex flex-wrap items-center mt-3 gap-4 text-sm font-medium  dark:text-gray-400 sm:mt-0"
+                class="flex flex-wrap items-center mt-3 gap-4 text-sm font-medium   sm:mt-0"
             >
                 <li>
-                    <a :href="route('about.us')" class="hover:underline md:mr-6"
-                        >About us</a
+                    <Link :href="route('about.us')" class="hover:underline md:mr-6"
+                        >About us</Link
                     >
                 </li>
                 <li>
-                    <a :href="route('privacy.policy')" class="hover:underline md:mr-6"
-                        >Privacy Policy</a
+                    <Link :href="route('privacy.policy')" class="hover:underline md:mr-6"
+                        >Privacy Policy</Link
                     >
                 </li>
                 <li>
-                    <a :href="route('contact.us')" class="hover:underline">Contact us</a>
+                    <Link :href="route('contact.us')" class="hover:underline">Contact us</Link>
                 </li>
                 <li>
-                    <a :href="route('user.help')" class=" hover:underline md:mr-6"
-                        >Help</a
+                    <Link :href="route('user.help')" class=" hover:underline md:mr-6"
+                        >Help</Link
                     >
                 </li>
             </ul>

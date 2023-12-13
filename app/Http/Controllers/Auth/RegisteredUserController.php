@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\{ User, Code };
+use App\Models\{ User, Code, Profile };
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -44,20 +44,11 @@ class RegisteredUserController extends Controller
         $request->validate([
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
-            'phone_number' => 'required|numeric|digits:11',
             'user_type' => 'required',
-            'id_picture' => 'required',
-            'selfie_id_picture' => 'required',
             'username' => 'required|string|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'code' => ['required', new CodeExists('codes', 'code')]
         ]);
-
-        $id_picture = Str::random(10) . '_id_picture';
-        $selfie_picture = Str::random(10) . '_selfie_picture';
-
-        $this->uploadFile($request->id_picture, $id_picture);
-        $this->uploadFile($request->selfie_id_picture, $selfie_picture);
 
         $user = User::create([
             'first_name' => $request->first_name,
@@ -67,9 +58,6 @@ class RegisteredUserController extends Controller
             'user_type' => $request->user_type,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'id_picture' => $id_picture,
-            'selfie_id_picture' => $selfie_picture,
-            'is_approved' => false,
             'first_logged_in' => $request->user_type == 'tenant' ? false : true
         ]);
 
@@ -77,24 +65,70 @@ class RegisteredUserController extends Controller
 
         Code::where('code', $request->code)->delete();
 
-        // Auth::login($user);
+        Auth::login($user);
 
-        // $redirect = null;
+        $redirect = null;
 
-        // if($user->user_type == 'owner') {
-        //     $redirect = RouteServiceProvider::OWNER;
-        // }
+        if($user->user_type == 'owner') {
+            $redirect = RouteServiceProvider::OWNER;
+        }
 
-        // if($user->user_type == 'tenant') {
-        //     $redirect = RouteServiceProvider::TENANT;
-        // }
+        if($user->user_type == 'tenant') {
+            $profile = Profile::create([
+                'user_id' => $user->id,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'relationship' => 'Me',
+                'contact' => $request->phone_number
+            ]);
 
-        // if($user->user_type == 'admin') {
-        //     $redirect = RouteServiceProvider::ADMIN;
-        // }
+            $redirect = RouteServiceProvider::TENANT;
+        }
 
-        // return redirect($redirect);
+        if($user->user_type == 'admin') {
+            $redirect = RouteServiceProvider::ADMIN;
+        }
 
+        return redirect($redirect);
+        // 'id_picture' => $id_picture,
+        // 'selfie_id_picture' => $selfie_picture,
+        // 'is_approved' => false,
         return redirect()->back();
     }
+    public function update(Request $request)
+    {
+        $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'id_picture' => 'required',
+            'selfie_id_picture' => 'required',
+            'status' => 'required'
+        ]);
+
+        $id_picture = Str::random(10) . '_id_picture';
+        $selfie_picture = Str::random(10) . '_selfie_picture';
+
+        $this->uploadFile($request->id_picture, $id_picture);
+        $this->uploadFile($request->selfie_id_picture, $selfie_picture);
+
+        $data = $request->except(["id_picture", "selfie_id_picture"]);
+        if($request->id_picture) {
+            $id_picture = $request->id_picture;
+            $filename = Str::random(10) . '_id_picture' ;
+            $uploadFile = $this->uploadFile($id_picture, $filename);
+            $data["id_picture"] = $filename;
+        };
+        if($request->selfie_id_picture) {
+            $selfie_id_picture = $request->selfie_id_picture;
+            $filename = Str::random(10) . '_selfie_id_picture' ;
+            $uploadFile = $this->uploadFile($selfie_id_picture, $filename);
+            $data["selfie_id_picture"] = $filename;
+        };
+
+        $user = Auth::user();
+        $user->update($data);
+
+        return response()->json(['message' => 'Dorm updated successfully.', 'status' => 200], 200);
+    }
+
 }

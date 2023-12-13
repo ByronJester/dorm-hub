@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\{
-    ProfileController, AdminController, OwnerController, TenantController, SharedController, RegisteredUserController, AboutUsController, ContactUsController,
+    ProfileController, AdminController, OwnerController, TenantController, SharedController, AboutUsController, ContactUsController,
     PrivacyPolicyController, TermsUserController, HeroController, HelpController
 };
 
+use App\Http\Controllers\Auth\{
+    RegisteredUserController
+};
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -33,7 +36,7 @@ Route::get('/', function () {
     }
 
     if(Auth::user() && Auth::user()->user_type == 'admin') {
-        return redirect()->route('admin.dorms');
+        return redirect()->route('admin.dashboard');
     }
 
     $dorms = Dorm::where('status', 'approved')->get();
@@ -55,6 +58,10 @@ Route::get('/admin', function () {
 
 Route::get('/alive', function () {
     return response()->json("Keep Alive!", 200);
+});
+
+Route::prefix('xendit')->group(function () {
+    Route::get('/', [SharedController::class, 'createInvoice']);
 });
 
 Route::prefix('cron')->group(function () {
@@ -117,8 +124,11 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/backUp', [AdminController:: class, 'backUp'])->name('admin.backUp');
         Route::get('/archive', [AdminController:: class, 'archive'])->name('admin.archive');
         Route::get('/get-dorm-list', [AdminController::class, 'getDormList'])->name('admin.dorm.list');
-        Route::post('/tenant/change-staus', [AdminController::class, 'changeTenantStatus'])->name('tenant.change.status');
-        Route::post('/dorm/change-status/{status}', [AdminController::class, 'changeDormStatus'])->name('dorm.change.status');
+        Route::post('/user/change-status/approved', [AdminController::class, 'changeUserStatusApproved'])->name('user.approved');
+        Route::post('/dorm/change-status/approved', [AdminController::class, 'changeDormStatusApprove'])->name('dorm.changestatus.approve');
+        Route::post('/dorm/change-status/decline', [AdminController::class, 'changeDormStatusDecline'])->name('dorm.changestatus.decline');
+
+        Route::post('/user/change-status/decline', [AdminController::class, 'changeUserStatusDecline'])->name('user.changestatus.decline');
 
         Route::post('/backup', [AdminController:: class, 'backUpDatabase'])->name('admin.backup.execute');
     });
@@ -135,8 +145,12 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/billings', [OwnerController::class, 'billings'])->name('owner.billing');
         Route::get('/tenantspaymenthistory/{tenant_id}', [OwnerController::class, 'tenanthistory'])->name('owner.tenantshistory');
         Route::get('/request', [OwnerController::class, 'maintenance'])->name('owner.maintenance');
+        Route::get('/owner-status', [OwnerController::class, 'getOwnerStatus'])->name('owner.status');
+        Route::get('/add-dorm-success/{invoice}', [OwnerController::class, 'addDormSuccessPage'])->name('add-dorm.success');
         Route::post('/application/{status}', [OwnerController::class, 'applicationStatusChange'])->name('change.application.status');
+        Route::post('/update', [RegisteredUserController::class, 'update'])->name('submit.id');
         Route::post('/save-dorm', [OwnerController::class, 'saveDorm'])->name('save.dorm');
+        Route::post('/register-dorm', [OwnerController::class, 'dormPlus'])->name('dorm.plus');
         Route::post('/payment/mark-as-paid', [OwnerController::class, 'paymentMarkAsPaid'])->name('payment.mark-as-paid');
         Route::post('/application/decline/{id}', [OwnerController::class, 'declineApplication'])->name('decline.application');
         Route::post('/reservation/decline/{id}', [OwnerController::class, 'declineReservation'])->name('decline.reservation');
@@ -157,12 +171,15 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
     Route::prefix('tenant')->group(function () {
         Route::get('/dorms', [TenantController::class, 'dormList'])->name('tenant.dorms');
         Route::get('/payments', [TenantController::class, 'paymentList'])->name('tenant.payments');
-        Route::get('/paymongo/success', [TenantController::class, 'successPage']);
-        Route::get('/paymongo/failed', [TenantController::class, 'failedPage']);
-        Route::get('/mydorm', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
-        Route::get('/myreservation', [TenantController::class, 'myreservation'])->name('tenant.reservation');
+        Route::get('/paymongo/success', [TenantController::class, 'successPage'])->name('payment.success');
+        Route::get('/paymongo/failed', [TenantController::class, 'failedPage'])->name('payment.fail');;
+        Route::get('/mydorm/{room_id}', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
+        Route::get('/mydormlist', [TenantController::class, 'myDormList'])->name('tenant.mydormlist');
+        Route::get('/myreservation/{room_id}', [TenantController::class, 'myreservation'])->name('tenant.reservation');
+        Route::get('/myreservationlist', [TenantController::class, 'myReservationList'])->name('tenant.reservationlist');
         Route::get('/message-owner/{owner_id}', [TenantController::class, 'messageOwner'])->name('message.owner');
         Route::get('/billing-info/{param}', [TenantController::class, 'viewBillingInfo'])->name('tenant.billing_info');
+        Route::get('/payment-success/{invoice}', [TenantController::class, 'tenantPaymentSuccessPage'])->name('tenant-payment.success');
         // Route::post('/reserve-room', [TenantController::class, 'reserveRoom'])->name('reserve.room');
         // Route::post('/rent-room', [TenantController::class, 'rentRoom'])->name('rent.room');
         Route::post('/payment/{id}', [TenantController::class, 'payRent'])->name('pay.rent');
@@ -173,8 +190,10 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/submit/complain', [TenantController::class, 'submitComplain'])->name('tenant.submit.complain');
         Route::post('/cancel/reservation', [TenantController::class, 'cancelReservation'])->name('cancel.reservation');
         Route::post('/rent/now', [TenantController::class, 'rentNow'])->name('rent.now');
+        Route::post('/tenant/verif', [TenantController::class, 'tenantverif'])->name('tenant.verif');
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
         Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
+        Route::post('/sub-profile', [TenantController::class, 'createSubProfile'])->name('tenant.sub-profile');
     });
 
     Route::prefix('shared')->group(function () {
@@ -189,6 +208,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
 Route::get('/aboutUs', [SharedController::class, 'show'])->name('about.us');
 Route::get('/policy', [SharedController::class, 'showPolicy'])->name('privacy.policy');
 Route::get('/contactUs', [SharedController::class, 'showContact'])->name('contact.us');
+Route::get('/rooms/{dorm_id}', [SharedController::class, 'rooms'])->name('view.rooms');
 Route::get('/view-dorm/{dorm_id}', [SharedController::class, 'viewDorm'])->name('view.dorm');
 Route::get('/FAQs', [SharedController::class, 'help'])->name('user.help');
 
