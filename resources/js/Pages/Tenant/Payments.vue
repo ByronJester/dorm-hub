@@ -657,14 +657,14 @@ export default {
                             <template #empty> No bills found. </template>
                                 <Column field="description" header="Bills" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
-                                        <div class="flex w-full items-center justify-between">
+                                        <div class="grid grid-cols-4 items-center justify-between">
                                             <p>{{data.description}}</p>
-                                            <div>
-                                                <p class="bg-green-400 px-4 text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
-                                                <p class="bg-red-400 px-4 text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
+                                            <div class="w-16 text-center">
+                                                <p class="bg-green-400  text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
+                                                <p class="bg-red-400  text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
                                             </div>
-                                            <p>{{ moneyFormat(data.amount) }}</p>
-                                            <div>
+                                            <p class="text-center">{{ moneyFormat(data.amount) }}</p>
+                                            <div class="text-end">
                                                 <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
                                                 <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
                                                     @click="payNow(data)"
@@ -683,15 +683,22 @@ export default {
                     </div>
                     <div>
                         <div class="card">
-                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 20rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
+                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 25rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
                             :globalFilterFields="['description', 'amount']">
                             <template #empty> No transactions found. </template>
                                 <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
-                                        <div class="flex w-full items-center justify-between">
-                                            <p>{{data.category}}</p>
-                                            <p>{{ moneyFormat(data.amount) }}</p>
-
+                                        <div class="grid grid-cols-3 w-full place-items-center gap-2">
+                                            <p>{{data.category}}</p> 
+                                            <div class="">
+                                                <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
+                                                <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'VISA'" src="/images/visa.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
+                                            </div>
+                                            <p class="text-end">{{ moneyFormat(data.amount) }}</p>
+                                            
                                         </div>
                                     </template>
                                 </Column>

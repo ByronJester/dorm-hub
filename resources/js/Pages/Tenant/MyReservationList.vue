@@ -216,7 +216,6 @@ export default {
             </div>
             <div v-else>
                 <div
-                    v-if="!reservation"
                     class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white"
                 >
                     You dont have reservation yet

@@ -20,7 +20,7 @@ export default {
         Button
     },
     setup() {
-        const showSidebar = ref(true);
+        const showSidebar = ref(false);
         const isDropDownOpen = ref(false);
 
         const toggleDropDown = () => {
