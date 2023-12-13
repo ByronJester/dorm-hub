@@ -782,6 +782,10 @@ class TenantController extends Controller
                     $xxx = $reservation;
                     $xxx->is_active = true;
 
+                    Room::where('id', $reservation->room_id)->update([
+                        'is_available' => false
+                    ]);
+
                     $owner = User::where('id', $reservation->owner)->first();
 
                     if($owner) {
@@ -794,6 +798,10 @@ class TenantController extends Controller
                 if($application) {
                     $xxx = $application;
                     $xxx->is_active = true;
+
+                    Room::where('id', $reservation->room_id)->update([
+                        'is_available' => false
+                    ]);
 
                     $owner = User::where('id', $application->owner)->first();
 
@@ -816,19 +824,22 @@ class TenantController extends Controller
 
                 $xxx->save();
 
-                UserPayment::create([
-                    'f_id' => $billing->f_id,
-                    'profile_id' => $billing->profile_id,
-                    'amount' => $billing->amount,
-                    'description' => $billing->description,
-                    'type' => $billing->description,
-                    'invoice_number' => $invoice,
-                    'is_paid' => true,
-                    'payment_date' => Carbon::now(),
-                    'for_the_month' => $billing->for_the_month,
-                    'is_active' => true,
-                    'payment_method' => $response['data'][0]['channel_code']
-                ]);
+
+                if(!$billing->is_paid) {
+                    UserPayment::create([
+                        'f_id' => $billing->f_id,
+                        'profile_id' => $billing->profile_id,
+                        'amount' => $billing->amount,
+                        'description' => $billing->description,
+                        'type' => $billing->description,
+                        'invoice_number' => $invoice,
+                        'is_paid' => true,
+                        'payment_date' => Carbon::now(),
+                        'for_the_month' => $billing->for_the_month,
+                        'is_active' => true,
+                        'payment_method' => $response['data'][0]['channel_code']
+                    ]);
+                }
             }
         }
 
