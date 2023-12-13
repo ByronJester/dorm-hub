@@ -289,7 +289,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mb-10">
                 <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                 :globalFilterFields="['name', 'phone_number', 'user_type', 'created_at', 'status']">
                 <template #header>
