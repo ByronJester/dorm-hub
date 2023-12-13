@@ -151,6 +151,21 @@ class TenantController extends Controller
         $profile = Profile::where('user_id', $auth->id)->get();
         $billing = Billing::where('user_id', $auth->id)->get();
 
+        $nextPayments = Billing::where('is_paid', false)
+            ->where('user_id', $auth->id)
+            ->where('description', 'Monthly Fee')
+            ->get();
+
+        $balances = Billing::where('is_paid', false)
+            ->where('user_id', $auth->id)
+            ->get();
+
+        $amountPaids = Billing::where('is_paid', true)
+            ->where('user_id', $auth->id)
+            ->get();
+
+
+
         return Inertia::render('Tenant/Payments', [
             'contact' => $contact,
             'myDorm' => $myDorm,
@@ -160,7 +175,10 @@ class TenantController extends Controller
             'balance' => $balance,
             'totalAmountPaid' => $totalAmountPaid,
             'profile'=>$profile,
-            'bills'=>$billing
+            'bills'=>$billing,
+            'nextPayments' => $nextPayments,
+            'balances' => $balances,
+            'amountPaids' => $amountPaids
         ]);
     }
 
@@ -841,6 +859,38 @@ class TenantController extends Controller
         return response()->json(["success" => true], 200);
     }
 
+    public function payBill(Request $request)
+    {
+        $data = null;
+        $type = $request->type;
+
+        if($type == 'rent') {
+            $data = Tenant::where('id', $request->f_id)->first();
+        } else {
+            $data = Reservation::where('id', $request->f_id)->first();
+        }
+
+        $owner = User::where('id', $data->owner)->first();
+
+        $amount = $request->amount;
+        $description = $request->description;
+        $action = 'tenantPayment';
+
+        $xenditService = new XenditService($owner->sk);
+
+        $response = $xenditService->create($amount, $description, $action);
+
+        if(!!$response) {
+            $billing = Billing::where('id', $request->id)->first();
+            $billing->invoice_number = $response['external_id'];
+            $billing->save();
+
+            return $response['invoice_url'];
+        }
+
+        return null;
+    }
+
     public function tenantPaymentSuccessPage($invoice)
     {
         $billing = Billing::where('invoice_number', $invoice)->first();
@@ -848,6 +898,8 @@ class TenantController extends Controller
         $xxx = null;
 
         $response = [];
+
+        $owner = null;
 
         if($billing) {
             $sk = null;
@@ -866,9 +918,6 @@ class TenantController extends Controller
 
                     $owner = User::where('id', $reservation->owner)->first();
 
-                    if($owner) {
-                        $sk = $owner->sk;
-                    }
                 }
             } else {
                 $application = Application::where('id', $billing->f_id)->first();
@@ -877,16 +926,12 @@ class TenantController extends Controller
                     $xxx = $application;
                     $xxx->is_active = true;
 
-                    Room::where('id', $reservation->room_id)->update([
+                    Room::where('id', $application->room_id)->update([
                         'status' => 'reserve',
                         'is_available' => false
                     ]);
 
-                    $owner = User::where('id', $application->owner)->first();
-
-                    if($owner) {
-                        $sk = $owner->sk;
-                    }
+                    $owner = User::where('id', $application->owner_id)->first();
                 }
             }
 
@@ -894,8 +939,11 @@ class TenantController extends Controller
             $billing->payment_date = Carbon::now();
             $billing->is_active = true;
 
-            if($sk != null) {
-                $xenditService = new XenditService($sk);
+            // return $owner;
+
+            if($owner->sk) {
+
+                $xenditService = new XenditService($owner->sk);
 
                 $response = $xenditService->get($invoice);
 
@@ -903,8 +951,9 @@ class TenantController extends Controller
 
                 $xxx->save();
 
+                $existingPayment = UserPayment::where('invoice_number', $invoice)->first();
 
-                if(!$billing->is_paid) {
+                if(!$existingPayment) {
                     UserPayment::create([
                         'f_id' => $billing->f_id,
                         'user_id' => $billing->user_id,
@@ -922,8 +971,6 @@ class TenantController extends Controller
                 }
             }
         }
-
-
 
         return Inertia::render('Xendit/SuccessTenant', [
             'billing' => $billing,
