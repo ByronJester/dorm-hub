@@ -348,7 +348,7 @@
                         </span>
                     </div>
                 </template>
-                <template #empty> No reservation found. </template>
+                <template #empty> No application found. </template>
                     <Column field="dorm_name" header="Dorm Name" sortable style="min-width: 14rem" class="border-b">
                         <template #body="{ data }">
                             {{ data.dorm_name }}

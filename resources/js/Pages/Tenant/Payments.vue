@@ -533,7 +533,7 @@ export default {
                         <div class="block">
                             <p>Select profile</p>
                             <div class="card flex justify-content-center">
-                                <DropDown v-model="selectedProfile" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem" />
+                                <DropDown v-model="selectedProfile" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
                             </div>
                             
                         </div>
@@ -583,8 +583,8 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 mt-5 gap-2 mb-10">
-                    <div class="col-span-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 mt-5 gap-2 mb-20">
+                    <div class="md:col-span-2">
                         <div class="card">
                             <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                             :globalFilterFields="['description', 'amount']">
@@ -621,7 +621,21 @@ export default {
                         </div>
                     </div>
                     <div>
-
+                        <div class="card">
+                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 20rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
+                            :globalFilterFields="['description', 'amount']">
+                            <template #empty> No transactions found. </template>
+                                <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
+                                    <template #body="{ data }">
+                                        <div class="flex w-full items-center justify-between">
+                                            <p>{{data.category}}</p> 
+                                            <p>{{ moneyFormat(data.amount) }}</p>
+                                            
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
                     </div>
                 </div>
                 <!--Payments-->

@@ -117,7 +117,7 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        $payments = UserPayment::where('profile_id', $auth->id)->get();
+        $payments = UserPayment::where('user_id', $auth->id)->get();
         $nexPayment = UserPayment::where('is_paid', false)->where('profile_id', $auth->id)->where('description', 'monthly_fee')->first();
         $lastBilled = UserPayment::orderBy('created_at', 'desc')->where('is_paid', false)
             ->whereIn('description', ['monthly_fee', 'advance_and_deposit_fee'])
@@ -148,6 +148,9 @@ class TenantController extends Controller
             ->where('is_active', true)
             ->first();
 
+        $profile = Profile::where('user_id', $auth->id)->get();
+        $billing = Billing::where('user_id', $auth->id)->get();
+
         return Inertia::render('Tenant/Payments', [
             'contact' => $contact,
             'myDorm' => $myDorm,
@@ -156,6 +159,8 @@ class TenantController extends Controller
             'lastBilled' => $lastBilled,
             'balance' => $balance,
             'totalAmountPaid' => $totalAmountPaid,
+            'profile'=>$profile,
+            'bills'=>$billing
         ]);
     }
 
