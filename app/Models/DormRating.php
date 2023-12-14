@@ -10,7 +10,7 @@ class DormRating extends Model
     use HasFactory;
 
     protected $fillable = [
-        'rate', 'comment', 'dorm_id', 'tenant_id'
+        'rate', 'comment', 'dorm_id', 'tenant_id', 'profile_id'
     ];
 
     protected $with = [

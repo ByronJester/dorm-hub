@@ -94,7 +94,7 @@ export default {
                             }, 3000);
                         })
                         .catch((error) => {
-                            errors.value = error.response.data.errors;
+                            // errors.value = error.response.data.errors;
                         });
                 },
                 reject: () =>{
@@ -121,12 +121,12 @@ export default {
                         .then((response) => {
                             setTimeout(function () {
                                 location.reload();
-                                
+
                             }, 3000);
                             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully add complaint', life: 3000 });
                         })
                         .catch((error) => {
-                            errors.value = error.response.data.errors;
+                            // errors.value = error.response.data.errors;
                         });
                 },
                 reject: () =>{
@@ -317,7 +317,7 @@ export default {
                                 </p>
                             </template>
                             <template #content class="py-1">
-                                
+
                                 <!--Capacity-->
                                 <div class="font-semibold">
                                     <div class="flex flex-row mt-1 gap-2">
@@ -455,7 +455,7 @@ export default {
                                     </div>
                                 </div>
 
-                               
+
                             </template>
                         </Card>
                     </div>
@@ -603,7 +603,7 @@ export default {
                     </div>
 
                 </div>
-            
+
             <!--Complain Modal-->
             <div
                     id="complainModal"
@@ -782,7 +782,7 @@ export default {
                                         <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
                                             <select
                                                 id="subject"
-                                                v-model="selectedPaymentMethod" 
+                                                v-model="selectedPaymentMethod"
                                                  @change="toggleTransfer"
                                                 class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 "
                                             >

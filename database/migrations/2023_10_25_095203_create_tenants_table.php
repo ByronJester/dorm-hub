@@ -28,6 +28,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->boolean('auto_bill')->default(false);
             $table->date('auto_bill_date')->nullable();
+            $table->boolean('is_d')->default(false);
+            $table->date('promise_date')->nullable();
 
             $table->foreign('owner')->references('id')->on('users');
             $table->foreign('tenant')->references('id')->on('users');
