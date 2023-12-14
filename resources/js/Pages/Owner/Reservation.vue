@@ -66,6 +66,17 @@
 
                 return status;
             }
+
+            const getSeverity = (status) => {
+                switch (status) {
+                    case 'Expired':
+                        return 'danger';
+
+                    case 'Active':
+                        return 'success';
+
+                }
+            };
             var dataReserve = [];
             const rows = ref(dataReserve);
             
@@ -137,6 +148,7 @@
                 isMobileView,
                 user,
                 reservations,
+                getSeverity
             }
         }
     }
@@ -197,7 +209,7 @@
                     </Column>
                     <Column header="Status" field="status" sortable style="min-width: 12rem" class="border-b">
                         <template #body="{ data }">
-                            {{ data.status }}
+                            <Tag :value="data.status" :severity="getSeverity(data.status)" />
                         </template>
                     </Column>
                 </DataTable>

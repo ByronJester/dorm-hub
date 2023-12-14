@@ -62,7 +62,10 @@ class TenantController extends Controller
     public function myDormList(){
         $auth = Auth::user();
 
-        $myApplication = Application::where('tenant_id', $auth->id)->first();
+        
+        $applicationStatuses = ['pending', 'declined'];
+        $applications = Application::with(['dorm', 'room', 'owner', 'tenant'])
+            ->where('tenant_id', $auth->id)->where('is_active', true)->whereIn('status', $applicationStatuses)->get();
 
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('tenant', $auth->id)
@@ -71,7 +74,7 @@ class TenantController extends Controller
 
         return Inertia::render('Tenant/MyDormList', [
             'user' => $auth,
-            'myApplication' => $myApplication,
+            'myApplication' => $applications,
             'myDorm' => $myDorm,
         ]);
     }
@@ -98,7 +101,6 @@ class TenantController extends Controller
 
     {   $auth = Auth::user();
 
-        $myApplication = Application::where('tenant_id', $auth->id)->first();
 
         $reservation = Reservation::with(['dorm', 'room'])
             ->where('tenant', $auth->id)
@@ -107,7 +109,6 @@ class TenantController extends Controller
 
         return Inertia::render('Tenant/MyReservationList', [
             'user' => $auth,
-            'myApplication' => $myApplication,
             'reservation' => $reservation
         ]);
     }

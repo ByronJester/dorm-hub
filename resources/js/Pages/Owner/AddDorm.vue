@@ -2002,7 +2002,7 @@ export default {
                         Add Room
                     </button>
                 </div>
-                <div class="w-full gap-2 grid grid-cols-3 px-3">
+                <div class="w-full gap-2 grid grid-cols-1 md:grid-cols-3 px-3">
                     <div
                         class="w-full flex flex-col p-3 mt-2 border rounded-xl border-gray-400"
                         v-for="(room, index) in rooms"

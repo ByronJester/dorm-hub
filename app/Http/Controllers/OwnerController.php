@@ -48,8 +48,9 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
+        $applicationStatuses = ['pending', 'declined'];
         $applications = Application::with(['dorm', 'room', 'owner', 'tenant'])
-            ->where('owner_id', $auth->id)->where('is_active', true)->get();
+            ->where('owner_id', $auth->id)->where('is_active', true)->whereIn('status', $applicationStatuses)->get();
 
         return Inertia::render('Owner/ApplicationModule', [
             'applications' => $applications,
@@ -804,6 +805,7 @@ class OwnerController extends Controller
 
         $application = TenantRoom::where('id', $request->id)->first();
         $room = Room::where('id', $application->room_id)->first();
+        
         $notification = new Notification;
 
         if($status == 'approved') {
@@ -1186,14 +1188,40 @@ class OwnerController extends Controller
                 ->where('status', 'approved')->get()
         ]);
     }
+    public function changeDormStatusDecline(Request $request)
+    {
+        $dorm = Dorm::where('id', $request->id)->first();
+        
+        if (!$dorm) {
+            return response()->json(["message" => "Dorm not found"], 404);
+        }
+        $reason = $request->input('reason');
+
+        $dorm->status = 'decline';
+        $dorm->reason = $reason;
+        $dorm->save();
+
+        $notification = new Notification;
+
+        $notification->user_id = $dorm->user_id;
+        $notification->message = "Your account has been declined. Reason: $reason";
+        $notification->type = 'Dorm Status';
+        $notification->redirection = 'owner.dorms';
+        $notification->save();
+
+        return response()->json(["message" => "Success"], 200);
+    }
 
     public function declineApplication($id, Request $request)
     {
         $application = Application::with(['tenant'])->where('id', $id)->first();
-        $application->status = 'declined';
-        $application->is_active = false;
-        $application->save();
 
+        $reason = $request->input('reason');
+
+        $application->status = 'declined';
+        $application->reason = $reason;
+        $application->save();
+        
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been declined.");
 
@@ -1224,11 +1252,22 @@ class OwnerController extends Controller
         $auth = Auth::user();
 
         $room = Room::where('id', $request->room_id)->first();
+       
+       
+
+        $room->status='rent';
+        $room->save();
 
         $application = Application::with(['tenant'])->where('id', $id)->first();
+
         $application->status = 'approved';
         $application->is_approved = true;
+        $application->is_active = false;
         $application->save();
+
+        $reservation = Reservation::where('room_id', $room->id)->first();
+        $reservation->is_active = false;
+        $reservation->save();
 
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been approved.");
