@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
@@ -122,12 +122,12 @@ export default {
                     })
             });
         }
-        
+
         const searchQueryReserve = ref("");
             const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
             const currentPageReserve = ref(1); // Initialize to the first page
 
-            
+
             const filteredDataReserve = computed(() => {
                 const query = searchQueryReserve.value.toLowerCase().trim();
                 if (!query) {

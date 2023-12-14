@@ -106,31 +106,18 @@ export default {
         };
 
         const submitAutoBill = () => {
-            swal({
-                title: `Are you sure to proceed with this auto bill?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            },
-            function(){
-                axios.post(route('owner.auto-bill'), autoBillingForm.value)
-                    .then(response => {
-                        swal("Success!", `You successfully auto bill this application.`, "success");
+            axios.post(route('owner.auto-bill'), autoBillingForm.value)
+                .then(response => {
 
-                        setTimeout(function () {
-                            location.reload()
-                        }, 3000);
-                    })
-                    .catch(error => {
+                })
+                .catch(error => {
 
-                    })
-            });
+                })
         }
 
         const manualBillingForm = ref({
             tenant_id: null,
+            profile_id: null,
             subject: null,
             amount: null,
             description: null
@@ -144,6 +131,7 @@ export default {
             selectedBill.value = arg
 
             manualBillingForm.value.tenant_id = arg.tenant_id
+            manualBillingForm.value.profile_id = arg.profile_id
         };
 
         const closeManualBill = () => {
@@ -153,6 +141,7 @@ export default {
 
             manualBillingForm.value = {
                 tenant_id: null,
+                profile_id: null,
                 subject: null,
                 amount: null,
                 description: null
@@ -160,27 +149,17 @@ export default {
         };
 
         const submitManualBill = () => {
-            swal({
-                title: `Are you sure to proceed with this manual bill?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            },
-            function(){
-                axios.post(route('owner.manual-bill'), manualBillingForm.value)
-                    .then(response => {
-                        swal("Success!", `You successfully create this manual bill.`, "success");
+            axios.post(route('owner.manual-bill'), manualBillingForm.value)
+                .then(response => {
+                    swal("Success!", `You successfully create this manual bill.`, "success");
 
-                        setTimeout(function () {
-                            location.reload()
-                        }, 3000);
-                    })
-                    .catch(error => {
+                    setTimeout(function () {
+                        location.reload()
+                    }, 3000);
+                })
+                .catch(error => {
 
-                    })
-            });
+                })
         }
 
         const dates = [
@@ -199,6 +178,7 @@ export default {
             delete newObject.tenant_id;
             delete newObject.room_id
             delete newObject.auto_bill
+            delete newObject.profile_id
 
             return newObject;
         }
@@ -277,12 +257,12 @@ export default {
 
         }
 
-        
+
             const searchQueryReserve = ref("");
             const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
             const currentPageReserve = ref(1); // Initialize to the first page
 
-            
+
             const filteredDataReserve = computed(() => {
                 const query = searchQueryReserve.value.toLowerCase().trim();
                 if (!query) {
@@ -327,7 +307,7 @@ export default {
             const itemsPerPage = 10; // Set the maximum number of items per page to 10
             const currentPage = ref(1); // Initialize to the first page
 
-            
+
             const filteredData = computed(() => {
                 const query = searchQuery.value.toLowerCase().trim();
                 if (!query) {
@@ -624,7 +604,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                            
+
                         </div>
                     </div>
                 </div>

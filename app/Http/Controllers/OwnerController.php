@@ -160,27 +160,29 @@ class OwnerController extends Controller
     {
         $tenant = Tenant::with(['room'])->where('id', $tenant_id)->first();
 
-        $billings = Billing::where('tenant_id', $tenant->id)->get();
+        $billings = Billing::where('profile_id', $tenant->profile_id)->get();
 
         $payments = [];
 
         foreach($billings as $billing) {
-            $payment = UserPayment::where('billing_id', $billing->id)->first();
+            $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
             $room = (object) $tenant->room;
 
-            array_push($payments, [
-                'billing_id' => $billing->id,
-                'payment_id' => $payment->id,
-                'room' => $room->name,
-                'description' => $billing->description,
-                'invoice_no' => $this->generateInvoice($billing->user_id),
-                'payment_method' => $payment->payment_method,
-                'payment_date' => $billing->date,
-                'amount' => $billing->amount,
-                'status' => $billing->is_paid ? 'Paid' : 'Unpaid',
-                'proof_of_payment' => $payment->proof_of_payment,
-                'action' => 'action'
-            ]);
+            if($payment) {
+                array_push($payments, [
+                    'billing_id' => $billing->id,
+                    'payment_id' => $payment->id,
+                    'room' => $room->name,
+                    'description' => $billing->description,
+                    'invoice_no' => $billing->invoice_number,
+                    'payment_method' => $payment->payment_method,
+                    'payment_date' => $billing->date,
+                    'amount' => $billing->amount,
+                    'status' => $billing->is_paid ? 'Paid' : 'Unpaid',
+                    'action' => 'action'
+                ]);
+            }
+
         }
 
 
@@ -805,7 +807,7 @@ class OwnerController extends Controller
 
         $application = TenantRoom::where('id', $request->id)->first();
         $room = Room::where('id', $application->room_id)->first();
-        
+
         $notification = new Notification;
 
         if($status == 'approved') {
@@ -1108,17 +1110,17 @@ class OwnerController extends Controller
         $billTenants = [];
         $billingHistory = [];
 
-        $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+        $reservations = Reservation::with(['dorm', 'room', 'tenant_user'])
             ->where('owner', $auth->id)->get();
 
         foreach($reservations as $reservation) {
             $room = (object) $reservation->room;
             $tenant = (object) $reservation->tenant_user;
-            $billings = Billing::where('reservation_id', $reservation->id)->get();
+            $billings = Billing::where('f_id', $reservation->id)->get();
 
 
             foreach ($billings as $billing) {
-                $payment = UserPayment::where('billing_id', $billing->id)->first();
+                $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
 
                 array_push($billingHistory, [
                     "tenant_id" => $reservation->id,
@@ -1127,8 +1129,8 @@ class OwnerController extends Controller
                     "tenant" => $tenant->name,
                     "description" => $billing->description,
                     "amount" => $billing->amount,
-                    "invoice_no" => $this->generateInvoice($reservation->tenant),
-                    "payment_method" => $payment->payment_method,
+                    "invoice_no" => $billing->invoice_number,
+                    "payment_method" => $payment ? $payment->payment_method : null,
                     "status" => $billing->is_paid ? 'Paid' : 'Unpaid',
                     "dorm_id" => $reservation->dorm_id,
                     "auto_bill" => false
@@ -1137,17 +1139,17 @@ class OwnerController extends Controller
 
         }
 
-        $applications = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
+        $applications = Tenant::with(['dorm', 'room'])
             ->where('owner', $auth->id)
             ->where('is_active', true)
             ->get();
 
 
         foreach ($applications as $application) {
-            $tenant = (object) $application->tenant_user;
+            $tenant = (object) $application->profile;
             $room = (object) $application->room;
-            $balance = Billing::where('tenant_id', $application->id)->where('is_paid', false)->sum('amount');
-            $billings = Billing::where('tenant_id', $application->id)->get();
+            $balance = Billing::where('profile_id', $application->profile_id)->where('is_paid', false)->sum('amount');
+            $billings = Billing::where('f_id', $application->id)->get();
 
             array_push($billTenants, [
                 "tenant_id" => $application->id,
@@ -1159,11 +1161,12 @@ class OwnerController extends Controller
                 "move_in" => $application->move_in,
                 "dorm_id" => $application->dorm_id,
                 "action" => "action",
-                "auto_bill" => $application->auto_bill == 1 ? true : false
+                "auto_bill" => $application->auto_bill == 1 ? true : false,
+                'profile_id' => $application->profile_id
             ]);
 
             foreach ($billings as $billing) {
-                $payment = UserPayment::where('billing_id', $billing->id)->first();
+                $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
 
                 array_push($billingHistory, [
                     "tenant_id" => $application->id,
@@ -1172,8 +1175,8 @@ class OwnerController extends Controller
                     "tenant" => $tenant->name,
                     "description" => $billing->description,
                     "amount" => $billing->amount,
-                    "invoice_no" => $this->generateInvoice($application->tenant),
-                    "payment_method" => $payment->payment_method,
+                    "invoice_no" => $billing->invoice_number,
+                    "payment_method" => $payment ? $payment->payment_method : null,
                     "status" => $billing->is_paid ? 'Paid' : 'Unpaid',
                     "dorm_id" => $application->dorm_id,
                     "auto_bill" => $application->auto_bill == 1 ? true : false
@@ -1188,10 +1191,12 @@ class OwnerController extends Controller
                 ->where('status', 'approved')->get()
         ]);
     }
+
+
     public function changeDormStatusDecline(Request $request)
     {
         $dorm = Dorm::where('id', $request->id)->first();
-        
+
         if (!$dorm) {
             return response()->json(["message" => "Dorm not found"], 404);
         }
@@ -1221,7 +1226,7 @@ class OwnerController extends Controller
         $application->status = 'declined';
         $application->reason = $reason;
         $application->save();
-        
+
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been declined.");
 
@@ -1252,8 +1257,8 @@ class OwnerController extends Controller
         $auth = Auth::user();
 
         $room = Room::where('id', $request->room_id)->first();
-       
-       
+
+
 
         $room->status='rent';
         $room->save();
@@ -1366,6 +1371,7 @@ class OwnerController extends Controller
     {
         $req = [
             'tenant_id' => 'required',
+            'profile_id' => 'required',
             'subject' => 'required',
             'description' => 'required',
             'amount' => 'required',
@@ -1382,20 +1388,17 @@ class OwnerController extends Controller
         $user = User::where('id', $tenant->tenant)->first();
 
         $billing = Billing::create([
-            'tenant_id' => $tenant->id,
+            'f_id' => $tenant->id,
+            'profile_id' => $request->profile_id,
             'user_id' => $tenant->tenant,
             'amount' => $request->amount,
+            'description' => $request->description,
             'subject' => $request->subject,
-            'description' => $request->description,
-            'date' => Carbon::now()
-        ]);
-
-        $payment = UserPayment::create([
-            'tenant_id' => $tenant->id,
-            'user_id' => $tenant->tenant,
-            'billing_id' => $billing->id,
-            'description' => $request->description,
-            'date' => Carbon::now()
+            'type' => 'rent',
+            'is_paid' => false,
+            'payment_date' => null,
+            'for_the_month' => null,
+            'is_active' => false
         ]);
 
         return true;
@@ -1413,19 +1416,16 @@ class OwnerController extends Controller
                 $tenant->auto_bill_date = Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1);
 
                 $billing = Billing::create([
-                    'tenant_id' => $tenant->id,
+                    'f_id' => $tenant->id,
+                    'profile_id' => $tenant->profile_id,
                     'user_id' => $tenant->tenant,
                     'amount' => $room->fee,
-                    'description' => 'monthly_fee',
-                    'date' => Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1)
-                ]);
-
-                $payment = UserPayment::create([
-                    'tenant_id' => $tenant->id,
-                    'user_id' => $tenant->tenant,
-                    'billing_id' => $billing->id,
-                    'description' => 'monthly_fee',
-                    'date' => Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1)
+                    'description' => 'Monthly Fee',
+                    'type' => 'rent',
+                    'is_paid' => false,
+                    'payment_date' => null,
+                    'for_the_month' => Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1),
+                    'is_active' => false
                 ]);
             }
         }

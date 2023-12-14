@@ -19,6 +19,7 @@ return new class extends Migration
             $table->bigInteger('profile_id');
             $table->bigInteger('user_id');
             $table->float('amount')->default(0);
+            $table->string('subject')->nullable();
             $table->longText('description')->nullable();
             $table->string('type');
             $table->string('invoice_number')->nullable();
