@@ -576,15 +576,12 @@ export default {
                     isValid = validateAmenities();
                     break;
                 case 8:
-                    isValid
-                    break;
-                case 9:
                     isValid = validatePM();
                     break;
-                case 10:
+                case 9:
                     isValid = validateTerms();
                     break;
-                case 11:
+                case 10:
                     isValid
                     break;
                 default:
@@ -1319,7 +1316,7 @@ export default {
     <div class="max-w-[2520px] mt-20 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == 'approved'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
 
-            <div v-if="active == 10">
+            <div v-if="active == 9">
                 <div>
                     <p class="text-2xl font-bold mt-1">
                         Step 10: Term & Condition
@@ -2002,7 +1999,7 @@ export default {
                         Add Room
                     </button>
                 </div>
-                <div class="w-full gap-2 grid grid-cols-3 px-3">
+                <div class="w-full gap-2 grid grid-cols-1 md:grid-cols-3 px-3">
                     <div
                         class="w-full flex flex-col p-3 mt-2 border rounded-xl border-gray-400"
                         v-for="(room, index) in rooms"
@@ -2511,88 +2508,8 @@ export default {
                                     </div>
                                 </div>
                             </div>
+            
             <div class="w-full" v-if="active == 8">
-                <p class="text-2xl font-bold mt-1 ml-3">Step 8: Services</p>
-
-                <p class="text-xs mt-1 ml-3">Select all apply</p>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('WIFI')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('WIFI'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            WIFI
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Security')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Security'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Security
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Cleaning Service')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Cleaning Service'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Cleaning Service
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Vending Machines')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Vending Machines'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Vending Machines
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Pet Friendly')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Pet Friendly'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Pet Friendly
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="w-full" v-if="active == 9">
                 <p class="text-2xl font-bold mt-1">
                     Step 9: Payment Method Setup
                 </p>
@@ -2641,7 +2558,7 @@ export default {
                                                 !!errorMessages.pk
                                         }"
                                         required=""
-                                        placeholder="Paymongo Public Key"
+                                        placeholder="Xendit Public Key"
                                         type="text"
                                         class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
                                     />
@@ -2659,7 +2576,7 @@ export default {
                                                 !!errorMessages.sk
                                         }"
                                         required=""
-                                        placeholder="Paymongo Secret Key"
+                                        placeholder="Xendit Secret Key"
                                         type="text"
                                         class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
                                     />
@@ -2722,7 +2639,7 @@ export default {
                 </div> -->
 
             </div>
-            <div class="w-full" v-if="active == 11">
+            <div class="w-full" v-if="active == 10">
                 <div clas="w-full grid grid-cols-3 gap-5">
                     <div className=" max-w-screen-lg mx-auto ">
                         <p class="text-4xl font-black text-orange-400">You're almost there! Complete your dormitory listing</p>
@@ -2850,7 +2767,7 @@ export default {
                     </button>
                     <button
                         data-modal-hide="defaultModal"
-                        v-if="active < 11"
+                        v-if="active < 10"
                         @click="handleNext()"
                         type="button"
                         class="text-gray-500 float-right bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
@@ -2859,7 +2776,7 @@ export default {
                     </button>
                     <button
                         data-modal-hide="defaultModal"
-                        v-if="active == 11"
+                        v-if="active == 10"
                         @click="saveDorm()"
                         type="button"
 
@@ -2886,7 +2803,7 @@ export default {
                                 class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
                             >
                                 <h3 class="text-xl font-semibold text-black">
-                                    Setup Paymongo Account
+                                    Setup Xendit Account
                                 </h3>
                                 <button
                                     type="button"
@@ -2915,7 +2832,7 @@ export default {
                             <div class="p-6 space-y-6">
                                 <div class="mb-3">
                                     <span class="font-bold"
-                                        >1. Sign up for a Paymongo
+                                        >1. Sign up for a Xendit
                                         Account:</span
                                     >
                                     <p class="font-light">
@@ -2923,16 +2840,16 @@ export default {
                                         <a
                                             href="https://shorturl.at/klpEO"
                                             class="text-orange-400 underline cursor-pointer hover:text-opacity-25"
-                                            >Paymongo website</a
+                                            >Xendit website</a
                                         >
                                         and sign up for an account. You'll need
-                                        a Paymongo account to access your API
+                                        a Xendt account to access your API
                                         keys.
                                     </p>
                                 </div>
                                 <div class="mb-3">
                                     <span class="font-bold"
-                                        >2. Log in to Your Paymongo
+                                        >2. Log in to Your Xendit
                                         Dashboard:</span
                                     >
                                     <p class="font-light">
@@ -2946,9 +2863,8 @@ export default {
                                     >
                                     <p class="font-light">
                                         Once you're logged in, you can find your
-                                        API keys in the dashboard. On the left
-                                        sidebar, click on "Settings," and then
-                                        select "API Keys."
+                                        API keys in the dashboard. Scroll down and you will see
+                                        manage api keys."
                                     </p>
                                 </div>
                                 <div class="mb-3">

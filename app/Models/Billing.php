@@ -11,7 +11,7 @@ class Billing extends Model
 
     protected $fillable = [
         'f_id', 'profile_id', 'user_id', 'amount', 'description', 'type', 'invoice_number',
-        'is_paid', 'payment_date', 'for_the_month', 'is_active'
+        'is_paid', 'payment_date', 'for_the_month', 'is_active', 'subject'
     ];
 
     protected $with = [

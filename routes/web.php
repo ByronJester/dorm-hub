@@ -160,6 +160,8 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/bill/munual-bill', [OwnerController::class, 'submitManualBill'])->name('owner.manual-bill');
         Route::post('/bill/auto-bill', [OwnerController::class, 'submitAutoBill'])->name('owner.auto-bill');
         Route::post('/room/change-status', [OwnerController::class, 'changeRoomStatus'])->name('change.room.status');
+        Route::post('/tenant/change-status/{id}', [OwnerController::class, 'changeTenantStatus'])->name('change.tenant.status');
+        Route::post('/tenant/change-statusactive/{id}', [OwnerController::class, 'changeTenantStatusActive'])->name('change.tenant.statusactive');
         Route::post('/complain/change-status/{id}', [OwnerController::class, 'changeComplainStatus'])->name('owner.complain.change.status');
         Route::post('/refund/{status}', [OwnerController::class, 'refundChangeStatus'])->name('owner.refund.change.status');
         Route::post('/approve/move-out', [OwnerController::class, 'approveMoveOut'])->name('owner.move.out.tenant');
@@ -194,6 +196,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
         Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
         Route::post('/sub-profile', [TenantController::class, 'createSubProfile'])->name('tenant.sub-profile');
+        Route::post('/pay-billing', [TenantController::class, 'payBill'])->name('tenant.pay-billing');
     });
 
     Route::prefix('shared')->group(function () {

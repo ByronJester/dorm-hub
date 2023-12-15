@@ -9,7 +9,10 @@ import VsToast from '@vuesimple/vs-toast';
 import Checkbox from "@/Components/Checkbox.vue";
 import FileUpload from "primevue/fileupload";
 import DropDown from 'primevue/dropdown';
-
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         VueDatePicker,
@@ -17,7 +20,9 @@ export default {
         VsToast,
         Checkbox,
         FileUpload,
-        DropDown
+        DropDown,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const page = usePage();
@@ -29,7 +34,8 @@ export default {
         const hasExistingApplication = page.props.hasExistingApplication;
         const hasExistingReservation = page.props.hasExistingReservation;
 
-
+        const confirm = useConfirm();
+        const toast = useToast();
 
         const profile = page.props.profile;
         const selectProfile = ref(profile.length > 0 ? profile[0].id : null);
@@ -178,17 +184,29 @@ export default {
                 proof_of_income: proof_of_income.value,
             };
 
-            axios
-                .post(route("application.apply"), request)
-                .then((response) => {
-                    // location.reload()
-                })
-                .catch((error) => {
+            confirm.require({
+                message: 'Are you sure you want to apply this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios
+                        .post(route("application.apply"), request)
+                        .then((response) => {
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Success', life: 3000 });
+                            router.get(route("tenant.mydormlist"));
+                        })
+                        .catch((error) => {
 
-                });
+                        });
+                },
+                reject: () =>{
+
+                }
+            });
         };
 
         const reserveRoom = () => {
+            
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
@@ -202,7 +220,7 @@ export default {
             axios.post(route("reserve.room"), request)
                 .then((response) => {
                     if(!!response.data) {
-                        window.location.href = response.data
+                        windows.location.href= response.data
                     }
                 })
                 .catch((error) => {
@@ -873,7 +891,9 @@ export default {
                         </div>
                         <div
                             class="mt-5 w-full"
-                        >
+                        >   
+                        <ConfirmDialog />
+                        <Toast />
                             <button
                                 v-if="action == 'rent'"
                                 class="py-2 px-3 bg-orange-400 text-white rounded-full float-right"

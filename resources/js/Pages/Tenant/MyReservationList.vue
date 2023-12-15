@@ -31,7 +31,7 @@ export default {
     <SidebarLayout>
         <div class="p-4 lg:ml-64">
             <p class="text-4xl mb-5 mt-20  font-bold">My Reservations</p>
-            <div v-if="reservation">
+            <div v-if="reservation.length">
                 <div
                     class="mb-10 grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 mx-3 gap-2"
                 >
@@ -216,7 +216,6 @@ export default {
             </div>
             <div v-else>
                 <div
-                    v-if="!reservation"
                     class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white"
                 >
                     You dont have reservation yet

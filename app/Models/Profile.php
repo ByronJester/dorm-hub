@@ -18,8 +18,17 @@ class Profile extends Model
         'image'
     ];
 
+    protected $appends = [
+        'name'
+    ];
+
     public function applications()
     {
         return $this->hasMany(Application::class);
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
     }
 }

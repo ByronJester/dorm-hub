@@ -15,6 +15,7 @@ import Tag from "primevue/tag";
 import Column from "primevue/column";
 import ColumnGroup from "primevue/columngroup"; // optional
 import Row from "primevue/row";
+import Dropdown from 'primevue/dropdown'
 import { FilterMatchMode, FilterOperator } from "primevue/api";
 
 export default {
@@ -30,6 +31,7 @@ export default {
         Button,
         Tag,
         Column,
+        Dropdown,
         Row
     },
     setup() {
@@ -43,17 +45,16 @@ export default {
             "Move-Out Date",
             "Balance",
         ];
+        const statuses = ref(['Active','Delinquent']);
 
         const getSeverity = (status) => {
                 switch (status) {
-                    case 'decline':
+                    case 'Delinquent':
                         return 'danger';
 
-                    case 'approved':
+                    case 'Active':
                         return 'success';
 
-                    case 'pending':
-                        return 'warning';
 
                 }
             };
@@ -65,7 +66,7 @@ export default {
                     tenant_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
                     fee: { value: null, matchMode: FilterMatchMode.IN },
                     move_in: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-                   
+                    status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
                 };
             };
 
@@ -95,7 +96,6 @@ export default {
 
 
             const options = page.props.dorms.filter(dorm => {
-                console.log('Current dorm:', dorm);
                 return dorm && dorm.status === 'approved';
             });
 
@@ -104,30 +104,25 @@ export default {
         const tenantsData = ref([]);
 
         const tenants = page.props.tenants;
-
+        const balance = page.props.feeBalances;
         const constructData = (dorm_id) => {
             var arrTenant = [];
 
             for (let t = 0; t < tenants.length; t++) {
-                var balance = 0;
-
-                let billings = tenants[t].billings;
-
-                for (let b = 0; b < billings.length; b++) {
-                    if (billings[b].is_paid == 0) {
-                        balance = balance + billings[b].amount;
-                    }
-                }
-
                 arrTenant.push({
                     id: tenants[t].id,
                     dorm_id: tenants[t].dorm_id,
                     room_name: tenants[t].room.name,
-                    tenant_name: tenants[t].tenant_user.name,
+                    tenant_name: tenants[t].profile.first_name,
                     fee: tenants[t].room.fee,
                     move_in: tenants[t].move_in,
                     move_out: tenants[t].move_out,
-                    balance: balance,
+                    status:tenants[t].status,
+                    balance:balance[t].balance,
+                    checkfee: tenants[t].room.fee * 2,
+                    checkbalance:balance[t].balance * 2,
+                    delinquent:tenants[t].is_delinquent,
+                    profileId:tenants[t].profile_id
                 });
             }
 
@@ -147,6 +142,7 @@ export default {
 
         onMounted(() => {
             tenantsData.value = constructData(selectedDorm.value);
+            console.log(tenantsData.value)
         });
 
         const moneyFormat = (amount) => {
@@ -168,6 +164,34 @@ export default {
 
             modal.style.display = "block";
         };
+
+        const changeTenantStatus = (id) => {
+                axios.post(route('change.tenant.status', id))
+                    .then(response => {
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    });
+
+        }
+
+        const changeTenantStatusActive = (id) => {
+                axios.post(route('change.tenant.statusactive', id))
+                    .then(response => {
+
+                        setTimeout(function () {
+                            location.reload()
+                        }, 3000);
+                    })
+                    .catch(error => {
+
+                    });
+
+        }
 
         const noticeTermination = (arg) => {
             swal(
@@ -337,6 +361,7 @@ export default {
             );
         }
 
+        console.log(page.props)
         return {
             options,
             headerTenants,
@@ -361,6 +386,9 @@ export default {
             clearFilter,
             getSeverity,
             formatDate,
+            statuses,
+            changeTenantStatus,
+            changeTenantStatusActive
         };
     },
 };
@@ -405,11 +433,15 @@ export default {
                     </select>
                 </div>
                 <div class="card mt-5">
-                <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
-                :globalFilterFields="['room_name', 'tenant_name', 'fee', 'move_in']">
+                <DataTable v-model:filters="filters" :value="tenantsData" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10" filterDisplay="menu"
+                :globalFilterFields="['room_name', 'tenant_name', 'fee', 'move_in', 'status']">
                 <template #header>
                     <div class="flex items-center justify-between">
-                        <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                        <div>
+                            <Button type="button" class="rounded-lg border-orange-400 border px-3 py-2.5" icon="pi pi-user-plus" label="Add Tenant" outlined @click="openComplainModal()" />
+                            <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5 ml-5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                        </div>
+
                         <span class="p-input-icon-left">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
@@ -418,40 +450,70 @@ export default {
                 </template>
                 <template #empty> No tenants found. </template>
                     <Column field="room_name" header="Room Name" sortable style="min-width: 14rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            {{ tenantsData.room_name }}
+                        <template #body="{ data }">
+                            {{ data.room_name }}
                         </template>
                     </Column>
                     <Column field="tenant_name" header="Tenant Name" sortable dataType="date" style="min-width: 10rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            {{ tenantsData.tenant_name }}
-                        </template>
-                    </Column>
-                    <Column field="fee" header="Room Price" sortable style="min-width: 14rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            {{ moneyFormat(tenantsData.fee) }}
+                        <template #body="{ data }">
+                            {{ data.tenant_name }}
                         </template>
                     </Column>
                     <Column header="Moved-In Date" field="move_in" sortable style="min-width: 12rem" class="border-b">
-                        <template #body="{ tenantsData }">
-                            <Tag :value="tenantsData.move_in" />
+                        <template #body="{ data }">
+                            {{ data.move_in }}
                         </template>
                     </Column>
+                    <Column field="fee" header="Monthly Fee" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ moneyFormat(data.fee) }}
+                        </template>
+                    </Column>
+                    <Column field="balance" header="Monthly Fee Balance" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ moneyFormat(data.balance) }}
+                        </template>
+                    </Column>
+                    <Column field="status" header="Status" sortable style="min-width:  14rem" :filterMenuStyle="{ width: '14rem' }" class="border-b">
+                        <template #body="{ data }">
+                            <Tag v-if="!data.is_delinquent" value="Active" :severity="getSeverity('Active')" />
+                            <Tag v-if="!!data.is_delinquent" value="Delinquent" :severity="getSeverity('Delinquent')" />
+                        </template>
+                        <template #filter="{ filterModel }">
+                            <Dropdown v-model="filterModel.value" :options="statuses" placeholder="Select One" class="p-column-filter" showClear>
+                                <template #option="slotProps">
+                                    <Tag :value="slotProps.option" :severity="getSeverity(slotProps.option)" />
+                                </template>
+                            </Dropdown>
+                        </template>
+                    </Column>
+
                     <Column header="Action" style="min-width: 5rem" class="border-b">
-                        <template #body ="{tenantsData}">
-                            <button
-                                class="hover:text-orange-400"
-                                :class="{
-                                    'cursor-not-allowed': data.status == 'approved',
-                                    'cursor-pointer': data.status == 'pending' && data.status == 'decline'
-                                }"
-                                :disabled="data.status=='approved'"
-                                @click="openTermsModal(data)"
-                            >
-                                <!-- Use v-if to conditionally render the appropriate icon -->
-                                <i v-if="data.status =='pending' || data.status == 'decline' || data.status == null" class="fa-solid fa-eye"></i>
-                                <i v-else class="fa-solid fa-eye-slash"></i>
-                            </button>
+                        <template #body ="{data}">
+                            <AppDropdown class="flex justify-center items-center">
+                                    <button
+                                    class="hover:text-orange-400"
+                                    >
+                                        <i  class="pi pi-ellipsis-h"></i>
+                                    </button>
+                                                <AppDropdownContent class="bg-white z-50 ">
+                                                    <div>
+                                                        <AppDropdownItem v-if="!data.is_delinquent && data.checkbalance == data.checkfee" @click="changeTenantStatus(data.profileId)">
+                                                            Mark as Delinquent
+                                                        </AppDropdownItem>
+                                                        <AppDropdownItem v-if="data.is_delinquent" @click="changeTenantStatusActive(data.profileId)">
+                                                            Mark as Active
+                                                        </AppDropdownItem>
+                                                    </div>
+
+                                                    <AppDropdownItem @click="openManualBill(data)">
+                                                        Notice Termination
+                                                    </AppDropdownItem>
+                                                    <AppDropdownItem>
+                                                        Remove Tenant
+                                                    </AppDropdownItem>
+                                                </AppDropdownContent>
+                                    </AppDropdown>
                         </template>
                     </Column>
                 </DataTable>

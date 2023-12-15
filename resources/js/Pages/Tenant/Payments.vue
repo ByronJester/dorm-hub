@@ -92,7 +92,7 @@ export default {
     setup() {
         const page = usePage();
         const user = computed(() => page.props.auth.user);
-        const payments = page.props.payments;
+        const payments = ref(null);
         const profile = page.props.profile;
         const application = ref({});
         const owner = ref({});
@@ -102,13 +102,8 @@ export default {
         const receipt = ref(null);
         const payment_id = ref();
         const imageError = ref(null);
-        const nexPayment = page.props.nexPayment
         const lastBilled = page.props.lastBilled
-        const balance = page.props.balance
-        const totalAmountPaid = page.props.totalAmountPaid
         const options = ["E-Wallet", "Cash", "Bank Transfer"];
-
-        console.log(totalAmountPaid)
 
         onMounted(() => {
             application.value = page.props.application;
@@ -143,7 +138,6 @@ export default {
 
             modal.style.display = "block";
 
-            console.log(arg)
             selectedPayment.value = arg
         };
 
@@ -223,45 +217,6 @@ export default {
         };
 
         const headers = ["Payment Date" , "Payment Method", "Amount", "Description", "Status"];
-
-
-        var data = [];
-
-        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
-            if(inputString ===  undefined || typeof inputString === undefined) {
-                return
-            }
-
-            const stringWithSpaces = inputString.replace(/_/g, ' ');
-
-            // Split the string by spaces
-            const words = stringWithSpaces.split(' ');
-
-            // Capitalize the first letter of each word and join them
-            const capitalizedString = words.map(word => {
-                if (word.length > 0) {
-                return word[0].toUpperCase() + word.slice(1).toLowerCase();
-                }
-                return word; // Handle cases where there are multiple spaces
-            }).join(' ');
-
-            return capitalizedString;
-        }
-
-        for(let p = 0; p < payments.length; p++) {
-            data.push(
-                {
-                    // id: payments[p].id,
-                    date: payments[p].display_date,
-                    payment_method: payments[p].payment_method,
-                    amount: payments[p].amount,
-                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].description),
-                    status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
-                    receipt: '',
-                    action: payments[p]
-                }
-            )
-        }
         //
 
             const searchQuery = ref("");
@@ -392,6 +347,12 @@ export default {
             label: p.first_name,
         }));
 
+        const nexPayment = ref(null)
+        const balance = ref(0)
+        const totalAmountPaid = ref(0)
+
+        console.log(page.props)
+
         const rows = ref([])
         const filters = ref();
 
@@ -406,8 +367,58 @@ export default {
 
                 }
             };
+
+        const data = ref([])
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
+            }
+
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
         onMounted(() => {
             rows.value = page.props.bills.filter(x => { return x.profile_id == selectedProfile.value});
+            balance.value = page.props.balances.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue.amount;
+                }, 0);
+
+            totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue.amount;
+                }, 0);
+
+            let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == selectedProfile.value})
+
+            nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
+
+            payments.value = page.props.payments
+
+            for(let p = 0; p < payments.value.length; p++) {
+                data.value.push(
+                    {
+                        payment_method: payments.value[p].payment_method,
+                        amount: payments.value[p].amount,
+                        category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
+                        profile_id: payments.value[p].profile_id
+                    }
+                )
+            }
+
+            data.value = data.value.filter(x => { return x.profile_id == selectedProfile.value})
+
         });
         const initFilters = () => {
                 filters.value = {
@@ -443,10 +454,48 @@ export default {
             };
 
             const changeSelectedProfile = (evt) => {
-                console.log(evt)
-                console.log(page.props.bills)
                 rows.value = page.props.bills.filter(x => { return x.profile_id == evt.value.id});
+                balance.value = page.props.balances.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue.amount;
+                }, 0);
+
+                totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
+                    return accumulator + currentValue.amount;
+                }, 0);
+
+                let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == evt.value.id})
+
+                nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
+
+                for(let p = 0; p < payments.value.length; p++) {
+                    data.value.push(
+                        {
+                            payment_method: payments.value[p].payment_method,
+                            amount: payments.value[p].amount,
+                            category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
+                            profile_id: payments.value[p].profile_id
+                        }
+                    )
+                }
+
+                data.value = data.value.filter(x => { return x.profile_id == evt.value.id})
+
+
             }
+
+        const payNow = (arg) => {
+            axios
+                .post(route("tenant.pay-billing"), arg)
+                    .then((response) => {
+                        if(!!response.data) {
+                            window.location.href = response.data
+                        }
+
+                    })
+                    .catch((error) => {
+                        // errors.value = error.response.data.errors;
+                    });
+        }
         return {
             filters,
             clearFilter,
@@ -502,7 +551,8 @@ export default {
             account_name,
             account_number,
             submitRefund,
-            changeSelectedProfile
+            changeSelectedProfile,
+            payNow
         };
     },
 };
@@ -540,7 +590,7 @@ export default {
                         <div class="block">
                             <p>Select profile</p>
                             <div class="card flex justify-content-center">
-                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label" placeholder="Select Profile    " class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
+                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label"  class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
                             </div>
 
                         </div>
@@ -571,14 +621,14 @@ export default {
                             </div>
                             <div class="">
                                 <p class="text-xl font-bold">Amount Due</p>
-                                {{ !!nexPayment ? moneyFormat(nexPayment.billing.amount) : moneyFormat(0) }}
+                                {{ !!nexPayment ? moneyFormat(nexPayment.amount) : moneyFormat(0) }}
                             </div>
                         </div>
                         <div class="w-full flex flex-col gap-3 text-gray-900" >
-                            <div class="flex flex-row items-center justify-between rounded-lg bg-orange-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                            <!-- <div class="flex flex-row items-center justify-between rounded-lg bg-orange-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
                                 <p class="text-xl font-bold">Upcoming Payment</p>
-                                {{ !!nexPayment ?  moneyFormat(nexPayment.billing.amount) : moneyFormat(0.00) }}
-                            </div>
+                                {{ !!nexPayment ?  moneyFormat(nexPayment.amount) : moneyFormat(0.00) }}
+                            </div> -->
                             <div class="flex flex-row items-center justify-between rounded-lg bg-red-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
                                 <p class="text-xl font-bold">Balance</p>
                                 {{moneyFormat(balance)}}
@@ -607,16 +657,20 @@ export default {
                             <template #empty> No bills found. </template>
                                 <Column field="description" header="Bills" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
-                                        <div class="flex w-full items-center justify-between">
+                                        <div class="grid grid-cols-4 place-items-center justify-between">
                                             <p>{{data.description}}</p>
-                                            <div>
-                                                <p class="bg-green-400 px-4 text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
-                                                <p class="bg-red-400 px-4 text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
+                                            <div class="w-16 text-center ">
+                                                <p class="bg-green-400  text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
+                                                <p class="bg-red-400  text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
                                             </div>
-                                            <p>{{ moneyFormat(data.amount) }}</p>
-                                            <div>
+                                            <p class="text-center">{{ moneyFormat(data.amount) }}</p>
+                                            <div class="text-end">
                                                 <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
-                                                <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold">Pay Now</button>
+                                                <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
+                                                    @click="payNow(data)"
+                                                >
+                                                    Pay Now
+                                                </button>
                                             </div>
 
                                         </div>
@@ -629,15 +683,22 @@ export default {
                     </div>
                     <div>
                         <div class="card">
-                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 20rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
+                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 25rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
                             :globalFilterFields="['description', 'amount']">
                             <template #empty> No transactions found. </template>
                                 <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
-                                        <div class="flex w-full items-center justify-between">
-                                            <p>{{data.category}}</p>
-                                            <p>{{ moneyFormat(data.amount) }}</p>
-
+                                        <div class="grid grid-cols-3 w-full place-items-center gap-2">
+                                            <p>{{data.category}}</p> 
+                                            <div class="">
+                                                <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
+                                                <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'VISA'" src="/images/visa.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-16"/>
+                                                <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
+                                            </div>
+                                            <p class="text-end">{{ moneyFormat(data.amount) }}</p>
+                                            
                                         </div>
                                     </template>
                                 </Column>

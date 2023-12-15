@@ -9,7 +9,7 @@ use App\Models\{
     PrivacyPolicy, AboutUs, ContactUs,Room, User,
     // TenantApplication, TenantBilling, TenantPayment,
     Reservation, Application, Billing, UserPayment, Tenant,
-    Help
+    Help, Profile
 };
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -139,7 +139,7 @@ class SharedController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $length = 8;
+        $length = 4;
         $message = '';
 
         for ($i = 0; $i < $length; $i++) {
@@ -208,20 +208,16 @@ class SharedController extends Controller
                 $tenant->save();
 
                 $billing = Billing::create([
-                    'tenant_id' => $tenant->id,
                     'user_id' => $tenant->tenant,
                     'amount' => $room->fee,
-                    'description' => 'monthly_fee',
-                    'date' => $date1
-                ]);
-
-                $payments = UserPayment::create([
-                    'tenant_id' => $tenant->id,
-                    'billing_id' => $billing->id,
-                    'user_id' => $tenant->tenant,
-                    'amount' => $room->fee,
-                    'description' => 'monthly_fee',
-                    'date' => $date1
+                    'description' => 'Monthly Fee',
+                    'for_the_month' => $date1,
+                    'f_id' => $tenant->id,
+                    'profile_id' => $tenant->profile_id,
+                    'type' => 'rent',
+                    'is_active' => true,
+                    'is_paid' => false,
+                    'payment_date' => null,
                 ]);
             }
 
@@ -236,8 +232,8 @@ class SharedController extends Controller
         $now = Carbon::today();
 
         foreach ($billings as $billing) {
-            $tenant = User::where('id', $billing->user_id)->first();
-            $billingDate = Carbon::parse($billing->date);
+            $tenant = Profile::where('id', $billing->profile_id)->first();
+            $billingDate = Carbon::parse($billing->for_the_month);
             $amount = $billing->amount;
 
             $is5DaysBeforeDue = $billingDate->diffInDays($now) == 5;
@@ -245,7 +241,7 @@ class SharedController extends Controller
             if($is5DaysBeforeDue) {
                 $messageDate = $billingDate->isoFormat('LL');
                 $message = "Your due is on $messageDate with amount of $amount pesos. Login your account https://dormhub.onrender.com";
-                $this->sendSMS($tenant->phone_number, $message);
+                $this->sendSMS($tenant->contact, $message);
             }
 
             $isAfterDue = $now->diffInDays($billingDate) == 2;
@@ -256,7 +252,7 @@ class SharedController extends Controller
                 $overDue = true;
                 $messageDate = $billingDate->isoFormat('LL');
                 $message = "Your due on $messageDate is overdue with amount of $amount pesos, please pay the overdue to avoid eviction. Login your account https://dormhub.onrender.com";
-                $this->sendSMS($tenant->phone_number, $message);
+                $this->sendSMS($tenant->contact, $message);
             }
         }
 

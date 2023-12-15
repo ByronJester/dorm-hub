@@ -18,6 +18,10 @@
     import ColumnGroup from 'primevue/columngroup';   // optional
     import Row from 'primevue/row';
     import { FilterMatchMode, FilterOperator } from 'primevue/api';
+    import { useConfirm } from "primevue/useconfirm";
+    import { useToast } from "primevue/usetoast";
+    import ConfirmDialog from 'primevue/confirmdialog';
+    import Toast from 'primevue/toast';
 
     export default {
         components: {
@@ -32,6 +36,8 @@
             Column,
             Row,
             ColumnGroup,
+            ConfirmDialog,
+            Toast,
         },
         data(){
             return{
@@ -47,6 +53,8 @@
             onMounted(() => {
                 rows.value = page.props.applications
             });
+            const confirm = useConfirm();
+            const toast = useToast();
 
             const user = page.props.auth.user;
 
@@ -167,22 +175,22 @@
                 return date.toLocaleTimeString('en-US', options);
             }
 
-
+            console.log(page.props)
             //Rent
             var dataRent = [];
 
             const applications = page.props.applications;
 
+            console.log(applications)
+
             for (let y = 0; y < applications.length; y++) {
                 dataRent.push({
                     dorm_name: applications[y].dorm.property_name,
                     room_name: applications[y].room.name,
-                    tenant_name: applications[y].tenant.name,
+                    tenant_name: applications[y].income_information.profile.first_name + ' '+applications[y].income_information.profile.last_name ,
                     source_of_income: applications[y].income_information.source_of_income,
                     monthly_income: moneyFormat(applications[y].income_information.monthly_income),
                     proof: applications[y].income_information.proof,
-                    move_in: !applications[y].move_in ? 'N/A' : formatDate(applications[y].move_in),
-                    move_out: 'N/A',
                     id: applications[y].id,
                     status: applications[y].status,
                     profile_id: applications[y].profile_id,
@@ -191,10 +199,14 @@
                     owner_id: applications[y].owner_id,
                     tenant_id: applications[y].tenant_id,
                     room_id: applications[y].room.id,
+                    move_in: applications[y].move_in,
+                    reason: applications[y].reason,
                     dorm_id: applications[y].dorm.id,
+                    createdAt: applications[y].created_at
                 });
             }
 
+            console.log(page.props)
             const initFilters = () => {
                 filters.value = {
                     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -203,8 +215,8 @@
                     tenant_name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
                     source_of_income: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
                     monthly_income: { value: null, matchMode: FilterMatchMode.IN },
+                    createdAt: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
                     move_in: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-                    move_out: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
                     status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
 
                 };
@@ -243,18 +255,25 @@
             }
 
             const openReasonModal = (arg) => {
+                const roomId = arg.room_id;
+                const status = arg.status;
                 selectedApplication.value = arg
                 var modal = document.getElementById("reasonModal");
 
                 modal.style.display = "block";
+                console.log("Room ID:", roomId, status);
 
             }
 
             const approveApplication = (arg) => {
-                axios.post(route('approve.application', arg.id), arg)
+                confirm.require({
+                message: 'Are you sure you want to approve this application?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios.post(route('approve.application', arg.id), arg)
                         .then(response => {
-                            swal("Success!", `You successfully approved this application.`, "success");
-
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully approved this application', life: 3000 });
                             setTimeout(function () {
                                 location.reload()
                             }, 3000);
@@ -262,31 +281,49 @@
                         .catch(error => {
                             errors.value = error.response.data.errors
                         })
-            }
-
-            const declineApplication = (arg) => {
-                swal({
-                    title: `Are you sure to decline this application?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false
                 },
-                function(){
-                    axios.post(route('decline.application', arg.id), {room_id: arg.room_id})
-                        .then(response => {
-                            swal("Success!", `You successfully declined this application.`, "success");
+                reject: () => {
 
-                            setTimeout(function () {
-                                location.reload()
-                            }, 3000);
-                        })
-                        .catch(error => {
-                            errors.value = error.response.data.errors
-                        })
+                }
                 });
             }
+
+            const declineApplication = (arg, reasons) => {
+                confirm.require({
+                message: 'Are you sure you want to decline this application?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios.post(route('decline.application', arg.id), {room_id: arg.room_id, reason: reasons})
+                        .then(response => {
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully declined this application', life: 3000 });
+
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
+                            errors.value = error.response.data.errors
+                        })
+                },
+                reject: () =>{
+
+                } 
+            });
+            }
+            const getSeverity = (status) => {
+                switch (status) {
+                    case 'declined':
+                        return 'danger';
+
+                    case 'approved':
+                        return 'success';
+
+                    case 'pending':
+                        return 'warning';
+
+                }
+            };
 
             return {
                 filters,
@@ -311,7 +348,8 @@
                 formatTime,
                 reason,
                 openReasonModal,
-                closeReasonModal
+                closeReasonModal,
+                getSeverity
             }
         }
     }
@@ -330,7 +368,7 @@
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
             <div class="card">
                 <DataTable v-model:filters="filters" :value="dataRent" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
-                :globalFilterFields="['dorm_name', 'room_name', 'tenant_name', 'monthly_income','source_of_income', 'move_in', 'move_in', 'status']">
+                :globalFilterFields="['dorm_name', 'room_name', 'tenant_name', 'monthly_income','source_of_income', 'createdAt',  'status']">
                 <template #header>
                     <div class="flex items-center justify-between">
                         <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
@@ -351,7 +389,7 @@
                             {{ data.room_name }}
                         </template>
                     </Column>
-                    <Column field="tenant_name" header="Tenant Name" sortable style="min-width: 14rem" class="border-b">
+                    <Column field="tenant_name" header="Applicant Name" sortable style="min-width: 14rem" class="border-b">
                         <template #body="{ data }">
                             {{ data.tenant_name }}
                         </template>
@@ -361,19 +399,19 @@
                             {{ data.monthly_income }}
                         </template>
                     </Column>
-                    <Column header="Moved-in Date" field="move_in" sortable style="min-width: 12rem" class="border-b">
+                    <Column field="createdAt" header="Date Applied" sortable style="min-width: 14rem" class="border-b">
                         <template #body="{ data }">
-                            {{ formatDate(data.move_in) }}
+                            {{ formatDate(data.createdAt)}}
                         </template>
                     </Column>
-                    <Column header="Move-out Date" field="move_out" sortable style="min-width: 12rem" class="border-b">
+                    <Column field="move_in" header="Move-in Date" sortable style="min-width: 14rem" class="border-b">
                         <template #body="{ data }">
-                            {{ formatDate(data.move_out) }}
+                            {{ formatDate(data.move_in)}}
                         </template>
                     </Column>
                     <Column header="Status" field="status" sortable style="min-width: 12rem" class="border-b">
                         <template #body="{ data }">
-                            {{ data.status }}
+                            <Tag :value="data.status" :severity="getSeverity(data.status)" />
                         </template>
                     </Column>
                     <Column header="Action" style="min-width: 5rem" class="border-b">
@@ -433,6 +471,9 @@
                                         </svg>
                                         <span class="sr-only">Close modal</span>
                                     </button>
+                                </div>
+                                <div v-if="selectedApplication.status == 'declined'" class="w-full bg-red-400 text-white text-center">
+                                    TThis application is declined. Reason: {{ selectedApplication.reason }}
                                 </div>
                                 <!-- Modal body -->
                                 <div class="p-6 space-y-6" v-if="selectedApplication">
@@ -516,7 +557,7 @@
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
                                     <Toast />
-                                    <ConfirmDialog></ConfirmDialog>
+                                    <ConfirmDialog />
                                     <button
                                         @click="closeReasonModal()"
                                         type="button"
@@ -525,7 +566,7 @@
                                         Cancel
                                     </button>
                                     <button
-                                        @click="decline(application.id, reason)"
+                                        @click="declineApplication(selectedApplication, reason)"
                                         type="button"
                                         class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >

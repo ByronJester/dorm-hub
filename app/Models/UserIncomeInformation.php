@@ -15,6 +15,15 @@ class UserIncomeInformation extends Model
         'source_of_income', 'monthly_income', 'proof', 'monthly_expenses', 'profile_id'
     ];
 
+    protected $appends = [
+        'profile'
+    ];
+    
+    public function getProfileAttribute()
+    {
+        return Profile::where('id', $this->profile_id)->first();
+    }
+
     public function getProofAttribute($value)
     {
         return  "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
