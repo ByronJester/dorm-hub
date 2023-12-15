@@ -164,7 +164,7 @@
                 <h3 class="text-3xl">Reservation</h3>
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
-            <div class="card">
+            <div class="card mb-20">
                 <DataTable v-model:filters="filters" :value="dataReserve" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                 :globalFilterFields="['dorm_name', 'room_name', 'tenant_name', 'time_visit', 'visit_date', 'remaining', 'status']">
                 <template #header>
