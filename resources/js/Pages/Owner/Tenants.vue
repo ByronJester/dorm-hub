@@ -17,7 +17,10 @@ import ColumnGroup from "primevue/columngroup"; // optional
 import Row from "primevue/row";
 import Dropdown from 'primevue/dropdown'
 import { FilterMatchMode, FilterOperator } from "primevue/api";
-
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         AuthenticatedLayout,
@@ -32,11 +35,15 @@ export default {
         Tag,
         Column,
         Dropdown,
-        Row
+        Row,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const page = usePage();
         const filters = ref();
+        const confirm = useConfirm();
+        const toast = useToast();
         const headerTenants = [
             "Room Name",
             "Tenant Name",
@@ -119,7 +126,7 @@ export default {
                     move_out: tenants[t].move_out,
                     status:tenants[t].status,
                     balance:balance[t].balance,
-                    checkfee: tenants[t].room.fee * 2,
+                    checkfee: tenants[t].room.fee * 2,  
                     checkbalance:balance[t].balance * 2,
                     delinquent:tenants[t].is_delinquent,
                     profileId:tenants[t].profile_id
@@ -166,44 +173,58 @@ export default {
         };
 
         const changeTenantStatus = (id) => {
-                axios.post(route('change.tenant.status', id))
-                    .then(response => {
+            confirm.require({
+                message: 'Are you sure you want to mark this tenant as delinquent?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios.post(route('change.tenant.status', id))
+                        .then(response => {
+                            toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully mark this tenant as delinquent ', life: 3000 });
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
 
-                        setTimeout(function () {
-                            location.reload()
-                        }, 3000);
-                    })
-                    .catch(error => {
+                        });
+                },
+                reject: () =>{
 
-                    });
+                }
+            });
 
         }
 
         const changeTenantStatusActive = (id) => {
-                axios.post(route('change.tenant.statusactive', id))
-                    .then(response => {
+            confirm.require({
+                message: 'Are you sure you want to mark this tenant as active?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios.post(route('change.tenant.statusactive', id))
+                        .then(response => {
+                            toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully change status as active', life: 3000 });
+                            setTimeout(function () {
+                                location.reload()
+                            }, 3000);
+                        })
+                        .catch(error => {
 
-                        setTimeout(function () {
-                            location.reload()
-                        }, 3000);
-                    })
-                    .catch(error => {
+                        });
+                },
+                reject: () =>{
 
-                    });
-
+                }
+            });
         }
 
         const noticeTermination = (arg) => {
-            swal(
-                {
-                    title: `Are you sure to notice this tenant for termination?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to notice this tenant for termination?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
                         .post(
                             route("tenant.notice.termination", { id: arg.id }),
@@ -212,50 +233,43 @@ export default {
                             }
                         )
                         .then((response) => {
-                            swal(
-                                "Success!",
-                                `You successfully notice this tenant for termination.`,
-                                "success"
-                            );
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully add termination notice', life: 3000 });
 
                             setTimeout(function () {
                                 location.reload();
                             }, 3000);
                         })
                         .catch((error) => {});
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         };
 
         const removeTenant = (arg) => {
-            swal(
-                {
-                    title: `Are you sure to remove this tenant?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to remove this tenant?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
                         .post(route("tenant.remove", { id: arg.id }), {
                             id: arg.refund_id,
                         })
                         .then((response) => {
-                            swal(
-                                "Success!",
-                                `You successfully remove this tenant.`,
-                                "success"
-                            );
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully remove this tenant', life: 3000 });
 
                             setTimeout(function () {
                                 location.reload();
                             }, 3000);
                         })
                         .catch((error) => {});
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         };
 
         const closeComplainModal = () => {
@@ -491,6 +505,8 @@ export default {
                     <Column header="Action" style="min-width: 5rem" class="border-b">
                         <template #body ="{data}">
                             <AppDropdown class="flex justify-center items-center">
+                                    <ConfirmDialog />
+                                    <Toast />
                                     <button
                                     class="hover:text-orange-400"
                                     >
@@ -498,7 +514,7 @@ export default {
                                     </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
                                                     <div>
-                                                        <AppDropdownItem v-if="!data.is_delinquent && data.checkbalance == data.checkfee" @click="changeTenantStatus(data.profileId)">
+                                                        <AppDropdownItem v-if="!data.is_delinquent && data.balance == data.checkfee" @click="changeTenantStatus(data.profileId)">
                                                             Mark as Delinquent
                                                         </AppDropdownItem>
                                                         <AppDropdownItem v-if="data.is_delinquent" @click="changeTenantStatusActive(data.profileId)">
@@ -506,10 +522,10 @@ export default {
                                                         </AppDropdownItem>
                                                     </div>
 
-                                                    <AppDropdownItem @click="openManualBill(data)">
+                                                    <AppDropdownItem @click="noticeTermination(data)">
                                                         Notice Termination
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem>
+                                                    <AppDropdownItem @click="removeTenant(data);">
                                                         Remove Tenant
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
