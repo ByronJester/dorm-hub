@@ -1262,8 +1262,6 @@ class OwnerController extends Controller
 
         $room = Room::where('id', $request->room_id)->first();
 
-
-
         $room->status='rent';
         $room->save();
 
@@ -1289,6 +1287,7 @@ class OwnerController extends Controller
             'status' => 'approved',
             'move_in' => Carbon::parse($request->move_in),
             'profile_id' => $request->profile_id,
+            'is_active' => true
         ]);
 
 
