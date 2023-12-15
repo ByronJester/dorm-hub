@@ -921,52 +921,41 @@ class OwnerController extends Controller
 
     public function dashboard()
     {
-        $auth = Auth::user();
+        $user = Auth::user();
 
-        if($auth->first_logged_in) {
+        if($user->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
-        // $applications = TenantRoom::with('payments')->where('owner_id', $user->id);
+        $applications = Tenant::where('owner', $user->id);
 
-        // $currentMonth = Carbon::now()->month;
-        // $paidAmount = 0;
-        // $unpaidAmount = 0;
+        $currentMonth = Carbon::now()->month;
+        $paidAmount = 0;
+        $unpaidAmount = 0;
 
-        // foreach($applications->where('is_approved', true)->where('is_active', true)->get() as $application) {
-        //     $application = (object) $application;
+        foreach($applications->where('is_active', true)->where('status', 'approved')->get() as $application) {
+            $application = (object) $application;
+            $payments = UserPayment::where('profile_id', $application->profile_id)->get();
 
-        //     foreach($application->payments as $payment) {
-        //         $paymentMonth = Carbon::parse($payment->date)->month;
+            foreach($payments as $payment) {
+                $paymentMonth = Carbon::parse($payment->for_the_month)->month;
 
-        //         if($currentMonth == $paymentMonth) {
-        //             if($payment->is_paid) {
-        //                 $paidAmount += $payment->amount_to_pay;
-        //             } else {
-        //                 $balance = $payment->amount_paid != null ? $payment->amount_to_pay - $payment->amount_paid : $payment->amount_to_pay;
-        //                 $unpaidAmount += $balance;
-        //             }
-        //         }
-        //     }
-        // }
+                if($payment->is_paid) {
+                    $paidAmount += $payment->amount;
+                } else {
+                    $paidAmount += $payment->amount;
+                }
+            }
+        }
 
-        // $applications = Application::where('owner_id', $auth->id)->where('is_active', true)->count();
-        // $tenants = Tenant::where('owner', $auth->id)->where('is_active', true)->count();
-        // $paidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
-        //     $query->where('owner', $auth->id);
-        // })
-        // ->where('is_paid', true)->sum('amount');
-
-        // $unPaidAmount = Billing::with(['tenant'])->whereHas('tenant', function($query) use($auth) {
-        //     $query->where('owner', $auth->id);
-        // })
-        // ->where('is_paid', false)->sum('amount');
+        $applications = Application::where('owner_id', $user->id)->where('is_active', true)->count();
+        $tenants = Tenant::where('owner', $user->id)->where('is_active', true)->count();
 
         return Inertia::render('Owner/Dashboard', [
-            // 'paidAmount' => $paidAmount,
-            // 'unpaidAmount' => $unPaidAmount,
-            // 'totalTenants' => $tenants,
-            // 'totalApplications' => $applications
+            'paidAmount' => $paidAmount,
+            'unpaidAmount' => $unpaidAmount,
+            'totalTenants' => $tenants,
+            'totalApplications' => $applications
         ]);
     }
 
