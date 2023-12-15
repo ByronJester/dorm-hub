@@ -6,8 +6,8 @@ import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue"
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
 import Image from "primevue/image";
-
-
+import Sidebar from 'primevue/sidebar';
+import Button from 'primevue/button'
 export default {
     components: {
         AppDropdown,
@@ -15,7 +15,9 @@ export default {
         AppDropdownItem,
         ApplicationLogo,
         Image,
-        Link
+        Link,
+        Sidebar,
+        Button
     },
     setup() {
         const showSidebar = ref(false);
@@ -35,61 +37,6 @@ export default {
 
         var routes = [];
 
-        if (user.user_type == "owner") {
-            routes = [
-                {
-                    route: "owner.dashboard",
-                },
-                {
-                    route: "owner.dorms",
-                },
-                {
-                    route: "owner.manage.tenants",
-                },
-                {
-                    route: "owner.manage.application",
-                },
-                {
-                    route: "#",
-                },
-                {
-                    route: "#",
-                },
-            ];
-        }
-        if (user.user_type == "admin") {
-            routes = [
-                {
-                    route: "#",
-                    label: "Dashboard",
-                    icon: "fa-solid fa-chart-line",
-                },
-                {
-                    route: "admin.dorms",
-                    label: "Dorm Verificartion",
-                    icon: "fa-solid fa-chart-simple",
-                },
-                {
-                    route: "admin.tenants",
-                    label: "User Verification",
-                    icon: "fa-solid fa-building",
-                },
-                {
-                    route: "#",
-                    label: "Reports",
-                    icon: "fa-solid fa-users",
-                },
-                {
-                    route: "#",
-                    label: "Utilities",
-                    icon: "fa-solid fa-comments-dollar",
-                },
-            ];
-        }
-
-        const redirectPage = (r) => {
-            router.get(route(r));
-        };
         const notifications = page.props.notifications;
 
         const openModal = () => {
@@ -128,7 +75,6 @@ export default {
             isDropDownOpen,
             routes,
             notifications,
-            redirectPage,
             toggleDropDown,
             openModal,
             closeModal,
@@ -142,58 +88,35 @@ export default {
 </script>
 
 <template>
-    <div v-if="redirectToHome">Not allowed</div>
-    <div v-else>
+    <div>
         <nav
-            class="fixed top-0 z-40 w-full bg-white shadow-md dark:bg-gray-800 dark:border-gray-700"
+            class="fixed top-0 z-40 w-full bg-white shadow-md "
         >
-            <div class="px-3 py-3 lg:px-5 lg:pl-3">
-                <div class="flex items-center justify-between">
+            <div class="px-3 py-5 lg:px-5 lg:pl-3">
+                <div class="flex items-center justify-between mx-10">
                     <div class="flex items-center justify-start">
                         <button
                             @click="clickShowSideBar()"
-                            class="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-100 dark:focus:ring-gray-600"
+                            class="inline-flex items-center p-2 text-sm  rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 "
                         >
                             <span class="sr-only">Open sidebar</span>
-                            <svg
-                                class="w-6 h-6"
-                                aria-hidden="true"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    clip-rule="evenodd"
-                                    fill-rule="evenodd"
-                                    d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"
-                                ></path>
-                            </svg>
+                            <i class="fa-solid fa-bars fa-xl"></i>
                         </button>
                         <Link href="/" class="ml-2 md:mr-24">
                             <ApplicationLogo />
                         </Link>
                     </div>
-                    <div class="flex items-center">
-
+                    <div class="flex flex-row gap-6 items-center text-gray-700">
+                        <a :href="route('view.user.messages')" class="inline-flex p-3 items-center text-sm cursor-pointer rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 ">
+                            <i class="fa-regular fa-comments fa-lg"></i>
+                        </a>
+                        
                         <AppDropdown >
                             <button>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-6 h-6 dark:text-white"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"
-                                    />
-                                </svg>
+                                <i class="fa-regular fa-bell fa-lg"></i>
                                 <span
-                                    class="absolute right-4 cursor-pointer text-white font-bold"
-                                    style="font-size: 8px"
+                                    class="absolute right-2 top-2 cursor-pointer text-xs bg-red-400 rounded-full py-1 px-2 text-white font-bold"
+                                    
                                     v-if="
                                         notifications.filter((x) => {
                                             return !x.is_read;
@@ -267,17 +190,17 @@ export default {
                             </AppDropdownContent>
                         </AppDropdown>
                     </div>
+                    
                 </div>
             </div>
         </nav>
-
         <div
             id="sidebarModal"
             :class="{
                 'translate-x-0': showSidebar,
                 '-translate-x-full': !showSidebar,
             }"
-            class="fixed top-0 left-0 z-30 w-64 shadow-lg h-screen overflow-auto 2xl:overflow-clip pt-16 transition-transform bg-white -translate-x-full dark:bg-gray-800 lg:-translate-x-0 dark:border-gray-700"
+            class="fixed top-0 left-0 z-30 w-64 shadow-lg h-screen overflow-y-scroll pt-16 transition-transform bg-white -translate-x-full lg:-translate-x-0 "
         >
         <div class="p-3 w-full flex flex-col items-center justify-center">
             <div class="w-full"> 
@@ -288,7 +211,7 @@ export default {
             <img
                 :src="user.image ?? 'https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'"
                 alt="Profile picture"
-                class="rounded-full block md:h-28 w-28 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                class="rounded-full block md:h-28 w-28 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 "
             />
             <p class="mt-2 text-gray-700 font-bold text-lg">
                 {{  user.first_name }}
@@ -302,7 +225,7 @@ export default {
             
         </div>
         <hr class="mt-3 mx-5"/>
-            <div class="h-full overflow-y-auto p-5 bg-white dark:bg-gray-800">
+            <div class="h-full overflow-y-auto p-5 bg-white">
                 <ul
                     class="space-y-5 font-medium"
                     v-if="user.user_type == 'admin'"
@@ -320,7 +243,7 @@ export default {
                                     route().current() == 'admin.dashboard',
                             }"
                             :href="route('admin.dashboard')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
                             <i class="fa-solid fa-house"></i>
                             <span class="ml-1">Dashboard</span>
@@ -339,7 +262,7 @@ export default {
                                     route().current() == 'admin.dorms',
                             }"
                             :href="route('admin.dorms')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
                             <i class="fa-solid fa-building fa-md"></i>
                             <span class="ml-1">Dorm Verification</span>
@@ -358,7 +281,7 @@ export default {
                                     route().current() == 'admin.tenants',
                             }"
                             :href="route('admin.tenants')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
                             <i class="fa-solid fa-user fa-md"></i>
                             <span class="ml-1">User Verification</span>
@@ -378,7 +301,7 @@ export default {
                                     route().current() == 'admin.reports',
                             }"
                             :href="route('admin.reports')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
                             <i class="fa-solid fa-file-export"></i>
                             <span class="ml-1">Report</span>
@@ -398,7 +321,7 @@ export default {
                                     route().current() == 'admin.maintenance',
                             }"
                             :href="route('admin.maintenance')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                         >
                             <i class="fa-regular fa-window-restore"></i>
                             <span class="ml-1">Site Maintenance</span>
@@ -408,7 +331,7 @@ export default {
                     <li>
                         <button
                             type="button"
-                            class="flex items-center w-full text-base text-gray-900 transition duration-75 rounded-lg group dark:text-white"
+                            class="flex items-center w-full text-base text-gray-900 transition duration-75 rounded-lg group "
                             aria-controls="dropdown-example"
                             @click="toggleDropDown()"
                         >
@@ -437,7 +360,7 @@ export default {
                                     route().current() == 'admin.addUser',
                             }"
                             :href="route('admin.addUser')"
-                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                                 >
                                     Add User
                                 </Link>
@@ -455,29 +378,12 @@ export default {
                                     route().current() == 'admin.backUp',
                             }"
                             :href="route('admin.backUp')"
-                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 mb-1 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
                                 >
                                     BackUp and Restore
                                 </Link>
                             </li>
-                            <li>
-                                <Link
-                                :class="{
-                                'text-white':
-                                    route().current() == 'admin.archive',
-                                'bg-gradient-to-r':
-                                    route().current() == 'admin.archive',
-                                'from-orange-400':
-                                    route().current() == 'admin.archive',
-                                'to-red-600':
-                                    route().current() == 'admin.archive',
-                            }"
-                            :href="route('admin.archive')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-orange-400 hover:text-white group"
-                                 >
-                                    Archive
-                                </Link>
-                            </li>
+                            
                         </ul>
                     </li>
                 </ul>
@@ -498,10 +404,10 @@ export default {
                                     route().current() == 'owner.dashboard',
                             }"
                             :href="route('owner.dashboard')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 aria-hidden="true"
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="currentColor"
@@ -530,10 +436,10 @@ export default {
                                     route().current() == 'owner.dorms',
                             }"
                             :href="route('owner.dorms')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -557,10 +463,10 @@ export default {
                                     route().current() == 'owner.manage.tenants',
                             }"
                             :href="route('owner.manage.tenants')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -588,10 +494,10 @@ export default {
                                     'owner.manage.application',
                             }"
                             :href="route('owner.manage.application')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -619,7 +525,7 @@ export default {
                                     'owner.manage.reservation',
                             }"
                             :href="route('owner.manage.reservation')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                         <svg class=" ml-2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="30" height="25" viewBox="0 0 256 256" xml:space="preserve">     
                                     <g style="stroke: none; stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 10;  opacity: 1;" transform="translate(1.4065934065934016 1.4065934065934016) scale(2.81 2.81)">
@@ -648,10 +554,10 @@ export default {
                                     route().current() == 'owner.billing',
                             }"
                             :href="route('owner.billing')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -675,10 +581,10 @@ export default {
                                     route().current() == 'owner.maintenance',
                             }"
                             :href="route('owner.maintenance')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -702,10 +608,10 @@ export default {
                                     route().current() == 'owner.reports',
                             }"
                             :href="route('owner.reports')"
-                            class="flex items-center p-2 text-gray-900 dark:text-white hover:bg-orange-400 hover:text-white group"
+                            class="flex items-center p-2 text-gray-900  hover:bg-orange-400 hover:text-white group"
                         >
                             <svg
-                                class="w-10 h-5  transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                                class="w-10 h-5  transition duration-75  group-hover:text-gray-900 "
                                 viewBox="0 0 384 512"
                                 fill="currentColor"
                             >
@@ -717,29 +623,81 @@ export default {
                         </Link>
                     </li>
                 </ul>
-                
+                <ul 
+                    class="space-y-5 font-medium"
+                    v-if="user.user_type == 'tenant'"
+                >
+                <li>
+                        <Link
+                            :class="{
+                                'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.dorms'
+                            }"
+                            :href="route('tenant.dorms')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-solid fa-house"></i>
+                            <span class="ml-1">Home</span>
+                        </Link>
+                    </li>
+                    <li>
+                            <Link
+                                :class="{
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.mydorm'
+                                }"
+                                :href="route('tenant.mydormlist')"
+                                class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                            >
+                                <i class="fa-solid fa-building-user" style="color: #000000;"></i>
+                                <span class="ml-1">Rooms and Application</span>
+                            </Link>
+                    </li>
+                    <li>
+                        <Link
+                        :class="{
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.reservation'
+                                }"
+                            :href="route('tenant.reservationlist')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-regular fa-calendar" style="color: #000000;"></i>
+                            <span class="ml-1">My Reservation</span>
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                        :class="{
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.payements'
+                                }"
+                            :href="route('tenant.payments')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-regular fa-credit-card" style="color: #000000;"></i>
+                            <span class="ml-1">Payment</span>
+                        </Link>
+                    </li>
+                </ul>
             </div>
         </div>
-        <main class="flex-grow mb-16 sm:mb-24">
+        <main class="flex-grow bg-gray-50  min-h-screen">
             <slot />
         </main>
     </div>
 
     <footer
-        class="fixed bottom-0 w-full z-20 bg-white rounded-lg border dark:bg-gray-800"
+        class="fixed bottom-0 w-full z-20 bg-white rounded-lg border"
     >
         <div
             class="mx-auto p-4 lg:ml-64 md:flex md:items-center md:justify-between"
         >
             <span
-                class="text-sm  sm:text-center dark:text-gray-400"
+                class="text-sm  sm:text-center "
                 >© 2023
                 <Link href="https://dormhub.onrender.com/" class="hover:underline"
                     >Dormhub™</Link
                 >. All Rights Reserved.</span
             >
             <ul
-                class="flex flex-wrap items-center mt-3 gap-4 text-sm font-medium  dark:text-gray-400 sm:mt-0"
+                class="flex flex-wrap items-center mt-3 gap-4 text-sm font-medium   sm:mt-0"
             >
                 <li>
                     <Link :href="route('about.us')" class="hover:underline md:mr-6"

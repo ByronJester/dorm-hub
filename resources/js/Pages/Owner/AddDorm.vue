@@ -16,6 +16,11 @@ import { ref, reactive, watch, onMounted, computed } from "vue";
 import Editor from "@tinymce/tinymce-vue";
 import VsToast from "@vuesimple/vs-toast";
 import Image from 'primevue/image';
+import MultiSelect from 'primevue/multiselect';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 
 export default {
     components: {
@@ -31,12 +36,17 @@ export default {
         LvProgressBar: LvProgressBar,
         Editor,
         VsToast,
-        Image
+        Image,
+        MultiSelect,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const active = ref(1);
         const loading = ref(false);
         const page = usePage();
+        const confirm = useConfirm();
+        const toast = useToast();
 
         const user = page.props.auth.user;
 
@@ -57,7 +67,6 @@ export default {
         const rooms_total = ref("");
         const rooms = ref([]);
         const commonAreas = ref([]);
-        const amenities = ref([]);
         const short_term = ref("No");
         const mix_gender = ref("No");
         const curfew = ref("No");
@@ -77,7 +86,22 @@ export default {
         const account_name = ref("");
         const account_number = ref("");
         const terms = ref("");
-        
+        const amenities = ref([]);
+        const services = ref([]);
+        const service = ref([
+            { name: ''},
+            { name: 'Laundry Services' },
+            { name: 'Maintenance'},
+            { name: 'Cleaning Services' },
+            { name: 'Security Services'}
+        ]);
+
+        const amenity = ref([
+            { name: 'WIFI'},
+            { name: 'Laundry Area'},
+            { name: 'Parking Area'},
+            { name: 'Kitchen Area'}
+        ]);
 
 
 
@@ -353,19 +377,18 @@ export default {
 
             return null;
         };
+
+
+
         const saveDorm = () => {
-            swal(
-                {
-                    title: "Are you sure to save this dorm?",
-                    type: "success",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: true,
-                },
-                function () {
-                    // swal("Deleted!", "Your imaginary file has been deleted.", "success");
+            confirm.require({
+                message: 'Are you sure you want to proceed?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     loading.value = true;
+                    const selectedServices = services.value.map(service => service.name);
+                    const selectedAmenities = amenities.value.map(amenity => amenity.name);
 
                     if (!!id.value) {
                         data.append("id", id.value);
@@ -398,12 +421,13 @@ export default {
                         JSON.stringify(commonAreas.value)
                     );
 
+
                     // Amenities Table
-                    data.append("amenities", JSON.stringify(amenities.value));
-
+                    data.append("amenities", JSON.stringify(selectedAmenities));
+                    console.log(selectedAmenities)
                     // Services Table
-                    // data.append("services", JSON.stringify(services.value));
-
+                    data.append("services", JSON.stringify(selectedServices));
+                    console.log(selectedServices)
                     // Rules Table
                     data.append("short_term", short_term.value);
                     data.append("mix_gender", mix_gender.value);
@@ -444,8 +468,11 @@ export default {
                             // console.log(error);
                             // loading.value = false;
                         });
+                },
+                reject: ()=>{
+
                 }
-            );
+            });
         };
         const statuss = ref('pending')
         const form = useForm({
@@ -459,25 +486,6 @@ export default {
         });
 
         const confirmSubmit = () => {
-            // form.post(route("submit.id"), {
-            //     onSuccess: () => {
-            //         location.reload();
-            //         VsToast.show({
-            //             title: "Submit",
-            //             message: "You've Submit successfuly",
-            //             variant: "success",
-            //         });
-            //     },
-            //     onError: (error) => {
-                    // VsToast.show({
-                    //     title: "Error",
-                    //     message: error,
-                    //     variant: "error",
-                    // });
-
-            //     },
-            // });
-
             axios
                 .post(route("submit.id"), form)
                 .then((response) => {
@@ -568,15 +576,12 @@ export default {
                     isValid = validateAmenities();
                     break;
                 case 8:
-                    isValid
-                    break;
-                case 9:
                     isValid = validatePM();
                     break;
-                case 10:
+                case 9:
                     isValid = validateTerms();
                     break;
-                case 11:
+                case 10:
                     isValid
                     break;
                 default:
@@ -586,10 +591,10 @@ export default {
         };
 
         const validateCommonTotal = () => {
-            if (commonAreas.value.length < 0) {
+            if (commonAreas.value.length < 2) {
                 VsToast.show({
                     title: "Warning",
-                    message: "Please add atleast 2 common areas",
+                    message: "Please add atleast 2 common areas and must have bathroom and kitchen",
                     variant: "warning",
                 });
                 return false;
@@ -950,6 +955,9 @@ export default {
             rooms_total,
             rooms,
             amenities,
+            amenity,
+            services,
+            service,
             short_term,
             mix_gender,
             curfew,
@@ -1056,7 +1064,7 @@ export default {
         </div>
     </nav>
 
-    <div class="max-w-[2520px] mt-24 xl:px-20 md:px-10 sm:px-2 px-4" v-if="$page.props.auth.user.status == null || $page.props.auth.user.status == 'decline'">
+    <div class="max-w-[2520px] mt-24 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == null || userStatus == 'decline'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="w-full items-center">
                 <p class="font-bold text-2xl">Verification Details</p>
@@ -1308,7 +1316,7 @@ export default {
     <div class="max-w-[2520px] mt-20 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == 'approved'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
 
-            <div v-if="active == 10">
+            <div v-if="active == 9">
                 <div>
                     <p class="text-2xl font-bold mt-1">
                         Step 10: Term & Condition
@@ -1991,7 +1999,7 @@ export default {
                         Add Room
                     </button>
                 </div>
-                <div class="w-full gap-2 grid grid-cols-3 px-3">
+                <div class="w-full gap-2 grid grid-cols-1 md:grid-cols-3 px-3">
                     <div
                         class="w-full flex flex-col p-3 mt-2 border rounded-xl border-gray-400"
                         v-for="(room, index) in rooms"
@@ -2337,7 +2345,7 @@ export default {
                                         v-model="minimum_stay"
                                         required
                                         autocomplete="minimum_stay"
-                                        placeholder="e.g: 3monhts/1year"
+                                        placeholder="e.g: 3months/1year"
                                     />
                                 </div>
                             </div>
@@ -2464,207 +2472,44 @@ export default {
             </div>
             <!--Amenities-->
             <div class="w-full" v-if="active == 7">
-                <p class="text-2xl font-bold mt-1 ml-3">Step 7: Amenities</p>
+                                <p class="text-2xl font-bold mt-1 ">
+                                    Amenities
+                                </p>
 
-                <p class="text-xs mt-1 ml-3">Select all apply</p>
+                                <p class="text-xs mt-1 ">
+                                    Select all apply
+                                </p>
 
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('WIFI')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('WIFI'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            WIFI
-                        </button>
-                    </div>
 
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Security')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Security'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Security
-                        </button>
-                    </div>
-                </div>
+                                <div class="card flex justify-content-center border rounded mt-5">
+                                        <MultiSelect v-model="amenities" :options="amenity" optionLabel="name" placeholder="Select Amenities"
+                                            :maxSelectedLabels="3" class="w-full md:w-20rem" />
+                                </div>
+                                <div class="flex flex-row gap-5 mt-5 text-sm font-bold text-gray-800">
+                                    <div v-for="(selected, index) in amenities" :key="index" class="rounded-full bg-orange-400 px-5 py-2 text-white">
+                                        {{  selected.name }}
+                                    </div>
+                                </div>
+                                <hr class="my-5" />
+                                <p class="text-2xl font-bold ">
+                                    Services
+                                </p>
 
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Cleaning Service')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Cleaning Service'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Cleaning Service
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Parking')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Parking'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Parking
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Mailboxes')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Mailboxes'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Mailboxes
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Vending Machines')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Vending Machines'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Vending Machines
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Laundry')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Laundry'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Laundry
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Pet Friendly')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Pet Friendly'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Pet Friendly
-                        </button>
-                    </div>
-                </div>
-            </div>
+                                <p class="text-xs mt-1 ">
+                                    Select all apply
+                                </p>
+                                    <div class="card flex justify-content-center border rounded mt-5">
+                                        <MultiSelect v-model="services" :options="service" optionLabel="name" placeholder="Select Services"
+                                            :maxSelectedLabels="1" class="w-full md:w-20rem" />
+                                    </div>
+                                    <div class="flex flex-row gap-5 mt-5 text-sm font-bold text-gray-800">
+                                    <div v-for="(selected, index) in services" :key="index" class="rounded-full bg-orange-400 px-5 py-2 text-white">
+                                        {{  selected.name }}
+                                    </div>
+                                </div>
+                            </div>
+            
             <div class="w-full" v-if="active == 8">
-                <p class="text-2xl font-bold mt-1 ml-3">Step 8: Services</p>
-
-                <p class="text-xs mt-1 ml-3">Select all apply</p>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('WIFI')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('WIFI'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            WIFI
-                        </button>
-                    </div>
-
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Security')"
-                            :class="{
-                                'bg-gray-300': amenities.includes('Security'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Security
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Cleaning Service')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Cleaning Service'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Cleaning Service
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Vending Machines')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Vending Machines'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Vending Machines
-                        </button>
-                    </div>
-                </div>
-
-                <div class="w-full flex flex-row mt-5">
-                    <div class="w-full m-2">
-                        <button
-                            class="py-2 px-4 rounded-sm w-full"
-                            @click="addAmenities('Pet Friendly')"
-                            :class="{
-                                'bg-gray-300':
-                                    amenities.includes('Pet Friendly'),
-                            }"
-                            style="border: 1px solid black; height: 60px"
-                        >
-                            Pet Friendly
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="w-full" v-if="active == 9">
                 <p class="text-2xl font-bold mt-1">
                     Step 9: Payment Method Setup
                 </p>
@@ -2713,7 +2558,7 @@ export default {
                                                 !!errorMessages.pk
                                         }"
                                         required=""
-                                        placeholder="Paymongo Public Key"
+                                        placeholder="Xendit Public Key"
                                         type="text"
                                         class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
                                     />
@@ -2731,7 +2576,7 @@ export default {
                                                 !!errorMessages.sk
                                         }"
                                         required=""
-                                        placeholder="Paymongo Secret Key"
+                                        placeholder="Xendit Secret Key"
                                         type="text"
                                         class="px-3 py-2 max-w-full focus:ring focus:outline-none border-gray-700 rounded w-full 12 border bg-white"
                                     />
@@ -2794,7 +2639,7 @@ export default {
                 </div> -->
 
             </div>
-            <div class="w-full" v-if="active == 11">
+            <div class="w-full" v-if="active == 10">
                 <div clas="w-full grid grid-cols-3 gap-5">
                     <div className=" max-w-screen-lg mx-auto ">
                         <p class="text-4xl font-black text-orange-400">You're almost there! Complete your dormitory listing</p>
@@ -2869,6 +2714,8 @@ export default {
                                                     ></label
                                                 >
                                             </div>
+                                            <Toast />
+                                            <ConfirmDialog />
                                             <button
                                                 @click="saveDorm()"
                                                 :class="{
@@ -2920,7 +2767,7 @@ export default {
                     </button>
                     <button
                         data-modal-hide="defaultModal"
-                        v-if="active < 11"
+                        v-if="active < 10"
                         @click="handleNext()"
                         type="button"
                         class="text-gray-500 float-right bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
@@ -2929,7 +2776,7 @@ export default {
                     </button>
                     <button
                         data-modal-hide="defaultModal"
-                        v-if="active == 11"
+                        v-if="active == 10"
                         @click="saveDorm()"
                         type="button"
 
@@ -2956,7 +2803,7 @@ export default {
                                 class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
                             >
                                 <h3 class="text-xl font-semibold text-black">
-                                    Setup Paymongo Account
+                                    Setup Xendit Account
                                 </h3>
                                 <button
                                     type="button"
@@ -2985,7 +2832,7 @@ export default {
                             <div class="p-6 space-y-6">
                                 <div class="mb-3">
                                     <span class="font-bold"
-                                        >1. Sign up for a Paymongo
+                                        >1. Sign up for a Xendit
                                         Account:</span
                                     >
                                     <p class="font-light">
@@ -2993,16 +2840,16 @@ export default {
                                         <a
                                             href="https://shorturl.at/klpEO"
                                             class="text-orange-400 underline cursor-pointer hover:text-opacity-25"
-                                            >Paymongo website</a
+                                            >Xendit website</a
                                         >
                                         and sign up for an account. You'll need
-                                        a Paymongo account to access your API
+                                        a Xendt account to access your API
                                         keys.
                                     </p>
                                 </div>
                                 <div class="mb-3">
                                     <span class="font-bold"
-                                        >2. Log in to Your Paymongo
+                                        >2. Log in to Your Xendit
                                         Dashboard:</span
                                     >
                                     <p class="font-light">
@@ -3016,9 +2863,8 @@ export default {
                                     >
                                     <p class="font-light">
                                         Once you're logged in, you can find your
-                                        API keys in the dashboard. On the left
-                                        sidebar, click on "Settings," and then
-                                        select "API Keys."
+                                        API keys in the dashboard. Scroll down and you will see
+                                        manage api keys."
                                     </p>
                                 </div>
                                 <div class="mb-3">

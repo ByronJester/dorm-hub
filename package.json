@@ -32,6 +32,7 @@
         "libphonenumber-js": "^1.10.51",
         "lightvue": "^1.5.1",
         "mapbox-gl": "^2.15.0",
+        "primeicons": "^6.0.1",
         "primevue": "^3.41.1",
         "tinymce": "^5.10.8",
         "v-tooltip": "^2.1.3",

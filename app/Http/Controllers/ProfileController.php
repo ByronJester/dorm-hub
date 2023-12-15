@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Str;
-use App\Models\{UserIncomeInformation};
+use App\Models\{UserIncomeInformation, Profile};
 
 class ProfileController extends Controller
 {
@@ -20,9 +20,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
+        $auth = Auth::user();
+        $profile = Profile::where('user_id', $auth->id)->get();
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'profile'=> $profile
         ]);
     }
 

@@ -11,7 +11,11 @@ class Application extends Model
 
     protected $fillable = [
         'owner_id', 'tenant_id', 'dorm_id', 'room_id', 'status', 'move_in',
-        'is_approved', 'is_active'
+        'is_approved', 'is_active', 'profile_id'
+    ];
+
+    protected $appends = [
+        'income_information'
     ];
 
     public function dorm()
@@ -32,5 +36,10 @@ class Application extends Model
     public function tenant()
     {
         return $this->belongsTo(User::class, 'tenant_id');
+    }
+
+    public function getIncomeInformationAttribute()
+    {
+        return UserIncomeInformation::where('profile_id', $this->profile_id)->first();
     }
 }

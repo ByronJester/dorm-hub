@@ -1,5 +1,5 @@
 <script>
-import TenantLayout from "@/Layouts/AuthenticatedLayout.vue";
+import TenantLayout from "@/Layouts/SidebarLayout.vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -7,26 +7,73 @@ import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import VsToast from '@vuesimple/vs-toast';
 import Checkbox from "@/Components/Checkbox.vue";
-
+import FileUpload from "primevue/fileupload";
+import DropDown from 'primevue/dropdown';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         VueDatePicker,
         TenantLayout,
         VsToast,
-        Checkbox
+        Checkbox,
+        FileUpload,
+        DropDown,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const page = usePage();
         const user = page.props.auth.user;
-
         const dorm = page.props.dorm;
         const room = page.props.room;
+
         const action = page.props.action;
         const hasExistingApplication = page.props.hasExistingApplication;
         const hasExistingReservation = page.props.hasExistingReservation;
 
-        const options = ref(["Bank Transfer", "Online Payment"]);
+        const confirm = useConfirm();
+        const toast = useToast();
 
+        const profile = page.props.profile;
+        const selectProfile = ref(profile.length > 0 ? profile[0].id : null);
+        const selectedProfile = ref([]);
+
+        const constructData = (dorm_id) => {
+            // Use map to transform the profiles
+            return profile
+                .filter((x) => x.id == dorm_id)
+                .map((p) => ({
+                    id: p.id,
+                    firstName: p.first_name,
+                    lastName: p.last_name, // Fix the typo here
+                    contact: p.contact,
+                    relationship: p.relationship,
+                }))[0]; // Take the first profile from the filtered array
+        };
+
+        onMounted(() => {
+            selectedProfile.value = constructData(selectProfile.value);
+        });
+
+        const profilechange = (evt) => {
+            let dorm_id = evt.target.value;
+
+            selectedProfile.value = constructData(dorm_id);
+        };
+
+        const userInformation = ref({
+            firstName: '',
+            lastName: '',
+            contact: '',
+            image: '',
+        })
+
+
+
+        const options = ref('');
         if(action == 'reserve') {
             options.value = ["Online Payment"];
         }
@@ -43,7 +90,7 @@ export default {
             var url = null;
 
             if (user) {
-                router.get(route("view.dorm", room.dorm_id));
+                router.get(route("view.rooms", room.dorm_id));
             } else {
                 router.get(route("landing.page"));
             }
@@ -81,7 +128,7 @@ export default {
         const terms = ref(false);
 
         if (action == "reserve") {
-            amount_to_paid.value = 300;
+            amount_to_paid.value = dorm.reservation;
         } else {
             amount_to_paid.value =
                 parseInt(room.advance) + parseInt(room.deposit);
@@ -103,19 +150,27 @@ export default {
             };
         };
 
+        const proof_of_income = ref(null)
+
+        const proofIncome = () => {
+            document.getElementById("proof_of_income").click();
+        };
+
+        const proofOfIncomeChange = (e) => {
+            const image = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.readAsDataURL(image);
+
+            reader.onload = (e) => {
+                proof_of_income.value = e.target.result;
+            };
+        }
+
         const move_in = ref();
 
         const submitApplication = () => {
-            if(!user.income_information) {
-                router.get(route("profile.edit"));
-                VsToast.show({
-                    title: 'Warning',
-                    message: 'Please add income information to make rent and reservation',
-                    variant: 'warning',
-                });
-                return
-            }
-
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
@@ -123,102 +178,130 @@ export default {
                 room_id: room.id,
                 status: "rent",
                 move_in: move_in.value,
+                profile_id: selectProfile.value,
+                source_of_income: source_of_income.value,
+                monthly_income: monthly_income.value,
+                proof_of_income: proof_of_income.value,
             };
 
-            swal(
-                {
-                    title: `Are you sure to submit this application?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to apply this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
                         .post(route("application.apply"), request)
                         .then((response) => {
-                            swal(
-                                "Application submitted.",
-                                `Wait for dorm owner approval.\n Note: Once its approved you will pay advance and deposit fee.`,
-                                "success"
-                            );
-
-                            setTimeout(function () {
-                                router.get(route("landing.page"));
-                            }, 3000);
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Success', life: 3000 });
+                            router.get(route("tenant.mydormlist"));
                         })
                         .catch((error) => {
 
                         });
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         };
 
         const reserveRoom = () => {
-            if(!user.income_information) {
-                router.get(route("profile.edit"));
-                return
-            }
 
-            if(validateSelectPM())
-            {
             const request = {
                 owner_id: dorm.user_id,
                 tenant_id: user.id,
                 dorm_id: dorm.id,
                 room_id: room.id,
-                status: "reserve",
-                amount: amount_to_paid.value,
+                reservation_fee: dorm.reservation,
                 check_date: date.value,
                 check_time: time.value.hours + ":" + time.value.minutes,
-                first_name: first_name.value,
-                last_name: last_name.value,
-                phone_number: phone_number.value,
-                payment_method: selectedPaymentMethod.value,
-                proof_of_payment: proof_of_payment.value,
             };
-
-            swal(
-                {
-                    title: `Are you sure to reserve this room?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
-                    axios
-                        .post(route("reserve.room"), request)
+            confirm.require({
+                message: 'Are you sure you want to reserve this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios.post(route("reserve.room"), request)
                         .then((response) => {
-                            if (
-                                response.data.payment_method == "Online Payment"
-                            ) {
-                                window.location.href =
-                                    response.data.data.redirect.checkout_url;
-                            } else {
-                                swal(
-                                    "Reservation submitted.",
-                                    `Wait for dorm owner approval.\n Note: If your reservation has decline you will be notify and you can refund your payment.`,
-                                    "success"
-                                );
-
-                                setTimeout(function () {
-                                    router.get(route("landing.page"));
-                                }, 3000);
+                            if(!!response.data) {
+                                toast.add({ severity: 'info', summary: 'Reserved', detail: 'Success', life: 3000 });
+                                window.location.href= response.data
                             }
                         })
-                        .catch((error) => {});
+                        .catch((error) => {
+
+                        });
+                },
+                reject: () =>{
+
                 }
-            );
-            }else{
-                VsToast.show({
-                    title: 'Error',
-                    message: 'Please input all fields',
-                    variant: 'error',
-                });
-            }
+            });
+
+
+
+            // if(!user.income_information) {
+            //     router.get(route("profile.edit"));
+            //     return
+            // }
+
+            // if(validateSelectPM())
+            // {
+            // const request = {
+            //     owner_id: dorm.user_id,
+            //     tenant_id: user.id,
+            //     dorm_id: dorm.id,
+            //     room_id: room.id,
+            //     status: "reserve",
+            //     amount: amount_to_paid.value,
+            //     check_date: date.value,
+            //     check_time: time.value.hours + ":" + time.value.minutes,
+            //     first_name: first_name.value,
+            //     last_name: last_name.value,
+            //     phone_number: phone_number.value,
+            //     payment_method: selectedPaymentMethod.value,
+            //     proof_of_payment: proof_of_payment.value,
+            // };
+
+            // swal(
+            //     {
+            //         title: `Are you sure to reserve this room?`,
+            //         type: "warning",
+            //         showCancelButton: true,
+            //         confirmButtonColor: "#DD6B55",
+            //         confirmButtonText: "Yes",
+            //         closeOnConfirm: false,
+            //     },
+            //     function () {
+                    // axios
+                    //     .post(route("reserve.room"), request)
+                    //     .then((response) => {
+                    //         if (
+                    //             response.data.payment_method == "Online Payment"
+                    //         ) {
+                    //             window.location.href =
+                    //                 response.data.data.redirect.checkout_url;
+                    //         } else {
+                    //             swal(
+                    //                 "Reservation submitted.",
+                    //                 `Wait for dorm owner approval.\n Note: If your reservation has decline you will be notify and you can refund your payment.`,
+                    //                 "success"
+                    //             );
+
+                    //             setTimeout(function () {
+                    //                 router.get(route("landing.page"));
+                    //             }, 3000);
+                    //         }
+                    //     })
+                    //     .catch((error) => {});
+            //     }
+            // );
+            // }else{
+            //     VsToast.show({
+            //         title: 'Error',
+            //         message: 'Please input all fields',
+            //         variant: 'error',
+            //     });
+            // }
 
         }
 
@@ -229,24 +312,6 @@ export default {
                     terms:'',
         });
 
-        const validateSelectPM = () =>{
-            let isValid = true;
-            errorMessages.value.sm = "";
-            errorMessages.value.dates = "";
-            if(date.value == null){
-                errorMessages.value.dates='Please input visiting date';
-                isValid = false;
-            }
-            if(selectedPaymentMethod && selectedPaymentMethod.value.trim()===''){
-                errorMessages.value.sm='Please Select Payment Method';
-                isValid = false;
-            }
-            if(!terms){
-                errorMessages.value.terms='Please tick terms and condition';
-                isValid = false;
-            }
-            return isValid
-        }
         const openTermsModal = () => {
             var modal = document.getElementById("defaultModal");
 
@@ -265,7 +330,12 @@ export default {
             terms.value = true;
         };
 
+        const source_of_income = ref(null)
+        const monthly_income = ref(null)
+
         return {
+            profile,
+            profilechange,
             errorMessages,
             back,
             toggleBankTransfer,
@@ -280,7 +350,6 @@ export default {
             allowedDates,
             time,
             dateRange,
-            options,
             amount_to_paid,
             first_name,
             last_name,
@@ -294,7 +363,15 @@ export default {
             openTermsModal,
             closeTermsModal,
             acceptClose,
-            terms
+            terms,
+            selectProfile,
+            selectedProfile,
+            userInformation,
+            proofOfIncomeChange,
+            proof_of_income,
+            source_of_income,
+            monthly_income,
+            proofIncome
         };
     },
 };
@@ -302,10 +379,9 @@ export default {
 
 <template>
     <TenantLayout>
-        <div
-            class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
-        >
+        <div class="p-4 mt-16 lg:ml-64">
             <div
+                v-if="room.is_available || room.status == 'reserve'"
                 className="
                         max-w-screen-lg
                         mx-auto
@@ -337,10 +413,11 @@ export default {
                         {{ action == "reserve" ? "Billing" : "Apply" }}
                     </h1>
                 </div>
-                <div class="flex w-full flex-col lg:flex-row gap-10">
+                <div class="flex w-full flex-col lg:flex-row gap-10 mb-20">
                     <div
-                        class="py-5 px-10 border rounded-lg bg-white border-gray-300 flex-wrap"
+                        class="flex-wrap"
                     >
+                        <p class="text-2xl font-bold mb-5">Dorm Details</p>
                         <div class="flex flex-row gap-4">
                             <img
                                 :src="room.image"
@@ -348,7 +425,7 @@ export default {
                             />
                             <div class="">
                                 <p class="text-xl font-semibold">
-                                    Room {{ room.name }}
+                                    {{ room.name }}
                                 </p>
                                 <p class="text-sm font-light text-gray-500">
                                     {{ dorm.map_address }}
@@ -614,73 +691,6 @@ export default {
                                         v-model="amount_to_paid"
                                     />
                                 </div>
-                                <div>
-                                    <label
-                                        for="amount"
-                                        class="block mb-2 text-sm font-medium text-gray-900"
-                                        >Payment Method</label
-                                    >
-                                    <select
-                                        id="subject"
-                                        v-model="selectedPaymentMethod"
-                                        :class="{ 'border-red-500': !!errorMessages.sm }"
-                                        @change="toggleBankTransfer"
-                                        class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-300 dark:border-gray-600 dark:placeholder-gray-400 dark:text-black dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    >
-                                        <option :value="null" disabled>
-                                            Select Payment Method
-                                        </option>
-                                        <option
-                                            v-for="option in options"
-                                            :key="option"
-                                        >
-                                            {{ option }}
-                                        </option>
-                                    </select>
-                                   <p class="text-red-500 text-xs">{{  errorMessages.sm }}</p>
-                                </div>
-                                <div id="bankpayment" v-if="showBankTransfer">
-                                    <label
-                                        for="amount"
-                                        class="block mb-2 text-sm font-medium text-gray-900"
-                                        >Bank Transfer</label
-                                    >
-
-                                    <div class="mb-4">
-                                        <span class="text-xs text-gray-500"
-                                            >Submit a proof of payment</span
-                                        >
-                                    </div>
-
-                                    <input
-                                        type="file"
-                                        id="proof_payment"
-                                        class="hidden"
-                                        @change="proofPaymentChange($event)"
-                                        accept="image/*"
-                                    />
-
-                                    <label
-                                        for="proof_payment"
-                                        class="relative cursor-pointer"
-                                    >
-                                        <div
-                                            class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                        >
-                                            <img
-                                                v-if="!!proof_of_payment"
-                                                alt="Proof of Payment"
-                                                :src="proof_of_payment"
-                                                class="h-48 w-auto rounded-lg"
-                                            />
-                                            <span v-else
-                                                >Click to Input Image</span
-                                            >
-                                        </div>
-                                    </label>
-
-                                    <InputError class="mt-2" />
-                                </div>
                             </div>
 
                             <button
@@ -692,6 +702,7 @@ export default {
                         </div>
 
                         <div
+                            class="p-4 rounded-xl shadow bg-white border border-gray-200"
                             v-if="
                                 (!!hasExistingApplication &&
                                     !hasExistingApplication.move_in &&
@@ -706,22 +717,145 @@ export default {
                             "
                         >
                             <p class="text-2xl font-semibold">
-                                Your Application
+                                Application Information
                             </p>
-                            <div class="flex flex-row gap-2 items-center">
-                                <i
-                                    class="fa-solid fa-circle-exclamation fa-sm"
-                                    style="color: #ff8800"
-                                ></i>
-                                <p class="text-xs text-gray-600">
-                                    Make sure to fix your income information in
-                                    <a
-                                        :href="route('profile.edit')"
-                                        class="text-orange-400 underline"
-                                        >Profile page</a
+
+                            <div class="mt-5">
+                                <p class="text-lg font-bold">Select Profile</p>
+                                <p class="text-xs text-gray-500">(Select or add profile who will rent this room)</p>
+                                <select v-model="selectProfile" @change="profilechange($event)" class="rounded-xl w-full border-gray-300 border">
+                                    <option
+                                        v-for="option in profile"
+                                        :key="option.id"
+                                        :value="option.id"
                                     >
-                                    to submit application
-                                </p>
+                                        {{ option.relationship }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <p class="mt-5 text-lg font-bold">Profile Information</p>
+                            <!-- <div class="flex flex-col gap-2 w-full items-center justify-center">
+                                            <div class="">
+                                                <img
+                                                    src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                                    alt="Profile picture"
+                                                    class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                                                />
+                                            </div>
+                                            <div>
+                                                <p></p>
+                                                <FileUpload mode="basic" v-if="selectedProfile == 'New'" name="demo[]" url="/api/upload" accept="image/*" class="bg-orange-400" :maxFileSize="1000000" />
+                                            </div>
+                                        </div> -->
+                                    <hr class="my-2"/>
+                            <label v-if="selectedProfile == 'New'" for="relationship" class="block mb-2">Relationship</label>
+                            <select v-if="selectedProfile == 'New'" id="relationship" v-model="relationship" class="block w-full text-base mb-3 text-gray-900 border border-gray-300 rounded-lg bg-gray-50">
+                                <option selected>Choose</option>
+                                <option value="Father">Father</option>
+                                <option value="Mother">Mother</option>
+                                <option value="Brother">Brother</option>
+                                <option value="Sister">Sister</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Classmate">Classmate</option>
+                                <option value="Others">Others</option>
+
+                            </select>
+                            <div class=" w-full grid grid-cols-1 md:grid-cols-2 gap-2" v-if="selectedProfile">
+                                <div>
+                                    <p>First Name</p>
+                                    <input v-model="selectedProfile.first_name" class="rounded-xl w-full border border-gray-300 " type="text" disabled/>
+                                </div>
+                                <div>
+                                    <p>Last Name</p>
+                                    <input v-model="selectedProfile.last_name" class="rounded-xl w-full border border-gray-300 " type="text"  disabled/>
+                                </div>
+                            </div>
+                            <div class="mt-1" v-if="selectedProfile">
+                                <p>Contact</p>
+                                <vue-tel-input
+                                            v-model="selectedProfile.contact"
+                                            autoFormat
+                                            validCharactersOnly
+                                            :maxlength = '16'
+                                            disabled
+                                        ></vue-tel-input>
+                            </div>
+                            <div class="mt-5">
+                                <p class="text-lg font-bold">Income Information</p>
+                                <div class="mb-2">
+                                    <p class="font-semibold">Source of Income</p>
+                                    <select class="rounded-xl w-full border-gray-300 border" v-model="source_of_income">
+                                        <option value="salary">Salary</option>
+                                        <option value="scholar">Scholar</option>
+                                        <option value="pension">Pension</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <p class="font-semibold">Monthly Income</p>
+                                    <input v-model="monthly_income" class="rounded-xl w-full border border-gray-300 " type="number" />
+                                </div>
+
+                                <p class="font-semibold">Proof of Income</p>
+                                <div class="flex flex-col items-center w-full">
+                                    <input
+                                        type="file"
+                                        id="proof_of_income"
+                                        class="hidden"
+                                        accept="image/*"
+                                        required
+                                        @change="proofOfIncomeChange($event)"
+                                    />
+                                    <label
+                                        for="business_permit"
+                                        class="flex flex-col items-center justify-center w-full h-[300px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                                    >
+                                        <img
+                                            v-if="proof_of_income"
+                                            :src="proof_of_income"
+                                            alt="business permit"
+                                            class="h-[300px] w-full object-cover bg-no-repeat bg-center rounded-lg"
+                                        />
+                                        <div
+                                            v-else
+                                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                                            @click="proofIncome()"
+                                        >
+                                            <span class="text-blue-500 dark:text-gray-400">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    width="16"
+                                                    height="16"
+                                                    fill="currentColor"
+                                                    class="w-8 h-8 bi bi-cloud-upload"
+                                                    viewBox="0 0 16 16"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                                    />
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                                    /></svg></span>
+                                            <p
+                                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                                            >
+                                                <span class="font-semibold text-blue-500"
+                                                    >Click to upload</span
+                                                >
+                                            </p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                SVG, PNG, JPG or GIF (upto 10MB)
+                                            </p>
+                                        </div>
+                                        <span class="text-xs text-red-500 ml-2"
+                                            >error
+                                        </span>
+                                    </label>
+                                </div>
+
                             </div>
 
                             <label
@@ -768,20 +902,11 @@ export default {
                         </div>
                         <div
                             class="mt-5 w-full"
-                            v-if="
-                                (!!hasExistingApplication &&
-                                    !hasExistingApplication.move_in &&
-                                    action == 'rent') ||
-                                (!hasExistingApplication &&
-                                    hasExistingReservation &&
-                                    hasExistingReservation.is_approved &&
-                                    action == 'rent') ||
-                                (!hasExistingApplication &&
-                                    !hasExistingReservation &&
-                                    action == 'rent')
-                            "
                         >
+                        <ConfirmDialog />
+                        <Toast />
                             <button
+                                v-if="action == 'rent'"
                                 class="py-2 px-3 bg-orange-400 text-white rounded-full float-right"
                                 @click="submitApplication()"
                             >
@@ -860,6 +985,11 @@ export default {
                 </div>
                 </div>
             </div>
+            <div v-else class="flex mt-40 items-center justify-center">
+                <!-- <p v-if="room.status=='reserve'">This Room Is Already Reserved</p> -->
+                <p v-if="room.status=='rent'">This Room Is Already Occupied</p>
+            </div>
         </div>
+
     </TenantLayout>
 </template>

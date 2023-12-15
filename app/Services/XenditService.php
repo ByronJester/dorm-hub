@@ -44,14 +44,14 @@ class XenditService {
         $response = null;
         $date = new \DateTime();
         $successRoute = null;
-        $invoice = 'INV-' . $date->getTimestamp();
+        $invoice = 'INV-' . $this->generateInvoiceNumber();
 
         if($action == 'addDorm') {
             $successRoute = route('add-dorm.success', $invoice);
         }
 
         if($action == 'tenantPayment') {
-            $successRoute = route('tenant-payment.success') . "/$invoice";
+            $successRoute = route('tenant-payment.success', $invoice);
         }
 
         try {
@@ -68,10 +68,22 @@ class XenditService {
 
             $response = $this->invoiceApi->createInvoice($payload);
         } catch (Exception $e){
-            return response()->json($e->getMessage());
+            // return response()->json($e->getMessage());
+            $response = null;
         }
 
         return $response;
+    }
+
+    public function generateInvoiceNumber($length = 6) {
+        $characters = '0123456789';
+        $randomString = '';
+
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+
+        return $randomString;
     }
 
 }

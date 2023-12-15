@@ -201,6 +201,8 @@ export default {
         const isLoadingRegister = ref(false);
 
         const submit = () => {
+            form.phone_number = form.phone_number.replace(/\s/g, '');
+            
             if (validateForm()) {
                 axios
                     .post(route("send.otp"), form)
@@ -218,6 +220,11 @@ export default {
                 console.log(form);
             }
         };
+
+        const removeSpaces = () => {
+            stringWithoutSpaces.value = inputString.value.replace(/\s/g, '');
+        };
+
 
         const confirmSubmit = () => {
             isLoadingRegister.value = true;

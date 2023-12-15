@@ -11,7 +11,11 @@ class Tenant extends Model
 
     protected $fillable = [
         'owner', 'tenant', 'dorm_id', 'room_id', 'status', 'move_in', 'move_out', 'reason', 'reason_description',
-        'is_active', 'auto_bill', 'auto_bill_date'
+        'is_active', 'auto_bill', 'auto_bill_date', 'profile_id'
+    ];
+
+    protected $appends = [
+        'profile'
     ];
 
     public function dorm()
@@ -37,5 +41,10 @@ class Tenant extends Model
     public function billings()
     {
         return $this->hasMany(Billing::class);
+    }
+
+    public function getProfileAttribute()
+    {
+        return Profile::where('id', $this->profile_id)->first();
     }
 }
