@@ -18,7 +18,7 @@ export default {
             InputLabel,
             TextInput,
             InputError
-            
+
         },
         setup(){
             const page = usePage();
@@ -44,11 +44,20 @@ export default {
         const form = ref({
             first_name: null,
             last_name: null,
-            username: null,
             phone_number: null,
-            password: null,
-            confirm_password: null,
         })
+
+        const createUser = () => {
+            // console.log(form)
+            axios
+                .post(route("admin.create-user"), form.value)
+                .then((response) => {
+
+                })
+                .catch((error) => {
+
+                });
+        }
 
             return{
                 options,
@@ -56,7 +65,8 @@ export default {
                 data,
                 form,
                 openComplainModal,
-                closeComplainModal
+                closeComplainModal,
+                createUser
             }
         }
 }
@@ -298,7 +308,7 @@ export default {
                                                     id="first_name"
                                                     type="text"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                   
+
                                                     required
                                                     autofocus
                                                     autocomplete="first_name"
@@ -319,7 +329,7 @@ export default {
                                                     id="middle_name"
                                                     type="text"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    
+
                                                     autofocus
                                                     autocomplete="middle_name"
                                                     v-model="form.last_name"
@@ -339,7 +349,7 @@ export default {
                                                     id="username"
                                                     type="text"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                   
+
                                                     autofocus
                                                     autocomplete="middle_name"
                                                     v-model="form.username"
@@ -359,7 +369,7 @@ export default {
                                                     id="phone_number"
                                                     type="number"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                   
+
                                                     required
                                                     autocomplete="phone_number"
                                                     v-model="form.phone_number"
@@ -414,7 +424,7 @@ export default {
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b "
                                 >
                                     <button
-                                        @click.prevent="createTenant()"
+                                        @click.prevent="createUser()"
                                         type="button"
                                         class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                     >
