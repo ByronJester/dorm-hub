@@ -22,6 +22,9 @@
                 <hr class="h-px my-5 bg-orange-400 border-1 " />
                 <div class="w-full mt-2">
                     <div class="w-full mb-5 mt-5">
+                        
+                <ConfirmDialog />
+                <Toast />
                         <button @click="openComplainModal()" class="bg-orange-400 py-2.5 px-4 text-white rounded-xl mb-5 hover:bg-orange-300 ">
                             Add FAQs
                         </button>
@@ -367,6 +370,10 @@ import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import {ref, computed} from 'vue';
 import SidebarLayout from '@/Layouts/SidebarLayout.vue'
 import { usePage, router } from "@inertiajs/vue3";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 
 export default{
     components:{
@@ -374,10 +381,14 @@ export default{
         AppDropdownContent,
         AppDropdownItem,
         SidebarLayout,
+        ConfirmDialog,
+        Toast
     },
     setup(){
             var dataFaqs = [];
-            
+            const confirm = useConfirm();
+            const toast = useToast();
+
             const page = usePage();
             const helps = page.props.helps;
 
@@ -458,32 +469,27 @@ export default{
             console.log(helps);
 
             const addFaqs = () => {
-            swal(
-                {
-                    title: `Are you sure to add this FAQs?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+                confirm.require({
+                message: 'Are you sure you want to add this FAQs?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    
                     axios
                         .post(route("help.add"), form.value)
                         .then((response) => {
-                            swal(
-                                "Success!",
-                                `You successfully add this FAQs.`,
-                                "success"
-                            );
+                            toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully add this FAQs', life: 3000 });
 
                             setTimeout(function () {
                                 location.reload();
                             }, 3000);
                         })
                         .catch((error) => {});
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         }
         const selectedFaqs = ref(null);
         const FaqsForm = ref({
@@ -513,32 +519,27 @@ export default{
         };
         
         const editHelp = () => {
-            swal(
-                {
-                    title: `Are you sure want to update this FAQs?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to update FAQs?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    
                     axios
                         .post(route("help.update", { id: selectedFaqs.value.id }), FaqsForm.value)
                         .then((response) => {
-                            swal(
-                                "Success!",
-                                `You successfully add this FAQs.`,
-                                "success"
-                            );
+                            toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully update FAQs', life: 3000 });
 
                             setTimeout(function () {
                                 location.reload();
                             }, 3000);
                         })
                         .catch((error) => {});
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         }
 
             return{
