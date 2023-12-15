@@ -498,7 +498,7 @@ export default {
                                     </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
                                                     <div>
-                                                        <AppDropdownItem v-if="!data.is_delinquent && data.checkbalance < data.checkfee" @click="changeTenantStatus(data.profileId)">
+                                                        <AppDropdownItem v-if="!data.is_delinquent && data.checkbalance == data.checkfee" @click="changeTenantStatus(data.profileId)">
                                                             Mark as Delinquent
                                                         </AppDropdownItem>
                                                         <AppDropdownItem v-if="data.is_delinquent" @click="changeTenantStatusActive(data.profileId)">
