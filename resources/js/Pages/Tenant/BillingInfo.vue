@@ -768,7 +768,7 @@ export default {
                                 </div>
                                 <div>
                                     <p>Last Name</p>
-                                    <input v-model="selectedProfile.lastName" class="rounded-xl w-full border border-gray-300 " type="text"  disabled/>
+                                    <input v-model="selectedProfile.last_name" class="rounded-xl w-full border border-gray-300 " type="text"  disabled/>
                                 </div>
                             </div>
                             <div class="mt-1">
