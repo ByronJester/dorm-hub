@@ -13,7 +13,8 @@ use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification, UserIncomeInformation,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs, Service
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs, Service,
+        SubscriptionPayment
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -960,10 +961,14 @@ class OwnerController extends Controller
     }
 
     public function subscription(){
-        
+        $auth = Auth::user();
+        $subcriptionPayments = SubscriptionPayment::where('owner_id', $auth->id)->get();
+
         return Inertia::render('Owner/Subscription', [
+            'subcriptionPayments' => $subcriptionPayments
         ]);
     }
+
     public function reports()
     {
         $auth = Auth::user();
@@ -1678,6 +1683,37 @@ class OwnerController extends Controller
             ->where('user_id', auth()->user()->id)
             ->latest()
             ->first();
+
+        $subscription = $auth->subscription;
+        $amount = 0;
+
+        if($subscription) {
+            switch ($subscription) {
+                case 'starter':
+                    $amount = 300;
+                    break;
+                case 'basic':
+                    $amount = 500;
+                    break;
+                case 'plus':
+                    $amount = 1000;
+                    break;
+            }
+        }
+
+
+        if($dorm) {
+            SubscriptionPayment::updateOrCreate(
+                ['invoice_number' => $invoice],
+                [
+                    'subscription' => $subscription,
+                    'amount' => $amount,
+                    'owner_id' => $dorm->id,
+                    'invoice_number' => $invoice
+                ]
+            );
+        }
+
 
 
         return Inertia::render('Xendit/Success', [
