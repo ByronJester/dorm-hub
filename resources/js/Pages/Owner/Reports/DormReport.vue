@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -19,7 +19,74 @@ export default {
     },
 
     methods: {
-        exportToPDF() {
+
+    },
+    setup() {
+        const date = ref();
+        const numoptions = ["5", "10", "15", "20"];
+        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
+
+        const presetDates = ref([
+            { label: "Today", value: [new Date(), new Date()] },
+            {
+                label: "Today (Slot)",
+                value: [new Date(), new Date()],
+                slot: "preset-date-range-button",
+            },
+            {
+                label: "This month",
+                value: [startOfMonth(new Date()), endOfMonth(new Date())],
+            },
+            {
+                label: "Last month",
+                value: [
+                    startOfMonth(subMonths(new Date(), 1)),
+                    endOfMonth(subMonths(new Date(), 1)),
+                ],
+            },
+            {
+                label: "This year",
+                value: [startOfYear(new Date()), endOfYear(new Date())],
+            },
+        ]);
+        const back = () => {
+            var url = null;
+
+            if (user) {
+                router.get(route("owner.reports"));
+            } else {
+                router.get(route("landing.page"));
+            }
+        };
+        const page = usePage();
+        const user = page.props.auth.user;
+
+        const data = page.props.dormReports
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+        const slicedRows = ref([]);
+
+        watch(date, (newDate) => {
+            if(newDate.length == 2) {
+                slicedRows.value = filterDataByDateRange(newDate[0], newDate[1], data)
+            }
+        })
+
+        const filterDataByDateRange = (startDate, endDate, dataArray)  =>{
+            return dataArray.filter(item => {
+                const itemDate = new Date(item.created_at);
+                return new Date(itemDate) >= new Date(startDate) && new Date(itemDate) <= new Date(endDate);
+            });
+        }
+
+        const exportToPDF = ()  => {
             const doc = new jsPDF();
 
             const page = usePage();
@@ -70,8 +137,9 @@ export default {
             });
 
             doc.save("table-data.pdf");
-        },
-            printTable() {
+        }
+
+        const printTable = () => {
             const doc = new jsPDF();
 
             const page = usePage();
@@ -136,58 +204,7 @@ export default {
                 iframe.onload = function () {
                     iframe.contentWindow.print();
                 };
-            },
-        },
-    setup() {
-        const date = ref();
-        const numoptions = ["5", "10", "15", "20"];
-        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
-
-        const presetDates = ref([
-            { label: "Today", value: [new Date(), new Date()] },
-            {
-                label: "Today (Slot)",
-                value: [new Date(), new Date()],
-                slot: "preset-date-range-button",
-            },
-            {
-                label: "This month",
-                value: [startOfMonth(new Date()), endOfMonth(new Date())],
-            },
-            {
-                label: "Last month",
-                value: [
-                    startOfMonth(subMonths(new Date(), 1)),
-                    endOfMonth(subMonths(new Date(), 1)),
-                ],
-            },
-            {
-                label: "This year",
-                value: [startOfYear(new Date()), endOfYear(new Date())],
-            },
-        ]);
-        const back = () => {
-            var url = null;
-
-            if (user) {
-                router.get(route("owner.reports"));
-            } else {
-                router.get(route("landing.page"));
-            }
-        };
-        const page = usePage();
-        const user = page.props.auth.user;
-
-        const data = page.props.dormReports
-
-        const moneyFormat = (amount) => {
-            amount = parseFloat(amount).toFixed(2);
-
-            return (
-                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            );
-        };
-
+        }
         return {
             date,
             presetDates,
@@ -195,18 +212,22 @@ export default {
             header,
             data,
             back,
-            moneyFormat
+            moneyFormat,
+            filterDataByDateRange,
+            slicedRows,
+            exportToPDF,
+            printTable
         };
     },
 };
 </script>
 <template>
     <div class="flex flex-row gap-2 items-center">
-       
+
        <p class="text-2xl font-semibold my-4">Dorm Report</p>
    </div>
    <p class="text-lg  "> This report may contain various types of information about the dormitory, its residents, facilities, and overall conditions. </p>
-   
+
    <div class="flex flex-row items-center justify-between gap-2 w-full">
        <div class="flex flex-row w-full items-center gap-2">
            <div>
@@ -248,7 +269,7 @@ export default {
 
    </div>
 
- 
+
    <!--Button-->
 
    <div class="w-full mb-5 mt-5">

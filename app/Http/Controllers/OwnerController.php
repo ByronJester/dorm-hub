@@ -992,7 +992,8 @@ class OwnerController extends Controller
                 'occupied_rooms' => Room::where('dorm_id', $dorm->id)->where('is_available', false)->count(),
                 'vacant_rooms' => Room::where('dorm_id', $dorm->id)->where('is_available', true)->count(),
                 'monthly_income' => $monthlyIncome,
-                'yearly_income' => $yearlyIncome
+                'yearly_income' => $yearlyIncome,
+                'created_at' => $dorm->created_at
             ]);
         }
 
@@ -1010,7 +1011,8 @@ class OwnerController extends Controller
                 'name' => $tenant->name,
                 'room' => $room->name,
                 'fee' => 300,
-                'expiration_date' => Carbon::parse($reservation->expired_at)->isoFormat('LL')
+                'expiration_date' => Carbon::parse($reservation->expired_at)->isoFormat('LL'),
+                'created_at' => $reservation->created_at
             ]);
         }
 
@@ -1035,6 +1037,7 @@ class OwnerController extends Controller
                 'fee' => $room->fee,
                 'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
                 'move_out' => Carbon::parse($at->move_out)->isoFormat('LL'),
+                'created_at' => $at->created_at
             ]);
 
             if(!!$at->is_active) {
@@ -1043,6 +1046,7 @@ class OwnerController extends Controller
                     'name' => $tenant->name,
                     'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
                     'status' => $at->status,
+                    'created_at' => $at->created_at
                 ]);
             }
 
@@ -1067,6 +1071,7 @@ class OwnerController extends Controller
                 'name' => $tenant->name,
                 'fee' => $room->fee,
                 'totalRentCollected' => $totalRentCollected,
+                'created_at' => $at->created_at
             ]);
 
             array_push($incomeReports, [
@@ -1076,6 +1081,7 @@ class OwnerController extends Controller
                 'total_rent_collected' => $totalRentCollected,
                 'other_charges' => $otherCharges,
                 'total_income' => $totalRentCollected + $otherCharges,
+                'created_at' => $at->created_at
             ]);
 
             $complaints = TenantComplaint::where('tenant_id', $at->id)->get();
@@ -1087,6 +1093,7 @@ class OwnerController extends Controller
                     'status' => $complaint->status,
                     'request_date' => Carbon::parse($complaint->created_at)->isoFormat('LL'),
                     'date_finish' => $complaint->status == 'finish' ? Carbon::parse($complaint->updated_at)->isoFormat('LL') : null,
+                    'created_at' => $complaint->created_at
                 ]);
             }
         }
