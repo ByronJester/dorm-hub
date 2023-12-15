@@ -256,7 +256,7 @@ export default {
                                     <h3
                                         class="text-xl font-semibold text-black"
                                     >
-                                        Add Tenant
+                                        Add System User
                                     </h3>
                                     <button
                                         type="button"
@@ -298,7 +298,7 @@ export default {
                                                     id="first_name"
                                                     type="text"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    placeholder="ex: Juan"
+                                                   
                                                     required
                                                     autofocus
                                                     autocomplete="first_name"
@@ -319,7 +319,7 @@ export default {
                                                     id="middle_name"
                                                     type="text"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    placeholder="ex: Casimero"
+                                                    
                                                     autofocus
                                                     autocomplete="middle_name"
                                                     v-model="form.last_name"
@@ -339,7 +339,7 @@ export default {
                                                     id="username"
                                                     type="text"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    placeholder="ex: Jear12"
+                                                   
                                                     autofocus
                                                     autocomplete="middle_name"
                                                     v-model="form.username"
@@ -359,7 +359,7 @@ export default {
                                                     id="phone_number"
                                                     type="number"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    placeholder="ex: 09112233445"
+                                                   
                                                     required
                                                     autocomplete="phone_number"
                                                     v-model="form.phone_number"
@@ -379,7 +379,7 @@ export default {
                                                     id="password"
                                                     type="password"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    placeholder="*********"
+                                                    
                                                     autofocus
                                                     v-model="form.password"
                                                 />
@@ -398,7 +398,8 @@ export default {
                                                     id="confirm_password"
                                                     type="password"
                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    placeholder="*********"
+                                                
+                                                    
                                                     autofocus
                                                     v-model="form.confirm_password"
                                                 />
