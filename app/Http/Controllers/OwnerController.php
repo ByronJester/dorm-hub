@@ -960,7 +960,7 @@ class OwnerController extends Controller
     }
 
     public function subscription(){
-        
+
         return Inertia::render('Owner/Subscription', [
         ]);
     }
@@ -975,6 +975,8 @@ class OwnerController extends Controller
         $now = Carbon::now();
 
         $dorms = DB::table('dorms')->where('user_id', $auth->id)->get();
+
+        $contact = ContactUs::first();
 
         $dormReports = [];
 
@@ -1036,7 +1038,7 @@ class OwnerController extends Controller
 
 
             array_push($tenantReports, [
-                'name' => $tenant->name,
+                'name' => $at->profile->name,
                 'contact' => $tenant->phone_number,
                 'room' => $room->name,
                 'fee' => $room->fee,
@@ -1081,7 +1083,7 @@ class OwnerController extends Controller
 
             array_push($incomeReports, [
                 'room' => $room->name,
-                'name' => $at->move_in,
+                'name' => $at->profile->name,
                 'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
                 'total_rent_collected' => $totalRentCollected,
                 'other_charges' => $otherCharges,
@@ -1104,6 +1106,7 @@ class OwnerController extends Controller
         }
 
         return Inertia::render('Owner/Report', [
+            'contact' => $contact,
             'dorms' => $dorms,
             'dormReports' => $dormReports,
             'reservationReports' => $reservationReports,
