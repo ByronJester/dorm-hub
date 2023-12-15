@@ -42,12 +42,14 @@ class TenantController extends Controller
             ->where('id', $room_id)
             ->first();
 
-        $rating = DormRating::where('tenant_id', $auth->id)->first();
+        $rating = DormRating::where('profile_id', $myDorm->profile_id)
+            ->where('dorm_id', $myDorm->dorm_id)
+            ->first();
 
         $complaints = [];
 
         if($myDorm) {
-            $complaints = TenantComplaint::where('tenant_id', $myDorm->id)->get();
+            $complaints = TenantComplaint::where('profile_id', $myDorm->profile_id)->get();
         }
 
         return Inertia::render('Tenant/MyDorm', [
@@ -62,7 +64,7 @@ class TenantController extends Controller
     public function myDormList(){
         $auth = Auth::user();
 
-        
+
         $applicationStatuses = ['pending', 'declined'];
         $applications = Application::with(['dorm', 'room', 'owner', 'tenant'])
             ->where('tenant_id', $auth->id)->where('is_active', true)->whereIn('status', $applicationStatuses)->get();
@@ -727,12 +729,13 @@ class TenantController extends Controller
             ->where('is_active', true)->first();
 
         return DormRating::updateOrCreate(
-            ['tenant_id' => $auth->id],
+            ['dorm_id' => $tenant->dorm_id, 'tenant_id' => $auth->id, 'profile_id' => $tenant->profile_id],
             [
                 'dorm_id' => $tenant->dorm_id,
                 'tenant_id' => $auth->id,
                 'rate' => $request->rating,
-                'comment' => $request->comment
+                'comment' => $request->comment,
+                'profile_id' => $tenant->profile_id
             ]
         );
     }
@@ -747,7 +750,8 @@ class TenantController extends Controller
         return TenantComplaint::create([
             'tenant_id' => $tenant->id,
             'subject' => $request->subject,
-            'complain' => $request->complain
+            'complain' => $request->complain,
+            'profile_id' => $tenant->profile_id
         ]);
     }
 

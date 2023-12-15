@@ -11,7 +11,7 @@ class TenantComplaint extends Model
     use HasFactory;
 
     protected $fillable = [
-        'subject', 'complain', 'tenant_id', 'status'
+        'subject', 'complain', 'tenant_id', 'status', 'profile_id'
     ];
 
     protected $appends = [
