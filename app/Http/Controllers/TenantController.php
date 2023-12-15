@@ -457,6 +457,7 @@ class TenantController extends Controller
 
         if($reservation) {
             $reservation->is_active = false;
+            $reservation->save();
         }
 
         $incomeInfo = new UserIncomeInformation;
