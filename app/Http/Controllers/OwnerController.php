@@ -103,7 +103,7 @@ class OwnerController extends Controller
             array_push($monthlyFeeBalances, [
                 "balance" => $balance,
             ]);
-            
+
         }
 
 // $monthlyFeeBalances now contains the fee balances for each tenant
@@ -113,7 +113,7 @@ class OwnerController extends Controller
         'dorms' => $dorms,
         'feeBalances' => $monthlyFeeBalances
     ]);
-        
+
     }
 
     public function maintenance()
@@ -992,8 +992,8 @@ class OwnerController extends Controller
             $yearlyIncome = 0;
 
             foreach($ts as $t) {
-                $monthlyIncome += Billing::where('tenant_id', $t->id)->whereMonth('date', $now)->sum('amount');
-                $yearlyIncome += Billing::where('tenant_id', $t->id)->whereYear('date', $now)->sum('amount');
+                $monthlyIncome += Billing::where('profile_id', $t->profile_id)->whereMonth('for_the_month', $now)->sum('amount');
+                $yearlyIncome += Billing::where('profile_id', $t->profile_id)->whereYear('for_the_month', $now)->sum('amount');
             }
 
             array_push($dormReports, [
@@ -1057,7 +1057,7 @@ class OwnerController extends Controller
                 ]);
             }
 
-            $billings = Billing::where('tenant_id', $at->id)->get();
+            $billings = Billing::where('profile_id', $at->profile_id)->get();
             $totalRentCollected = 0;
             $otherCharges = 0;
 
