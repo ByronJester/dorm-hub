@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Models\{BackUp, Dorm, User, Notification, Refund, UserPayment, Tenant, Billing};
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 
 class AdminController extends Controller
@@ -270,5 +271,15 @@ class AdminController extends Controller
     public function restoreDatabase()
     {
 
+    }
+
+    public function createAdminUser(Request $request)
+    {
+        $data = $request->toArray();
+
+        $data['password'] = Hash::make('password');
+        $data['user_type'] = 'admin';
+
+        return User::create($data);
     }
 }
