@@ -131,6 +131,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/user/change-status/decline', [AdminController::class, 'changeUserStatusDecline'])->name('user.changestatus.decline');
 
         Route::post('/backup', [AdminController:: class, 'backUpDatabase'])->name('admin.backup.execute');
+        Route::post('/create-user', [AdminController:: class, 'createAdminUser'])->name('admin.create-user');
     });
 
     Route::prefix('owner')->group(function () {
