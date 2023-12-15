@@ -216,16 +216,27 @@ export default {
                 check_date: date.value,
                 check_time: time.value.hours + ":" + time.value.minutes,
             };
+            confirm.require({
+                message: 'Are you sure you want to reserve this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
+                    axios.post(route("reserve.room"), request)
+                        .then((response) => {
+                            if(!!response.data) {
+                                toast.add({ severity: 'info', summary: 'Reserved', detail: 'Success', life: 3000 });
+                                window.location.href= response.data
+                            }
+                        })
+                        .catch((error) => {
 
-            axios.post(route("reserve.room"), request)
-                .then((response) => {
-                    if(!!response.data) {
-                        windows.location.href= response.data
-                    }
-                })
-                .catch((error) => {
+                        });
+                },
+                reject: () =>{
 
-                });
+                }
+            });
+
 
 
             // if(!user.income_information) {

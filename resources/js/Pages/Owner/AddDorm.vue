@@ -89,18 +89,18 @@ export default {
         const amenities = ref([]);
         const services = ref([]);
         const service = ref([
-            { name: 'Service1'},
-            { name: 'Service2' },
-            { name: 'Service3'},
-            { name: 'Service4' },
-            { name: 'Service5'}
+            { name: ''},
+            { name: 'Laundry Services' },
+            { name: 'Maintenance'},
+            { name: 'Cleaning Services' },
+            { name: 'Security Services'}
         ]);
 
         const amenity = ref([
             { name: 'WIFI'},
-            { name: 'Laundry'},
-            { name: 'Parking'},
-            { name: 'Kitchen'}
+            { name: 'Laundry Area'},
+            { name: 'Parking Area'},
+            { name: 'Kitchen Area'}
         ]);
 
 
@@ -2345,7 +2345,7 @@ export default {
                                         v-model="minimum_stay"
                                         required
                                         autocomplete="minimum_stay"
-                                        placeholder="e.g: 3monhts/1year"
+                                        placeholder="e.g: 3months/1year"
                                     />
                                 </div>
                             </div>
