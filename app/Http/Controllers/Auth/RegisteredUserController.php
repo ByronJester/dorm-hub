@@ -79,7 +79,7 @@ class RegisteredUserController extends Controller
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'relationship' => 'Me',
-                'contact' => $request->phone_number
+                'contact' => str_replace(' ', '', $request->phone_number)
             ]);
 
             $redirect = RouteServiceProvider::TENANT;
