@@ -866,6 +866,8 @@ export default{
                                 <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
+                                    <ConfirmDialog />
+                                    <Toast />
                                     <button
                                         @click="approveRefund()"
                                         type="button"
