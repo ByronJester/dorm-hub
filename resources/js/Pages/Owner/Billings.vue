@@ -11,6 +11,20 @@ import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import { router } from "@inertiajs/vue3";
+import Dropdown from "primevue/dropdown";
+import DataTable from 'primevue/datatable';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';   // optional
+import Row from 'primevue/row';      
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
+import Accordion from 'primevue/accordion';
+import AccordionTab from 'primevue/accordiontab';
 
 export default {
     components: {
@@ -19,18 +33,35 @@ export default {
         AppDropdownContent,
         AppDropdownItem,
         VueDatePicker,
+        Dropdown,
+        DataTable,
+        Column,
+        ColumnGroup,
+        Row,
+        Button,
+        Tag,
+        ConfirmDialog,
+        Toast,
+        Accordion,
+        AccordionTab
     },
     setup() {
-        const options = ["M.D.R Apartment", "Dorm2"];
+        
         const selectedDay = ref(1); // Default to the 1st day of the month
         const days = Array.from({ length: 30 }, (_, index) => index + 1); // Create an array of days from 1 to 30
-
+        const filters = ref();
+        const filters2 = ref();
+        const confirm = useConfirm();
+        const toast = useToast();
         const page = usePage()
 
-        const selectedDorm = ref(null)
-        selectedDorm.value = page.props.dorms[0].id
-
-
+        const selectedDorm = ref(null);
+        selectedDorm.value = page.props.dorms[0].id;
+        
+        const options = page.props.dorms.filter(dorm => {
+                return dorm && dorm.status === 'approved';
+            });
+        console.log(selectedDorm.value)
         const headersHistory = [
             "Room Name",
             "Tenant Name",
@@ -201,7 +232,8 @@ export default {
         }
 
         const dorms = page.props.dorms
-
+        const imgs = ref('');
+        console.log(dorms)
         const dormChange = (e) => {
             dataHistory.value = page.props.billingHistory
                 .filter(x => {
@@ -211,6 +243,10 @@ export default {
             dataBill.value = page.props.billTenants
                 .filter(x => {
                     return x.dorm_id == selectedDorm.value;
+                })
+            
+            imgs.value = dorms.dorm_image.filter(x => {
+                    return x.id  == selectedDorm.value;
                 })
 
             activeTab.value = 'all'
@@ -226,6 +262,8 @@ export default {
             unpaidCount.value = page.props.billingHistory.filter(x => {
                 return x.status == 'Unpaid' && x.dorm_id == selectedDorm.value;
             }).length
+
+            
         }
 
         const activeTab = ref('all')
@@ -257,103 +295,86 @@ export default {
 
         }
 
+        const getSeverity = (status) => {
+                switch (status) {
+                    case 'Unpaid':
+                        return 'danger';
 
-            const searchQueryReserve = ref("");
-            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
-            const currentPageReserve = ref(1); // Initialize to the first page
+                    case 'Paid':
+                        return 'success';
 
 
-            const filteredDataReserve = computed(() => {
-                const query = searchQueryReserve.value.toLowerCase().trim();
-                if (!query) {
-                    return dataBill; // Return all data if the search query is empty.
-                }
-
-                return dataBill.filter((row) => {
-                    // Modify the conditions as needed for your specific search criteria.
-                    return (
-                        row.dorm_name.toLowerCase().includes(query) ||
-                        row.room_name.toLowerCase().includes(query) ||
-                        row.tenant_name.toLowerCase().includes(query)
-                    );
-                });
-            });
-
-            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
-
-            const slicedRows = computed(() => {
-                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
-                const endIndex = startIndex + itemsPerPageReserve;
-
-                const slicedAndSorted = filteredDataReserve.value
-                    .slice(startIndex, endIndex)
-                    .sort((a, b) => {
-                        const dateA = new Date(a.created_at);
-                        const dateB = new Date(b.created_at);
-                        return dateB - dateA;
-                    });
-
-                return slicedAndSorted;
-                });
-
-            const changePageReserve = (pageChange) => {
-                const newPage = currentPageReserve.value + pageChange;
-                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
-                    currentPageReserve.value = newPage;
                 }
             };
-////////////////////////////////////////////////////////////
-            const searchQuery = ref("");
-            const itemsPerPage = 10; // Set the maximum number of items per page to 10
-            const currentPage = ref(1); // Initialize to the first page
 
-
-            const filteredData = computed(() => {
-                const query = searchQuery.value.toLowerCase().trim();
-                if (!query) {
-                    return dataHistory; // Return all data if the search query is empty.
-                }
-
-                return dataHistory.filter((row) => {
-                    // Modify the conditions as needed for your specific search criteria.
-                    return (
-                        row.dorm_name.toLowerCase().includes(query) ||
-                        row.room_name.toLowerCase().includes(query) ||
-                        row.tenant_name.toLowerCase().includes(query)
-                    );
-                });
-            });
-
-            const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
-
-            const slicedRowsHistory = computed(() => {
-                const startIndex = (currentPage.value - 1) * itemsPerPage;
-                const endIndex = startIndex + itemsPerPageReserve;
-
-                const slicedAndSortedHistory = filteredData.value
-                    .slice(startIndex, endIndex)
-                    .sort((a, b) => {
-                        const dateA = new Date(a.created_at);
-                        const dateB = new Date(b.created_at);
-                        return dateB - dateA;
-                    });
-
-                return slicedAndSortedHistory;
-                });
-
-            const changePage = (pageChange) => {
-                const newPage = currentPage.value + pageChange;
-                if (newPage >= 1 && newPage <= totalPages.value) {
-                    currentPage.value = newPage;
-                }
+            const initFilters = () => {
+                filters.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    tenant: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                    room: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                    monthly_fee: { value: null, matchMode: FilterMatchMode.IN },
+                    balance: { value: null, matchMode: FilterMatchMode.IN },
+                   
+                };
             };
+
+            initFilters();
+            
+            const clearFilter = () => {
+                initFilters();
+            };
+
+            const initFilters2 = () => {
+                filters2.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                   
+                };
+            };
+
+            initFilters2();
+            
+            const clearFilter2 = () => {
+                initFilters2();
+            };
+            const formatDate = (value) => {
+                // Check if value is a string and convert it to a Date object
+                const date = typeof value === 'string' ? new Date(value) : value;
+
+                // Check if date is a valid Date object
+                if (isNaN(date.getTime())) {
+                    // If not a valid Date, you can handle it according to your requirements
+                    return "Invalid Date"; // or return value.toString() or any other representation
+                }
+
+                // If it's a valid Date object, format it
+                return date.toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            };
+
+
+            
+        const optionDorm = dorms.map((p) => ({
+            id: p.id,
+            label: p.property_name,
+            image: p.dorm_image
+        }));
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+        console.log("Selected Dorm:", imgs.value);
         return {
-            currentPageReserve,
-            totalPagesReserve,
-            changePageReserve,
-            changePage,
-            currentPage,
-            totalPages,
+            optionDorm,
+            
             options,
             dates,
             headersHistory,
@@ -381,6 +402,14 @@ export default {
             paidCount,
             unpaidCount,
             submitAutoBill,
+            filters,
+            getSeverity,
+            clearFilter,
+            formatDate,
+            moneyFormat,
+            filters2,
+            clearFilter2,
+            imgs
         };
     },
 };
@@ -388,7 +417,7 @@ export default {
 
 <template>
     <AuthenticatedLayout>
-        <div class="p-4 mt-16 lg:ml-64">
+        <div class="p-4 lg:ml-64">
             <div class="flex items-center gap-2 justify-start">
                 <svg
                     class="w-10 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -402,316 +431,139 @@ export default {
                 <h3 class="text-3xl font-bold">Billing</h3>
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
-            <div class="flex flex-row gap-2 float-right">
-                <select
-                    id="subject"
-                    v-model="selectedDorm"
-                    @change="dormChange($event)"
-                    class="block w-52 px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                >
-                    <option v-for="dorm in dorms" :key="dorm.id" :value="dorm.id">
-                        {{ dorm.property_name }}
-                    </option>
-                </select>
-            </div>
-            <div
-                class="grid grid-cols-2 lg:grid-cols-3 sm:grid-cols-2 gap-4 mb-4 mt-20 text-gray-400 dark:text-white"
-            >
-                <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
-                >
-                    <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-orange-500">{{ outstandingCount }}</p>
-                        <p class="text-xs">Outstanding</p>
-                    </div>
-                </div>
-
-                <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
-                >
-                    <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-green-500">{{ paidCount }}</p>
-                        <p class="text-xs">Paid</p>
-                    </div>
-                </div>
-
-                <div
-                    class="flex items-center justify-center h-32 rounded-lg shadow-lg bg-gray-50 dark:bg-gray-800"
-                >
-                    <div class="text-center p-4">
-                        <p class="text-2xl mb-2 text-red-500">{{ unpaidCount }}</p>
-                        <p class="text-xs">Unpaid</p>
-                    </div>
-                </div>
-            </div>
-            <!--Tenant Billing-->
-            <h3 class="text-2xl font-semibold">Bill Tenant(s)</h3>
-            <div class="w-full mt-2">
-                <div class="w-full mb-5 mt-5">
-                    <div
-                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                    >
-                        <div class="rounded-t mb-0 px-4 py-3 border-0">
-                            <div class="flex flex-wrap items-center">
-                                <div
-                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-1"
-                                >
-                                    <form class="flex items-center">
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                required
-                                            />
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            class="p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            <svg
-                                                class="w-4 h-4"
-                                                aria-hidden="true"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path
-                                                    stroke="currentColor"
-                                                    stroke-linecap="round"
-                                                    stroke-linejoin="round"
-                                                    stroke-width="2"
-                                                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                                />
-                                            </svg>
-                                            <span class="sr-only">Search</span>
-                                        </button>
-                                    </form>
-                                </div>
+            <div class="mt-5">
+                            <p>Select Dorm</p>
+                                <select v-model="selectedDorm" @change="dormChange($event)" class="w-30 rounded-xl border-0 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" >
+                                    <option
+                                        v-for="option in options"
+                                        :key="option.id"
+                                        :value="option.id"
+                                    >
+                                        {{ option.property_name }}
+                                    </option>
+                                </select>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 mx-56 gap-5 mt-5 text-lg">
+                        <div class="bg-white rounded-lg p-4 gap-6 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] justify-center items-center flex">
+                            
+                            <img
+                                :src="imgs"
+                                class="rounded-lg block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                            />
+                            
+                        </div>
+                        <div class="w-full flex flex-col gap-3 text-gray-900" >
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-orange-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Unpaid</p>
+                                20000
+                            </div>
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-red-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Paid</p>
+                                50000
                             </div>
                         </div>
-                        <div class="block w-full overflow-x-auto">
-                            <table
-                                class="items-center w-full bg-transparent border-collapse"
-                            >
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                            v-for="header in headersBill"
-                                            :key="header"
-                                        >
-                                            {{ header }}
-                                        </th>
-                                        <th
-                                            class="px-6 align-middle border text-center border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                        >
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="(item, rowIndex) in dataBill"
-                                        :key="rowIndex"
+                    </div>
+                </div>
+            
+            <div class="grid grid-cols-1 2xl:grid-cols-3 mt-3 gap-4">
+                <div class="card mb-10 2xl:col-span-2">
+                    <DataTable v-model:filters="filters" :value="dataBill" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                        :globalFilterFields="['tenant', 'room', 'monthly_fee', 'balance']">
+                    <template #header>
+                        <h3 class="text-2xl font-semibold mb-3">Bill Tenant(s)</h3>
+                        <div class="flex items-center justify-between">
+                            
+                            <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                            <span class="p-input-icon-left">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
+                            </span>
+                        </div>
+                    </template>
+                    <template #empty> No tenant found. </template>
+                        <Column field="tenant" header="Name" sortable style="min-width: 10rem" class="border-b">
+                            <template #body="{ data }">
+                                {{ data.tenant }}
+                            </template>
+                        </Column>
+                        <Column field="room" header="Room Name" sortable dataType="date" style="min-width: 10rem" class="border-b">
+                            <template #body="{ data }">
+                                {{ data.room}}
+                            </template>
+                        </Column>
+                        <Column field="monthly_fee" header="Montly Fee" sortable style="min-width: 10rem" class="border-b">
+                            <template #body="{ data }">
+                                {{ moneyFormat(data.monthly_fee) }}
+                            </template>
+                        </Column>
+                        <Column field="balance" header="Balance" sortable style="min-width: 10rem" class="border-b">
+                            <template #body="{ data }">
+                                {{ moneyFormat(data.balance) }}
+                            </template>
+                        </Column>
+                        <Column header="Action" style="min-width: 5rem" class="border-b">
+                            <template #body ="{data}">
+                                <AppDropdown class="flex justify-center items-center">
+                                    <button
+                                    class="hover:text-orange-400"
                                     >
-                                        <td
-                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in objectRemoveKey(item)"
-                                            :key="colIndex"
-                                        >
-                                            <span v-if="colIndex != 'action'">
-                                                {{ value }}
-                                            </span>
-
-                                            <AppDropdown class="flex justify-center items-center" v-else>
-                                                <button >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" height="24"  viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0 56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"/></svg>
-                                                </button>
+                                        <i  class="pi pi-ellipsis-h"></i>
+                                    </button>
                                                 <AppDropdownContent class="bg-white z-50 ">
-                                                    <AppDropdownItem @click="openAutoBill(item)">
+                                                    <AppDropdownItem @click="openAutoBill(data)">
                                                         Auto Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem @click="openManualBill(item)">
+                                                    <AppDropdownItem @click="openManualBill(data)">
                                                         Manual Billing
                                                     </AppDropdownItem>
-                                                    <AppDropdownItem :href="route('owner.tenantshistory', item.tenant_id)">
+                                                    <AppDropdownItem :href="route('owner.tenantshistory', data.profile_id)">
                                                         View Payments
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
-                                            </AppDropdown>
-                                        </td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
-                    <div class="block w-full overflow-x-auto">
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-start flex-wrap mb-3"
-                            >
-                                <button
-                                    @click="changePageReserve(-1)"
-                                    :disabled="currentPageReserve == 1"
-                                    :class="{
-                                        hidden: currentPageReserve == 1,
-                                    }"
-                                    type="button"
-                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    @click="changePageReserve(1)"
-                                    :disabled="currentPageReserve === totalPagesReserve"
-                                    type="button"
-                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page {{ currentPageReserve }}</small>
-                            </div>
-                        </div>
-                    </div>
+                                    </AppDropdown>
+                               
+                            </template>
+                        </Column>
+                    </DataTable>
                 </div>
-
+                <div class="card mb-10">
+                    <DataTable v-model:filters="filters2" :value="dataHistory" tableStyle="min-width: 30rem" :rowsPerPageOptions="[2, 4, 6, 8, 10]" class="border rounded-xl" paginator :rows="2"
+                    :globalFilterFields="['description']">
+                    <template #header>
+                        <h3 class="text-2xl font-semibold mb-3">Billings</h3>
+                        <div class="flex items-center justify-between">
+                            <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter2()" />
+                            <span class="p-input-icon-left">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input v-model="filters2['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
+                            </span>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <!--Billing History-->
-            <h3 class="text-2xl font-semibold">Billing History</h3>
-            <div class="w-full mb-5">
-                <div class="w-full mt-5">
-                    <div
-                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                    >
-                        <div class="rounded-t mb-0 px-4 py-3 border-0">
-                            <div class="flex flex-wrap items-center">
-                                <div
-                                    class="relative w-full gap-5 file:px-4 max-w-full flex-grow flex-row flex"
-                                >
-                                    <span :class="{'bg-slate-300': activeTab == 'all'}"
-                                        class="w-[100px] text-center py-3 cursor-pointer"
-                                        @click="changeActiveTab('all')"
-                                    >
-                                        All
-                                    </span>
-
-                                    <span :class="{'bg-slate-300': activeTab == 'paid'}"
-                                        class="w-[100px] text-center py-3 cursor-pointer"
-                                        @click="changeActiveTab('paid')"
-                                    >
-                                        Paid
-                                    </span>
-
-                                    <span :class="{'bg-slate-300': activeTab == 'unpaid'}"
-                                        class="w-[100px] text-center py-3 cursor-pointer"
-                                        @click="changeActiveTab('unpaid')"
-                                    >
-                                        Unpaid
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="block w-full overflow-x-auto">
-                            <table
-                                class="items-center w-full bg-transparent border-collapse"
-                            >
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                            v-for="header in headersHistory"
-                                            :key="header"
-                                        >
-                                            {{ header }}
-                                        </th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="(item, rowIndex) in dataHistory"
-                                        :key="rowIndex"
-                                    >
-                                        <td
-                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in objectRemoveKey(item)"
-                                            :key="colIndex"
-                                        >
-                                            {{colIndex == "description" ? removeUnderscoreAndCapitalizeAfterSpace(value) : value}}
-                                        </td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
-                    <div class="block w-full overflow-x-auto">
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-start flex-wrap mb-3"
-                            >
-                                <button
-                                    @click="changePage(-1)"
-                                    :disabled="currentPage == 1"
-                                    :class="{
-                                        hidden: currentPage == 1,
-                                    }"
-                                    type="button"
-                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    @click="changePage(1)"
-                                    :disabled="currentPage === totalPages"
-                                    type="button"
-                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page {{ currentPage }}</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                        </div>
-                    </div>
+                    </template>
+                    <template #empty> No tenant found. </template>
+                        <Column field="description" style="min-width: 14rem" class="border-b">
+                            <template #body="{ data }">
+                                <Accordion>
+                                    <AccordionTab>
+                                        <template #header>
+                                            <div class="grid grid-cols-3 w-full justifiy-between">
+                                                <p>{{ data.description }}</p>
+                                                <div>
+                                                    <Tag :value="data.status" :severity="getSeverity(data.status)" />
+                                                </div>
+                                                <p>{{ moneyFormat(data.amount) }}</p>
+                                            </div>
+                                        </template>
+                                        <div>
+                                            <p>Tenant Name: {{ data.tenant }}</p>
+                                            <p>Room Name: {{ data.room }}</p>
+                                            <p>Invoice No.: {{ data.invoice_no }}</p>
+                                            <p v-if="data.payment_method">Payment Method: {{ data.payment_method }}</p>
+                                        </div>
+                                    </AccordionTab>
+                                </Accordion>
+                            </template>
+                        </Column>
+                      
+                    </DataTable>
                 </div>
             </div>
 
@@ -994,6 +846,7 @@ export default {
                         </div>
                     </div>
                 </div>
+        
         </div>
     </AuthenticatedLayout>
 </template>

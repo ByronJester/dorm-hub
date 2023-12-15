@@ -383,24 +383,7 @@ export default {
                                     BackUp and Restore
                                 </Link>
                             </li>
-                            <li>
-                                <Link
-                                :class="{
-                                'text-white':
-                                    route().current() == 'admin.archive',
-                                'bg-gradient-to-r':
-                                    route().current() == 'admin.archive',
-                                'from-orange-400':
-                                    route().current() == 'admin.archive',
-                                'to-red-600':
-                                    route().current() == 'admin.archive',
-                            }"
-                            :href="route('admin.archive')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
-                                 >
-                                    Archive
-                                </Link>
-                            </li>
+                            
                         </ul>
                     </li>
                 </ul>

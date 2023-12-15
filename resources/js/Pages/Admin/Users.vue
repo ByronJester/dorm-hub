@@ -74,6 +74,10 @@
             };
 
             initFilters();
+            
+            const clearFilter = () => {
+                initFilters();
+            };
 
             const formatDate = (value) => {
                 // Check if value is a string and convert it to a Date object
@@ -93,9 +97,7 @@
                 });
             };
 
-            const clearFilter = () => {
-                initFilters();
-            };
+            
 
             const openModal = (arg) => {
                 id_picture.value = arg.id_picture

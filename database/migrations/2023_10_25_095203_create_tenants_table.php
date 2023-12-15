@@ -26,6 +26,8 @@ return new class extends Migration
             $table->longText('reason')->nullable();
             $table->longText('reason_description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->date('pay_on')->nullable();
+            $table->boolean('is_delinquent')->default(true);
             $table->boolean('auto_bill')->default(false);
             $table->date('auto_bill_date')->nullable();
 

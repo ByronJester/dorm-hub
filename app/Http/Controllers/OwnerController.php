@@ -91,14 +91,29 @@ class OwnerController extends Controller
             ->where('user_id', $auth->id)
             ->get(['id', 'property_name', 'status']);
 
-        $tenants = Tenant::with('room')->where('is_active', true)
+        $applications = Tenant::with('room')->where('is_active', true)
             ->where('owner', $auth->id)->get();
 
+        $monthlyFeeBalances = [];
 
-        return Inertia::render('Owner/Tenants', [
-            'tenants' => $tenants,
-            'dorms' => $dorms
-        ]);
+        foreach ($applications as $application) {
+            $balance = Billing::where('profile_id', $application->profile_id)->where('is_paid', false)->where('description', 'Monthly Fee')->sum('amount');
+            $billings = Billing::where('f_id', $application->id)->get();
+
+            array_push($monthlyFeeBalances, [
+                "balance" => $balance,
+            ]);
+            
+        }
+
+// $monthlyFeeBalances now contains the fee balances for each tenant
+
+    return Inertia::render('Owner/Tenants', [
+        'tenants' => $applications,
+        'dorms' => $dorms,
+        'feeBalances' => $monthlyFeeBalances
+    ]);
+        
     }
 
     public function maintenance()
@@ -1448,6 +1463,21 @@ class OwnerController extends Controller
             'status' => $request->status
         ]);
     }
+
+    public function changeTenantStatus($id, Request $request)
+    {
+        return Tenant::where('profile_id', $id)->update([
+            'is_delinquent' => false
+        ]);
+    }
+
+    public function changeTenantStatusActive($id, Request $request)
+    {
+        return Tenant::where('profile_id', $id)->update([
+            'is_delinquent' => true
+        ]);
+    }
+
 
     public function refundChangeStatus($status, Request $request)
     {
