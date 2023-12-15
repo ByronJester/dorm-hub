@@ -86,9 +86,12 @@ export default {
 
                         <div class="block mx-5" :class="{ hidden: !isDropDownOpen }">
                             <div
-                                class="w-full my-1 p-2 rounded-md hover:bg-gray-300 hover:text-white"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-gray-300 text-white':
+                                    
+                                'text-white bg-gradient-to-r from-orange-400 to-red-600':
+                                  
+                        
                                         activeReport == 'IncomeReport',
                                 }"
                             >
@@ -101,14 +104,14 @@ export default {
                             </div>
 
                             <div
-                                class="w-full my-1 p-2 rounded-md"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-gray-300 text-white':
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600':
                                         activeReport == 'DormitoriesReports',
                                 }"
                             >
                                 <span
-                                    class="cursor-pointer"
+                                    class="cursor-pointer "
                                     @click="
                                         changeActiveReport('DormitoriesReports')
                                     "
@@ -118,9 +121,9 @@ export default {
                             </div>
 
                             <div
-                                class="w-full my-1 p-2 rounded-md"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-gray-300 text-white':
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600':
                                         activeReport == 'UsersReport',
                                 }"
                             >

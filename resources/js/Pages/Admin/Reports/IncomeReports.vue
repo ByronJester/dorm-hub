@@ -305,8 +305,7 @@ export default {
 
     </div>
     
-    <p class="text-lg  ">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quibusdam consequatur dolorem tempora alias quisquam quasi esse, maiores minus impedit voluptas.</p>
-
+    <p class="text-lg  "> This report is crucial for dormitory administrators, as it provides a detailed breakdown of the income sources, expenses, and overall financial health of the dormitory. </p>
     <div class="w-[278px] mt-5">
         <p class="text-lg">Date Range:</p>
         <VueDatePicker
@@ -333,7 +332,7 @@ export default {
 
     
 
-    <div class="mt-5">
+    <!-- <div class="mt-5">
         <div class="w-[278px] mt-5">
         <p class="text-lg">Position:</p>
         </div>
@@ -341,12 +340,12 @@ export default {
             <option value="[object Object]">Owner</option>
             <option value="[object Object]">User</option>
             <option value="[object Object]">Admin</option></select>
-        </div>    
+        </div>     -->
 
-        <div class="mt-5">
+        <!-- <div class="mt-5">
         <p class="text-lg">Department:</p>
         <input placeholder="Enter the department" type="tel" class="px-3 py-2 max-w-full focus:ring focus:outline-none rounded w-full dark:placeholder-gray-400 h-12 border bg-white ">
-        </div>
+        </div> -->
 
 
         <div class="mt-5">
