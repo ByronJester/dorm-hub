@@ -959,6 +959,11 @@ class OwnerController extends Controller
         ]);
     }
 
+    public function subscription(){
+        
+        return Inertia::render('Owner/Subscription', [
+        ]);
+    }
     public function reports()
     {
         $auth = Auth::user();
