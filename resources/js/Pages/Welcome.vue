@@ -123,7 +123,7 @@ export default {
         </div>
 
         <Hero
-            :title="hero.title"
+            :title="hero && hero.title"
             :subtitle="hero.subtitle"
             :description="hero.description"
             :heroImage="hero.image_path"
@@ -137,7 +137,7 @@ export default {
                     All Domitories
                 </h1>
 
-                <button
+                <!-- <button
                     @click="openModal()"
                     class="border px-5 py-2.5 ites-center justify-center rounded-xl border-gray-300 flex flex-row gap-2"
                 >
@@ -149,7 +149,7 @@ export default {
                     </span>
 
                     <span class="text-md"> Filters </span>
-                </button>
+                </button> -->
             </div>
 
             <div

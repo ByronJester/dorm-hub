@@ -257,11 +257,12 @@ export default {
 </script>
 <template>
     <div class="flex flex-row gap-2 items-center">
-        <button @click="back()" class="border-2 border-gray-500 px-3 py-1  text-gray-500 hover:text-white hover:border-orange-400 rounded-md hover:bg-orange-400 "><span>
-            <i class="fa-solid fa-arrow-left fa-lg" ></i>
-        </span></button>
+       
         <p class="text-2xl font-semibold my-4">Income Report</p>
     </div>
+    <p class="text-lg  "> This report provides a comprehensive overview of the dormitory's financial performance, allowing stakeholders to assess its profitability and make informed decisions.</p>
+
+    
     <div class="flex flex-row items-center justify-between gap-2 w-full">
         <div class="flex flex-row w-full items-center gap-2">
             <div>
@@ -278,7 +279,6 @@ export default {
         </div>
     </div>
     <div class="w-[278px] mt-5">
-    <div class="flex flex-row gap-2 items-center justify-center">
         <div>
         <p class="text-sm">Date Range:</p>
         <VueDatePicker
@@ -302,148 +302,19 @@ export default {
         </VueDatePicker>
     </div>
 
-        <div class="mt-5">
-            <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
-        </div>
     </div>
 
-    </div>
+  
     <!--Button-->
 
     <div class="w-full mb-5 mt-5">
-                    <div
-                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                    >
-                        <div class="rounded-t mb-0 px-4 py-3 border-0">
-                            <div class="flex flex-wrap items-center">
-                                <p class="text-xl mb-5 font-bold">Income Records</p>
-                                <div
-                                    class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
-                                >
-
-                                <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    <div class="flex flex-row gap-2">
-                                        <button
-                                                @click="exportToPDF()"
-                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    PDF
-                                                </button>
-                                                <button
-                                                @click="printTable()"
-                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    Print
-                                                </button>
-                                    </div>
-                                </div>
-                                    <form class="flex items-center">
-
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                required
-                                            />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="block w-full overflow-x-auto">
-                            <table
-                                class="items-center w-full bg-transparent border-collapse"
-                            >
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                            v-for="header in header"
-                                            :key="header"
-                                        >
-                                            {{ header }}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="(item, rowIndex) in data"
-                                        :key="rowIndex"
-                                    >
-                                        <td
-                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
-                                            :key="colIndex"
-                                        >
-                                            {{
-                                                colIndex == 'total_rent_collected' || colIndex == 'other_charges' || colIndex == 'total_income'
-                                                ? moneyFormat(value)
-                                                : value
-                                            }}
-                                        </td>
-
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
-                    <div class="block w-full overflow-x-auto">
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-start flex-wrap mb-3"
-                            >
-                                <button
-                                    @click="changePageReserve(-1)"
-                                    :disabled="currentPageReserve == 1"
-                                    :class="{
-                                        hidden: currentPageReserve == 1,
-                                    }"
-                                    type="button"
-                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    @click="changePageReserve(1)"
-                                    :disabled="currentPageReserve === totalPagesReserve"
-                                    type="button"
-                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page {{ currentPageReserve }}</small>
-                            </div>
-                        </div>
-                    </div>
+                   <button
+              @click="exportToPDF"
+              class="flex items-center px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-80"
+              >
+               Generate Income Report
+            </button>
                 </div>
-                        </div>
-                    </div>
-                </div>
+                     
+                  
 </template>

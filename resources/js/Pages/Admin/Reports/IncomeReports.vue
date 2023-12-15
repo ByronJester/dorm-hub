@@ -300,18 +300,14 @@ export default {
 </script>
 <template>
     <div class="flex flex-row gap-2 items-center">
-        <button
-            @click="back()"
-            class="border-2 border-gray-500 px-3 py-1 text-gray-500 hover:text-white hover:border-orange-400 rounded-md hover:bg-orange-400"
-        >
-            <span>
-                <i class="fa-solid fa-arrow-left fa-lg"></i>
-            </span>
-        </button>
+        
         <p class="text-2xl font-semibold my-4">Income Report</p>
+
     </div>
+    
+    <p class="text-lg  "> This report is crucial for dormitory administrators, as it provides a detailed breakdown of the income sources, expenses, and overall financial health of the dormitory. </p>
     <div class="w-[278px] mt-5">
-        <p class="text-sm">Date Range:</p>
+        <p class="text-lg">Date Range:</p>
         <VueDatePicker
             v-model="date"
             range
@@ -331,111 +327,55 @@ export default {
                 </span>
             </template>
         </VueDatePicker>
+
     </div>
-    <!--Button-->
-    <div class="mt-5">
+
+    
+
+    <!-- <div class="mt-5">
+        <div class="w-[278px] mt-5">
+        <p class="text-lg">Position:</p>
+        </div>
+        <select class="px-3 py-2  focus:ring focus:outline-none rounded w-full h-12 border bg-white ">
+            <option value="[object Object]">Owner</option>
+            <option value="[object Object]">User</option>
+            <option value="[object Object]">Admin</option></select>
+        </div>     -->
+
+        <!-- <div class="mt-5">
+        <p class="text-lg">Department:</p>
+        <input placeholder="Enter the department" type="tel" class="px-3 py-2 max-w-full focus:ring focus:outline-none rounded w-full dark:placeholder-gray-400 h-12 border bg-white ">
+        </div> -->
+
+
+        <div class="mt-5">
         <button
-            class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25"
-        >
-            Generate
-        </button>
+              @click="exportToPDF"
+              class="flex items-center px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-80"
+              >
+               Generate Income Report
+            </button>
     </div>
+
+    
+
+    
+    <!--Button-->
+    
     <div class="w-full mb-5 mt-5">
-        <div
-            class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-        >
-            <div class="rounded-t mb-0 px-4 py-3 border-0">
-                <div class="flex flex-wrap items-center">
-                    <div
-                        class="relative w-full sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex"
-                    >
-                        <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                            <div class="flex flex-row gap-2">
-                                <button
-                                    @click="exportToPDF"
-                                    class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white"
-                                >
-                                    PDF
-                                </button>
-                                <button
-                                    @click="exportToExcel"
-                                    class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white"
-                                >
-                                    Excel
-                                </button>
-                                <button
-                                    @click="printTable"
-                                    class="border px-4 py-1.5 border-gray-200 hover:bg-orange-400 hover:text-white rounded-md font-light bg-white"
-                                >
-                                    Print
-                                </button>
-                            </div>
-                        </div>
-                        <form class="flex items-center">
-                            <label for="simple-search" class="sr-only"
-                                >Search</label
-                            >
-                            <div class="relative w-full">
-                                <div
-                                    class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                >
-                                    <svg
-                                        class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                        aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 18 20"
-                                    >
-                                        <path
-                                            stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
-                                            d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                        />
-                                    </svg>
-                                </div>
-                                <input
-                                    type="text"
-                                    id="simple-search"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    placeholder="Search in table..."
-                                    v-model="searchQuery"
-                                />
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+          </div>
+                       
+              
+    
             <div class="block w-full overflow-x-auto">
-                <table
-                    id="tabledefault"
-                    class="items-center w-full bg-transparent border-collapse"
-                >
-                    <thead>
-                        <tr>
-                            <th
-                                class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                v-for="column in columns"
-                                :key="column.field"
-                            >
-                                {{ column.label }}
-                            </th>
-                        </tr>
-                    </thead>
+              
+                   
                     <tbody>
                         <tr
                             v-for="(item, rowIndex) in data"
                             :key="rowIndex"
                         >
-                            <td
-                                class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                v-for="(value, colIndex) in item"
-                                :key="colIndex"
-                            >
-                                {{ value }}
-                            </td>
-
+                           
                         </tr>
                         <!-- <tr
                             v-for="(row, rowIndex) in slicedRows"
@@ -492,42 +432,12 @@ export default {
                             </td>
                         </tr> -->
                     </tbody>
-                </table>
-                <div
-                    class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                >
-                    <div class="block w-full overflow-x-auto">
-                        <div class="justify-between items-center block md:flex">
-                            <div
-                                class="flex items-center justify-start flex-wrap mb-3"
-                            >
-                                <button
-                                    @click="changePage(-1)"
-                                    :disabled="currentPage == 1"
-                                    :class="{
-                                        hidden: currentPage == 1,
-                                    }"
-                                    type="button"
-                                    class="text-gray-500 bg-white mr-5 hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Previous
-                                </button>
-                                <button
-                                    @click="changePage(1)"
-                                    :disabled="currentPage === totalPages"
-                                    type="button"
-                                    class="text-gray-500 bg-white hover:bg-gray-100 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                >
-                                    Next
-                                </button>
+               
+                        <div class="justify-between items-center block md:flex"> 
                             </div>
-                            <div class="flex items-center justify-center">
-                                <small>Page {{ currentPage }}</small>
-                            </div>
+                            
+
+                            
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                
 </template>
