@@ -764,11 +764,11 @@ export default {
                             <div class=" w-full grid grid-cols-1 md:grid-cols-2 gap-2" v-if="selectedProfile">
                                 <div>
                                     <p>First Name</p>
-                                    <input v-model="selectedProfile.first_name" class="rounded-xl w-full border border-gray-300 " type="text" disabled/>
+                                    <input v-model="selectedProfile.firstName" class="rounded-xl w-full border border-gray-300 " type="text" disabled/>
                                 </div>
                                 <div>
                                     <p>Last Name</p>
-                                    <input v-model="selectedProfile.last_name" class="rounded-xl w-full border border-gray-300 " type="text"  disabled/>
+                                    <input v-model="selectedProfile.lastName" class="rounded-xl w-full border border-gray-300 " type="text"  disabled/>
                                 </div>
                             </div>
                             <div class="mt-1" v-if="selectedProfile">
