@@ -176,7 +176,7 @@ export default {
                     .catch(error => {
 
                     });
-            
+
         }
 
         const changeTenantStatusActive = (id) => {
@@ -190,7 +190,7 @@ export default {
                     .catch(error => {
 
                     });
-            
+
         }
 
         const noticeTermination = (arg) => {
@@ -441,7 +441,7 @@ export default {
                             <Button type="button" class="rounded-lg border-orange-400 border px-3 py-2.5" icon="pi pi-user-plus" label="Add Tenant" outlined @click="openComplainModal()" />
                             <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5 ml-5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
                         </div>
-                        
+
                         <span class="p-input-icon-left">
                             <i class="fa-solid fa-magnifying-glass"></i>
                             <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
@@ -476,8 +476,8 @@ export default {
                     </Column>
                     <Column field="status" header="Status" sortable style="min-width:  14rem" :filterMenuStyle="{ width: '14rem' }" class="border-b">
                         <template #body="{ data }">
-                            <Tag v-if="data.delinquent" value="Active" :severity="getSeverity('Active')" />
-                            <Tag v-if="!data.delinquent" value="Delinquent" :severity="getSeverity('Delinquent')" />
+                            <Tag v-if="!data.is_delinquent" value="Active" :severity="getSeverity('Active')" />
+                            <Tag v-if="!!data.is_delinquent" value="Delinquent" :severity="getSeverity('Delinquent')" />
                         </template>
                         <template #filter="{ filterModel }">
                             <Dropdown v-model="filterModel.value" :options="statuses" placeholder="Select One" class="p-column-filter" showClear>
@@ -487,7 +487,7 @@ export default {
                             </Dropdown>
                         </template>
                     </Column>
-                    
+
                     <Column header="Action" style="min-width: 5rem" class="border-b">
                         <template #body ="{data}">
                             <AppDropdown class="flex justify-center items-center">
@@ -505,7 +505,7 @@ export default {
                                                             Mark as Active
                                                         </AppDropdownItem>
                                                     </div>
-                                                    
+
                                                     <AppDropdownItem @click="openManualBill(data)">
                                                         Notice Termination
                                                     </AppDropdownItem>
