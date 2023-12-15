@@ -13,7 +13,8 @@ use App\Models\
     {
         User, Dorm, Room, Amenity, Rule, Payment, Notification, UserIncomeInformation,
         // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs, Service
+        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs, Service,
+        SubscriptionPayment
 };
 use App\Http\Requests\{ SaveDorm };
 use App\Rules\{RoomRule, CommonAreasRule};
@@ -959,6 +960,15 @@ class OwnerController extends Controller
         ]);
     }
 
+    public function subscription(){
+        $auth = Auth::user();
+        $subcriptionPayments = SubscriptionPayment::where('owner_id', $auth->id)->get();
+
+        return Inertia::render('Owner/Subscription', [
+            'subcriptionPayments' => $subcriptionPayments
+        ]);
+    }
+
     public function reports()
     {
         $auth = Auth::user();
@@ -970,6 +980,8 @@ class OwnerController extends Controller
         $now = Carbon::now();
 
         $dorms = DB::table('dorms')->where('user_id', $auth->id)->get();
+
+        $contact = ContactUs::first();
 
         $dormReports = [];
 
@@ -992,7 +1004,8 @@ class OwnerController extends Controller
                 'occupied_rooms' => Room::where('dorm_id', $dorm->id)->where('is_available', false)->count(),
                 'vacant_rooms' => Room::where('dorm_id', $dorm->id)->where('is_available', true)->count(),
                 'monthly_income' => $monthlyIncome,
-                'yearly_income' => $yearlyIncome
+                'yearly_income' => $yearlyIncome,
+                'created_at' => $dorm->created_at
             ]);
         }
 
@@ -1010,7 +1023,8 @@ class OwnerController extends Controller
                 'name' => $tenant->name,
                 'room' => $room->name,
                 'fee' => 300,
-                'expiration_date' => Carbon::parse($reservation->expired_at)->isoFormat('LL')
+                'expiration_date' => Carbon::parse($reservation->expired_at)->isoFormat('LL'),
+                'created_at' => $reservation->created_at
             ]);
         }
 
@@ -1029,12 +1043,13 @@ class OwnerController extends Controller
 
 
             array_push($tenantReports, [
-                'name' => $tenant->name,
+                'name' => $at->profile->name,
                 'contact' => $tenant->phone_number,
                 'room' => $room->name,
                 'fee' => $room->fee,
                 'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
                 'move_out' => Carbon::parse($at->move_out)->isoFormat('LL'),
+                'created_at' => $at->created_at
             ]);
 
             if(!!$at->is_active) {
@@ -1043,6 +1058,7 @@ class OwnerController extends Controller
                     'name' => $tenant->name,
                     'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
                     'status' => $at->status,
+                    'created_at' => $at->created_at
                 ]);
             }
 
@@ -1067,15 +1083,17 @@ class OwnerController extends Controller
                 'name' => $tenant->name,
                 'fee' => $room->fee,
                 'totalRentCollected' => $totalRentCollected,
+                'created_at' => $at->created_at
             ]);
 
             array_push($incomeReports, [
                 'room' => $room->name,
-                'name' => $at->move_in,
+                'name' => $at->profile->name,
                 'move_in' => Carbon::parse($at->move_in)->isoFormat('LL'),
                 'total_rent_collected' => $totalRentCollected,
                 'other_charges' => $otherCharges,
                 'total_income' => $totalRentCollected + $otherCharges,
+                'created_at' => $at->created_at
             ]);
 
             $complaints = TenantComplaint::where('tenant_id', $at->id)->get();
@@ -1087,11 +1105,13 @@ class OwnerController extends Controller
                     'status' => $complaint->status,
                     'request_date' => Carbon::parse($complaint->created_at)->isoFormat('LL'),
                     'date_finish' => $complaint->status == 'finish' ? Carbon::parse($complaint->updated_at)->isoFormat('LL') : null,
+                    'created_at' => $complaint->created_at
                 ]);
             }
         }
 
         return Inertia::render('Owner/Report', [
+            'contact' => $contact,
             'dorms' => $dorms,
             'dormReports' => $dormReports,
             'reservationReports' => $reservationReports,
@@ -1666,6 +1686,37 @@ class OwnerController extends Controller
             ->where('user_id', auth()->user()->id)
             ->latest()
             ->first();
+
+        $subscription = $auth->subscription;
+        $amount = 0;
+
+        if($subscription) {
+            switch ($subscription) {
+                case 'starter':
+                    $amount = 300;
+                    break;
+                case 'basic':
+                    $amount = 500;
+                    break;
+                case 'plus':
+                    $amount = 1000;
+                    break;
+            }
+        }
+
+
+        if($dorm) {
+            SubscriptionPayment::updateOrCreate(
+                ['invoice_number' => $invoice],
+                [
+                    'subscription' => $subscription,
+                    'amount' => $amount,
+                    'owner_id' => $dorm->id,
+                    'invoice_number' => $invoice
+                ]
+            );
+        }
+
 
 
         return Inertia::render('Xendit/Success', [

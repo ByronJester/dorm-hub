@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -19,11 +19,81 @@ export default {
     },
 
     methods: {
-        exportToPDF() {
-            const doc = new jsPDF();
 
-            const page = usePage();
-            const contacts = page.props.contact;
+    },
+    setup() {
+        const date = ref();
+        const numoptions = ["5", "10", "15", "20"];
+        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
+
+        const presetDates = ref([
+            { label: "Today", value: [new Date(), new Date()] },
+            {
+                label: "Today (Slot)",
+                value: [new Date(), new Date()],
+                slot: "preset-date-range-button",
+            },
+            {
+                label: "This month",
+                value: [startOfMonth(new Date()), endOfMonth(new Date())],
+            },
+            {
+                label: "Last month",
+                value: [
+                    startOfMonth(subMonths(new Date(), 1)),
+                    endOfMonth(subMonths(new Date(), 1)),
+                ],
+            },
+            {
+                label: "This year",
+                value: [startOfYear(new Date()), endOfYear(new Date())],
+            },
+        ]);
+        const back = () => {
+            var url = null;
+
+            if (user) {
+                router.get(route("owner.reports"));
+            } else {
+                router.get(route("landing.page"));
+            }
+        };
+        const page = usePage();
+        const user = page.props.auth.user;
+
+        const data = page.props.dormReports
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                '₱' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+        const slicedRows = ref([]);
+        const datarange = ref([]);
+
+        watch(date, (newDate) => {
+            if(newDate.length == 2) {
+                slicedRows.value = filterDataByDateRange(newDate[0], newDate[1], data)
+                datarange.value = newDate;
+            }else{
+                slicedRows.value = data;
+            }
+        })
+
+        const filterDataByDateRange = (startDate, endDate, dataArray)  =>{
+            return dataArray.filter(item => {
+                const itemDate = new Date(item.created_at);
+                return new Date(itemDate) >= new Date(startDate) && new Date(itemDate) <= new Date(endDate);
+            });
+        }
+        const contacts = page.props.contact;
+
+        const exportToPDF = ()  => {
+            const doc = new jsPDF();
+           
             const currentDate = new Date();
             const logo = "/images/logo.png";
             const dateString = currentDate.toLocaleDateString();
@@ -35,9 +105,10 @@ export default {
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
 
+           
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
-            doc.text(emails, 150, 30)
+            doc.text(emails, 163, 30)
             doc.setFontSize(10);
             doc.text(phone, 175, 36)
             doc.setFontSize(10);
@@ -54,12 +125,18 @@ export default {
             const margin = 65;
 
             // Create your data array with header and rows
-            const tableData = [this.header].concat(
-                this.slicedRows.map((row) => [
-
+            const tableData = [header].concat(
+                slicedRows.value.map((row) => [
+                    row.name,
+                    row.date_registered,
+                    row.rooms_total,
+                    row.occupied_rooms,
+                    row.vacant_rooms,
+                    moneyFormat(row.monthly_income),
+                    moneyFormat(row.yearly_income)
                 ])
             );
-
+            console.log(tableData)
             // Generate the table in the PDF
             doc.autoTable({
                 head: [tableData[0]],
@@ -69,9 +146,10 @@ export default {
                 styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
             });
 
-            doc.save("table-data.pdf");
-        },
-            printTable() {
+            doc.save("table-data-" +timestamp+'.pdf');
+        }
+
+        const printTable = () => {
             const doc = new jsPDF();
 
             const page = usePage();
@@ -136,58 +214,7 @@ export default {
                 iframe.onload = function () {
                     iframe.contentWindow.print();
                 };
-            },
-        },
-    setup() {
-        const date = ref();
-        const numoptions = ["5", "10", "15", "20"];
-        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
-
-        const presetDates = ref([
-            { label: "Today", value: [new Date(), new Date()] },
-            {
-                label: "Today (Slot)",
-                value: [new Date(), new Date()],
-                slot: "preset-date-range-button",
-            },
-            {
-                label: "This month",
-                value: [startOfMonth(new Date()), endOfMonth(new Date())],
-            },
-            {
-                label: "Last month",
-                value: [
-                    startOfMonth(subMonths(new Date(), 1)),
-                    endOfMonth(subMonths(new Date(), 1)),
-                ],
-            },
-            {
-                label: "This year",
-                value: [startOfYear(new Date()), endOfYear(new Date())],
-            },
-        ]);
-        const back = () => {
-            var url = null;
-
-            if (user) {
-                router.get(route("owner.reports"));
-            } else {
-                router.get(route("landing.page"));
-            }
-        };
-        const page = usePage();
-        const user = page.props.auth.user;
-
-        const data = page.props.dormReports
-
-        const moneyFormat = (amount) => {
-            amount = parseFloat(amount).toFixed(2);
-
-            return (
-                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            );
-        };
-
+        }
         return {
             date,
             presetDates,
@@ -195,33 +222,22 @@ export default {
             header,
             data,
             back,
-            moneyFormat
+            moneyFormat,
+            filterDataByDateRange,
+            slicedRows,
+            exportToPDF,
+            printTable
         };
     },
 };
 </script>
 <template>
     <div class="flex flex-row gap-2 items-center">
-       
+
        <p class="text-2xl font-semibold my-4">Dorm Report</p>
    </div>
    <p class="text-lg  "> This report may contain various types of information about the dormitory, its residents, facilities, and overall conditions. </p>
-   
-   <div class="flex flex-row items-center justify-between gap-2 w-full">
-       <div class="flex flex-row w-full items-center gap-2">
-           <div>
-               <p class="text-sm">Dorm:</p>
-               <select
-                   id="subject"
-                   class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-               >
-                   <option v-for="option in options" :key="option">
-                       {{ option }}
-                   </option>
-               </select>
-           </div>
-       </div>
-   </div>
+
    <div class="w-[278px] mt-5">
        <div>
        <p class="text-sm">Date Range:</p>
@@ -248,7 +264,7 @@ export default {
 
    </div>
 
- 
+
    <!--Button-->
 
    <div class="w-full mb-5 mt-5">

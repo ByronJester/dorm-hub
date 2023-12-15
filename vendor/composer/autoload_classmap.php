@@ -64,6 +64,7 @@ return array(
     'App\\Models\\Notification' => $baseDir . '/app/Models/Notification.php',
     'App\\Models\\Payment' => $baseDir . '/app/Models/Payment.php',
     'App\\Models\\PrivacyPolicy' => $baseDir . '/app/Models/PrivacyPolicy.php',
+    'App\\Models\\Profile' => $baseDir . '/app/Models/Profile.php',
     'App\\Models\\Refund' => $baseDir . '/app/Models/Refund.php',
     'App\\Models\\Reservation' => $baseDir . '/app/Models/Reservation.php',
     'App\\Models\\Room' => $baseDir . '/app/Models/Room.php',

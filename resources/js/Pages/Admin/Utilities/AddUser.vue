@@ -378,44 +378,6 @@ export default {
                                                 <InputError class="mt-2" />
                                             </div>
 
-                                            <div>
-                                                <InputLabel
-                                                    for="password"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 "
-                                                    value="Password"
-                                                />
-
-                                                <TextInput
-                                                    id="password"
-                                                    type="password"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                    
-                                                    autofocus
-                                                    v-model="form.password"
-                                                />
-
-                                                <InputError class="mt-2" />
-                                            </div>
-
-                                            <div>
-                                                <InputLabel
-                                                    for="confirm_password"
-                                                    class="block mb-2 text-sm font-medium text-gray-900 "
-                                                    value="Confirm Password"
-                                                />
-
-                                                <TextInput
-                                                    id="confirm_password"
-                                                    type="password"
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
-                                                
-
-                                                    autofocus
-                                                    v-model="form.confirm_password"
-                                                />
-
-                                                <InputError class="mt-2" />
-                                            </div>
                                         </div>
                                     </form>
                                 </div>

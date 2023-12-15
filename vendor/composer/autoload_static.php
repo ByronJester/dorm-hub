@@ -645,6 +645,7 @@ class ComposerStaticInitc8c4f721b4a735433ab4497e833e5b18
         'App\\Models\\Notification' => __DIR__ . '/../..' . '/app/Models/Notification.php',
         'App\\Models\\Payment' => __DIR__ . '/../..' . '/app/Models/Payment.php',
         'App\\Models\\PrivacyPolicy' => __DIR__ . '/../..' . '/app/Models/PrivacyPolicy.php',
+        'App\\Models\\Profile' => __DIR__ . '/../..' . '/app/Models/Profile.php',
         'App\\Models\\Refund' => __DIR__ . '/../..' . '/app/Models/Refund.php',
         'App\\Models\\Reservation' => __DIR__ . '/../..' . '/app/Models/Reservation.php',
         'App\\Models\\Room' => __DIR__ . '/../..' . '/app/Models/Room.php',
