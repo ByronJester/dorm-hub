@@ -3,7 +3,8 @@ import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-
+import { ref, computed, reactive, watch, onMounted, defineProps } from "vue";
+import { usePage, useForm } from "@inertiajs/vue3";
 
 export default {
         components: {
@@ -13,15 +14,14 @@ export default {
             AppDropdownItem,
         },
         setup(){
+            const page = usePage();
+
             const options=["Jear Dorm", "Dorm 2"];
             const headers=["User Name", "User type", "Contact No.", "Date Added"];
-            const data = [
-            ["Gene De La Rea", "Admin", "09165984951", ""],
-            ["Michael Lapuz", "Admin", "09165984951", ""],
-            ["Giovanni Marco", "Admin", "09165984951", ""],
-            ["Luigi Butor", "Admin", "09165984951", ""]
-        ]
-            
+            const data = ref([]);
+
+            data.value = page.props.users
+
             return{
                 options,
                 headers,
@@ -37,7 +37,7 @@ export default {
                 <div class="flex items-center justify-start">
                             <h3 class="text-3xl">Add System User</h3>
                     </div>
-                
+
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div class="w-full mt-2">
                 <div class="w-full mb-5 mt-5">
@@ -62,7 +62,7 @@ export default {
                                             </button>
                                         </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -207,7 +207,7 @@ export default {
             </div>
         </div>
     </div>
-        
+
     </AuthenticatedLayout>
 
 </template>

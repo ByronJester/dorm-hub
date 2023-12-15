@@ -129,8 +129,10 @@ class AdminController extends Controller
     }
 
     public function addUser(){
-        return Inertia::render('Admin/Utilities/AddUser',[
+        $users = User::where('user_type', 'admin')->get(['username', 'user_type', 'phone_number', 'created_at']);
 
+        return Inertia::render('Admin/Utilities/AddUser',[
+            'users' => $users
         ]);
     }
 
