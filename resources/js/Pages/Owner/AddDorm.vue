@@ -382,7 +382,7 @@ export default {
 
         const saveDorm = () => {
             confirm.require({
-                message: 'Are you sure you want to decline this user?',
+                message: 'Are you sure you want to proceed?',
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 accept: () => {

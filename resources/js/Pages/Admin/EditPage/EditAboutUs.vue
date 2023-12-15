@@ -3,15 +3,22 @@ import Editor from "@tinymce/tinymce-vue";
 import { useForm, usePage, router } from "@inertiajs/vue3";
 import { ref } from "vue";
 import AuthorizedLayout from "@/Layouts/SidebarLayout.vue";
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 
 export default {
     components: {
         Editor,
         AuthorizedLayout,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const page = usePage();
-
+        const confirm = useConfirm();
+        const toast = useToast();
         const user = page.props.auth.user;
         const aboutUs = page.props.aboutUs;
 
@@ -49,29 +56,23 @@ export default {
         });
 
         const update = () => {
-            swal(
-                {
-                    title: "Are you sure to update your About Us page?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to update this about us?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     form.patch(route("aboutUs.update"), {
                         preserveScroll: true,
                         onSuccess: () => {
-                            swal(
-                                "Success!",
-                                "Your profile has been updated.",
-                                "success"
-                            );
+                            toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully update about us', life: 3000 });
                             window.location.reload();
                         },
                     });
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         };
 
         return {
@@ -185,7 +186,8 @@ export default {
                         }"
                     />
                 </div>
-
+                <ConfirmDialog />
+                <Toast />
                 <button
                     type="submit"
                     class="bg-orange-400 mt-4 text-white px-4 py-2 rounded-lg"

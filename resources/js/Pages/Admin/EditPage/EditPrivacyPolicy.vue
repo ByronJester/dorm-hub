@@ -3,18 +3,24 @@ import Editor from "@tinymce/tinymce-vue";
 import { useForm, usePage, router} from "@inertiajs/vue3";
 import { ref } from "vue";
 import AuthorizedLayout from '@/Layouts/SidebarLayout.vue'
-
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         Editor,
-        AuthorizedLayout
+        AuthorizedLayout,
+        ConfirmDialog,
+        Toast
     },
     setup() {
         const page = usePage();
 
         const user = page.props.auth.user;
         const policy = page.props.policy;
-
+        const toast = useToast();
+        const confirm = useConfirm();
         const back = () => {
             var url = null;
 
@@ -29,28 +35,23 @@ export default {
         });
 
         const update = () => {
-          swal({
-            title: "Are you sure to update your privacy policy page?",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes",
-            closeOnConfirm: false,
-          },
-          function () {
+          confirm.require({
+                message: 'Are you sure you want to update this privacy policy?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+            accept: () => {
+                    
             form.patch(route("policy.update"), {
                 preserveScroll: true,
                 onSuccess: () => {
-                    swal(
-                        "Success!",
-                        "Your profile has been updated.",
-                        "success"
-                    );
+                  toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully update privacy policy', life: 3000 });
                     window.location.reload();
                 },
             });
+        },reject: () =>{
+
         }
-    );
+      });
 };  
           
           
@@ -102,7 +103,9 @@ export default {
           }"
         />
       </div>
-
+      
+      <ConfirmDialog />
+                <Toast />
       <button type="submit" class="bg-blue-500 mt-4 text-white px-4 py-2 rounded-lg">Save</button>
     </form>
   </div>
