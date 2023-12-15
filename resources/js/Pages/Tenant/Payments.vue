@@ -393,11 +393,11 @@ export default {
         onMounted(() => {
             rows.value = page.props.bills.filter(x => { return x.profile_id == selectedProfile.value});
             balance.value = page.props.balances.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
-                    return accumulator + currentValue.amount;
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
                 }, 0);
 
             totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
-                    return accumulator + currentValue.amount;
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
                 }, 0);
 
             let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == selectedProfile.value})
@@ -410,7 +410,7 @@ export default {
                 data.value.push(
                     {
                         payment_method: payments.value[p].payment_method,
-                        amount: payments.value[p].amount,
+                        amount: parseFloat(payments.value[p].amount),
                         category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
                         profile_id: payments.value[p].profile_id
                     }
@@ -456,11 +456,11 @@ export default {
             const changeSelectedProfile = (evt) => {
                 rows.value = page.props.bills.filter(x => { return x.profile_id == evt.value.id});
                 balance.value = page.props.balances.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
-                    return accumulator + currentValue.amount;
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
                 }, 0);
 
                 totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
-                    return accumulator + currentValue.amount;
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
                 }, 0);
 
                 let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == evt.value.id})
@@ -471,7 +471,7 @@ export default {
                     data.value.push(
                         {
                             payment_method: payments.value[p].payment_method,
-                            amount: payments.value[p].amount,
+                            amount: parseFloat(payments.value[p].amount),
                             category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
                             profile_id: payments.value[p].profile_id
                         }
@@ -689,7 +689,7 @@ export default {
                                 <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
                                     <template #body="{ data }">
                                         <div class="grid grid-cols-3 w-full place-items-center gap-2">
-                                            <p>{{data.category}}</p> 
+                                            <p>{{data.category}}</p>
                                             <div class="">
                                                 <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
                                                 <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
@@ -698,7 +698,7 @@ export default {
                                                 <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
                                             </div>
                                             <p class="text-end">{{ moneyFormat(data.amount) }}</p>
-                                            
+
                                         </div>
                                     </template>
                                 </Column>
