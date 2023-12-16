@@ -1289,7 +1289,7 @@ class OwnerController extends Controller
 
         $application->status = 'approved';
         $application->is_approved = true;
-        $application->is_active = false;
+        $application->is_active = true;
         $application->save();
 
         $reservation = Reservation::where('room_id', $room->room_id)->first();
@@ -1303,21 +1303,21 @@ class OwnerController extends Controller
         $this->sendSMS($tenant->phone_number, "Your application has been approved.");
 
         $tenant = Tenant::create([
-            'owner' => $request->owner_id,
-            'tenant' => $request->tenant_id,
-            'dorm_id' => $request->dorm_id,
-            'room_id' => $request->room_id,
+            'owner' => $application->owner_id,
+            'tenant' => $application->tenant_id,
+            'dorm_id' => $application->dorm_id,
+            'room_id' => $application->room_id,
             'status' => 'approved',
             'move_in' => Carbon::parse($request->move_in),
-            'profile_id' => $request->profile_id,
+            'profile_id' => $application->profile_id,
             'is_active' => true
         ]);
 
 
         $billing = Billing::create([
             'f_id' => $tenant->id,
-            'profile_id' => $request->profile_id,
-            'user_id' => $request->tenant_id,
+            'profile_id' => $application->profile_id,
+            'user_id' => $application->tenant_id,
             'amount' => (int) $room->deposit + (int) $room->advance,
             'description' => 'Advance and Deposit Fee',
             'type' => 'rent',
