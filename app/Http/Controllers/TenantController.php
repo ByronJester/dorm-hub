@@ -49,7 +49,6 @@ class TenantController extends Controller
                 ->where('dorm_id', $myDorm->dorm_id)
                 ->first();
         }
-        
 
         $complaints = [];
 

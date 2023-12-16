@@ -1292,7 +1292,7 @@ class OwnerController extends Controller
         $application->is_active = true;
         $application->save();
 
-        $reservation = Reservation::where('room_id', $request->room_id)->first();
+        $reservation = Reservation::where('room_id', $room->room_id)->first();
         if($reservation){
             $reservation->is_active = false;
             $reservation->save();

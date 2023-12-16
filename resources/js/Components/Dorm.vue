@@ -8,6 +8,10 @@ import { VueGoodTable } from "vue-good-table-next";
 import { format } from 'date-fns';
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
 import Image from 'primevue/image';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+    import ConfirmDialog from 'primevue/confirmdialog';
+    import Toast from 'primevue/toast';
 
 export default {
     props: ["dorm", "user", "application"],
@@ -22,12 +26,15 @@ export default {
         Image,
         Pagination,
         Navigation,
+        ConfirmDialog,
+        Toast
     },
     setup(props) {
         const isMobileView = ref(false);
         const room = ref(null);
         const currentTab = ref("details"); // Default tab
-
+        const confirm = useConfirm();
+        const toast = useToast();
         const showDetails = () => {
             currentTab.value = "details";
         };
@@ -89,17 +96,11 @@ export default {
 
                 return;
             }
-
-            swal(
-                {
-                    title: `Are you sure to reserve this room?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to reserve this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     const data = {
                         dorm_id: props.dorm.id,
                         owner_id: props.dorm.user_id,
@@ -124,8 +125,11 @@ export default {
                         .catch((error) => {
                             errors.value = error.response.data.errors;
                         });
+                },
+                reject: () =>{
+
                 }
-            );
+            });
         };
 
         const rentRoom = (arg) => {
@@ -135,16 +139,11 @@ export default {
                 return;
             }
 
-            swal(
-                {
-                    title: `Are you sure you want to rent this room?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to rent this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     const data = {
                         dorm_id: props.dorm.id,
                         owner_id: props.dorm.user_id,
@@ -169,8 +168,11 @@ export default {
                         .catch((error) => {
                             errors.value = error.response.data.errors;
                         });
+                },
+                reject: () => {
+                    
                 }
-            );
+        });
         };
 
         const messageOwner = (owner_id) => {
@@ -230,17 +232,11 @@ export default {
             let confirmText = !arg.is_available ? 'mark this room available?' : 'mark this room unavailable?';
             let successText = !arg.is_available ? 'available.' : 'unavailable.';
             const data = { id: arg.id, is_available: arg.is_available }
-
-            swal(
-                {
-                    title: `Are you sure you want ${confirmText}`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: `Are you sure you want to decline ${confirmText}`,
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
                         .post(route("change.room.status"), data)
                         .then((response) => {
@@ -257,8 +253,12 @@ export default {
                         .catch((error) => {
 
                         });
-                }
-            );
+                },
+                reject: () =>
+               {
+                
+               }
+        });
         }
 
         const roomStatusFilter = ref('available')
