@@ -42,9 +42,14 @@ class TenantController extends Controller
             ->where('id', $room_id)
             ->first();
 
-        $rating = DormRating::where('profile_id', $myDorm->profile_id)
-            ->where('dorm_id', $myDorm->dorm_id)
-            ->first();
+        $rating = null;
+        
+        if($myDorm) {
+            $rating = DormRating::where('profile_id', $myDorm->profile_id)
+                ->where('dorm_id', $myDorm->dorm_id)
+                ->first();
+        }
+        
 
         $complaints = [];
 
