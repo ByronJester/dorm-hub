@@ -1293,8 +1293,11 @@ class OwnerController extends Controller
         $application->save();
 
         $reservation = Reservation::where('room_id', $request->room_id)->first();
-        $reservation->is_active = false;
-        $reservation->save();
+        if($reservation){
+            $reservation->is_active = false;
+            $reservation->save();
+        }
+        
 
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been approved.");
