@@ -271,8 +271,18 @@
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 accept: () => {
-                    axios.post(route('approve.application', arg.id),  {room_id: arg.room_id})
+                    const requestData = {
+                        room_id: arg.room_id, // Replace with the actual property from arg
+                        owner_id: arg.owner_id, // Replace with the actual property from arg
+                        tenant_id: arg.tenant_id, // Replace with the actual property from arg
+                        dorm_id: arg.dorm_id, // Replace with the actual property from arg
+                        move_in: arg.move_in, // Replace with the actual property from arg
+                        profile_id: arg.profile_id, // Replace with the actual property from arg
+                    };
+
+                    axios.post(route('approve.application', arg.id), requestData)
                         .then(response => {
+
                             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully approved this application', life: 3000 });
                             setTimeout(function () {
                                 location.reload()
@@ -280,6 +290,7 @@
                         })
                         .catch(error => {
                             errors.value = error.response.data.errors
+                            console.log(arg)
                         })
                 },
                 reject: () => {
