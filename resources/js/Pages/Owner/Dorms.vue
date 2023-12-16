@@ -1055,6 +1055,7 @@ export default {
                 xl:grid-cols-4
                 2xl:grid-cols-5
                 gap-8
+                mb-10
           "
             >
                 <DormList
