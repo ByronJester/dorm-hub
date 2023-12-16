@@ -1289,7 +1289,7 @@ class OwnerController extends Controller
 
         $application->status = 'approved';
         $application->is_approved = true;
-        $application->is_active = true;
+        $application->is_active = false;
         $application->save();
 
         $reservation = Reservation::where('room_id', $request->room_id)->first();
