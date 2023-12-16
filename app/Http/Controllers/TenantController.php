@@ -39,7 +39,7 @@ class TenantController extends Controller
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('profile_id', $myApplication->profile_id)
             ->where('is_active', true)
-            ->where('id', $room_id)
+            ->where('id', $myApplication->room_id)
             ->first();
 
         $rating = null;
