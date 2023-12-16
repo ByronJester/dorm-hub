@@ -256,7 +256,7 @@ export default {
                 },
                 reject: () =>
                {
-                
+
                }
         });
         }
@@ -469,6 +469,8 @@ export default {
                                         <td
                                             class="border-t-0 px-6 align-middle items-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                         >
+                                         <ConfirmDialog />
+                                         <Toast />
                                             <button
                                                 @click="changeRoomAvailability(item)"
                                                 class="bg-orange-400 py-2 px-3 rounded-md text-white"
