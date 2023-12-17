@@ -38,6 +38,10 @@ export default {
 
         const data = ref([])
         data.value = page.props.payments
+        const tenant =  page.props.tenant
+        
+
+        console.log(tenant)
 
         const objectRemoveKey = (object, key = null) => {
             const newObject = Object.assign({}, object);
@@ -82,6 +86,7 @@ export default {
             }
         };
 
+        console.log(data);
         const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
             const stringWithSpaces = inputString.replace(/_/g, ' ');
 
@@ -165,6 +170,7 @@ export default {
         //     };
 
         return {
+            tenant,
             date,
             presetDates,
             numoptions,
@@ -211,7 +217,7 @@ export default {
                         <div
                             class="space-y-3 text-center md:text-left lg:mx-12"
                         >
-                            <h1 class="text-2xl font-bold">Jear Delarea</h1>
+                            <h1 class="text-2xl font-bold">{{tenant.profile.first_name}} {{ tenant.profile.last_name }}</h1>
                             <div class="flex justify-center md:block">
                                 <div
                                     class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 border-blue-500 text-white"
@@ -365,7 +371,7 @@ export default {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody v-if="data">
                                 <tr
                                     v-for="(item, rowIndex) in data"
                                     :key="rowIndex"

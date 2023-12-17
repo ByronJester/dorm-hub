@@ -174,17 +174,27 @@ class OwnerController extends Controller
     }
     public function tenantHistory($tenant_id)
     {
-        $tenant = Tenant::with(['room'])->where('id', $tenant_id)->first();
-
+        $tenant = Tenant::with(['room'])->where('profile_id', $tenant_id)->first();
+    
+        if (!$tenant) {
+            // Handle the case where the tenant is not found
+            return response()->json(['error' => 'Tenant not found.'], 404);
+        }
+    
         $billings = Billing::where('profile_id', $tenant->profile_id)->get();
-
+    
+        if ($billings->isEmpty()) {
+            // Handle the case where there are no billings for the given profile_id
+            return response()->json(['message' => 'No billings found.']);
+        }
+    
         $payments = [];
-
-        foreach($billings as $billing) {
+    
+        foreach ($billings as $billing) {
             $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
             $room = (object) $tenant->room;
-
-            if($payment) {
+    
+            if ($payment) {
                 array_push($payments, [
                     'billing_id' => $billing->id,
                     'payment_id' => $payment->id,
@@ -198,15 +208,14 @@ class OwnerController extends Controller
                     'action' => 'action'
                 ]);
             }
-
         }
-
-
-
+    
         return Inertia::render('Owner/TenantsPaymentHistory', [
-            'payments' => $payments
+            'payments' => $payments,
+            'tenant' => $tenant
         ]);
     }
+    
     public function addDorm()
     {
 
@@ -1157,6 +1166,7 @@ class OwnerController extends Controller
                     "payment_method" => $payment ? $payment->payment_method : null,
                     "status" => $billing->is_paid ? 'Paid' : 'Unpaid',
                     "dorm_id" => $reservation->dorm_id,
+                    'created_at' => $billing->created_at,
                     "auto_bill" => false
                 ]);
             }
