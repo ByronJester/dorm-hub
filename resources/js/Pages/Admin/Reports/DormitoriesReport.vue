@@ -310,8 +310,7 @@ export default {
 
     </div>
 
-    <p class="text-lg  ">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quibusdam consequatur dolorem tempora alias quisquam quasi esse, maiores minus impedit voluptas.</p>
-
+    <p class="text-lg  ">This report typically includes key information and metrics related to the management and functioning of dormitories.  </p>
     <div class="w-[278px] mt-5">
         <p class="text-lg">Date Range:</p>
         <VueDatePicker
@@ -335,7 +334,7 @@ export default {
         </VueDatePicker>
     </div>
 
-    <div class="mt-5">
+    <!-- <div class="mt-5">
         <div class="w-[278px] mt-5">
         <p class="text-lg">Position:</p>
         </div>
@@ -348,7 +347,7 @@ export default {
         <div class="mt-5">
         <p class="text-lg">Department:</p>
         <input placeholder="Enter the department" type="tel" class="px-3 py-2 max-w-full focus:ring focus:outline-none rounded w-full dark:placeholder-gray-400 h-12 border bg-white ">
-        </div>
+        </div> -->
 
     <!--Button-->
     <div class="mt-5">

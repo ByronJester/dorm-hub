@@ -1,5 +1,5 @@
 <script>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue'
+import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue'
 import { usePage, useForm, router } from '@inertiajs/vue3'
 import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { MapboxMap, MapboxMarker } from '@studiometa/vue-mapbox-gl';
@@ -7,17 +7,25 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
 import html2canvas from 'html2canvas';
-
+import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue'
+import { useConfirm } from "primevue/useconfirm";
+    import { useToast } from "primevue/usetoast";
+    import ConfirmDialog from 'primevue/confirmdialog';
+    import Toast from 'primevue/toast';
 export default{
     components:{
         AuthenticatedLayout,
+        TenantVerif,
+        ConfirmDialog,
+        Toast,
     },
     setup(){
         const page = usePage();
 
-        const reservation = page.props.reservation
-
-        console.log(reservation)
+        const reservation = page.props.reservation;
+        const user = page.props.user;
+        const confirm = useConfirm();
+        const toast = useToast();
 
         const formatDate = (d) => {
             const date = new Date(d); // Your date object
@@ -52,73 +60,69 @@ export default{
         }
 
         const cancelReservation = () => {
-            swal(
-                {
-                    title: `Are you sure to cancel this reservation?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
+            confirm.require({
+                message: 'Are you sure you want to cancel your reservation for this room?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                     axios
                         .post(route("cancel.reservation"), {reservation_id: reservation.id})
                         .then((response) => {
-                            swal(
-                                "Reservation",
-                                `You sucessfully cancel this reservation`,
-                                "success"
-                            );
-
+                            toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Cancellation success', life: 3000 });
                             setTimeout(function () {
                                 location.reload()
                             }, 3000);
                         })
                         .catch((error) => {});
-                }
-            );
+                },
+                reject: () => {
+
+                },
+            });
         }
 
         const move_in = ref();
 
         const rentNow = () => {
-            swal(
-                {
-                    title: `Are you sure to rent this room?`,
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#DD6B55",
-                    confirmButtonText: "Yes",
-                    closeOnConfirm: false,
-                },
-                function () {
-                    axios
-                        .post(route("rent.now"), {
-                            "owner_id" : reservation.owner,
-                            "tenant_id" : reservation.tenant,
-                            "dorm_id": reservation.dorm_id,
-                            "room_id": reservation.room_id,
-                            "move_in": move_in.value,
-                            "reservation_id" : reservation.id
-                        })
-                        .then((response) => {
-                            swal(
-                                "Rent",
-                                `You sucessfully rent this room.`,
-                                "success"
-                            );
+            router.get(route('tenant.billing_info', reservation.room_id + '-rent'))
 
-                            setTimeout(function () {
-                                location.reload()
-                            }, 3000);
-                        })
-                        .catch((error) => {});
-                }
-            );
+            // swal(
+            //     {
+            //         title: `Are you sure to rent this room?`,
+            //         type: "warning",
+            //         showCancelButton: true,
+            //         confirmButtonColor: "#DD6B55",
+            //         confirmButtonText: "Yes",
+            //         closeOnConfirm: false,
+            //     },
+            //     function () {
+            //         axios
+            //             .post(route("rent.now"), {
+            //                 "owner_id" : reservation.owner,
+            //                 "tenant_id" : reservation.tenant,
+            //                 "dorm_id": reservation.dorm_id,
+            //                 "room_id": reservation.room_id,
+            //                 "move_in": move_in.value,
+            //                 "reservation_id" : reservation.id
+            //             })
+            //             .then((response) => {
+            //                 swal(
+            //                     "Rent",
+            //                     `You sucessfully rent this room.`,
+            //                     "success"
+            //                 );
+
+            //                 setTimeout(function () {
+            //                     location.reload()
+            //                 }, 3000);
+            //             })
+            //             .catch((error) => {});
+            //     }
+            // );
         }
 
         return {
+            user,
             reservation,
             formatDate,
             formatTime,
@@ -132,23 +136,17 @@ export default{
 
 </script>
 <template>
-    <AuthenticatedLayout>
-        <div class="max-w-[2520px] mt-20 mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
-            <div
-                className="
-                        max-w-screen-lg
-                        mx-auto
-                        "
-            ><div class="flex items-center justify-start">
-                    <span
-                        class="inline-flex justify-center items-center w-12 h-12 rounded-full bg-white text-black dark:bg-slate-900/70 dark:text-white mr-3"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon" style="width: 40px; height: 40px;vertical-align: middle;fill: currentColor;overflow: hidden;" viewBox="0 0 1024 1024" version="1.1"><path d="M768 608a160 160 0 1 1-160 160 160 160 0 0 1 160-160z m0-32a192 192 0 1 0 192 192 192 192 0 0 0-192-192z" fill="#0070FF"/><path d="M864 768h-96v-64a16 16 0 0 0-32 0v80a16 16 0 0 0 16 16h112a16 16 0 0 0 0-32z" fill="#0070FF"/><path d="M933.12 502.4a24 24 0 0 1-33.92 0l-77.12-77.12v94.72a24 24 0 0 1-48 0v-142.72l-272-272-272 272V896a16 16 0 0 0 16 16h264a24 24 0 1 1 0 48h-264a64 64 0 0 1-64-64V425.28L104.96 502.4a24 24 0 0 1-33.92-33.92L456.8 82.72a64 64 0 0 1 90.56 0l385.76 385.76a24 24 0 0 1 0 33.92z" fill=""/><path d="M584 432v144h-144v-144z m0-32h-144a32 32 0 0 0-32 32v144a32 32 0 0 0 32 32h144a32 32 0 0 0 32-32v-144a32 32 0 0 0-32-32z" fill=""/></svg>
-                    </span>
-                    <h3 class="text-3xl font-bold">My Reservation</h3>
+    <TenantVerif :user="user" />
+    <AuthenticatedLayout v-if="user.status =='approved'">
+        <div class="p-4 mt-16 lg:ml-64">
+            <div class="max-w-screen-lg
+                        mx-auto">
+            <div class="flex items-center justify-start">
+                     <i class="fa-regular fa-calendar fa-lg" style="color: #000000;"></i>
+                    <h3 class="text-2xl ml-4 font-bold">My Reservation</h3>
                 </div>
                 <hr class="h-px mt-5 bg-orange-400 border-1 dark:bg-gray-700" />
-            <div class="mt-10" v-if="reservation">
+            <div class="mt-10 " v-if="reservation">
                     <!--Dorm name-->
                     <div class="flex justify-between items-center">
                         <h3 class="text-2xl font-bold">{{ reservation.dorm.property_name }}</h3>
@@ -309,8 +307,8 @@ export default{
                                     <p>{{reservation.room.furnished_type }}</p>
                                 </div>
                                 <div>
-                                    <p class="mt-5">When will you move in?</p>
-                                    <input type="date" class="rounded-md mr-2" v-model="move_in"/>
+                                    <!-- <p class="mt-5">When will you move in?</p> -->
+                                    <!-- <input type="date" class="rounded-md mr-2" v-model="move_in"/> -->
 
                                     <button class="py-2 px-5 rounded-md bg-orange-400 text-white font-semibold "
                                         @click="rentNow()"
@@ -326,7 +324,7 @@ export default{
                     <div class="rounded-lg  border-[1px] bg-white shadow-lg p-5">
                         <p class="text-xl font-bold text-gray-900 mb-3">Reservation Details</p>
                         <div>
-                            <p>Reservation Fee: ₱ 300</p>
+                            <p>Reservation Fee: {{ reservation.dorm.reservation}}</p>
                             <p>Visit Date: {{ formatDate(reservation.check_date) }}</p>
                             <p>Visit Time: {{ formatTime(reservation.check_time) }}</p>
                             <p>Reservation Date: {{ formatDate(reservation.created_at) }}</p>
@@ -343,6 +341,8 @@ export default{
                         <div>
                             <p>If you cancel your reservation you will not get a refund</p>
                         </div>
+                        <ConfirmDialog />
+                        <Toast />
                         <button class="py-2 px-5 rounded-full bg-red-500 text-white font-semibold mt-5"
                             @click="cancelReservation()"
                         >
@@ -355,9 +355,6 @@ export default{
                     You dont have reservation yet. Go to <a href="/" class="text-orange-400 underline mx-1"> Home Page </a>to make reservation
                 </div>
             </div>
-
-            
-
         </div>
     </AuthenticatedLayout>
 </template>

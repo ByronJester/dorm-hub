@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('subject', 100);
             $table->longText('complain')->nullable();
             $table->string('status', 50)->default("pending");
-
+            $table->bigInteger('profile_id');
             $table->foreign('tenant_id')->references('id')->on('tenants');
             $table->timestamps();
         });

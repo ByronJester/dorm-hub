@@ -19,14 +19,19 @@ return new class extends Migration
             $table->bigInteger('tenant')->unsigned()->comment('Foreign key from table users');
             $table->bigInteger('dorm_id')->unsigned()->comment('Foreign key from table dorms');
             $table->bigInteger('room_id')->unsigned()->comment('Foreign key from table rooms');
+            $table->bigInteger('profile_id');
             $table->string('status');
             $table->date('move_in')->nullable();
             $table->date('move_out')->nullable();
             $table->longText('reason')->nullable();
             $table->longText('reason_description')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->date('pay_on')->nullable();
+            $table->boolean('is_delinquent')->default(false);
             $table->boolean('auto_bill')->default(false);
             $table->date('auto_bill_date')->nullable();
+            $table->boolean('is_d')->default(false);
+            $table->date('promise_date')->nullable();
 
             $table->foreign('owner')->references('id')->on('users');
             $table->foreign('tenant')->references('id')->on('users');

@@ -17,7 +17,7 @@ class Dorm extends Model
     ];
 
     protected $with = [
-        'user', 'rooms', 'rule', 'amenities', 'common_areas', 'ratings'
+        'user', 'rooms', 'rule', 'amenities', 'common_areas', 'ratings', 'services'
     ];
 
     protected $appends = [
@@ -63,6 +63,11 @@ class Dorm extends Model
     public function amenities()
     {
         return $this->hasMany(Amenity::class);
+    }
+
+    public function services()
+    {
+        return $this->hasMany(Service::class);
     }
 
     public function getRangeFromAttribute()

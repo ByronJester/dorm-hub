@@ -36,7 +36,7 @@ export default {
     </div>
 
 
-    <div class="pb-5 mt-4">
+    <div class="pb-5 px-2 mt-4">
         <a href="#">
             <p class="text-xl font-semibold tracking-tight text-gray-900">{{ dorm.property_name }}</p>
         </a>

@@ -3,7 +3,11 @@ import AuthenticatedLayout from '@/Layouts/SidebarLayout.vue';
 import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
-
+import { ref, computed, reactive, watch, onMounted, defineProps } from "vue";
+import { usePage, useForm } from "@inertiajs/vue3";
+import InputLabel from "@/Components/InputLabel.vue";
+import TextInput from "@/Components/TextInput.vue";
+import InputError from "@/Components/InputError.vue";
 
 export default {
         components: {
@@ -11,21 +15,58 @@ export default {
             AppDropdown,
             AppDropdownContent,
             AppDropdownItem,
+            InputLabel,
+            TextInput,
+            InputError
+
         },
         setup(){
+            const page = usePage();
+
             const options=["Jear Dorm", "Dorm 2"];
             const headers=["User Name", "User type", "Contact No.", "Date Added"];
-            const data = [
-            ["Gene De La Rea", "Admin", "09165984951", ""],
-            ["Michael Lapuz", "Admin", "09165984951", ""],
-            ["Giovanni Marco", "Admin", "09165984951", ""],
-            ["Luigi Butor", "Admin", "09165984951", ""]
-        ]
-            
+            const data = ref([]);
+
+            data.value = page.props.users
+
+            const openComplainModal = () => {
+            var modal = document.getElementById("complainModal");
+
+            modal.style.display = "block";
+        };
+
+        const closeComplainModal = () => {
+            var modal = document.getElementById("complainModal");
+
+            modal.style.display = "none";
+        };
+
+        const form = ref({
+            first_name: null,
+            last_name: null,
+            phone_number: null,
+        })
+
+        const createUser = () => {
+            // console.log(form)
+            axios
+                .post(route("admin.create-user"), form.value)
+                .then((response) => {
+
+                })
+                .catch((error) => {
+
+                });
+        }
+
             return{
                 options,
                 headers,
-                data
+                data,
+                form,
+                openComplainModal,
+                closeComplainModal,
+                createUser
             }
         }
 }
@@ -37,7 +78,7 @@ export default {
                 <div class="flex items-center justify-start">
                             <h3 class="text-3xl">Add System User</h3>
                     </div>
-                
+
                 <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
                 <div class="w-full mt-2">
                 <div class="w-full mb-5 mt-5">
@@ -52,7 +93,7 @@ export default {
                                         <div class="mb-3">
                                             <button
                                             class="flex items-center justify-start bg-orange-400 py-2 px-2 gap-2 rounded-md h-8 text-white"
-                                            @click=""
+                                            @click="openComplainModal()"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -62,7 +103,7 @@ export default {
                                             </button>
                                         </div>
                                     <form class="flex items-center">
-                                        
+
                                         <label
                                             for="simple-search"
                                             class="sr-only"
@@ -207,7 +248,156 @@ export default {
             </div>
         </div>
     </div>
-        
+    <div
+                    id="complainModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                    style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+                >
+                    <div class="h-screen flex justify-center items-center">
+                        <div class="relative w-full max-w-2xl max-h-full">
+                            <!-- Modal content -->
+                            <div class="relative bg-white rounded-lg shadow">
+                                <!-- Modal header -->
+                                <div
+                                    class="flex items-start justify-between p-4 border-b rounded-t "
+                                >
+                                    <h3
+                                        class="text-xl font-semibold text-black"
+                                    >
+                                        Add System User
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center "
+                                        @click="closeComplainModal()"
+                                    >
+                                        <svg
+                                            class="w-3 h-3"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 14 14"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                            />
+                                        </svg>
+                                        <span class="sr-only">Close modal</span>
+                                    </button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="p-6 space-y-6">
+                                    <form>
+                                        <div
+                                            class="grid grid-cols-2 gap-2 mt-2"
+                                        >
+                                            <div>
+                                                <InputLabel
+                                                    for="first_name"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
+                                                    value="First Name"
+                                                />
+
+                                                <TextInput
+                                                    id="first_name"
+                                                    type="text"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
+
+                                                    required
+                                                    autofocus
+                                                    autocomplete="first_name"
+                                                    v-model="form.first_name"
+                                                />
+
+                                                <InputError class="mt-2" />
+                                            </div>
+
+                                            <div>
+                                                <InputLabel
+                                                    for="last_name"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
+                                                    value="Last Name"
+                                                />
+
+                                                <TextInput
+                                                    id="middle_name"
+                                                    type="text"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
+
+                                                    autofocus
+                                                    autocomplete="middle_name"
+                                                    v-model="form.last_name"
+                                                />
+
+                                                <InputError class="mt-2" />
+                                            </div>
+
+                                            <div>
+                                                <InputLabel
+                                                    for="username"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
+                                                    value="Username"
+                                                />
+
+                                                <TextInput
+                                                    id="username"
+                                                    type="text"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
+
+                                                    autofocus
+                                                    autocomplete="middle_name"
+                                                    v-model="form.username"
+                                                />
+
+                                                <InputError class="mt-2" />
+                                            </div>
+
+                                            <div>
+                                                <InputLabel
+                                                    for="phone_number"
+                                                    class="block mb-2 text-sm font-medium text-gray-900 "
+                                                    value="Contact"
+                                                />
+
+                                                <input
+                                                    id="phone_number"
+                                                    type="number"
+                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 "
+
+                                                    required
+                                                    autocomplete="phone_number"
+                                                    v-model="form.phone_number"
+                                                />
+
+                                                <InputError class="mt-2" />
+                                            </div>
+
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- Modal footer -->
+                                <div
+                                    class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b "
+                                >
+                                    <button
+                                        @click.prevent="createUser()"
+                                        type="button"
+                                        class="text-white bg-orange-400 hover:bg-orange-200 focus:ring-4 focus:outline-none focus:ring-orange-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                    >
+                                        Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
     </AuthenticatedLayout>
 
 </template>

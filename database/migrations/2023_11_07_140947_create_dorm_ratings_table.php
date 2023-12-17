@@ -19,7 +19,7 @@ return new class extends Migration
             $table->bigInteger('tenant_id')->unsigned()->comment('Foreign key from table users');
             $table->string('rate')->nullable();
             $table->longText('comment')->nullable();
-
+            $table->bigInteger('profile_id');
             $table->foreign('dorm_id')->references('id')->on('dorms');
             $table->foreign('tenant_id')->references('id')->on('users');
             $table->timestamps();

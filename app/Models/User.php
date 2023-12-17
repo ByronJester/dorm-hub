@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -63,7 +64,7 @@ class User extends Authenticatable
     ];
 
     protected $with = [
-        'income_information'
+        // 'income_information'
     ];
 
     public function getIdPictureAttribute($value)
@@ -90,8 +91,13 @@ class User extends Authenticatable
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function income_information()
+    public function getCreatedAtAttribute($value)
     {
-        return $this->hasOne(UserIncomeInformation::class);
+        return Carbon::parse($value)->isoFormat('LL');
     }
+
+    // public function income_information()
+    // {
+    //     return $this->hasOne(UserIncomeInformation::class);
+    // }
 }

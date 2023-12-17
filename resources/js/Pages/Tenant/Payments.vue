@@ -1,5 +1,5 @@
 <script>
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
 import { usePage, useForm, router } from "@inertiajs/vue3";
 import { ref, reactive, watch, onMounted, computed } from "vue";
 import { MapboxMap, MapboxMarker } from "@studiometa/vue-mapbox-gl";
@@ -8,10 +8,27 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import TenantVerif from '@/Pages/Tenant/Component/TenantVerif.vue';
+import DropDown from 'primevue/dropdown';
+import DataTable from 'primevue/datatable';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';   // optional
+import Row from 'primevue/row';
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
 
 export default {
     components: {
         AuthenticatedLayout,
+        TenantVerif,
+        DropDown,
+        DataTable,
+        Column,
+        ColumnGroup,
+        Row,
+        Button,
+        Tag,
     },
     methods: {
 
@@ -75,7 +92,8 @@ export default {
     setup() {
         const page = usePage();
         const user = computed(() => page.props.auth.user);
-        const payments = page.props.payments;
+        const payments = ref(null);
+        const profile = page.props.profile;
         const application = ref({});
         const owner = ref({});
         const methods = ref([]);
@@ -84,10 +102,7 @@ export default {
         const receipt = ref(null);
         const payment_id = ref();
         const imageError = ref(null);
-        const nexPayment = page.props.nexPayment
         const lastBilled = page.props.lastBilled
-        const balance = page.props.balance
-        const totalAmountPaid = page.props.totalAmountPaid
         const options = ["E-Wallet", "Cash", "Bank Transfer"];
 
         onMounted(() => {
@@ -123,7 +138,6 @@ export default {
 
             modal.style.display = "block";
 
-            console.log(arg)
             selectedPayment.value = arg
         };
 
@@ -203,45 +217,6 @@ export default {
         };
 
         const headers = ["Payment Date" , "Payment Method", "Amount", "Description", "Status"];
-
-
-        var data = [];
-
-        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
-            if(inputString ===  undefined || typeof inputString === undefined) {
-                return
-            }
-
-            const stringWithSpaces = inputString.replace(/_/g, ' ');
-
-            // Split the string by spaces
-            const words = stringWithSpaces.split(' ');
-
-            // Capitalize the first letter of each word and join them
-            const capitalizedString = words.map(word => {
-                if (word.length > 0) {
-                return word[0].toUpperCase() + word.slice(1).toLowerCase();
-                }
-                return word; // Handle cases where there are multiple spaces
-            }).join(' ');
-
-            return capitalizedString;
-        }
-
-        for(let p = 0; p < payments.length; p++) {
-            data.push(
-                {
-                    // id: payments[p].id,
-                    date: payments[p].display_date,
-                    payment_method: payments[p].payment_method,
-                    amount: payments[p].billing.amount,
-                    category: removeUnderscoreAndCapitalizeAfterSpace(payments[p].description),
-                    status: removeUnderscoreAndCapitalizeAfterSpace(payments[p].status),
-                    receipt: '',
-                    action: payments[p]
-                }
-            )
-        }
         //
 
             const searchQuery = ref("");
@@ -366,9 +341,167 @@ export default {
         const myDorm = ref()
         myDorm.value = page.props.myDorm
 
-        console.log(totalAmountPaid)
+        const selectedProfile = ref(profile.length > 0 ? profile[0].id : null);
+        const optionProfile = profile.map((p) => ({
+            id: p.id,
+            label: p.first_name,
+        }));
 
+        const nexPayment = ref(null)
+        const balance = ref(0)
+        const totalAmountPaid = ref(0)
+
+        console.log(page.props)
+
+        const rows = ref([])
+        const filters = ref();
+
+        const statuses = ref([0, 1]);
+        const getSeverity = (status) => {
+                switch (status) {
+                    case '0':
+                        return 'danger';
+
+                    case 'paid':
+                        return '1';
+
+                }
+            };
+
+        const data = ref([])
+
+        const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
+            if(inputString ===  undefined || typeof inputString === undefined) {
+                return
+            }
+
+            const stringWithSpaces = inputString.replace(/_/g, ' ');
+
+            // Split the string by spaces
+            const words = stringWithSpaces.split(' ');
+
+            // Capitalize the first letter of each word and join them
+            const capitalizedString = words.map(word => {
+                if (word.length > 0) {
+                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                }
+                return word; // Handle cases where there are multiple spaces
+            }).join(' ');
+
+            return capitalizedString;
+        }
+        onMounted(() => {
+            rows.value = page.props.bills.filter(x => { return x.profile_id == selectedProfile.value});
+            balance.value = page.props.balances.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
+                }, 0);
+
+            totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
+                }, 0);
+
+            let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == selectedProfile.value})
+
+            nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
+
+            payments.value = page.props.payments
+
+            for(let p = 0; p < payments.value.length; p++) {
+                data.value.push(
+                    {
+                        payment_method: payments.value[p].payment_method,
+                        amount: parseFloat(payments.value[p].amount),
+                        category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
+                        profile_id: payments.value[p].profile_id
+                    }
+                )
+            }
+
+            data.value = data.value.filter(x => { return x.profile_id == selectedProfile.value})
+
+        });
+        const initFilters = () => {
+                filters.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                    amount: { value: null, matchMode: FilterMatchMode.IN },
+
+                };
+            };
+
+            initFilters();
+
+            const formatDate = (value) => {
+                // Check if value is a string and convert it to a Date object
+                const date = typeof value === 'string' ? new Date(value) : value;
+
+                // Check if date is a valid Date object
+                if (isNaN(date.getTime())) {
+                    // If not a valid Date, you can handle it according to your requirements
+                    return "Invalid Date"; // or return value.toString() or any other representation
+                }
+
+                // If it's a valid Date object, format it
+                return date.toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            };
+
+            const clearFilter = () => {
+                initFilters();
+            };
+
+            const changeSelectedProfile = (evt) => {
+                rows.value = page.props.bills.filter(x => { return x.profile_id == evt.value.id});
+                balance.value = page.props.balances.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
+                }, 0);
+
+                totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
+                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
+                }, 0);
+
+                let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == evt.value.id})
+
+                nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
+
+                for(let p = 0; p < payments.value.length; p++) {
+                    data.value.push(
+                        {
+                            payment_method: payments.value[p].payment_method,
+                            amount: parseFloat(payments.value[p].amount),
+                            category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
+                            profile_id: payments.value[p].profile_id
+                        }
+                    )
+                }
+
+                data.value = data.value.filter(x => { return x.profile_id == evt.value.id})
+
+
+            }
+
+        const payNow = (arg) => {
+            axios
+                .post(route("tenant.pay-billing"), arg)
+                    .then((response) => {
+                        if(!!response.data) {
+                            window.location.href = response.data
+                        }
+
+                    })
+                    .catch((error) => {
+                        // errors.value = error.response.data.errors;
+                    });
+        }
         return {
+            filters,
+            clearFilter,
+            rows,
+            selectedProfile,
+            optionProfile,
             setActiveTable,
             activeTable,
             myDorm,
@@ -417,23 +550,23 @@ export default {
             wallet_name,
             account_name,
             account_number,
-            submitRefund
+            submitRefund,
+            changeSelectedProfile,
+            payNow
         };
     },
 };
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <TenantVerif :user="user" />
+    <AuthenticatedLayout v-if="user.status == 'approved'">
         <div
-            class="max-w-[2520px] mt-16 mx-auto xl:px-20 md:px-10 sm:px-2 px-4"
+            class="p-4  lg:ml-64"
         >
-            <div
-                className="
-                        max-w-screen-lg
-                        mx-auto
-                        "
-            >
+        <div class="min-w-screen
+                        2xl:mx-40
+                        mt-16">
                 <section class="pt-6 mb-6 flex items-center justify-between">
                     <div class="flex items-center justify-start">
                         <span
@@ -448,146 +581,133 @@ export default {
                                     fill="currentColor"
                                     d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
                                 ></path></svg></span>
-                        <h1 class="text-3xl leading-tight">Billing overview</h1>
+                        <h1 class="text-3xl leading-tight">Payments</h1>
                     </div>
                 </section>
-                <div class="grid grid-cols-12 gap-6 mb-6">
-                    <!--Eto yung amount para sa upcoming payment-->
-                    <div v-if="myDorm" class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
-                        <div
-                            class="flex-col dark:bg-slate-900/70 bg-white flex"
-                        >
-                            <div class="flex-1 p-6">
-
-                                <div class="justify-between items-center flex">
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="text-lg leading-tight text-green-500 dark:text-slate-400"
-                                            >
-                                                Upcoming Payment
-                                            </h3>
-                                            <!--Dito kasama na din yung balance pero pag nabayaran ni tenant ahead yung balance yung bill lang every month-->
-                                            <h1
-                                                class="text-3xl leading-tight font-semibold"
-                                            >
-                                                <div>
-                                                    {{ !!nexPayment ?  moneyFormat(nexPayment.billing.amount) : 0.00 }}
-                                                </div>
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
+                <hr />
+                <div class="mt-5">
+                    <div>
+                        <div class="block">
+                            <p>Select profile</p>
+                            <div class="card flex justify-content-center">
+                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label"  class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
                             </div>
-                            <!---->
+
                         </div>
                     </div>
-                    <!--Dito lalabas yung balance ni user-->
-                    <div  v-if="myDorm" class="col-span-12 shadow-lg sm:col-span-6 xl:col-span-3">
-                        <div
-                            class="flex-col dark:bg-slate-900/70 bg-white flex"
-                        >
-                            <div class="flex-1 p-6">
-
-                                <div class="justify-between items-center flex">
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="text-lg leading-tight text-red-500 dark:text-slate-400"
-                                            >
-                                                Balance
-                                            </h3>
-                                            <h1
-                                                class="text-3xl leading-tight font-semibold"
-                                            >
-                                                <div>{{moneyFormat(balance)}}</div>
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 text-lg">
+                        <div class="bg-white rounded-lg p-4 gap-6 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] justify-center items-center flex">
+                            <img
+                                src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                                alt="Profile picture"
+                                class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
+                            />
+                            <div>
+                                <p>Hello!</p>
+                                <p>Jear</p>
                             </div>
-                            <!---->
                         </div>
-                    </div>
-                    <!--Dito yung total na nabayad na ni user-->
-                    <div class="col-span-12 rounded-2xl shadow-lg sm:col-span-6 xl:col-span-3">
-                        <div
-                            class="flex-col dark:bg-slate-900/70 bg-white flex"
-                        >
-                            <div class="flex-1 p-6">
-
-                                <div class="justify-between items-center flex">
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <div>
-                                            <h3
-                                                class="text-lg leading-tight text-orange-500 dark:text-slate-400"
-                                            >
-                                                Total Amount Paid
-                                            </h3>
-                                            <h1
-                                                class="text-3xl leading-tight font-semibold"
-                                            >
-                                                <div>{{moneyFormat(totalAmountPaid)}}</div>
-                                            </h1>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!---->
-                        </div>
-                    </div>
-
-                </div>
-
-                <div  v-if="myDorm" class="flex-1 shadow-lg rounded-lg p-6">
-
-                    <div class="md:flex md:justify-between md:items-center">
-                        <div class="md:flex md:items-center">
-                            <div
-                                class="mb-6 text-center md:mr-6 md:mb-0 md:text-left"
-                            >
-                                <!--Date kung kelan yung billing-->
-                                <p class="text-gray-500">Next payment on</p>
-                                <h1 class="text-xl font-semibold">
+                        <div class="rounded-lg bg-black text-gray-200 grid grid-cols-2 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                            <div class="flex flex-col gap-10">
+                                <div>
+                                    <p class="text-xl font-bold">Next Payment on</p>
                                     {{ !!nexPayment ? nexPayment.display_date : '' }}
-                                </h1>
+                                </div>
+                                <div>
+                                    <p class="text-xl font-bold">Last Billed on</p>
+                                    {{ !! lastBilled ? lastBilled.display_created_date : ''}}
+                                </div>
+
                             </div>
-                            <div class="mb-6 text-center md:mb-0 md:text-left">
-                                <p class="text-gray-500">Last billed on</p>
-                                <h1 class="text-xl">{{ !! lastBilled ? lastBilled.display_created_date : ''}}</h1>
+                            <div class="">
+                                <p class="text-xl font-bold">Amount Due</p>
+                                {{ !!nexPayment ? moneyFormat(nexPayment.amount) : moneyFormat(0) }}
                             </div>
                         </div>
-                        <div class="text-center md:text-right">
-                            <p class="text-gray-500">Amount due</p>
-                            <!--Pag walang balance yung upcoming payment lang pero pag may balance iplus sa upcoming payment-->
-                            <h1 class="text-2xl font-semibold">{{ !!nexPayment ? moneyFormat(nexPayment.billing.amount) : 0.00 }}</h1>
+                        <div class="w-full flex flex-col gap-3 text-gray-900" >
+                            <!-- <div class="flex flex-row items-center justify-between rounded-lg bg-orange-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Upcoming Payment</p>
+                                {{ !!nexPayment ?  moneyFormat(nexPayment.amount) : moneyFormat(0.00) }}
+                            </div> -->
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-red-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Balance</p>
+                                {{moneyFormat(balance)}}
+                            </div>
+                            <div class="flex flex-row items-center justify-between rounded-lg bg-green-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                                <p class="text-xl font-bold">Total Amount Paid</p>
+                                <p>{{moneyFormat(totalAmountPaid)}}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 mt-5 gap-2 mb-20">
+                    <div class="md:col-span-2">
+                        <div class="card">
+                            <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                            :globalFilterFields="['description', 'amount']">
+                            <template #header>
+                                <div class="flex items-center justify-between">
+                                    <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                                    <span class="p-input-icon-left">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
+                                    </span>
+                                </div>
+                            </template>
+                            <template #empty> No bills found. </template>
+                                <Column field="description" header="Bills" sortable style="min-width: 14rem" class="border-b">
+                                    <template #body="{ data }">
+                                        <div class="grid grid-cols-4 place-items-center justify-between">
+                                            <p>{{data.description}}</p>
+                                            <div class="w-16 text-center ">
+                                                <p class="bg-green-400  text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
+                                                <p class="bg-red-400  text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
+                                            </div>
+                                            <p class="text-center">{{ moneyFormat(data.amount) }}</p>
+                                            <div class="text-end">
+                                                <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
+                                                <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
+                                                    @click="payNow(data)"
+                                                >
+                                                    Pay Now
+                                                </button>
+                                            </div>
 
-                <div class="flex items-center mt-5 justify-start">
-                    <span
-                        class="inline-flex justify-center items-center w-6 h-6 mr-2"
-                        ><svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            class="inline-block"
-                        >
-                            <path
-                                fill="currentColor"
-                                d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
-                            ></path></svg></span>
-                    <h1 class="text-3xl leading-tight">Payment(s)</h1>
+                                        </div>
+                                    </template>
+                                </Column>
+
+
+                            </DataTable>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="card">
+                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 25rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
+                            :globalFilterFields="['description', 'amount']">
+                            <template #empty> No transactions found. </template>
+                                <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
+                                    <template #body="{ data }">
+                                        <div class="grid grid-cols-3 w-full place-items-center gap-2">
+                                            <p>{{data.category}}</p>
+                                            <div class="">
+                                                <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
+                                                <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'VISA'" src="/images/visa.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-16"/>
+                                                <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
+                                            </div>
+                                            <p class="text-end">{{ moneyFormat(data.amount) }}</p>
+
+                                        </div>
+                                    </template>
+                                </Column>
+                            </DataTable>
+                        </div>
+                    </div>
                 </div>
                 <!--Payments-->
-                <div class="w-full mt-2 mb-5">
+                <!-- <div class="w-full mt-2 mb-5">
                         <div class="w-full mb-12 mt-5">
                             <div
                                     class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
@@ -754,7 +874,7 @@ export default {
                                     </div>
                                 </div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <div id="payModal" class="payModal mt-10 md:mt-0">
                         <div class="pay-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
@@ -948,17 +1068,17 @@ export default {
                             </div>
                         </div>
                     </div>
-                </div>
 
 
 
             </div>
-
+        </div>
 
     </AuthenticatedLayout>
 </template>
 
 <style>
+
 .main {
     height: 100%;
     min-height: 92vh;

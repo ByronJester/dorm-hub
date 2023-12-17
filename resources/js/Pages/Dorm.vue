@@ -202,12 +202,13 @@
 <template>
     <div>
         <div class="w-full" v-if="user">
-            <TenantLayout v-if="user.user_type == 'tenant'">
-                <div class="max-w-[2520px] mx-auto xl:px-20 md:px-10 sm:px-2 px-4">
+            <OtherLayout v-if="user.user_type == 'tenant'">
+                <div class="p-4 lg:ml-64">
                     <div
                         className="
                         max-w-screen-lg
                         mx-auto
+                        mb-10
                         "
                     >
                     <div class="w-full pt-24 pl-5">
@@ -221,7 +222,8 @@
                     </div>
                     </div>
                 </div>
-            </TenantLayout>
+                    
+            </OtherLayout>
 
 
             <OtherLayout v-else>
@@ -249,7 +251,7 @@
 
         <div class="bg-white w-full flex flex-col" style="min-height: 100vh;" v-else>
             <GuestLayout>
-                <div class="max-w-[2520px] xl:px-20 md:px-10 sm:px-2 px-4">
+                <div class="max-w-[2520px] mb-20 xl:px-20 md:px-10 sm:px-2 px-4">
                 <div class="w-full pt-24 pl-5">
                     <p class="cursor-pointer" @click="back()">
                         <i class="fa-solid fa-arrow-left md:fa-xl"></i> <span class="font-bold ml-2"> Back </span>

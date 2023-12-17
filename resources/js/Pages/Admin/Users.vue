@@ -74,6 +74,10 @@
             };
 
             initFilters();
+            
+            const clearFilter = () => {
+                initFilters();
+            };
 
             const formatDate = (value) => {
                 // Check if value is a string and convert it to a Date object
@@ -93,9 +97,7 @@
                 });
             };
 
-            const clearFilter = () => {
-                initFilters();
-            };
+            
 
             const openModal = (arg) => {
                 id_picture.value = arg.id_picture
@@ -289,7 +291,7 @@
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mb-10">
                 <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                 :globalFilterFields="['name', 'phone_number', 'user_type', 'created_at', 'status']">
                 <template #header>

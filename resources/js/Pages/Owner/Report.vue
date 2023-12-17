@@ -21,8 +21,8 @@ export default {
         TenantReport,
         DormReport
     },setup(){
-        const activeReport = ref(''); // Initially, no report is active
-        const activeReportComponent = ref(null);
+        const activeReport = ref('IncomeReport'); // Initially, no report is active
+        const activeReportComponent = ref(IncomeReport);
 
         const changeActiveReport = (reportName) => {
         // Set the active report and its component based on the selected report name
@@ -55,6 +55,7 @@ export default {
             }
             // You can add more conditions for other reports here
         };
+
         const isDropDownOpen = ref(true);
 
         //dropdown function
@@ -86,7 +87,7 @@ export default {
                             d="M0 64C0 28.7 28.7 0 64 0H224V128c0 17.7 14.3 32 32 32H384V288H216c-13.3 0-24 10.7-24 24s10.7 24 24 24H384V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM384 336V288H494.1l-39-39c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l80 80c9.4 9.4 9.4 24.6 0 33.9l-80 80c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l39-39H384zm0-208H256V0L384 128z"
                         />
                     </svg>
-                    <h3 class="text-3xl font-bold">Reports</h3>
+                    <h3 class="text-3xl font-bold">Generate Reports</h3>
                 </div>
                 <hr class="my-5" />
                 <div class="w-full grid grid-cols-1 md:grid-cols-6">
@@ -105,9 +106,12 @@ export default {
 
                         <div class="block mx-5" :class="{ hidden: !isDropDownOpen }">
                             <div
-                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-orange-600 text-white':
+                                    
+                                'text-white bg-gradient-to-r from-orange-400 to-red-600':
+                                  
+                        
                                         activeReport == 'IncomeReport',
                                 }"
                             >
@@ -120,14 +124,14 @@ export default {
                             </div>
 
                             <div
-                            class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-orange-600 text-white':
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600':
                                         activeReport == 'OccupancyReport',
                                 }"
                             >
                                 <span
-                                    class="cursor-pointer"
+                                    class="cursor-pointer "
                                     @click="
                                         changeActiveReport('OccupancyReport')
                                     "
@@ -136,74 +140,54 @@ export default {
                                 </span>
                             </div>
 
-                            
-
                             <div
-                            class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-orange-600 text-white':
-                                        activeReport == 'RentRollReport',
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600':
+                                        activeReport == 'TenantReport',
                                 }"
                             >
                                 <span
-                                    class="cursor-pointer"
-                                    @click="changeActiveReport('RentRollReport')"
+                                    class="cursor-pointer "
+                                    @click="
+                                        changeActiveReport('TenantReport')
+                                    "
                                 >
-                                    RentRoll Report
+                                    Tenant Report
                                 </span>
                             </div>
 
                             <div
-                            class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-orange-600 text-white':
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600':
                                         activeReport == 'ReservationReport',
                                 }"
                             >
                                 <span
                                     class="cursor-pointer"
-                                    @click="
-                                        changeActiveReport('ReservationReport') 
-                                    "
+                                    @click="changeActiveReport('ReservationReport')"
                                 >
-                                Reservation Report
+                                  Reservation Report
                                 </span>
                             </div>
 
                             <div
-                            class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white"
+                                class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{
-                                    'bg-orange-600 text-white':
-                                        activeReport == 'TenantReport',
-                                }"
-                            >
-                                <span
-                                    class="cursor-pointer"
-                                    @click="
-                                        changeActiveReport('TenantReport') 
-                                    "
-                                >
-                                Tenant Report
-                                </span>
-                            </div>
-
-                            <div
-                            class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white"
-                                :class="{
-                                    'bg-orange-600 text-white':
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600':
                                         activeReport == 'DormReport',
                                 }"
                             >
                                 <span
-                                    class="cursor-pointer"
+                                    class="cursor-pointer "
                                     @click="
-                                        changeActiveReport('DormReport') 
+                                        changeActiveReport('DormReport')
                                     "
                                 >
-                                Dorm Report
+                                     Dorm Report
                                 </span>
                             </div>
-                            
                         </div>
                     </div>
 
@@ -213,10 +197,8 @@ export default {
                         </div>
                     </div>
                 </div>
-       </div>
-       </div>
-      
-
+                </div>
+                </div>
     </AuthenticatedLayout>
 </template>
 

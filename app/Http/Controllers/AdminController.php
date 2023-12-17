@@ -6,8 +6,9 @@ use App\DatabaseBackup;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Models\{BackUp, Dorm, User, Notification, Refund, UserPayment, Tenant};
+use App\Models\{BackUp, Dorm, User, Notification, Refund, UserPayment, Tenant, Billing};
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 
 class AdminController extends Controller
@@ -72,11 +73,11 @@ class AdminController extends Controller
         $incomeArr = [];
 
         foreach($dorms as $dorm) {
-            $tenants = Tenant::with(['billings', 'tenant_user'])->where('dorm_id', $dorm->id)->get();
+            $tenants = Tenant::where('dorm_id', $dorm->id)->get();
 
             $netSales = 0;
             foreach($tenants as $tenant) {
-                $netSales += $tenant->billings->where('is_paid', true)->sum('amount');
+                $netSales += Billing::where('profile_id', $tenant->profile_id)->sum('amount');
             }
 
             array_push($incomeArr, [
@@ -129,8 +130,10 @@ class AdminController extends Controller
     }
 
     public function addUser(){
-        return Inertia::render('Admin/Utilities/AddUser',[
+        $users = User::where('user_type', 'admin')->get(['username', 'user_type', 'phone_number', 'created_at']);
 
+        return Inertia::render('Admin/Utilities/AddUser',[
+            'users' => $users
         ]);
     }
 
@@ -174,7 +177,7 @@ class AdminController extends Controller
     public function changeUserStatusDecline(Request $request)
     {
         $user = User::where('id', $request->id)->first();
-        
+
         if (!$user) {
             return response()->json(["message" => "User not found"], 404);
         }
@@ -204,7 +207,7 @@ class AdminController extends Controller
     public function changeDormStatusDecline(Request $request)
     {
         $dorm = Dorm::where('id', $request->id)->first();
-        
+
         if (!$dorm) {
             return response()->json(["message" => "Dorm not found"], 404);
         }
@@ -228,7 +231,7 @@ class AdminController extends Controller
     public function changeDormStatusApprove(Request $request)
     {
         $dorm = Dorm::where('id', $request->id)->first();
-        
+
         if (!$dorm) {
             return response()->json(["message" => "Dorm not found"], 404);
         }
@@ -268,5 +271,15 @@ class AdminController extends Controller
     public function restoreDatabase()
     {
 
+    }
+
+    public function createAdminUser(Request $request)
+    {
+        $data = $request->toArray();
+
+        $data['password'] = Hash::make('password');
+        $data['user_type'] = 'admin';
+
+        return User::create($data);
     }
 }

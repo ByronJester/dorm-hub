@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
@@ -38,6 +38,10 @@ export default {
 
         const data = ref([])
         data.value = page.props.payments
+        const tenant =  page.props.tenant
+        
+
+        console.log(tenant)
 
         const objectRemoveKey = (object, key = null) => {
             const newObject = Object.assign({}, object);
@@ -82,6 +86,7 @@ export default {
             }
         };
 
+        console.log(data);
         const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
             const stringWithSpaces = inputString.replace(/_/g, ' ');
 
@@ -122,53 +127,50 @@ export default {
                     })
             });
         }
-        
-        const searchQueryReserve = ref("");
-            const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
-            const currentPageReserve = ref(1); // Initialize to the first page
 
-            
-            const filteredDataReserve = computed(() => {
-                const query = searchQueryReserve.value.toLowerCase().trim();
-                if (!query) {
-                    return tenantsData; // Return all data if the search query is empty.
-                }
+        // const searchQueryReserve = ref("");
+        //     const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
+        //     const currentPageReserve = ref(1); // Initialize to the first page
 
-                return dataReserve.filter((row) => {
-                    // Modify the conditions as needed for your specific search criteria.
-                    return (
-                        row.dorm_name.toLowerCase().includes(query) ||
-                        row.room_name.toLowerCase().includes(query) ||
-                        row.tenant_name.toLowerCase().includes(query)
-                    );
-                });
-            });
 
-            const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
+        //     const filteredDataReserve = computed(() => {
 
-            const slicedRows = computed(() => {
-                const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
-                const endIndex = startIndex + itemsPerPageReserve;
+        //         return dataReserve.filter((row) => {
+        //             // Modify the conditions as needed for your specific search criteria.
+        //             return (
+        //                 row.dorm_name.toLowerCase().includes(query) ||
+        //                 row.room_name.toLowerCase().includes(query) ||
+        //                 row.tenant_name.toLowerCase().includes(query)
+        //             );
+        //         });
+        //     });
 
-                const slicedAndSorted = filteredDataReserve.value
-                    .slice(startIndex, endIndex)
-                    .sort((a, b) => {
-                        const dateA = new Date(a.created_at);
-                        const dateB = new Date(b.created_at);
-                        return dateB - dateA;
-                    });
+        //     const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
 
-                return slicedAndSorted;
-                });
+        //     const slicedRows = computed(() => {
+        //         const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
+        //         const endIndex = startIndex + itemsPerPageReserve;
 
-            const changePageReserve = (pageChange) => {
-                const newPage = currentPageReserve.value + pageChange;
-                if (newPage >= 1 && newPage <= totalPagesReserve.value) {
-                    currentPageReserve.value = newPage;
-                }
-            };
+        //         const slicedAndSorted = filteredDataReserve.value
+        //             .slice(startIndex, endIndex)
+        //             .sort((a, b) => {
+        //                 const dateA = new Date(a.created_at);
+        //                 const dateB = new Date(b.created_at);
+        //                 return dateB - dateA;
+        //             });
+
+        //         return slicedAndSorted;
+        //         });
+
+        //     const changePageReserve = (pageChange) => {
+        //         const newPage = currentPageReserve.value + pageChange;
+        //         if (newPage >= 1 && newPage <= totalPagesReserve.value) {
+        //             currentPageReserve.value = newPage;
+        //         }
+        //     };
 
         return {
+            tenant,
             date,
             presetDates,
             numoptions,
@@ -178,9 +180,6 @@ export default {
             objectRemoveKey,
             removeUnderscoreAndCapitalizeAfterSpace,
             markAsPaid,
-            totalPagesReserve,
-            currentPageReserve,
-            changePageReserve
         };
     },
 };
@@ -218,7 +217,7 @@ export default {
                         <div
                             class="space-y-3 text-center md:text-left lg:mx-12"
                         >
-                            <h1 class="text-2xl font-bold">Jear Delarea</h1>
+                            <h1 class="text-2xl font-bold">{{tenant.profile.first_name}} {{ tenant.profile.last_name }}</h1>
                             <div class="flex justify-center md:block">
                                 <div
                                     class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 border-blue-500 text-white"
@@ -372,7 +371,7 @@ export default {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody v-if="data">
                                 <tr
                                     v-for="(item, rowIndex) in data"
                                     :key="rowIndex"

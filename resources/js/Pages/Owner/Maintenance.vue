@@ -6,13 +6,18 @@ import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import { ref } from 'vue'
 import { usePage, useForm } from "@inertiajs/vue3";
 import axios from "axios";
-
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default{
     components:{
         AuthenticatedLayout,
         AppDropdown,
         AppDropdownContent,
         AppDropdownItem,
+        ConfirmDialog,
+        Toast
     },
     setup(){
         const page = usePage();
@@ -22,6 +27,9 @@ export default{
         }
         //mga sample data lang to
         const options = page.props.dorms
+
+        const confirm = useConfirm();
+        const toast = useToast();
 
         const selectedDorm = ref(options[0].id)
 
@@ -60,18 +68,14 @@ export default{
         }
 
         const changeComplainStatus = (id, status) => {
-            swal({
-                title: `Are you sure to mark as ${status} this complain?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            },
-            function(){
+            confirm.require({
+                message: `Are you sure you want to change this complain status to ${status}?`,
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                 axios.post(route('owner.complain.change.status', id), {status: status})
                     .then(response => {
-                        swal("Success!", `You successfully mark as ${status} this complain.`, "success");
+                        toast.add({ severity: 'info', summary: 'Success', detail: `You successfully mark as ${status} this complain.`, life: 3000 });
 
                         setTimeout(function () {
                             location.reload()
@@ -80,6 +84,10 @@ export default{
                     .catch(error => {
 
                     })
+                },
+                reject: () =>{
+
+                }
             });
         }
 
@@ -159,15 +167,11 @@ export default{
         const approveRefund = () => {
             var status = 'ongoing'
 
-            swal({
-                title: `Are you sure to mark as ${status} this refund?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            },
-            function(){
+            confirm.require({
+                message: 'Are you sure you want to aprrove this refunds?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                 axios.post(route('owner.refund.change.status', status),
                     {
                         id: selectedRefund.value.refund_id,
@@ -175,7 +179,8 @@ export default{
 
                     })
                     .then(response => {
-                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+                        toast.add({ severity: 'info', summary: 'Success', detail: `You successfully mark as ${status} this refund.`, life: 3000 });
+                       
 
                         setTimeout(function () {
                             location.reload()
@@ -184,27 +189,27 @@ export default{
                     .catch(error => {
 
                     })
+                },
+                reject: () => {
+
+                }
             });
         }
 
         const declineRefund = (arg) => {
             var status = 'declined'
 
-            swal({
-                title: `Are you sure to mark as ${status} this refund?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            },
-            function(){
+            confirm.require({
+                message: 'Are you sure you want to decline this refund?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                 axios.post(route('owner.refund.change.status', status),
                     {
                         id: arg.refund_id,
                     })
                     .then(response => {
-                        swal("Success!", `You successfully mark as ${status} this refund.`, "success");
+                        toast.add({ severity: 'info', summary: 'Success', detail: `You successfully mark as ${status} this refund.`, life: 3000 });
 
                         setTimeout(function () {
                             location.reload()
@@ -213,6 +218,10 @@ export default{
                     .catch(error => {
 
                     })
+                },
+                reject: () => {
+
+                }
             });
         }
 
@@ -229,21 +238,17 @@ export default{
         const moveoutData = ref(page.props.moveouts)
 
         const approveMoveOut = (arg) => {
-            swal({
-                title: `Are you sure to approve this moveout request?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false
-            },
-            function(){
+            confirm.require({
+                message: 'Are you sure you want to approve this move-out?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                 axios.post(route('owner.move.out.tenant', {id: arg.id}),
                     {
                         id: arg.refund_id,
                     })
                     .then(response => {
-                        swal("Success!", `You successfully moveout this tenant.`, "success");
+                        toast.add({ severity: 'info', summary: 'Success', detail: 'Successfully approved this move-out', life: 3000 });
 
                         setTimeout(function () {
                             location.reload()
@@ -252,6 +257,10 @@ export default{
                     .catch(error => {
 
                     })
+                },
+                reject: () => {
+
+                }
             });
         }
 
@@ -857,6 +866,8 @@ export default{
                                 <div
                                     class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
                                 >
+                                    <ConfirmDialog />
+                                    <Toast />
                                     <button
                                         @click="approveRefund()"
                                         type="button"

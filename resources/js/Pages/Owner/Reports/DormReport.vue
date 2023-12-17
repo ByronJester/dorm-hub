@@ -1,5 +1,5 @@
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -19,11 +19,81 @@ export default {
     },
 
     methods: {
-        exportToPDF() {
-            const doc = new jsPDF();
 
-            const page = usePage();
-            const contacts = page.props.contact;
+    },
+    setup() {
+        const date = ref();
+        const numoptions = ["5", "10", "15", "20"];
+        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
+
+        const presetDates = ref([
+            { label: "Today", value: [new Date(), new Date()] },
+            {
+                label: "Today (Slot)",
+                value: [new Date(), new Date()],
+                slot: "preset-date-range-button",
+            },
+            {
+                label: "This month",
+                value: [startOfMonth(new Date()), endOfMonth(new Date())],
+            },
+            {
+                label: "Last month",
+                value: [
+                    startOfMonth(subMonths(new Date(), 1)),
+                    endOfMonth(subMonths(new Date(), 1)),
+                ],
+            },
+            {
+                label: "This year",
+                value: [startOfYear(new Date()), endOfYear(new Date())],
+            },
+        ]);
+        const back = () => {
+            var url = null;
+
+            if (user) {
+                router.get(route("owner.reports"));
+            } else {
+                router.get(route("landing.page"));
+            }
+        };
+        const page = usePage();
+        const user = page.props.auth.user;
+
+        const data = page.props.dormReports
+
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                '₱' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+        const slicedRows = ref([]);
+        const datarange = ref([]);
+
+        watch(date, (newDate) => {
+            if(newDate.length == 2) {
+                slicedRows.value = filterDataByDateRange(newDate[0], newDate[1], data)
+                datarange.value = newDate;
+            }else{
+                slicedRows.value = data;
+            }
+        })
+
+        const filterDataByDateRange = (startDate, endDate, dataArray)  =>{
+            return dataArray.filter(item => {
+                const itemDate = new Date(item.created_at);
+                return new Date(itemDate) >= new Date(startDate) && new Date(itemDate) <= new Date(endDate);
+            });
+        }
+        const contacts = page.props.contact;
+
+        const exportToPDF = ()  => {
+            const doc = new jsPDF();
+           
             const currentDate = new Date();
             const logo = "/images/logo.png";
             const dateString = currentDate.toLocaleDateString();
@@ -35,9 +105,10 @@ export default {
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
 
+           
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
-            doc.text(emails, 150, 30)
+            doc.text(emails, 163, 30)
             doc.setFontSize(10);
             doc.text(phone, 175, 36)
             doc.setFontSize(10);
@@ -54,12 +125,18 @@ export default {
             const margin = 65;
 
             // Create your data array with header and rows
-            const tableData = [this.header].concat(
-                this.slicedRows.map((row) => [
-
+            const tableData = [header].concat(
+                slicedRows.value.map((row) => [
+                    row.name,
+                    row.date_registered,
+                    row.rooms_total,
+                    row.occupied_rooms,
+                    row.vacant_rooms,
+                    moneyFormat(row.monthly_income),
+                    moneyFormat(row.yearly_income)
                 ])
             );
-
+            console.log(tableData)
             // Generate the table in the PDF
             doc.autoTable({
                 head: [tableData[0]],
@@ -69,9 +146,10 @@ export default {
                 styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
             });
 
-            doc.save("table-data.pdf");
-        },
-            printTable() {
+            doc.save("table-data-" +timestamp+'.pdf');
+        }
+
+        const printTable = () => {
             const doc = new jsPDF();
 
             const page = usePage();
@@ -136,58 +214,7 @@ export default {
                 iframe.onload = function () {
                     iframe.contentWindow.print();
                 };
-            },
-        },
-    setup() {
-        const date = ref();
-        const numoptions = ["5", "10", "15", "20"];
-        const header=["Dorm Name","Date Registered", "Total Rooms", "Occupied Rooms", "Vacant Rooms", "Total Income (Monthly)", "Total Income (Annualy)"]
-
-        const presetDates = ref([
-            { label: "Today", value: [new Date(), new Date()] },
-            {
-                label: "Today (Slot)",
-                value: [new Date(), new Date()],
-                slot: "preset-date-range-button",
-            },
-            {
-                label: "This month",
-                value: [startOfMonth(new Date()), endOfMonth(new Date())],
-            },
-            {
-                label: "Last month",
-                value: [
-                    startOfMonth(subMonths(new Date(), 1)),
-                    endOfMonth(subMonths(new Date(), 1)),
-                ],
-            },
-            {
-                label: "This year",
-                value: [startOfYear(new Date()), endOfYear(new Date())],
-            },
-        ]);
-        const back = () => {
-            var url = null;
-
-            if (user) {
-                router.get(route("owner.reports"));
-            } else {
-                router.get(route("landing.page"));
-            }
-        };
-        const page = usePage();
-        const user = page.props.auth.user;
-
-        const data = page.props.dormReports
-
-        const moneyFormat = (amount) => {
-            amount = parseFloat(amount).toFixed(2);
-
-            return (
-                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-            );
-        };
-
+        }
         return {
             date,
             presetDates,
@@ -195,196 +222,57 @@ export default {
             header,
             data,
             back,
-            moneyFormat
+            moneyFormat,
+            filterDataByDateRange,
+            slicedRows,
+            exportToPDF,
+            printTable
         };
     },
 };
 </script>
 <template>
     <div class="flex flex-row gap-2 items-center">
-        <button @click="back()" class="border-2 border-gray-500 px-3 py-1  text-gray-500 hover:text-white hover:border-orange-400 rounded-md hover:bg-orange-400 "><span>
-            <i class="fa-solid fa-arrow-left fa-lg"></i>
-        </span></button>
-        <p class="text-2xl font-semibold my-4">Dorm Report</p>
-    </div>
 
-    <div class="w-[278px] mt-5">
-    <div class="flex flex-row gap-2 items-center justify-center">
-        <div>
-        <p class="text-sm">Date Range:</p>
-        <VueDatePicker
-            v-model="date"
-            range
-            :preset-dates="presetDates"
-            :enable-time-picker="false"
-        >
-            <template #preset-date-range-button="{ label, value, presetDate }">
-                <span
-                    class="px-3"
-                    role="button"
-                    :tabindex="0"
-                    @click="presetDate(value)"
-                    @keyup.enter.prevent="presetDate(value)"
-                    @keyup.space.prevent="presetDate(value)"
-                >
-                    {{ label }}
-                </span>
-            </template>
-        </VueDatePicker>
-    </div>
+       <p class="text-2xl font-semibold my-4">Dorm Report</p>
+   </div>
+   <p class="text-lg  "> This report may contain various types of information about the dormitory, its residents, facilities, and overall conditions. </p>
 
-        <div class="mt-5">
-            <button class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25">Generate</button>
-        </div>
-    </div>
+   <div class="w-[278px] mt-5">
+       <div>
+       <p class="text-sm">Date Range:</p>
+       <VueDatePicker
+           v-model="date"
+           range
+           :preset-dates="presetDates"
+           :enable-time-picker="false"
+       >
+           <template #preset-date-range-button="{ label, value, presetDate }">
+               <span
+                   class="px-3"
+                   role="button"
+                   :tabindex="0"
+                   @click="presetDate(value)"
+                   @keyup.enter.prevent="presetDate(value)"
+                   @keyup.space.prevent="presetDate(value)"
+               >
+                   {{ label }}
+               </span>
+           </template>
+       </VueDatePicker>
+   </div>
 
-    </div>
-    <div class="w-full mb-5 mt-5">
-                    <div
-                        class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
-                    >
-                        <div class="rounded-t mb-0 px-4 py-3 border-0">
-                            <div class="flex flex-wrap items-center">
-                                <p class="text-xl mb-5 font-bold">Dorm Records</p>
-                                <div
-                                    class="relative w-full  sm:flex-row sm:justify-between sm:items-center gap-5 file:px-4 max-w-full flex-col flex "
-                                >
+   </div>
 
-                                <div class="mb-3 sm:flex-row flex-col flex gap-3">
-                                    <div class="flex flex-row gap-2">
-                                        <button
-                                                @click="exportToPDF()"
-                                                class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    PDF
-                                                </button>
-                                                <button
-                                                @click="printTable()"
-                                                 class="py-2.5 rounded-lg bg-orange-400 text-white px-4">
-                                                    Print
-                                                </button>
-                                    </div>
-                                </div>
-                                    <form class="flex items-center">
 
-                                        <label
-                                            for="simple-search"
-                                            class="sr-only"
-                                            >Search</label
-                                        >
-                                        <div class="relative w-full">
-                                            <div
-                                                class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
-                                            >
-                                                <svg
-                                                    class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                    aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 18 20"
-                                                >
-                                                    <path
-                                                        stroke="currentColor"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2"
-                                                    />
-                                                </svg>
-                                            </div>
-                                            <input
-                                                type="text"
-                                                id="simple-search"
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                placeholder="Search in table..."
-                                                required
-                                            />
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="block w-full overflow-x-auto">
-                            <table
-                                class="items-center w-full bg-transparent border-collapse"
-                            >
-                                <thead>
-                                    <tr>
-                                        <th
-                                            class="px-6 align-middle border border-solid py-3 text-xs uppercase border-l-0 border-r-0 whitespace-nowrap font-semibold text-left bg-blueGray-50 text-blueGray-500 border-blueGray-100"
-                                            v-for="header in header"
-                                            :key="header"
-                                        >
-                                            {{ header }}
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr
-                                        v-for="(item, rowIndex) in data"
-                                        :key="rowIndex"
-                                    >
-                                        <td
-                                            class="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
-                                            v-for="(value, colIndex) in item"
-                                            :key="colIndex"
-                                        >
-                                            {{ colIndex == 'monthly_income' || colIndex == 'yearly_income' ? moneyFormat(value) : value }}
-                                        </td>
+   <!--Button-->
 
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div
-                                class="p-3 lg:px-6 border-t border-gray-100 dark:border-slate-800"
-                            >
-                                <div
-                                    class="justify-between items-center block md:flex"
-                                >
-                                    <div
-                                        class="flex items-center justify-center mb-6 md:mb-0"
-                                    >
-                                        <div
-                                            class="flex items-center justify-start flex-wrap -mb-3"
-                                        >
-                                            <button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-gray-100 dark:border-slate-800 ring-gray-200 dark:ring-gray-500 bg-gray-200 dark:bg-slate-700 hover:bg-gray-200 hover:dark:bg-slate-700 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >1</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >2</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >3</span
-                                                ></button
-                                            ><button
-                                                class="inline-flex justify-center items-center whitespace-nowrap focus:outline-none transition-colors focus:ring duration-150 border cursor-pointer rounded border-white dark:border-slate-900 ring-gray-200 dark:ring-gray-500 bg-white text-black dark:bg-slate-900 dark:text-white hover:bg-gray-100 hover:dark:bg-slate-800 text-sm p-1 mr-3 last:mr-0 mb-3"
-                                                type="button"
-                                            >
-                                                <!----><span class="px-2"
-                                                    >4</span
-                                                >
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="flex items-center justify-center"
-                                    >
-                                        <small>Page 1 of 4</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+   <div class="w-full mb-5 mt-5">
+                  <button
+             @click="exportToPDF"
+             class="flex items-center px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-80"
+             >
+              Generate Dorm Report
+           </button>
+               </div>
 </template>

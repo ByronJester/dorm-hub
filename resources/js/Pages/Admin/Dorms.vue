@@ -471,7 +471,7 @@ export default {
                                 class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
                             >
                                 <h3 class="text-xl font-semibold text-black">
-                                    
+                                    {{  dorm && dorm.property_name }}
                                 </h3>
                                 <button
                                     type="button"
@@ -656,7 +656,24 @@ export default {
                                         </span>
                                         </div>
                                         <hr class="block md:hidden"/>
-                                        <div>
+                                        <div class="">
+                                            <div>
+                                                <p>Amenities</p>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <p v-for="(amenity, index) in dorm.amenities" :key="index" class="bg-orange-400 text-center text-white px-2 py-1 rounded-full">
+                                                    {{ amenity.amenity }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-5">
+                                                <p>Services</p>
+                                                <div class="grid grid-cols-3 gap-2">
+                                                    <p v-for="(name, index) in dorm.services" :key="index" class="bg-orange-400 text-center text-white px-2 py-1 rounded-full">
+                                                    {{ name.service }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -671,7 +688,7 @@ export default {
                                         v-if="dorm.status == 'pending'"
                                         @click="openReasonModal(dorm), closeTermsModal()"
                                         type="button"
-                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                        class="text-white bg-red-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                     >
                                         Decline
                                 </button>
@@ -679,7 +696,7 @@ export default {
                                     @click="approved(dorm.id)"
                                     v-if="dorm.status == 'pending'"
                                     type="button"
-                                    class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                    class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                                 >
                                     Approve
                                 </button>
@@ -688,18 +705,7 @@ export default {
                     </div>
                 </div>
             </div>
-            <div id="modal"
-                    class="z-50 fixed top-0 left-0 right-0 w-full h-screen bg-black/70 flex justify-center items-center hidden">
-
-                    <!-- The close button -->
-                    <a class="fixed z-90 top-6 right-8 text-white text-5xl font-bold" href="javascript:void(0)"
-                        @click="closeImageModal()">&times;</a>
-
-                    <!-- A big image will be displayed here -->
-                    <Image id="modal-img" width="800" class="h-full flex items-center justify-center" />
-                </div>
-        </div>
-        <div
+            <div
                     id="reasonModal"
                     tabindex="-1"
                     aria-hidden="true"
@@ -763,7 +769,7 @@ export default {
                                         Cancel
                                     </button>
                                     <button
-                                        @click="decline(dorm.id, reason )"
+                                        @click="decline(dorm.id, reason)"
                                         type="button"
                                         class="text-white bg-green-500 hover:bg-gray-100 hover:text-gray-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                     >
@@ -774,5 +780,16 @@ export default {
                         </div>
                     </div>
                 </div>
+            <div id="modal"
+                    class="z-50 fixed top-0 left-0 right-0 w-full h-screen bg-black/70 flex justify-center items-center hidden">
+
+                    <!-- The close button -->
+                    <a class="fixed z-90 top-6 right-8 text-white text-5xl font-bold" href="javascript:void(0)"
+                        @click="closeImageModal()">&times;</a>
+
+                    <!-- A big image will be displayed here -->
+                    <Image id="modal-img" width="800" class="h-full flex items-center justify-center" />
+                </div>
+        </div>
     </AuthenticatedLayout>
 </template>
