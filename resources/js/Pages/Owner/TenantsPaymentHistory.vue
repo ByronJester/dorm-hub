@@ -407,7 +407,7 @@ export default {
                             
                             <div class="flex items-center gap-5">
                                 <div>
-                                    <i class="fa-solid fa-droplet fa-xl" style="color: #005eff;"></i>
+                                    <i class="fa-solid fa-house fa-xl" style="color: #d27914;"></i>
                                 </div>
                                 <div>
                                     <p>Description</p>
@@ -417,7 +417,7 @@ export default {
                             </div>
                             <div>
                                 <p>Due Date</p>
-                                <p>11/29/23</p>
+                                <p>{{ monthly.for_the_month }}</p>
                             </div>
                             <div>
                                 <p>Amount</p>
