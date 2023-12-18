@@ -610,11 +610,11 @@ export default {
 
             if (pk.value.trim() === "") {
                 isValid = false;
-                errorMessages.value.pk = "Paymongo Public key is requred";
+                errorMessages.value.pk = "Xendit Public key is requred";
             }
             if (sk.value.trim() === "") {
                 isValid = false;
-                errorMessages.value.sk = "Paymongo Secret key is requred";
+                errorMessages.value.sk = "Xendit Secret key is requred";
             }
 
             return isValid;
@@ -2868,7 +2868,7 @@ export default {
                                     >
                                     <p class="font-light">
                                         After creating an account, log in to
-                                        your Paymongo dashboard.
+                                        your Xendit dashboard.
                                     </p>
                                 </div>
                                 <div class="mb-3">
@@ -2899,7 +2899,7 @@ export default {
                                         >5. Copy and Save Your Keys:</span
                                     >
                                     <p class="font-light">
-                                        After generating your keys, Paymongo
+                                        After generating your keys, Xendit
                                         will display them on the dashboard. Make
                                         sure to copy them and store them
                                         securely.

@@ -298,7 +298,7 @@ export default {
                         <div
                             class="space-y-3 text-center md:text-left lg:mx-12"
                         >
-                            <h1 class="text-2xl font-bold">{{tenant.profile.first_name}} {{ tenant.profile.last_name }}</h1>
+                            <h1 class="text-2xl font-bold text-black">{{tenant.profile.first_name}} {{ tenant.profile.last_name }}</h1>
                             <div class="flex justify-center md:block">
                                 <div
                                     class="inline-flex items-center capitalize leading-none text-sm border rounded-full py-1.5 px-4 bg-blue-500 border-blue-500 text-white"
@@ -321,7 +321,7 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-rows-4 gap-2">
+                <div class="grid grid-rows-4 text-black gap-2">
                     <div class="bg-white shadow rounded-lg">
                         <div class="flex w-full p-3 justify-between">
                             
