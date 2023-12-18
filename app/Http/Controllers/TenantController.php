@@ -876,11 +876,16 @@ class TenantController extends Controller
 
         if($type == 'rent') {
             $data = Tenant::where('id', $request->f_id)->first();
-        } else {
+        } 
+        else if ($type == 'application'){
+            $data = Application::with(['owner'])->where('profile_id', $request->profile_id)->first();
+        }
+        else {
             $data = Reservation::where('id', $request->f_id)->first();
         }
 
-        $owner = User::where('id', $data->owner)->first();
+
+        $owner = User::where('id', $data->owner_id)->first();
 
         $amount = $request->amount;
         $description = $request->description;
@@ -894,6 +899,19 @@ class TenantController extends Controller
             $billing = Billing::where('id', $request->id)->first();
             $billing->invoice_number = $response['external_id'];
             $billing->save();
+
+            if ($type === 'application') {
+                $tenant = Tenant::create([
+                    'owner' => $data->owner_id,
+                    'tenant' => $data->tenant_id,
+                    'dorm_id' => $data->dorm_id,
+                    'room_id' => $data->room_id,
+                    'status' => 'approved',
+                    'move_in' => Carbon::parse($request->move_in), // Adjust this if needed
+                    'profile_id' => $data->profile_id,
+                    'is_active' => true
+                ]);
+            }
 
             return $response['invoice_url'];
         }

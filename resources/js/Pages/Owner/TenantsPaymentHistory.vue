@@ -3,6 +3,14 @@ import { ref, computed } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import AuthenticatedLayout from "@/Layouts/SidebarLayout.vue";
+import DataTable from 'primevue/datatable';
+import Button from 'primevue/button';
+import Tag from 'primevue/tag';
+import Column from 'primevue/column';
+import ColumnGroup from 'primevue/columngroup';   // optional
+import Row from 'primevue/row';      
+import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { useConfirm } from "primevue/useconfirm";
 import "@vuepic/vue-datepicker/dist/main.css";
 import {
     endOfMonth,
@@ -15,6 +23,10 @@ import {
 export default {
     components: {
         VueDatePicker,
+        DataTable,
+        Button,
+        Tag,
+        Column,
         AuthenticatedLayout,
     },
     setup() {
@@ -22,7 +34,7 @@ export default {
         const user = page.props.auth.user;
         const date = ref();
         const numoptions = ["5", "10", "15", "20"];
-
+        const filters = ref();
         console.log(page.props.payments)
         const header = [
             "Room Name",
@@ -40,8 +52,53 @@ export default {
         data.value = page.props.payments
         const tenant =  page.props.tenant
         
+        const getSeverity = (status) => {
+                switch (status) {
+                    case 'decline':
+                        return 'danger';
 
-        console.log(tenant)
+                    case 'approved':
+                        return 'success';
+
+                    case 'pending':
+                        return 'warning';
+
+                }
+            };
+
+            const initFilters = () => {
+                filters.value = {
+                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                    description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                    payment_method: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
+                   
+                };
+            };
+
+            initFilters();
+            
+            const clearFilter = () => {
+                initFilters();
+            };
+
+            const formatDate = (value) => {
+                // Check if value is a string and convert it to a Date object
+                const date = typeof value === 'string' ? new Date(value) : value;
+
+                // Check if date is a valid Date object
+                if (isNaN(date.getTime())) {
+                    // If not a valid Date, you can handle it according to your requirements
+                    return "Invalid Date"; // or return value.toString() or any other representation
+                }
+
+                // If it's a valid Date object, format it
+                return date.toLocaleDateString('en-US', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                });
+            };
+        console.log(data)
 
         const objectRemoveKey = (object, key = null) => {
             const newObject = Object.assign({}, object);
@@ -170,6 +227,7 @@ export default {
         //     };
 
         return {
+            filters,
             tenant,
             date,
             presetDates,
@@ -180,6 +238,9 @@ export default {
             objectRemoveKey,
             removeUnderscoreAndCapitalizeAfterSpace,
             markAsPaid,
+            getSeverity,
+            clearFilter,
+            formatDate
         };
     },
 };
@@ -187,6 +248,8 @@ export default {
 <template>
     <AuthenticatedLayout>
         <div class="p-4 mt-16 lg:ml-64">
+            <div class="max-w-screen-lg
+                        mx-auto">
             <div class="flex flex-row gap-2 items-center">
                 <button
                     @click="back()"
@@ -196,13 +259,31 @@ export default {
                         <i class="fa-solid fa-arrow-left fa-lg"></i>
                     </span>
                 </button>
-                <p class="text-2xl font-semibold my-4">Payment History</p>
+                <p class="text-2xl font-semibold my-4">Bill Tenant</p>
+            </div>
+            <div class="flex justify-between">
+                <div>
+                    <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500">
+                        Termination Notice
+                    </button>
+                </div>
+                <div class="flex gap-3">
+                    <button class="py-1.5 px-2 border rounded-lg text-orange-500 hover:bg-orange-400 hover:text-white border-orange-500">
+                        Add Bill
+                    </button>
+                    <button class="py-1.5 px-2 border rounded-lg text-green-500 hover:bg-green-400 hover:text-white border-green-500">
+                        Auto Bill
+                    </button>
+                    <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500">
+                        Mark as delinquent
+                    </button>
+                </div>
             </div>
             <div
-                class=" mb-4 mt-4 text-gray-400 dark:text-white"
+                class=" mb-4 mt-4 text-gray-900 dark:text-white grid grid-cols-1 md:grid-cols-2 gap-3"
             >
                 <div
-                    class="flex flex-row items-center jusitfy-center p-5 rounded-lg "
+                    class="flex flex-row items-center jusitfy-center p-5 rounded-lg bg-white shadow "
                 >
                     <div class="flex items-center justify-center mb-6 md:mb-0">
                         <div>
@@ -240,41 +321,126 @@ export default {
                         </div>
                     </div>
                 </div>
-
+                <div class="grid grid-rows-4 gap-2">
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="flex w-full p-3 justify-between">
+                            
+                            <div class="flex items-center gap-5">
+                                <div>
+                                    <i class="fa-solid fa-droplet fa-xl" style="color: #005eff;"></i>
+                                </div>
+                                <div>
+                                    <p>Description</p>
+                                    <p>Water</p>
+                                </div>
+                                
+                            </div>
+                            <div>
+                                <p>Due Date</p>
+                                <p>11/29/23</p>
+                            </div>
+                            <div>
+                                <p>Amount</p>
+                                <p>P100.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="flex w-full p-3 justify-between">
+                            
+                            <div class="flex items-center gap-5">
+                                <i class="fa-solid fa-bolt fa-xl" style="color: #fff700;"></i>
+                                <div>
+                                    <p>Description</p>
+                                <p>Electricity</p>
+                                </div>
+                                
+                            </div>
+                            <div>
+                                <p>Due Date</p>
+                                <p>11/29/23</p>
+                            </div>
+                            <div>
+                                <p>Amount</p>
+                                <p>P100.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="flex w-full p-3 justify-between">
+                            <div class="flex gap-5 items-center">
+                                <i class="fa-solid fa-house fa-xl" style="color: #db7a0a;"></i>
+                                <div>
+                                    <p>Description</p>
+                                    <p>Monthly Fee</p>
+                                </div>
+                                
+                            </div>
+                            <div>
+                                <p>Due Date</p>
+                                <p>11/29/23</p>
+                            </div>
+                            <div>
+                                <p>Amount</p>
+                                <p>P100.00</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="flex w-full p-3 justify-between">
+                            <div class="flex gap-5 items-center">
+                                <i class="fa-solid fa-wifi fa-xl" style="color: #00e1ff;"></i>
+                                <div>
+                                    <p>Description</p>
+                                    <p>Internet</p>
+                                </div>
+                                
+                            </div>
+                            <div>
+                                <p>Due Date</p>
+                                <p>11/29/23</p>
+                            </div>
+                            <div>
+                                <p>Amount</p>
+                                <p>P100.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="w-[278px] mt-5">
-                <p class="text-sm">Date Range:</p>
-                <VueDatePicker
-                    v-model="date"
-                    range
-                    :preset-dates="presetDates"
-                    :enable-time-picker="false"
-                >
-                    <template
-                        #preset-date-range-button="{ label, value, presetDate }"
-                    >
-                        <span
-                            class=""
-                            role="button"
-                            :tabindex="0"
-                            @click="presetDate(value)"
-                            @keyup.enter.prevent="presetDate(value)"
-                            @keyup.space.prevent="presetDate(value)"
-                        >
-                            {{ label }}
+            <div class="card mb-10">
+                <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                :globalFilterFields="['description', 'payment_method']">
+                <template #header>
+                    <div class="flex items-center border-b py-2 justify-center">
+                        <p class="text-2xl">Payment History</p>
+                    </div>
+                    <div class="flex items-center mt-3 justify-between">
+                        <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
+                        <span class="p-input-icon-left">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
                         </span>
-                    </template>
-                </VueDatePicker>
+                    </div>
+                </template>
+                <template #empty> No user found. </template>
+                    <Column field="description" header="Description" sortable style="min-width: 14rem" class="border-b">
+                        <template #body="{ data }">
+                            {{ data.description }}
+                        </template>
+                    </Column>
+                    <Column field="invoice_no" header="Invoice #" sortable style="min-width: 14rem" class="border-b">
+                    </Column>
+                    <Column field="payment_method" header="Payment Method" sortable style="min-width: 14rem" class="border-b">
+                    </Column>
+                    <Column header="Status" field="status" sortable style="min-width: 12rem" class="border-b">
+                        <template #body="{ data }">
+                            <Tag :value="data.status" :severity="getSeverity(data.status)" />
+                        </template>
+                    </Column>
+                </DataTable>
             </div>
-            <!--Button-->
-            <div class="mt-5">
-                <button
-                    class="px-3 py-2 bg-orange-400 rounded-md text-white shadow-lg font-semibold hover:bg-opacity-25"
-                >
-                    Generate
-                </button>
-            </div>
-            <div class="w-full mb-5 mt-5">
+            <!-- <div class="w-full mb-5 mt-5">
                 <div
                     class="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-white border"
                 >
@@ -439,7 +605,9 @@ export default {
                 </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
+        
         </div>
+    </div>
     </AuthenticatedLayout>
 </template>
