@@ -361,6 +361,7 @@ class OwnerController extends Controller
                 $room->fee = $r->fee;
                 $room->deposit = $r->deposit;
                 $room->advance = $r->advance;
+                $room->furnished_desc = $r->furnished_desc;
 
                 $uploadFile = $this->uploadFile($r->src, $filename);
                 $room->image = $filename;
@@ -539,6 +540,7 @@ class OwnerController extends Controller
                     $room->fee = $r->fee;
                     $room->deposit = $r->deposit;
                     $room->advance = $r->advance;
+                    $room->furnished_desc = $r->furnished_desc;
 
                     // Update the room image if a new image is provided
                     if ($r->src) {
@@ -559,6 +561,7 @@ class OwnerController extends Controller
                 $room->fee = $r->fee;
                 $room->deposit = $r->deposit;
                 $room->advance = $r->advance;
+                $room->furnished_desc = $r->furnished_desc;
 
                 // Upload room image if provided
                 if ($r->src) {
@@ -750,6 +753,7 @@ class OwnerController extends Controller
                 $room->fee = $r->fee;
                 $room->deposit = $r->deposit;
                 $room->advance = $r->advance;
+                $room->furnished_desc = $r->furnished_desc;
 
                 $uploadFile = $this->uploadFile($r->src, $filename);
                 $room->image = $filename;

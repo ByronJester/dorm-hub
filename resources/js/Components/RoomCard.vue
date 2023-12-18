@@ -125,6 +125,12 @@ export default {
                     </div>
                 </div>
 
+                  <!--Furnished Description-->
+                <div class="font-semibold">
+                    Furnished Description:
+                    <span class="font-light">{{ room.furnished_desc }}</span>
+                </div>
+                
                 <!--Aircon-->
                 <div class="font-semibold">
                     <div class="flex flex-row mt-1 gap-2">
@@ -182,8 +188,8 @@ export default {
 
                         <span class="font-light">{{
                             room.is_aircon == "Yes"
-                                ? "Arconditioned"
-                                : "Not-Arconditioned"
+                                ? "Airconditioned"
+                                : "Not-Airconditioned"
                         }}</span>
                     </div>
                 </div>

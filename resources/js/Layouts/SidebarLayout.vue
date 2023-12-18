@@ -312,6 +312,27 @@ export default {
                         <Link
                             :class="{
                                 'text-white':
+                                    route().current() == 'admin.subscribe',
+                                'bg-gradient-to-r':
+                                    route().current() == 'admin.subscribe',
+                                'from-orange-400':
+                                    route().current() == 'admin.subscribe',
+                                'to-red-600':
+                                    route().current() == 'admin.subscribe',
+                            }"
+                            :href="route('admin.subscribe')"
+                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
+                        >
+                            <i class="fa-solid fa-file-export"></i>
+                            <span class="ml-1">Subscribe</span>
+                        </Link>
+                    </li>
+
+                
+                    <li>
+                        <Link
+                            :class="{
+                                'text-white':
                                     route().current() == 'admin.maintenance',
                                 'bg-gradient-to-r':
                                     route().current() == 'admin.maintenance',

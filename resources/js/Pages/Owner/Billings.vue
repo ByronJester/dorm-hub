@@ -534,7 +534,13 @@ export default {
                         >
                             <template #body="{ data }">
                                 <p v-if="data.status == 'Paid'">
-                                    {{ data.payment_method }}
+                                    <div class="">
+                                                <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
+                                                <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'VISA'" src="/images/visa.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-16"/>
+                                                <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
+                                            </div>
                                 </p>
                                 <p v-else>Not Paid</p>
                             </template>
