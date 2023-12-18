@@ -147,6 +147,11 @@ export default {
                                         }}</span>
                                     </div>
                                 </div>
+                                
+                                <div class="font-light">
+                                    Furnished Description:
+                                    <span>{{ reser.room.furnished_desc }}</span>
+                                </div>
 
                                 <div class="font-semibold">
                                     <div class="flex flex-row mt-1 gap-2">
@@ -204,7 +209,7 @@ export default {
 
                                         <span class="font-light">{{
                                             reser.room.is_aircon == "Yes"
-                                                ? "Arconditioned"
+                                                ? "Airconditioned"
                                                 : "Not-Arconditioned"
                                         }}</span>
                                     </div>

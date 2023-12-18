@@ -4,7 +4,7 @@ import AppDropdown from "@/Pages/Owner/Components/AppDropDown.vue";
 import AppDropdownContent from "@/Pages/Owner/Components/AppDropDownContent.vue";
 import AppDropdownItem from "@/Pages/Owner/Components/AppDropDownItem.vue";
 import { ref, onMounted, computed } from "vue";
-import { usePage, useForm } from "@inertiajs/vue3";
+import { usePage, useForm, router} from "@inertiajs/vue3";
 import axios from "axios";
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
@@ -376,8 +376,14 @@ export default {
         }
 
         console.log(page.props)
+        const view = (id) => {
+            var url = null;
+            router.get(route('owner.tenantshistory', id));
+            
+        };
         return {
             options,
+            view,
             headerTenants,
             selectedDorm,
             tenantsData,
@@ -526,7 +532,11 @@ export default {
                                                         Notice Termination
                                                     </AppDropdownItem>
                                                     <AppDropdownItem @click="removeTenant(data);">
-                                                        Remove Tenant
+                                                        Remove Tenant 
+                                                    </AppDropdownItem>
+
+                                                    <AppDropdownItem @click="view(data.profileId)" >
+                                                        Remove Tenant 
                                                     </AppDropdownItem>
                                                 </AppDropdownContent>
                                     </AppDropdown>

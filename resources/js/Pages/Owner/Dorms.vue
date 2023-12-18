@@ -23,8 +23,8 @@ import Toast from 'primevue/toast';
 export default {
     components: {
         AuthenticatedLayout,
-        InputLabel,
-        TextInput,
+            InputLabel,
+            TextInput,
         DormList,
         MapboxMap,
         MapboxMarker,
@@ -83,11 +83,10 @@ export default {
         isMobileView.value = screen.width < 600;
 
         const service = ref([
-            { name: 'Service1'},
-            { name: 'Service2' },
-            { name: 'Service3'},
-            { name: 'Service4' },
-            { name: 'Service5'}
+            { name: 'Laundry Services'},
+            { name: 'Maintenance Services' },
+            { name: 'Cleaning Services'},
+            { name: 'Security Services' },
         ]);
 
         const amenity = ref([
@@ -244,6 +243,7 @@ export default {
                     type_of_room: null,
                     is_aircon: null,
                     furnished_type: null,
+                    furnished_desc: null,
                     image: null,
                     src: null,
                     fee: null,
@@ -763,6 +763,10 @@ export default {
                             room.furnished_type.trim() !== "";
                         const hasImage = room.src !== null;
 
+                        const hasFurnished_Description =
+                            room.furnished_desc && 
+                            room.furnished_desc.trim() !== "";
+
                         errorMessages.value.room[index] = {
                             name: "",
                             src: "",
@@ -772,6 +776,7 @@ export default {
                             type_of_room: "",
                             is_aircon: "",
                             furnished_type: "",
+                            furnished_desc: "",
                         };
 
                         if (!hasImage) {
@@ -813,7 +818,13 @@ export default {
                         if (!hasFurniture) {
                             isValid = false;
                             errorMessages.value.room[index].furnished_type =
-                                "Select funished type";
+                                "Select furnished type";
+                        }
+
+                        if (!hasFurnished_Description) {
+                            isValid = false;
+                            errorMessages.value.room[index].furnished_desc =
+                                "Enter furnished description";
                         }
 
                         if (!hasName) {
@@ -844,9 +855,11 @@ export default {
             } else {
                 canAddDorm.value = false;
             }
+            console.log(subscription)
         };
 
         watch(() => user, checkSubscription);
+        
 
         onMounted(() => {
             checkSubscription();
@@ -1055,6 +1068,7 @@ export default {
                 xl:grid-cols-4
                 2xl:grid-cols-5
                 gap-8
+                mb-10
           "
             >
                 <DormList
@@ -2079,8 +2093,8 @@ export default {
                                                 <div class="w-full mx-1">
                                                     <InputLabel
                                                         class="text-black"
-                                                        or="furnished_type"
-                                                        value="Fursnished Type"
+                                                        for="furnished_type"
+                                                        value="Furnished Type"
                                                     />
 
                                                     <select
@@ -2134,17 +2148,24 @@ export default {
                                             </div>
                                             <div class="w-full mx-1">
                                                 <InputLabel
-                                                    for="furnshiedDescription"
+                                                    for="furnished_desc"
                                                     class="text-black"
-                                                    value="Furnished Description"
+                                                   value="Furnished Description"
+                                                   
                                                 />
                                                 <TextInput
-                                                    id="fee"
+                                                    id="furnished_desc"
                                                     type="text"
                                                     class="mt-1 block w-full text-black"
-                                                    placeholder="ex. With bed, refridgirator etc."
+                                                    placeholder="ex. With bed, refrigirator etc."
+                                                    v-model="room.furnished_desc"
                                                     required
                                                 />
+                                                <div v-if="errorMessages.room[index]">
+                                                        <p class="text-xs text-red-500 ml-2">
+                                                            {{ errorMessages.room[index].furnished_desc }}
+                                                        </p>
+                                                    </div>
                                             </div>
                                         </div>
 

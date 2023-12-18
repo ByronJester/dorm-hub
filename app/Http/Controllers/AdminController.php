@@ -45,6 +45,13 @@ class AdminController extends Controller
         ]);
     }
 
+    public function subscribe() {
+        return Inertia::render('Admin/Subscribe',[
+
+        ]);
+
+    }
+
     public function maintenance() {
         return Inertia::render('Admin/Maintenance',[
 

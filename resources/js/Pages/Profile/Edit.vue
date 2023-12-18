@@ -6,6 +6,7 @@ import UpdatePasswordForm from "./Partials/UpdatePasswordForm.vue";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm.vue";
 import IncomeInformation from "./Partials/IncomeInformation.vue";
 import AddProfile from "./Partials/AddProfile.vue";
+import PaymentSettings from "./Partials/PaymentSettings.vue";
 import { Head } from "@inertiajs/vue3";
 import { Link, usePage } from "@inertiajs/vue3";
 
@@ -121,6 +122,10 @@ defineProps({
                             class="w-full"
                         />
   
+            </div>
+
+            <div v-if="user.user_type == 'owner'">
+                <PaymentSettings />
             </div>
         </div>
     </OtherLayout>

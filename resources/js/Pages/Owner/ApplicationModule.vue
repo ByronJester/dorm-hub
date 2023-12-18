@@ -271,8 +271,10 @@
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 accept: () => {
-                    axios.post(route('approve.application', arg.id), arg)
+
+                    axios.post(route('approve.application', arg.id), {room_id: arg.room_id})
                         .then(response => {
+
                             toast.add({ severity: 'info', summary: 'Confirmed', detail: 'Successfully approved this application', life: 3000 });
                             setTimeout(function () {
                                 location.reload()
@@ -280,6 +282,7 @@
                         })
                         .catch(error => {
                             errors.value = error.response.data.errors
+                            console.log(arg)
                         })
                 },
                 reject: () => {

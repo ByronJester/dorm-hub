@@ -78,10 +78,9 @@
                 }
             };
             var dataReserve = [];
+            
             const rows = ref(dataReserve);
             
-
-            const headersReserve = ["Dorm Name", "Room Name", "Tenant Name", "Date Visit", "Time Visit", 'Remaining Days', 'Status'];
 
             const reservations = page.props.reservations;
 
@@ -95,10 +94,11 @@
                         time_visit: reservations[x].check_time,
                         remaining: getDaysRemaining(reservations[x].created_at, reservations[x].expired_at),
                         status: getStatus(reservations[x].is_active),
+                        created_at: reservations[x].created_at, 
                     }
                 );
             }
-
+            dataReserve.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             const initFilters = () => {
                 filters.value = {
@@ -138,6 +138,9 @@
                 initFilters();
             };
 
+            var currentDate = new Date();
+            console.log(currentDate);
+
             return {
                 rows,
                 clearFilter,
@@ -159,13 +162,13 @@
     <AuthenticatedLayout>
         <!---->
         <div class="px-4 pt-20 lg:ml-64">
-            <div class="flex items-center justify-start">
-                <i class="fa-regular fa-calendar" style="color: #000000;"></i>
+            <div class="flex items-center gap-3 justify-start">
+                <i class="fa-regular fa-calendar fa-xl" style="color: #000000;"></i>
                 <h3 class="text-3xl">Reservation</h3>
             </div>
             <hr class="h-px my-5 bg-orange-400 border-1 dark:bg-gray-700" />
             <div class="card mb-20">
-                <DataTable v-model:filters="filters" :value="dataReserve" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                 :globalFilterFields="['dorm_name', 'room_name', 'tenant_name', 'time_visit', 'visit_date', 'remaining', 'status']">
                 <template #header>
                     <div class="flex items-center justify-between">

@@ -102,7 +102,7 @@ export default {
                                     Income Report
                                 </span>
                             </div>
-
+                            
                             <div
                                 class="w-full my-1 p-2 rounded-md hover:bg-orange-400 hover:text-white group"
                                 :class="{

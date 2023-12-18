@@ -67,15 +67,19 @@ export default {
             amount = parseFloat(amount).toFixed(2);
 
             return (
-                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                '₱' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             );
         };
 
         const slicedRows = ref([]);
+        const datarange = ref([]);
 
         watch(date, (newDate) => {
             if(newDate.length == 2) {
                 slicedRows.value = filterDataByDateRange(newDate[0], newDate[1], data)
+                datarange.value = newDate;
+            }else{
+                slicedRows.value = data;
             }
         })
 
@@ -85,12 +89,11 @@ export default {
                 return new Date(itemDate) >= new Date(startDate) && new Date(itemDate) <= new Date(endDate);
             });
         }
+        const contacts = page.props.contact;
 
         const exportToPDF = ()  => {
             const doc = new jsPDF();
-
-            const page = usePage();
-            const contacts = page.props.contact;
+           
             const currentDate = new Date();
             const logo = "/images/logo.png";
             const dateString = currentDate.toLocaleDateString();
@@ -102,9 +105,10 @@ export default {
             const ig = `Ig: ${contacts.ig}`;
             const address =  contacts.address;
 
+           
             doc.addImage(logo, 'PNG', 141, 10, 55, 13);
             doc.setFontSize(10);
-            doc.text(emails, 150, 30)
+            doc.text(emails, 163, 30)
             doc.setFontSize(10);
             doc.text(phone, 175, 36)
             doc.setFontSize(10);
@@ -121,12 +125,18 @@ export default {
             const margin = 65;
 
             // Create your data array with header and rows
-            const tableData = [this.header].concat(
-                this.slicedRows.map((row) => [
-
+            const tableData = [header].concat(
+                slicedRows.value.map((row) => [
+                    row.name,
+                    row.date_registered,
+                    row.rooms_total,
+                    row.occupied_rooms,
+                    row.vacant_rooms,
+                    moneyFormat(row.monthly_income),
+                    moneyFormat(row.yearly_income)
                 ])
             );
-
+            console.log(tableData)
             // Generate the table in the PDF
             doc.autoTable({
                 head: [tableData[0]],
@@ -136,7 +146,7 @@ export default {
                 styles: { textColor: [0, 0, 0], fontStyle: 'normal', overflow: 'linebreak' },
             });
 
-            doc.save("table-data.pdf");
+            doc.save("table-data-" +timestamp+'.pdf');
         }
 
         const printTable = () => {
@@ -228,21 +238,6 @@ export default {
    </div>
    <p class="text-lg  "> This report may contain various types of information about the dormitory, its residents, facilities, and overall conditions. </p>
 
-   <div class="flex flex-row items-center justify-between gap-2 w-full">
-       <div class="flex flex-row w-full items-center gap-2">
-           <div>
-               <p class="text-sm">Dorm:</p>
-               <select
-                   id="subject"
-                   class="block w-56 px-4 py-1.5 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-               >
-                   <option v-for="option in options" :key="option">
-                       {{ option }}
-                   </option>
-               </select>
-           </div>
-       </div>
-   </div>
    <div class="w-[278px] mt-5">
        <div>
        <p class="text-sm">Date Range:</p>

@@ -496,11 +496,13 @@ export default {
                         // errors.value = error.response.data.errors;
                     });
         }
+
+        console.log(rows)
         return {
             filters,
             clearFilter,
             rows,
-            selectedProfile,
+            selectedProfile,    
             optionProfile,
             setActiveTable,
             activeTable,

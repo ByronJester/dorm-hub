@@ -65,7 +65,7 @@ export default {
         const myApplication = ref()
         myApplication.value = page.props.myApplication
 
-        console.log(myDorm.value)
+        console.log(myDorm)
 
         console.log(myApplication.value)
 
@@ -159,15 +159,11 @@ export default {
         const account_number = ref(null)
 
         const moveOut = () => {
-            swal({
-                title: `Are you sure to leave this dorm?`,
-                type: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Yes",
-                closeOnConfirm: false,
-            },
-            function () {
+            confirm.require({
+                message: 'Are you sure you want to decline this user?',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                accept: () => {
                 axios.post(route("tenant.move.out"),
                     {
                         move_out: date.value,
@@ -193,6 +189,11 @@ export default {
                     .catch((error) => {
                         errors.value = error.response.data.errors;
                     });
+                },
+                reject: () =>{
+
+                }
+
             });
         }
 
@@ -392,6 +393,13 @@ export default {
                                     </div>
                                 </div>
 
+    
+                                <!--Furnished Description-->
+                                <div class="font-light">
+                                    Furnished Description:
+                                <span>{{ myDorm.room.furnished_desc }}</span>
+                                </div>
+
                                 <!--Aircon-->
                                 <div class="font-semibold">
                                     <div class="flex flex-row mt-1 gap-2">
@@ -449,8 +457,8 @@ export default {
 
                                         <span class="font-light">{{
                                             myDorm.room.is_aircon == "Yes"
-                                                ? "Arconditioned"
-                                                : "Not-Arconditioned"
+                                                ? "Airconditioned"
+                                                : "Not-Airconditioned"
                                         }}</span>
                                     </div>
                                 </div>
