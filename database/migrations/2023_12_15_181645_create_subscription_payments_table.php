@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('subscription');
             $table->string('amount');
             $table->string('invoice_number');
+            $table->date('for_the_month')->nullable();
+            $table->boolean('is_paid')->default(false);
             $table->timestamps();
         });
     }

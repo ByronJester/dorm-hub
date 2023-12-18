@@ -171,6 +171,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/notice-termination', [OwnerController::class, 'noticeTermination'])->name('tenant.notice.termination');
         Route::post('/tenant/remove', [OwnerController::class, 'removeTenant'])->name('tenant.remove');
         Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
+        Route::post('/trigger/auto-bill', [OwnerController::class, 'triggerAutoBill'])->name('owner.trigger-auto-bill');
     });
 
     Route::prefix('tenant')->group(function () {
@@ -178,7 +179,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/payments', [TenantController::class, 'paymentList'])->name('tenant.payments');
         Route::get('/paymongo/success', [TenantController::class, 'successPage'])->name('payment.success');
         Route::get('/paymongo/failed', [TenantController::class, 'failedPage'])->name('payment.fail');;
-        Route::get('/mydorm/{room_id}', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
+        Route::get('/mydorm/{room_id}/{profile_id}', [TenantController::class, 'mydorm'])->name('tenant.mydorm');
         Route::get('/mydormlist', [TenantController::class, 'myDormList'])->name('tenant.mydormlist');
         Route::get('/myreservation/{room_id}', [TenantController::class, 'myreservation'])->name('tenant.reservation');
         Route::get('/myreservationlist', [TenantController::class, 'myReservationList'])->name('tenant.reservationlist');
