@@ -175,25 +175,25 @@ class OwnerController extends Controller
     public function tenantHistory($tenant_id)
     {
         $tenant = Tenant::with(['room'])->where('profile_id', $tenant_id)->first();
-    
+
         if (!$tenant) {
             // Handle the case where the tenant is not found
             return response()->json(['error' => 'Tenant not found.'], 404);
         }
-    
+
         $billings = Billing::where('profile_id', $tenant->profile_id)->get();
-    
+
         if ($billings->isEmpty()) {
             // Handle the case where there are no billings for the given profile_id
             return response()->json(['message' => 'No billings found.']);
         }
-    
+
         $payments = [];
-    
+
         foreach ($billings as $billing) {
             $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
             $room = (object) $tenant->room;
-    
+
             if ($payment) {
                 array_push($payments, [
                     'billing_id' => $billing->id,
@@ -209,13 +209,13 @@ class OwnerController extends Controller
                 ]);
             }
         }
-        
+
         $electricityBillings = $billings->where('subject', 'Electricity')->where('is_paid', false)->first();
         $waterBillings = $billings->where('subject', 'Water')->where('is_paid', false)->first();
         $internetBillings = $billings->where('subject', 'Internet')->where('is_paid', false)->first();
         $monthlyFee = $billings->where('description', 'Monthly Fee')->where('is_paid', false)->first();
         $othersBillings = $billings->where('subject', 'Others')->where('is_paid', false)->first();
-        
+
 
         return Inertia::render('Owner/TenantsPaymentHistory', [
             'payments' => $payments,
@@ -227,7 +227,7 @@ class OwnerController extends Controller
             'monthly'=> $monthlyFee,
         ]);
     }
-    
+
     public function addDorm()
     {
 
@@ -1318,7 +1318,7 @@ class OwnerController extends Controller
             $reservation->is_active = false;
             $reservation->save();
         }
-        
+
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been approved.");
 
@@ -1723,7 +1723,9 @@ class OwnerController extends Controller
                     'subscription' => $subscription,
                     'amount' => $amount,
                     'owner_id' => $dorm->id,
-                    'invoice_number' => $invoice
+                    'invoice_number' => $invoice,
+                    'is_paid' => true,
+                    'for_the_month' => Carbon::now()
                 ]
             );
         }
@@ -1734,6 +1736,57 @@ class OwnerController extends Controller
             'dorm' => $dorms,
             'invoice' => $response['data'][0]
         ]);
+
+    }
+
+
+    public function triggerAutoBill(Request $request)
+    {
+        $tenant = (object) $request;
+        $room = (object) $tenant->room;
+
+        $latestBilling = Billing::where('profile_id', $tenant->profile_id)
+            ->where('description', 'Monthly Fee')
+            ->latest()
+            ->first();
+
+
+        if($latestBilling) {
+            $latestDate = Carbon::parse($latestBilling->for_the_month);
+            $latestBilling->is_overdue = true;
+            $latestBilling->save();
+
+            $billing = Billing::create([
+                'user_id' => $tenant->tenant,
+                'amount' => $room->fee,
+                'description' => 'Monthly Fee',
+                'for_the_month' => $latestDate->addMonthsNoOverflow(1),
+                'f_id' => $tenant->id,
+                'profile_id' => $tenant->profile_id,
+                'type' => 'rent',
+                'is_active' => true,
+                'is_paid' => false,
+                'payment_date' => null,
+            ]);
+        } else {
+            $latestDate = Carbon::parse($tenant->auto_bill_date);
+
+            $billing = Billing::create([
+                'user_id' => $tenant->tenant,
+                'amount' => $room->fee,
+                'description' => 'Monthly Fee',
+                'for_the_month' => $latestDate->addMonthsNoOverflow(1),
+                'f_id' => $tenant->id,
+                'profile_id' => $tenant->profile_id,
+                'type' => 'rent',
+                'is_active' => true,
+                'is_paid' => false,
+                'payment_date' => null,
+            ]);
+        }
+
+
+        return response()->json('Success', 200);
 
     }
 }

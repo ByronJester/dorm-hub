@@ -5,7 +5,7 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';   // optional
-import Row from 'primevue/row';      
+import Row from 'primevue/row';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import { ref, onMounted, watch } from "vue";
 export default{
@@ -16,7 +16,7 @@ export default{
         Tag,
         Column,
         Row
-        
+
     },
     setup(){
         const filters = ref();
@@ -42,12 +42,12 @@ export default{
                     phone_number: { value: null, matchMode: FilterMatchMode.IN },
                     created_at: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
                     status: { operator: FilterOperator.OR, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-                   
+
                 };
             };
 
             initFilters();
-            
+
             const clearFilter = () => {
                 initFilters();
             };
@@ -100,7 +100,7 @@ export default{
                             </div>
                         </template>
                         <template #empty> No subscription found. </template>
-                            <Column field="name" header="Name" sortable style="min-width: 14rem" class="border-b">
+                            <Column field="name" header="Name" sortable style="min-width: 10rem" class="border-b">
                                 <template #body="{ data }">
                                     {{ data.name }}
                                 </template>
@@ -115,7 +115,17 @@ export default{
                                     {{ formatDate(data.created_at) }}
                                 </template>
                             </Column>
-                            
+                            <Column field="Action" header="Action" sortable style="min-width: 4rem" class="border-b">
+                                <template #body="{ data }">
+                                    <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
+                                    <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
+                                        @click="payNow(data)"
+                                    >
+                                        Pay Now
+                                    </button>
+                                </template>
+                            </Column>
+
                         </DataTable>
                     </div>
                 </div>
