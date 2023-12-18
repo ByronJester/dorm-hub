@@ -268,7 +268,7 @@ class SharedController extends Controller
             $expirationDate = Carbon::parse($reservation->expired_at);
             $room = Room::where('id', $reservation->room_id)->first();
 
-            if ($now->isSameDay($expirationDate)) {
+            if ($now >= $expirationDate) {
                 $reservation->is_active = false;
                 $reservation->save();
 

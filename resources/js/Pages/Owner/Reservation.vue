@@ -138,6 +138,9 @@
                 initFilters();
             };
 
+            var currentDate = new Date();
+            console.log(currentDate);
+
             return {
                 rows,
                 clearFilter,
