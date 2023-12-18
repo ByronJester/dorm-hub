@@ -254,7 +254,8 @@ export default {
                     <template #header>
                         <button @click="active = 1" class="p-2 ml-5" :class="{
                             'border-b border-px border-orange-400 text-orange-400 font-bold' : active == 1
-                        }"
+                        }" :href="route('tenant.payments')"
+                       
                         >My Applications</button>
                     </template>
                     <div v-if="myApplication.length > 0">

@@ -714,7 +714,7 @@ export default {
                     <li>
                         <Link
                         :class="{
-                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.payements'
+                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.payments'
                                 }"
                             :href="route('tenant.payments')"
                             class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
