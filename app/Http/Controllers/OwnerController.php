@@ -210,12 +210,82 @@ class OwnerController extends Controller
             }
         }
 
-        $electricityBillings = $billings->where('subject', 'Electricity')->where('is_paid', false)->first();
-        $waterBillings = $billings->where('subject', 'Water')->where('is_paid', false)->first();
-        $internetBillings = $billings->where('subject', 'Internet')->where('is_paid', false)->first();
-        $monthlyFee = $billings->where('description', 'Monthly Fee')->where('is_paid', false)->first();
-        $othersBillings = $billings->where('subject', 'Others')->where('is_paid', false)->first();
 
+
+        $ebs = Billing::where('subject', 'Electricity')->where('is_paid', false)
+            ->where('profile_id', $tenant->profile_id)
+            ->get();
+
+        $electricityBillings = null;
+        $ebAmount = 0;
+        foreach($ebs as $eb) {
+            $electricityBillings = $eb;
+            $ebAmount += $eb->amount;
+        }
+
+        if($electricityBillings) {
+            $electricityBillings->amount = $ebAmount;
+        }
+
+        $wbs = Billing::where('subject', 'Water')->where('is_paid', false)
+            ->where('profile_id', $tenant->profile_id)
+            ->get();
+
+        $waterBillings = null;
+        $wbAmount = 0;
+        foreach($wbs as $wb) {
+            $waterBillings = $wb;
+            $wbAmount += $wb->amount;
+        }
+
+        if($waterBillings) {
+            $waterBillings->amount = $wbAmount;
+        }
+
+        $ibs = Billing::where('subject', 'Internet')->where('is_paid', false)
+            ->where('profile_id', $tenant->profile_id)
+            ->get();
+
+        $internetBillings = null;
+        $ibAmount = 0;
+        foreach($ibs as $ib) {
+            $internetBillings = $ib;
+            $ibAmount += $ib->amount;
+        }
+
+        if($internetBillings) {
+            $internetBillings->amount = $ibAmount;
+        }
+
+        $mbs = Billing::where('description', 'Monthly Fee')->where('is_paid', false)
+            ->where('profile_id', $tenant->profile_id)
+            ->get();
+
+        $monthlyFee = null;
+        $mbAmount = 0;
+        foreach($mbs as $mb) {
+            $monthlyFee = $ib;
+            $mbAmount += $mb->amount;
+        }
+
+        if($monthlyFee) {
+            $monthlyFee->amount = $mbAmount;
+        }
+
+        $obs = Billing::where('subject', 'Others')->where('is_paid', false)
+            ->where('profile_id', $tenant->profile_id)
+            ->get();
+
+        $othersBillings = null;
+        $obAmount = 0;
+        foreach($obs as $ob) {
+            $othersBillings = $ib;
+            $obAmount += $ob->amount;
+        }
+
+        if($othersBillings) {
+            $othersBillings->amount = $obAmount;
+        }
 
         return Inertia::render('Owner/TenantsPaymentHistory', [
             'payments' => $payments,
