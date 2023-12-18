@@ -171,6 +171,12 @@ export default {
                                             </div>
                                         </div>
 
+                                        <!--Furnished Description-->
+                                        <div class="font-bold">
+                                            Furnished Description:
+                                            <span class="font-light">{{ myDorm.room.furnished_desc }}</span>
+                                        </div>
+
                                         <!--Aircon-->
                                         <div class="font-semibold">
                                             <div class="flex flex-row mt-1 gap-2">
@@ -228,8 +234,8 @@ export default {
 
                                                 <span class="font-light">{{
                                                     myDorm.room.is_aircon == "Yes"
-                                                        ? "Arconditioned"
-                                                        : "Not-Arconditioned"
+                                                        ? "Airconditioned"
+                                                        : "Not-Airconditioned"
                                                 }}</span>
                                             </div>
                                         </div>
@@ -240,8 +246,8 @@ export default {
                             </div>
                         </div>
                     </div>
-                    <div v-else>
-                            You dont have leasing yet
+                    <div v-else class="text-center min-h-screen">
+                        <p class="text-xl"> You don't have leasing yet </p>
                     </div>
                 </TabPanel>
                 <TabPanel>
@@ -436,6 +442,8 @@ export default {
                                                 }}</span>
                                             </div>
                                         </div>
+
+                                        
 
                                     
                                     </template>

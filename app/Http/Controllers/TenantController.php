@@ -876,11 +876,16 @@ class TenantController extends Controller
 
         if($type == 'rent') {
             $data = Tenant::where('id', $request->f_id)->first();
-        } else {
+            $owner = User::where('id', $data->owner)->first();
+        } 
+        else if ($type == 'application'){
+            $data = Application::with(['owner'])->where('profile_id', $request->profile_id)->first();
+            $owner = User::where('id', $data->owner_id)->first();
+        }
+        else {
             $data = Reservation::where('id', $request->f_id)->first();
         }
 
-        $owner = User::where('id', $data->owner)->first();
 
         $amount = $request->amount;
         $description = $request->description;
@@ -894,6 +899,25 @@ class TenantController extends Controller
             $billing = Billing::where('id', $request->id)->first();
             $billing->invoice_number = $response['external_id'];
             $billing->save();
+
+            if ($type === 'application') {
+
+                $data->status = 'approved';
+                $data->is_approved = true;
+                $data->is_active = true;
+                $data->save();
+                
+                $tenant = Tenant::create([
+                    'owner' => $data->owner_id,
+                    'tenant' => $data->tenant_id,
+                    'dorm_id' => $data->dorm_id,
+                    'room_id' => $data->room_id,
+                    'status' => 'approved',
+                    'move_in' => Carbon::parse($request->move_in), // Adjust this if needed
+                    'profile_id' => $data->profile_id,
+                    'is_active' => true
+                ]);
+            }
 
             return $response['invoice_url'];
         }
@@ -930,18 +954,20 @@ class TenantController extends Controller
 
                 }
             } else {
-                $application = Application::where('id', $billing->f_id)->first();
+                $application = Application::where('profile_id', $billing->profile_id)->first();
 
                 if($application) {
                     $xxx = $application;
                     $xxx->is_active = true;
 
                     Room::where('id', $application->room_id)->update([
-                        'status' => 'reserve',
+                        'status' => 'rent',
                         'is_available' => false
                     ]);
 
                     $owner = User::where('id', $application->owner_id)->first();
+                    
+                    
                 }
             }
 

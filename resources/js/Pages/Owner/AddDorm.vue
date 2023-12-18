@@ -89,7 +89,6 @@ export default {
         const amenities = ref([]);
         const services = ref([]);
         const service = ref([
-            { name: ''},
             { name: 'Laundry Services' },
             { name: 'Maintenance'},
             { name: 'Cleaning Services' },
@@ -310,6 +309,7 @@ export default {
                     advance: null,
                     deposit: null,
                     is_available: null,
+                    furnished_desc: null,
                 });
             }
         };
@@ -814,6 +814,7 @@ export default {
                 errorMessages.value.room = [];
                 rooms.value.forEach((room, index) => {
                     if (room) {
+                        const hasFurnishDesc = room.furnished_desc && room.furnished_desc.trim() !== "";
                         const hasName = room.name && room.name.trim() !== "";
                         const hasFee = room.fee !== null;
                         const hasAdvance = room.advance !== null;
@@ -837,6 +838,7 @@ export default {
                             type_of_room: "",
                             is_aircon: "",
                             furnished_type: "",
+                            furnished_desc: "",
                         };
 
                         if (!hasImage) {
@@ -878,7 +880,13 @@ export default {
                         if (!hasFurniture) {
                             isValid = false;
                             errorMessages.value.room[index].furnished_type =
-                                "Select funished type";
+                                "Select furnished type";
+                        }
+
+                        if (!hasFurnishDesc) {
+                            isValid = false;
+                            errorMessages.value.room[index].furnished_desc =
+                                "Enter the Furnished Description";
                         }
 
                         if (!hasName) {
@@ -2217,17 +2225,23 @@ export default {
                             </div>
                             <div class="w-full mx-1">
                                 <InputLabel
-                                    for="furnshiedDescription"
+                                    for="furnished_desc"
                                     class="text-black"
                                     value="Furnished Description"
                                 />
                                 <TextInput
-                                    id="fee"
+                                    id="furnished_desc"
                                     type="text"
                                     class="mt-1 block w-full text-black"
-                                    placeholder="ex. With bed, refridgirator etc."
+                                    placeholder="ex. With bed, refrigerator etc."
+                                    v-model="room.furnished_desc"
                                     required
                                 />
+                                <div v-if="errorMessages.room[index]">
+                                    <p class="text-xs text-red-500 ml-2">
+                                    {{ errorMessages.room[index].furnished_desc }}
+                                    </p>
+                                 </div>
                             </div>
                         </div>
 

@@ -256,7 +256,7 @@ export default {
                 },
                 reject: () =>
                {
-                
+
                }
         });
         }
@@ -469,6 +469,8 @@ export default {
                                         <td
                                             class="border-t-0 px-6 align-middle items-center border-l-0 border-r-0 text-xs whitespace-nowrap p-4"
                                         >
+                                         <ConfirmDialog />
+                                         <Toast />
                                             <button
                                                 @click="changeRoomAvailability(item)"
                                                 class="bg-orange-400 py-2 px-3 rounded-md text-white"
@@ -497,7 +499,7 @@ export default {
                     <!--Header-->
                     <div class="w-full px-5">
                         <p class="w-full">
-                            <span v-tooltip="'yow'" class="text-3xl font-bold cursor-pointer">
+                            <span v-tooltip="''" class="text-3xl font-bold">
                                 {{ props.dorm.property_name }}
                             </span>
                         </p>
@@ -673,7 +675,7 @@ export default {
                                 <div>
                                     <p
                                         class="mt-1"
-                                        v-if="props.dorm.rule.short_term === 'Yes'"
+                                        v-if="props.dorm.rule && props.dorm.rule.short_term === 'Yes'"
                                     >
                                         1.We accept short term minimum at
                                         {{ props.dorm.rule.minimum_stay }} months
@@ -686,7 +688,7 @@ export default {
                                 <div>
                                     <p
                                         class="mt-1"
-                                        v-if="props.dorm.rule.mix_gender === 'Yes'"
+                                        v-if="props.dorm.rule && props.dorm.rule.mix_gender === 'Yes'"
                                     >
                                         2. Co-ed mixed gender is allowed
                                     </p>
@@ -698,7 +700,7 @@ export default {
                                 <div>
                                     <p
                                         class="mt-1"
-                                        v-if="props.dorm.rule.curfew === 'Yes'"
+                                        v-if="props.dorm.rule && props.dorm.rule.curfew === 'Yes'"
                                     >
                                         3. We have curfew hours at
                                         {{ props.dorm.rule.curfew_hours }}
@@ -710,7 +712,7 @@ export default {
 
                                 <div class="mt-1">
                                     <span
-                                        v-for="(r, index) in props.dorm.rule.rules"
+                                        v-for="(r, index) in props.dorm.rule && props.dorm.rule.rules"
                                         :key="r"
                                     >
                                         <p>{{ index + 4 }}. {{ r }}</p>
