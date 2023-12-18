@@ -172,6 +172,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/remove', [OwnerController::class, 'removeTenant'])->name('tenant.remove');
         Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
         Route::post('/trigger/auto-bill', [OwnerController::class, 'triggerAutoBill'])->name('owner.trigger-auto-bill');
+        Route::post('/trigger/mark-as-due', [OwnerController::class, 'markAsDue'])->name('owner.trigger-mark-as-due');
     });
 
     Route::prefix('tenant')->group(function () {
