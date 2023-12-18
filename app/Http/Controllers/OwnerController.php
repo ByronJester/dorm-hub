@@ -990,7 +990,7 @@ class OwnerController extends Controller
         $subcriptionPayments = SubscriptionPayment::where('owner_id', $auth->id)->get();
 
         return Inertia::render('Owner/Subscription', [
-            'subcriptionPayments' => $subcriptionPayments
+            'subscriptionPayments' => $subcriptionPayments
         ]);
     }
 

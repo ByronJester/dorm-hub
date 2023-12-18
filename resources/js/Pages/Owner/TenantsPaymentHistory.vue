@@ -299,7 +299,8 @@ export default {
                 })
                 .catch((error) => {});
         }
-
+        var currentDate = new Date();
+            console.log(currentDate);
         return {
             filters,
             tenant,
@@ -413,7 +414,7 @@ export default {
                     </div>
                 </div>
                 <div class="grid grid-rows-4 gap-2">
-                    <div class="bg-white shadow rounded-lg" v-if="monthly">
+                    <div class="bg-white shadow rounded-lg py-1 px-2" v-if="monthly">
                         <div class="flex w-full p-3 justify-between">
 
                             <div class="flex items-center gap-5">
@@ -435,6 +436,12 @@ export default {
                                 <p>{{moneyFormat(monthly.amount)}}</p>
                             </div>
                         </div>
+                        <div class="text-end">
+                            <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500">
+                                Mark as due
+                            </button>
+                        </div>
+                        
                     </div>
                     <div class="bg-white shadow rounded-lg" v-if="electric">
                         <div class="flex w-full p-3 justify-between">
