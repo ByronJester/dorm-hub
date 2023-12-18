@@ -264,7 +264,7 @@ class OwnerController extends Controller
         $monthlyFee = null;
         $mbAmount = 0;
         foreach($mbs as $mb) {
-            $monthlyFee = $ib;
+            $monthlyFee = $mb;
             $mbAmount += $mb->amount;
         }
 
@@ -1502,7 +1502,7 @@ class OwnerController extends Controller
             'is_paid' => false,
             'payment_date' => null,
             'for_the_month' => null,
-            'is_active' => false
+            'is_active' => true
         ]);
 
         return true;
@@ -1823,8 +1823,6 @@ class OwnerController extends Controller
 
         if($latestBilling) {
             $latestDate = Carbon::parse($latestBilling->for_the_month);
-            $latestBilling->is_overdue = true;
-            $latestBilling->save();
 
             $billing = Billing::create([
                 'user_id' => $tenant->tenant,
@@ -1858,5 +1856,23 @@ class OwnerController extends Controller
 
         return response()->json('Success', 200);
 
+    }
+
+    public function markAsDue(Request $request)
+    {
+        $profile_id = $request->profile_id;
+        $type = $request->type;
+
+        $billings = Billing::where('profile_id', $profile_id);
+
+        if($type == 'Monthly Fee') {
+            $billings = $billings->where('description', $type);
+        } else {
+            $billings = $billings->where('subject', $type);
+        }
+
+        return $billings->update([
+            'is_overdue' => true
+        ]);
     }
 }

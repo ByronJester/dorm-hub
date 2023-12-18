@@ -299,6 +299,18 @@ export default {
                 })
                 .catch((error) => {});
         }
+
+        const markAsDue = (type, profile_id) => {
+            axios
+                .post(route("owner.trigger-mark-as-due"), {
+                    profile_id: profile_id,
+                    type: type
+                })
+                .then((response) => {
+
+                })
+                .catch((error) => {});
+        }
         var currentDate = new Date();
             console.log(currentDate);
         return {
@@ -331,7 +343,8 @@ export default {
             other,
             internet,
             monthly,
-            triggerAutoBill
+            triggerAutoBill,
+            markAsDue
         };
     },
 };
@@ -437,11 +450,13 @@ export default {
                             </div>
                         </div>
                         <div class="text-end">
-                            <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500">
+                            <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500"
+                                @click="markAsDue('Monthly Fee', monthly.profile_id)"
+                            >
                                 Mark as due
                             </button>
                         </div>
-                        
+
                     </div>
                     <div class="bg-white shadow rounded-lg" v-if="electric">
                         <div class="flex w-full p-3 justify-between">

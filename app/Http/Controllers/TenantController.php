@@ -482,10 +482,10 @@ class TenantController extends Controller
 
         return Application::updateOrCreate(
             [
-                "owner_id" => $request->owner_id,
-                "tenant_id" => $request->tenant_id,
-                "room_id" => $request->room_id,
-                "dorm_id" => $request->dorm_id,
+                // "owner_id" => $request->owner_id,
+                // "tenant_id" => $request->tenant_id,
+                // "room_id" => $request->room_id,
+                // "dorm_id" => $request->dorm_id,
                 "profile_id" => $request->profile_id,
                 "is_active" => true,
             ],
@@ -791,7 +791,7 @@ class TenantController extends Controller
             ->delete();
 
         Room::where('id', $room->id)->update([
-            'is_active' => true,
+            'is_available' => true,
             'status' => null
         ]);
 
@@ -994,7 +994,7 @@ class TenantController extends Controller
 
             // return $owner;
 
-            if($owner->sk) {
+            if($owner && $owner->sk) {
 
                 $xenditService = new XenditService($owner->sk);
 
