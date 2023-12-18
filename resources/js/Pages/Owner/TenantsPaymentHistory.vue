@@ -8,7 +8,7 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';   // optional
-import Row from 'primevue/row';      
+import Row from 'primevue/row';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import { useConfirm } from "primevue/useconfirm";
 import "@vuepic/vue-datepicker/dist/main.css";
@@ -51,7 +51,7 @@ export default {
         const data = ref([])
         data.value = page.props.payments
         const tenant =  page.props.tenant
-        
+
         const getSeverity = (status) => {
                 switch (status) {
                     case 'decline':
@@ -71,12 +71,12 @@ export default {
                     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
                     description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
                     payment_method: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.EQUALS }] },
-                   
+
                 };
             };
 
             initFilters();
-            
+
             const clearFilter = () => {
                 initFilters();
             };
@@ -185,7 +185,7 @@ export default {
             });
         }
 
-        
+
         const selectedBill = ref(null);
 
         const autoBillingForm = ref({
@@ -202,9 +202,9 @@ export default {
 
             autoBillingForm.value = {
                 tenant_id: arg.id,
-                auto_bill: arg.auto_bill,
+                auto_bill: arg.auto_bill == 1 ? true : false,
             };
-            
+
         };
 
         const closeAutoBill = () => {
@@ -291,6 +291,15 @@ export default {
         const internet = page.props.internet
         const monthly = page.props.monthly
 
+        const triggerAutoBill = (arg) => {
+            axios
+                .post(route("owner.trigger-auto-bill"), arg)
+                .then((response) => {
+
+                })
+                .catch((error) => {});
+        }
+
         return {
             filters,
             tenant,
@@ -320,7 +329,8 @@ export default {
             water,
             other,
             internet,
-            monthly
+            monthly,
+            triggerAutoBill
         };
     },
 };
@@ -354,6 +364,7 @@ export default {
                     <button @click="openAutoBill(tenant)" class="py-1.5 px-2 border rounded-lg text-green-500 hover:bg-green-400 hover:text-white border-green-500">
                         Auto Bill
                     </button>
+
                     <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500">
                         Mark as delinquent
                     </button>
@@ -404,7 +415,7 @@ export default {
                 <div class="grid grid-rows-4 gap-2">
                     <div class="bg-white shadow rounded-lg" v-if="monthly">
                         <div class="flex w-full p-3 justify-between">
-                            
+
                             <div class="flex items-center gap-5">
                                 <div>
                                     <i class="fa-solid fa-house fa-xl" style="color: #d27914;"></i>
@@ -413,7 +424,7 @@ export default {
                                     <p>Description</p>
                                     <p>{{monthly.description}}</p>
                                 </div>
-                                
+
                             </div>
                             <div>
                                 <p>Due Date</p>
@@ -427,14 +438,14 @@ export default {
                     </div>
                     <div class="bg-white shadow rounded-lg" v-if="electric">
                         <div class="flex w-full p-3 justify-between">
-                            
+
                             <div class="flex items-center gap-5" >
                                 <i class="fa-solid fa-bolt fa-xl" style="color: #fff700;"></i>
                                 <div>
                                     <p>Description</p>
                                     <p>{{electric.subject}}</p>
                                 </div>
-                                
+
                             </div>
                             <div>
                                 <p>Due Date</p>
@@ -454,7 +465,7 @@ export default {
                                     <p>Description</p>
                                     <p>{{water.subject}}</p>
                                 </div>
-                                
+
                             </div>
                             <div>
                                 <p>Due Date</p>
@@ -474,7 +485,7 @@ export default {
                                     <p>Description</p>
                                     <p>{{internet.subject}}</p>
                                 </div>
-                                
+
                             </div>
                             <div>
                                 <p>Due Date</p>
@@ -686,7 +697,7 @@ export default {
                     </div>
                 </div>
             </div> -->
-        
+
         </div>
         <div
                 id="defaultModal"
@@ -828,6 +839,14 @@ export default {
                                     class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                                 >
                                     Cancel
+                                </button>
+
+                                <button
+                                    @click="triggerAutoBill(selectedBill)"
+                                    type="button"
+                                    class="text-white bg-rose-400 hover:bg-rose-400 focus:ring-4 focus:outline-none focus:ring-rose-400 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-rose-400 dark:hover:bg-rose-400 dark:focus:ring-rose-400"
+                                >
+                                    Trigger Auto Bill
                                 </button>
                             </div>
                         </div>

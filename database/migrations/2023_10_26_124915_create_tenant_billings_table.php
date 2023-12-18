@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('is_paid')->default(false);
             $table->date('payment_date')->nullable();
             $table->date('for_the_month')->nullable();
+            $table->boolean('is_overdue')->default(false);
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
