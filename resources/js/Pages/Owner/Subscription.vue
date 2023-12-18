@@ -8,6 +8,8 @@ import ColumnGroup from 'primevue/columngroup';   // optional
 import Row from 'primevue/row';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import { ref, onMounted, watch } from "vue";
+
+import { usePage, useForm, router} from "@inertiajs/vue3";
 export default{
     components:{
         SidebarLayout,
@@ -19,6 +21,7 @@ export default{
 
     },
     setup(){
+        const page = usePage();
         const filters = ref();
         const getSeverity = (status) => {
                 switch (status) {
@@ -69,10 +72,23 @@ export default{
                     year: 'numeric'
                 });
             };
+            const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
+
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+
+    const subs = page.props.subscriptionPayments;
+    console.log(page.props)
         return{
             filters,
             getSeverity,
-            clearFilter
+            clearFilter,
+            subs,
+            moneyFormat
         }
     }
 }
@@ -88,7 +104,7 @@ export default{
                     <p class="text-lg font-black">Subsciption History</p>
                     <p class="text-sm font-light">View subscription history</p>
                     <div class="card mb-10 mt-2">
-                        <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 30rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                        <DataTable v-model:filters="filters" :value="subs" tableStyle="min-width: 30rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
                         :globalFilterFields="['name', 'phone_number', 'user_type', 'created_at', 'status']">
                         <template #header>
                             <div class="flex items-center justify-between">
@@ -100,19 +116,20 @@ export default{
                             </div>
                         </template>
                         <template #empty> No subscription found. </template>
-                            <Column field="name" header="Name" sortable style="min-width: 10rem" class="border-b">
+                            <Column field="subscription" header="Subscription" sortable style="min-width: 10rem" class="border-b">
                                 <template #body="{ data }">
-                                    {{ data.name }}
+                                    {{ data.subscription }}
                                 </template>
                             </Column>
-                            <Column field="created_at" header="Date Subscribed" sortable dataType="date" style="min-width: 10rem" class="border-b">
+                            <Column field="is_paid" header="Status" sortable style="min-width: 10rem" class="border-b">
                                 <template #body="{ data }">
-                                    {{ formatDate(data.created_at) }}
+                                     <p class="" v-if="data.is_paid">Paid</p>
+                                     <p class="" v-if="!data.is_paid">Unpaid</p>
                                 </template>
                             </Column>
-                            <Column field="created_at" header="Amount" sortable dataType="date" style="min-width: 10rem" class="border-b">
+                            <Column field="amount" header="Amount" sortable style="min-width: 10rem" class="border-b">
                                 <template #body="{ data }">
-                                    {{ formatDate(data.created_at) }}
+                                    {{moneyFormat(data.amount ) }}
                                 </template>
                             </Column>
                             <Column field="Action" header="Action" sortable style="min-width: 4rem" class="border-b">
