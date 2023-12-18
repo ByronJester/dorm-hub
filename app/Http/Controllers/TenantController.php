@@ -876,16 +876,16 @@ class TenantController extends Controller
 
         if($type == 'rent') {
             $data = Tenant::where('id', $request->f_id)->first();
+            $owner = User::where('id', $data->owner)->first();
         } 
         else if ($type == 'application'){
             $data = Application::with(['owner'])->where('profile_id', $request->profile_id)->first();
+            $owner = User::where('id', $data->owner_id)->first();
         }
         else {
             $data = Reservation::where('id', $request->f_id)->first();
         }
 
-
-        $owner = User::where('id', $data->owner_id)->first();
 
         $amount = $request->amount;
         $description = $request->description;

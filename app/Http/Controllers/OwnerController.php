@@ -209,10 +209,22 @@ class OwnerController extends Controller
                 ]);
             }
         }
-    
+        
+        $electricityBillings = $billings->where('subject', 'Electricity')->where('is_paid', false)->first();
+        $waterBillings = $billings->where('subject', 'Water')->where('is_paid', false)->first();
+        $internetBillings = $billings->where('subject', 'Internet')->where('is_paid', false)->first();
+        $monthlyFee = $billings->where('description', 'Monthly Fee')->where('is_paid', false)->first();
+        $othersBillings = $billings->where('subject', 'Others')->where('is_paid', false)->first();
+        
+
         return Inertia::render('Owner/TenantsPaymentHistory', [
             'payments' => $payments,
-            'tenant' => $tenant
+            'tenant' => $tenant,
+            'electricity'=> $electricityBillings,
+            'water'=> $waterBillings,
+            'other'=> $othersBillings,
+            'internet'=> $internetBillings,
+            'monthly'=> $monthlyFee,
         ]);
     }
     
