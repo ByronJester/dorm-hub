@@ -568,6 +568,12 @@ export default {
                                     }}</span>
                                 </div>
                             </div>
+                            
+                            <!--Furnished Description-->
+                            <div class="font-light">
+                                Furnished Description:
+                                <span>{{ room.furnished_desc }}</span>
+                            </div>
 
                             <!--Aircon-->
                             <div class="font-semibold">
@@ -626,8 +632,8 @@ export default {
 
                                     <span class="font-light">{{
                                         room.is_aircon == "Yes"
-                                            ? "Arconditioned"
-                                            : "Not-Arconditioned"
+                                            ? "Airconditioned"
+                                            : "Not-Airconditioned"
                                     }}</span>
                                 </div>
                             </div>

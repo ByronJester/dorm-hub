@@ -134,7 +134,7 @@ export default {
         >
             <div class="flex flex-row items-center py-3 justify-between">
                 <h1 class="text-3xl text-gray-900 mb-2 font-bold">
-                    All Domitories
+                    All Dormitories
                 </h1>
 
                 <!-- <button

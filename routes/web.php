@@ -120,6 +120,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/dashboard', [AdminController:: class, 'dashboard'])->name('admin.dashboard');
         Route::get('/maintenance', [AdminController:: class, 'maintenance'])->name('admin.maintenance');
         Route::get('/reports', [AdminController:: class, 'reports'])->name('admin.reports');
+        Route::get('/subscribe', [AdminController:: class, 'subscribe'])->name('admin.subscribe');
         Route::get('/addUser', [AdminController:: class, 'addUser'])->name('admin.addUser');
         Route::get('/backUp', [AdminController:: class, 'backUp'])->name('admin.backUp');
         Route::get('/archive', [AdminController:: class, 'archive'])->name('admin.archive');

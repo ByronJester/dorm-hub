@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('advance', 100);
             $table->string('status', 50)->nullable();
             $table->boolean('is_available')->default(true);
+            $table->string('furnished_desc', 150);
 
             $table->foreign('dorm_id')->references('id')->on('dorms');
             $table->timestamps();

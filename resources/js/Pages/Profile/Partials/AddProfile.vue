@@ -1,12 +1,16 @@
 <script>
 
 import FileUpload from 'primevue/fileupload';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import axios from "axios";
+import InputLabel from "@/Components/InputLabel.vue";
+import TextInput from "@/Components/TextInput.vue";
 
 export default{
     props:['profile'],
     components:{
+        InputLabel,
+        TextInput,
         FileUpload
     },
     setup(props){
@@ -24,6 +28,7 @@ export default{
 
         const form = ref({
             relationship : null,
+            otherRelationship: '',
             // image: null,
             first_name: null,
             last_name: null,
@@ -46,6 +51,17 @@ export default{
 
                     })
         }
+
+        watch(
+            () => form.otherRelationship,
+            (newValue) => {
+                if (form.relationship == 'Others') {
+                // Update form.relationship when 'Others' is selected
+                form.relationship = newValue;
+                console.log(form.relationship);
+                }
+            }
+            );
 
         return{
             openComplainModal,
@@ -117,7 +133,7 @@ export default{
                                                 stroke-width="2"
                                                 d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                             />
-                                        </svg>
+                                        </svg>  
                                         <span class="sr-only">Close modal</span>
                                     </button>
                                 </div>
@@ -127,13 +143,28 @@ export default{
                                         <label for="subject" class="block mb-2 font-bold text-xl">Relationship</label>
                                             <select id="subject" v-model="form.relationship" class="block w-full px-4 py-3 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
                                                 <option selected>Choose</option>
-                                                <option value="Parent">Parent</option>
+                                                <option value="Mother">Mother</option>
+                                                <option value="Father">Father</option>
                                                 <option value="Sibling">Sibling</option>
                                                 <option value="Friend">Friend</option>
                                                 <option value="Classmate">Classmate</option>
                                                 <option value="Others">Others</option>
 
                                             </select>
+                                            <div class="mt-4" v-if="form.relationship == 'Others'">
+                                                    <InputLabel
+                                                        class="text-black"
+                                                        value="What is your relationship with this profile?"
+                                                    />
+
+                                                    <TextInput
+                                                        type="text"
+                                                        class="mt-1 block md:w-1/3 w-full text-black"
+                                                        v-model="form.otherRelationship"
+                                                        required
+                                                        
+                                                    />
+                                                </div>
                                         <!-- <div class="flex items-center justify-between px-3 py-2 border-b dark:border-gray-600">
                                             <div class="flex flex-wrap items-center divide-gray-200 sm:divide-x dark:divide-gray-600">
                                                 <div class="flex items-center space-x-1 sm:pr-4">
