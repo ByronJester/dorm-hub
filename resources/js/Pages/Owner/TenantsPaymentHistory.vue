@@ -185,47 +185,9 @@ export default {
             });
         }
 
-        // const searchQueryReserve = ref("");
-        //     const itemsPerPageReserve = 10; // Set the maximum number of items per page to 10
-        //     const currentPageReserve = ref(1); // Initialize to the first page
-
-
-        //     const filteredDataReserve = computed(() => {
-
-        //         return dataReserve.filter((row) => {
-        //             // Modify the conditions as needed for your specific search criteria.
-        //             return (
-        //                 row.dorm_name.toLowerCase().includes(query) ||
-        //                 row.room_name.toLowerCase().includes(query) ||
-        //                 row.tenant_name.toLowerCase().includes(query)
-        //             );
-        //         });
-        //     });
-
-        //     const totalPagesReserve = computed(() => Math.ceil(filteredDataReserve.value.length / itemsPerPageReserve));
-
-        //     const slicedRows = computed(() => {
-        //         const startIndex = (currentPageReserve.value - 1) * itemsPerPageReserve;
-        //         const endIndex = startIndex + itemsPerPageReserve;
-
-        //         const slicedAndSorted = filteredDataReserve.value
-        //             .slice(startIndex, endIndex)
-        //             .sort((a, b) => {
-        //                 const dateA = new Date(a.created_at);
-        //                 const dateB = new Date(b.created_at);
-        //                 return dateB - dateA;
-        //             });
-
-        //         return slicedAndSorted;
-        //         });
-
-        //     const changePageReserve = (pageChange) => {
-        //         const newPage = currentPageReserve.value + pageChange;
-        //         if (newPage >= 1 && newPage <= totalPagesReserve.value) {
-        //             currentPageReserve.value = newPage;
-        //         }
-        //     };
+        
         const selectedBill = ref(null);
+
         const autoBillingForm = ref({
             tenant_id: null,
             auto_bill: false,
@@ -237,9 +199,12 @@ export default {
             modal.style.display = "block";
 
             selectedBill.value = arg;
+
+            autoBillingForm.value = {
+                tenant_id: arg.id,
+                auto_bill: arg.auto_bill,
+            };
             
-            autoBillingForm.value.tenant_id = arg.id;
-            autoBillingForm.value.auto_bill = arg.auto_bill;
         };
 
         const closeAutoBill = () => {
@@ -278,7 +243,7 @@ export default {
 
             console.log(arg)
 
-            manualBillingForm.value.tenant_id = arg.tenant_id;
+            manualBillingForm.value.tenant_id = arg.id;
             manualBillingForm.value.profile_id = arg.profile_id;
         };
 
@@ -312,8 +277,20 @@ export default {
                 })
                 .catch((error) => {});
         };
+        const moneyFormat = (amount) => {
+            amount = parseFloat(amount).toFixed(2);
 
-        console.log(tenant)
+            return (
+                "₱ " + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            );
+        };
+
+        const electric = page.props.electricity
+        const water = page.props.water
+        const other = page.props.other
+        const internet = page.props.internet
+        const monthly = page.props.monthly
+
         return {
             filters,
             tenant,
@@ -338,6 +315,12 @@ export default {
             closeManualBill,
             openManualBill,
             submitAutoBill,
+            moneyFormat,
+            electric,
+            water,
+            other,
+            internet,
+            monthly
         };
     },
 };
@@ -365,7 +348,7 @@ export default {
                     </button>
                 </div>
                 <div class="flex gap-3">
-                    <button class="py-1.5 px-2 border rounded-lg text-orange-500 hover:bg-orange-400 hover:text-white border-orange-500">
+                    <button @click="openManualBill(tenant)" class="py-1.5 px-2 border rounded-lg text-orange-500 hover:bg-orange-400 hover:text-white border-orange-500">
                         Add Bill
                     </button>
                     <button @click="openAutoBill(tenant)" class="py-1.5 px-2 border rounded-lg text-green-500 hover:bg-green-400 hover:text-white border-green-500">
@@ -418,8 +401,8 @@ export default {
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-rows-4 text-black gap-2">
-                    <div class="bg-white shadow rounded-lg">
+                <div class="grid grid-rows-4 gap-2">
+                    <div class="bg-white shadow rounded-lg" v-if="monthly">
                         <div class="flex w-full p-3 justify-between">
                             
                             <div class="flex items-center gap-5">
@@ -428,7 +411,7 @@ export default {
                                 </div>
                                 <div>
                                     <p>Description</p>
-                                    <p>Water</p>
+                                    <p>{{monthly.description}}</p>
                                 </div>
                                 
                             </div>
@@ -438,18 +421,18 @@ export default {
                             </div>
                             <div>
                                 <p>Amount</p>
-                                <p>P100.00</p>
+                                <p>{{moneyFormat(monthly.amount)}}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white shadow rounded-lg">
+                    <div class="bg-white shadow rounded-lg" v-if="electric">
                         <div class="flex w-full p-3 justify-between">
                             
-                            <div class="flex items-center gap-5">
+                            <div class="flex items-center gap-5" >
                                 <i class="fa-solid fa-bolt fa-xl" style="color: #fff700;"></i>
                                 <div>
                                     <p>Description</p>
-                                <p>Electricity</p>
+                                    <p>{{electric.subject}}</p>
                                 </div>
                                 
                             </div>
@@ -459,17 +442,17 @@ export default {
                             </div>
                             <div>
                                 <p>Amount</p>
-                                <p>P100.00</p>
+                                <p>{{moneyFormat(electric.amount)}}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white shadow rounded-lg">
+                    <div class="bg-white shadow rounded-lg" v-if="water">
                         <div class="flex w-full p-3 justify-between">
                             <div class="flex gap-5 items-center">
                                 <i class="fa-solid fa-house fa-xl" style="color: #db7a0a;"></i>
                                 <div>
                                     <p>Description</p>
-                                    <p>Monthly Fee</p>
+                                    <p>{{water.subject}}</p>
                                 </div>
                                 
                             </div>
@@ -479,17 +462,17 @@ export default {
                             </div>
                             <div>
                                 <p>Amount</p>
-                                <p>P100.00</p>
+                                <p>{{moneyFormat(water.amount)}}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white shadow rounded-lg">
+                    <div class="bg-white shadow rounded-lg" v-if="internet">
                         <div class="flex w-full p-3 justify-between">
                             <div class="flex gap-5 items-center">
                                 <i class="fa-solid fa-wifi fa-xl" style="color: #00e1ff;"></i>
                                 <div>
                                     <p>Description</p>
-                                    <p>Internet</p>
+                                    <p>{{internet.subject}}</p>
                                 </div>
                                 
                             </div>
@@ -499,7 +482,7 @@ export default {
                             </div>
                             <div>
                                 <p>Amount</p>
-                                <p>P100.00</p>
+                                <p>{{moneyFormat(internet.amount)}}</p>
                             </div>
                         </div>
                     </div>
@@ -913,7 +896,7 @@ export default {
                                             class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             placeholder="Matic malalagyan ng data"
                                             required
-                                            v-model="selectedBill.tenant"
+                                            v-model="selectedBill.profile.first_name"
                                         />
                                     </div>
                                     <div class="flex-grow">
@@ -929,7 +912,7 @@ export default {
                                             class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                             placeholder="Matic malalagyan ng data"
                                             required
-                                            v-model="selectedBill.room"
+                                            v-model="selectedBill.room.name"
                                         />
                                     </div>
                                 </div>
