@@ -225,7 +225,95 @@ export default {
         //             currentPageReserve.value = newPage;
         //         }
         //     };
+        const selectedBill = ref(null);
+        const autoBillingForm = ref({
+            tenant_id: null,
+            auto_bill: false,
+        });
 
+        const openAutoBill = (arg) => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "block";
+
+            selectedBill.value = arg;
+            
+            autoBillingForm.value.tenant_id = arg.id;
+            autoBillingForm.value.auto_bill = arg.auto_bill;
+        };
+
+        const closeAutoBill = () => {
+            var modal = document.getElementById("defaultModal");
+
+            modal.style.display = "none";
+
+            autoBillingForm.value = {
+                tenant_id: null,
+                auto_bill: false,
+            };
+        };
+
+        const submitAutoBill = () => {
+
+            axios
+                .post(route("owner.auto-bill"), autoBillingForm.value)
+                .then((response) => {})
+                .catch((error) => {});
+        };
+
+        const manualBillingForm = ref({
+            tenant_id: null,
+            profile_id: null,
+            subject: null,
+            amount: null,
+            description: null,
+        });
+
+        const openManualBill = (arg) => {
+            var modal = document.getElementById("manualModal");
+
+            modal.style.display = "block";
+
+            selectedBill.value = arg;
+
+            console.log(arg)
+
+            manualBillingForm.value.tenant_id = arg.tenant_id;
+            manualBillingForm.value.profile_id = arg.profile_id;
+        };
+
+        const closeManualBill = () => {
+            var modal = document.getElementById("manualModal");
+
+            modal.style.display = "none";
+
+            manualBillingForm.value = {
+                tenant_id: null,
+                profile_id: null,
+                subject: null,
+                amount: null,
+                description: null,
+            };
+        };
+
+        const submitManualBill = () => {
+            axios
+                .post(route("owner.manual-bill"), manualBillingForm.value)
+                .then((response) => {
+                    swal(
+                        "Success!",
+                        `You successfully create this manual bill.`,
+                        "success"
+                    );
+
+                    setTimeout(function () {
+                        location.reload();
+                    }, 3000);
+                })
+                .catch((error) => {});
+        };
+
+        console.log(tenant)
         return {
             filters,
             tenant,
@@ -240,7 +328,16 @@ export default {
             markAsPaid,
             getSeverity,
             clearFilter,
-            formatDate
+            formatDate,
+            selectedBill,
+            submitManualBill,
+            manualBillingForm,
+            autoBillingForm,
+            openAutoBill,
+            closeAutoBill,
+            closeManualBill,
+            openManualBill,
+            submitAutoBill,
         };
     },
 };
@@ -271,7 +368,7 @@ export default {
                     <button class="py-1.5 px-2 border rounded-lg text-orange-500 hover:bg-orange-400 hover:text-white border-orange-500">
                         Add Bill
                     </button>
-                    <button class="py-1.5 px-2 border rounded-lg text-green-500 hover:bg-green-400 hover:text-white border-green-500">
+                    <button @click="openAutoBill(tenant)" class="py-1.5 px-2 border rounded-lg text-green-500 hover:bg-green-400 hover:text-white border-green-500">
                         Auto Bill
                     </button>
                     <button class="py-1.5 px-2 border rounded-lg text-red-500 hover:bg-red-400 hover:text-white border-red-500">
@@ -608,6 +705,313 @@ export default {
             </div> -->
         
         </div>
+        <div
+                id="defaultModal"
+                tabindex="-1"
+                aria-hidden="true"
+                style="background-color: rgba(0, 0, 0, 0.7)"
+                class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="h-screen flex justify-center items-center">
+                    <div class="relative w-full max-w-md max-h-full">
+                        <!-- Modal content -->
+                        <div
+                            class="relative bg-white rounded-lg shadow"
+                            v-if="selectedBill"
+                        >
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                            >
+                                <h3 class="text-xl font-semibold text-black">
+                                    Auto Billing
+                                </h3>
+                                <button
+                                    type="button"
+                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    @click="closeAutoBill()"
+                                >
+                                    <svg
+                                        class="w-3 h-3"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                    >
+                                        <path
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                        />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-6">
+                                <div class="flex flex-row gap-3">
+                                    <div>
+                                        <label
+                                            for="dorm_owner_name"
+                                            class="block mb-2 text-sm font-medium text-gray-900"
+                                            >Tenant Name:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            disabled
+                                            id="dorm_name"
+                                            class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Matic malalagyan ng data"
+                                            required
+                                            v-model="selectedBill.profile.first_name"
+                                        />
+                                    </div>
+                                    <div class="flex-grow">
+                                        <label
+                                            for="dorm_owner_name"
+                                            class="block mb-2 text-sm font-medium text-gray-900"
+                                            >Room Name:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            disabled
+                                            id="dorm_name"
+                                            class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Matic malalagyan ng data"
+                                            required
+                                            v-model="selectedBill.room.name"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="dorm_owner_name"
+                                        class="block mb-2 text-sm font-medium text-gray-900"
+                                        >Monthly Rent:</label
+                                    >
+                                    <input
+                                        type="text"
+                                        disabled
+                                        id="dorm_name"
+                                        class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        placeholder="Matic malalagyan ng data"
+                                        required
+                                        v-model="selectedBill.room.fee"
+                                    />
+                                </div>
+                                <!--Select Date-->
+                                <!-- <div>
+                                        <label for="daySelect" class="mr-2">Select a day:</label>
+                                        <select id="daySelect" v-model="selectedDay" class="border-none rounded-md py-1 bg-gray-200 mb-1 text-sm text-gray-900">
+                                        <option v-for="day in days" :key="day" :value="day">{{ day }}</option>
+                                        </select>
+                                        <p>You selected the {{ selectedDay }} day of the month.</p>
+                                    </div> -->
+
+                                <label
+                                    class="relative inline-flex items-center cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        v-model="autoBillingForm.auto_bill"
+                                        class="sr-only peer"
+                                    />
+                                    <div
+                                        class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"
+                                    ></div>
+                                    <span
+                                        class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+                                        >Auto Bill</span
+                                    >
+                                </label>
+                            </div>
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                            >
+                                <button
+                                    @click="submitAutoBill()"
+                                    type="button"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                >
+                                    Okay
+                                </button>
+                                <button
+                                    @click="closeAutoBill()"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--ManualBillingModal-->
+            <div
+                id="manualModal"
+                tabindex="-1"
+                aria-hidden="true"
+                style="background-color: rgba(0, 0, 0, 0.7)"
+                class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            >
+                <div class="h-screen flex justify-center items-center">
+                    <div class="relative w-full max-w-md max-h-full">
+                        <!-- Modal content -->
+                        <div
+                            class="relative bg-white rounded-lg shadow"
+                            v-if="selectedBill"
+                        >
+                            <!-- Modal header -->
+                            <div
+                                class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600"
+                            >
+                                <h3 class="text-xl font-semibold text-black">
+                                    Manual Billing
+                                </h3>
+                                <button
+                                    type="button"
+                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                                    @click="closeManualBill()"
+                                >
+                                    <svg
+                                        class="w-3 h-3"
+                                        aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 14 14"
+                                    >
+                                        <path
+                                            stroke="currentColor"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                        />
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                            </div>
+                            <!-- Modal body -->
+                            <div class="p-6 space-y-4">
+                                <div class="flex flex-row gap-3">
+                                    <div>
+                                        <label
+                                            for="tenant_name"
+                                            class="block mb-2 text-sm font-medium text-gray-900"
+                                            >Tenant Name:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            disabled
+                                            id="tenant_name"
+                                            class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Matic malalagyan ng data"
+                                            required
+                                            v-model="selectedBill.tenant"
+                                        />
+                                    </div>
+                                    <div class="flex-grow">
+                                        <label
+                                            for="room_name"
+                                            class="block mb-2 text-sm font-medium text-gray-900"
+                                            >Room Name:</label
+                                        >
+                                        <input
+                                            type="text"
+                                            disabled
+                                            id="room_name"
+                                            class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                            placeholder="Matic malalagyan ng data"
+                                            required
+                                            v-model="selectedBill.room"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label
+                                        for="dorm_owner_name"
+                                        class="block text-sm font-medium text-gray-900"
+                                        >Billing Subject:</label
+                                    >
+                                    <select
+                                        id="subject"
+                                        v-model="manualBillingForm.subject"
+                                        class="block w-full px-2 py-2 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    >
+                                        <option selected :value="null">
+                                            Choose a Billing for:
+                                        </option>
+                                        <option value="Electricity">
+                                            Electricity
+                                        </option>
+                                        <option value="Water">Water</option>
+                                        <option value="Internet">
+                                            Internet
+                                        </option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </div>
+                                <div class="flex-grow">
+                                    <label
+                                        for="room_name"
+                                        class="block text-sm font-medium text-gray-900"
+                                        >Amount:</label
+                                    >
+                                    <input
+                                        type="text"
+                                        id="room_name"
+                                        class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required
+                                        v-model="manualBillingForm.amount"
+                                    />
+                                </div>
+                                <div>
+                                    <label
+                                        for="complainmessage"
+                                        class="block text-sm font-medium text-gray-900"
+                                        >Description:</label
+                                    >
+                                    <textarea
+                                        v-model="manualBillingForm.description"
+                                        id="complainmessage"
+                                        rows="3"
+                                        class="block w-full p-3 rounded-md text-sm text-gray-800 bg-gray-100 border-1 dark:bg-gray-800 focus:ring-0 dark:text-white dark:placeholder-gray-400"
+                                        placeholder="Write a description..."
+                                        required
+                                    >
+                                    </textarea>
+                                </div>
+                            </div>
+                            <!-- Modal footer -->
+                            <div
+                                class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600"
+                            >
+                                <button
+                                    @click="submitManualBill()"
+                                    type="button"
+                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                >
+                                    Bill
+                                </button>
+                                <button
+                                    @click="closeManualBill()"
+                                    type="button"
+                                    class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
     </div>
     </AuthenticatedLayout>
 </template>

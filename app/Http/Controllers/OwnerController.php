@@ -1301,21 +1301,14 @@ class OwnerController extends Controller
 
         $application = Application::with(['tenant'])->where('id', $id)->first();
 
-        $application->status = 'approved';
-        $application->is_approved = true;
-        $application->is_active = true;
-        $application->save();
-
         $reservation = Reservation::where('room_id', $room->room_id)->first();
         if($reservation){
             $reservation->is_active = false;
             $reservation->save();
         }
         
-
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been approved.");
-
 
         $billing = Billing::create([
             'f_id' => $tenant->id,

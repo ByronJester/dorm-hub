@@ -901,6 +901,12 @@ class TenantController extends Controller
             $billing->save();
 
             if ($type === 'application') {
+
+                $data->status = 'approved';
+                $data->is_approved = true;
+                $data->is_active = true;
+                $data->save();
+                
                 $tenant = Tenant::create([
                     'owner' => $data->owner_id,
                     'tenant' => $data->tenant_id,
@@ -948,18 +954,20 @@ class TenantController extends Controller
 
                 }
             } else {
-                $application = Application::where('id', $billing->f_id)->first();
+                $application = Application::where('profile_id', $billing->profile_id)->first();
 
                 if($application) {
                     $xxx = $application;
                     $xxx->is_active = true;
 
                     Room::where('id', $application->room_id)->update([
-                        'status' => 'reserve',
+                        'status' => 'rent',
                         'is_available' => false
                     ]);
 
                     $owner = User::where('id', $application->owner_id)->first();
+                    
+                    
                 }
             }
 
