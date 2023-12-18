@@ -1792,7 +1792,7 @@ class OwnerController extends Controller
                 [
                     'subscription' => $subscription,
                     'amount' => $amount,
-                    'owner_id' => $dorm->id,
+                    'owner_id' => $dorm->user_id,
                     'invoice_number' => $invoice,
                     'is_paid' => true,
                     'for_the_month' => Carbon::now()

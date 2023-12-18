@@ -788,10 +788,7 @@ class TenantController extends Controller
 
         Application::where('profile_id', $request->profile_id)
             ->where('is_active', true)
-            ->update([
-                'is_active' => false,
-                'status' => 'moved_out'
-            ]);
+            ->delete();
 
         Room::where('id', $room->id)->update([
             'is_active' => true,
