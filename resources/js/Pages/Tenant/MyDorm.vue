@@ -182,7 +182,7 @@ export default {
                         );
 
                         setTimeout(function () {
-                            location.reload();
+                            window.location.href = '/tenant/mydormlist'
                         }, 3000);
                     })
                     .catch((error) => {

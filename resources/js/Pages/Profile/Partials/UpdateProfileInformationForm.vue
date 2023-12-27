@@ -55,6 +55,28 @@ const updateProfile = () => {
                                 form.reset("current_password");
                                 currentPasswordInput.value.focus();
                             }
+
+                            if(form.errors.first_name){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.first_name, life: 3000 });
+                            }
+
+                            if(form.errors.middle_name){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.middle_name, life: 3000 });
+                            }
+
+                            if(form.errors.last_name){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.last_name, life: 3000 });
+                            }
+
+                            if(form.errors.email){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.email, life: 3000 });
+                            }
+
+                            if(form.errors.phone_number){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.phone_number, life: 3000 });
+                            }
+
+                           
                         },
                     });
                     

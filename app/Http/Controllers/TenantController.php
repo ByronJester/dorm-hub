@@ -34,12 +34,11 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        $myApplication = Application::where('profile_id', $profile_id)->first();
+        $myApplication = Application::where('tenant_id', $profile_id)->first();
 
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('profile_id', $myApplication->profile_id)
-            ->where('is_active', true)
-            ->where('id', $myApplication->room_id)
+            ->where('room_id', $myApplication->room_id)
             ->first();
 
         $rating = null;
