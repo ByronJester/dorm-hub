@@ -1324,334 +1324,8 @@ export default {
     <div class="max-w-[2520px] mt-20 xl:px-20 md:px-10 sm:px-2 px-4" v-if="userStatus == 'approved'">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
 
-            <div v-if="active == 9">
-                <div>
-                    <p class="text-2xl font-bold mt-1">
-                        Step 10: Term & Condition
-                    </p>
-
-                    <p class="text-xs mt-1">Set up your terms and condition</p>
-                    <hr class="my-5" />
-                    <Editor
-                        id="content"
-                        api-key="rnwni8gfoofnq592kqlityphztlce2nvzunwxpqqs3a0y8dv"
-                        v-model="terms"
-                        :init="{
-                            menubar: false,
-                            plugins: 'lists link image emoticons',
-                            toolbar:
-                                'undo redo | blocks | ' +
-                                'bold italic backcolor | alignleft aligncenter ' +
-                                'alignright alignjustify | bullist numlist outdent indent | ' +
-                                'removeformat | help',
-                            content_style:
-                                'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
-                        }"
-                    />
-                    <span class="text-xs text-red-500 ml-2"
-                        >{{ errorMessages.terms }}
-                    </span>
-                </div>
-            </div>
-            <!--BusinessPermit-->
-            <div class="w-full" v-if="active == 3">
-                <p class="text-2xl font-bold mt-1">Step 3: Business Permit</p>
-
-                <p class="text-xs mt-1">Upload your business permit.</p>
-                <hr class="my-5" />
-                <div class="flex flex-col items-center w-full">
-                    <input
-                        type="file"
-                        id="business_permit"
-                        class="hidden"
-                        @change="bpImageChange($event)"
-                        accept="image/*"
-                        required
-                    />
-                    <label
-                        for="business_permit"
-                        :class="{
-                            'border-red-500':
-                                !!errorMessages.business_permit_image_src,
-                        }"
-                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
-                    >
-                        <img
-                            v-if="business_permit_image_src"
-                            :src="business_permit_image_src"
-                            alt="business permit"
-                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
-                        />
-                        <div
-                            v-else
-                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
-                        >
-                            <span class="text-blue-500 dark:text-gray-400">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    fill="currentColor"
-                                    class="w-8 h-8 bi bi-cloud-upload"
-                                    viewBox="0 0 16 16"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
-                                    />
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
-                                    /></svg></span>
-                            <p
-                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
-                            >
-                                <span class="font-semibold text-blue-500"
-                                    >Click to upload</span
-                                >
-                            </p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                SVG, PNG, JPG or GIF (upto 10MB)
-                            </p>
-                        </div>
-                        <span class="text-xs text-red-500 ml-2"
-                            >{{ errorMessages.business_permit_image_src }}
-                        </span>
-                    </label>
-                </div>
-            </div>
-            <!--Dorm Image-->
-            <div class="w-full" v-if="active == 4">
-                <p class="text-2xl font-bold mt-1 ml-2">Step 4: Dorm Image</p>
-
-                <p class="text-xs mt-1 ml-2">
-                    Allow your seeker to see your dorm
-                </p>
-                <hr class="my-5" />
-                <div class="flex flex-col items-center w-full">
-                    <input
-                        type="file"
-                        id="dorm_image"
-                        class="hidden"
-                        @change="dormImageChange($event)"
-                        accept="image/*"
-                        >
-                    <label
-                        for="dorm_image"
-                        :class="{
-                            'border-red-500': !!errorMessages.dorm_image_src,
-                        }"
-                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
-                    >
-                        <img
-                            v-if="dorm_image_src"
-                            :src="dorm_image_src"
-                            alt="dorm_image"
-                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
-                        />
-                        <div
-                            v-else
-                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
-                        >
-                            <span class="text-blue-500 dark:text-gray-400">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="16"
-                                    height="16"
-                                    fill="currentColor"
-                                    class="w-8 h-8 bi bi-cloud-upload"
-                                    viewBox="0 0 16 16"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
-                                    />
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
-                                    /></svg></span>
-                            <p
-                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
-                            >
-                                <span class="font-semibold text-blue-500"
-                                    >Click to upload</span
-                                >
-                            </p>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">
-                                SVG, PNG, JPG or GIF (upto 10MB)
-                            </p>
-                        </div>
-                        <span class="text-xs text-red-500 ml-2"
-                            >{{ errorMessages.dorm_image_src }}
-                        </span>
-                    </label>
-                </div>
-            </div>
-            <!--Address-->
-            <div class="flex flex-col w-full" v-if="active == 5">
-                <p class="font-bold text-2xl">Step 5: Dorm Address</p>
-                <p class="font-bold text-sm">
-                    Allow seekers to locate your dorm
-                </p>
-                <hr class="mt-5" />
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p
-                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
-                                >
-                                    Map Address:
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:w-1/3">
-                                <input
-                                    id="address"
-                                    v-model="address"
-                                    :class="{
-                                        'border-red-500':
-                                            !!errorMessages.address,
-                                    }"
-                                    required
-                                    autocomplete="address"
-                                    @input="changeAddress($event)"
-                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text"
-                                />
-                                <span class="text-xs text-red-500 ml-2"
-                                    >{{ errorMessages.address }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p
-                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
-                                >
-                                    Nearest Landmark:
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:w-1/2">
-                                <input
-                                    id="detailed_address"
-                                    v-model="landmark"
-                                    :class="{
-                                        'border-red-500':
-                                            !!errorMessages.landmark,
-                                    }"
-                                    required
-                                    autocomplete="landmark"
-                                    placeholder="Waltermart"
-                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text"
-                                />
-                                <span class="text-xs text-red-500 ml-2"
-                                    >{{ errorMessages.landmark }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p
-                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
-                                >
-                                    Note Direction(optional):
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:w-1/2">
-                                <input
-                                    id="detailed_address"
-                                    v-model="note"
-                                    :class="{
-                                        'border-red-500':
-                                            !!errorMessages.note,
-                                    }"
-                                    required
-                                    autocomplete="landmark"
-                                    placeholder="Kaliwa, kanan kaliwa"
-                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text"
-                                />
-                                <span class="text-xs text-red-500 ml-2"
-                                    >{{ errorMessages.note }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p
-                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
-                                >
-                                    Detailed Address:
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:w-1/2">
-                                <input
-                                    id="detailed_address"
-                                    v-model="detailed_address"
-                                    :class="{
-                                        'border-red-500':
-                                            !!errorMessages.detailed_address,
-                                    }"
-                                    required
-                                    autocomplete="detailed_address"
-                                    placeholder="House No., Street, Barangay, Municipaluty, Province, Region"
-                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
-                                    type="text"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
-                    <div class="w-full md:w-9/12">
-                        <div class="flex flex-wrap -m-3">
-                            <div class="w-full p-3 md:w-1/3">
-                                <p
-                                    class="text-sm font-semibold text-gray-800 dark:text-gray-400"
-                                >
-                                    Maps
-                                </p>
-                            </div>
-                            <div class="w-full p-3 md:flex-1">
-                                <div
-                                    class="flex items-center justify-center w-full md:w-1/2"
-                                >
-                                    <div class="w-full p-2">
-                                        <MapboxMap
-                                            style="height: 310px"
-                                            access-token="pk.eyJ1IjoiYmFsb2dzeHh4IiwiYSI6ImNsbHA1dDN2MDAydGczZXFqZHprcW44dXIifQ.Z0dcyAB1W1B4-jcaqC_NKA"
-                                            map-style="mapbox://styles/mapbox/streets-v11"
-                                            :center="[long, lat]"
-                                            :zoom="15"
-                                        >
-                                            <MapboxMarker
-                                                :lng-lat="[long, lat]"
-                                                :draggable="true"
-                                                @mb-dragend="mapDrag($event)"
-                                            />
-                                        </MapboxMap>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--Dorm Desc-->
-            <div class="flex flex-col w-full" v-if="active == 1">
+             <!--Dorm Desc-->
+             <div class="flex flex-col w-full" v-if="active == 1">
                 <p class="text-2xl font-bold mt-1 mb-2">Step 1: Dorm Details</p>
                 <hr class="mt-5" />
                 <div class="py-6 border-b border-gray-100 dark:border-gray-800">
@@ -1989,7 +1663,8 @@ export default {
                         </div>
                     </div>
                 </div>
-            </div>
+             </div>
+
             <!--Rooms-->
             <div class="w-full" v-if="active == 2">
                 <p class="text-2xl font-bold mt-1 ml-2 mb-2">
@@ -2315,6 +1990,307 @@ export default {
                     </div>
                 </div>
             </div>
+
+            <!--BusinessPermit-->
+            <div class="w-full" v-if="active == 3">
+                <p class="text-2xl font-bold mt-1">Step 3: Business Permit</p>
+
+                <p class="text-xs mt-1">Upload your business permit.</p>
+                <hr class="my-5" />
+                <div class="flex flex-col items-center w-full">
+                    <input
+                        type="file"
+                        id="business_permit"
+                        class="hidden"
+                        @change="bpImageChange($event)"
+                        accept="image/*"
+                        required
+                    />
+                    <label
+                        for="business_permit"
+                        :class="{
+                            'border-red-500':
+                                !!errorMessages.business_permit_image_src,
+                        }"
+                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                    >
+                        <img
+                            v-if="business_permit_image_src"
+                            :src="business_permit_image_src"
+                            alt="business permit"
+                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
+                        />
+                        <div
+                            v-else
+                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                        >
+                            <span class="text-blue-500 dark:text-gray-400">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="w-8 h-8 bi bi-cloud-upload"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                    />
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                    /></svg></span>
+                            <p
+                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                <span class="font-semibold text-blue-500"
+                                    >Click to upload</span
+                                >
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                SVG, PNG, JPG or GIF (upto 10MB)
+                            </p>
+                        </div>
+                        <span class="text-xs text-red-500 ml-2"
+                            >{{ errorMessages.business_permit_image_src }}
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!--Dorm Image-->
+            <div class="w-full" v-if="active == 4">
+                <p class="text-2xl font-bold mt-1 ml-2">Step 4: Dorm Image</p>
+
+                <p class="text-xs mt-1 ml-2">
+                    Allow your seeker to see your dorm
+                </p>
+                <hr class="my-5" />
+                <div class="flex flex-col items-center w-full">
+                    <input
+                        type="file"
+                        id="dorm_image"
+                        class="hidden"
+                        @change="dormImageChange($event)"
+                        accept="image/*"
+                        >
+                    <label
+                        for="dorm_image"
+                        :class="{
+                            'border-red-500': !!errorMessages.dorm_image_src,
+                        }"
+                        class="flex flex-col items-center justify-center md:w-1/2 w-full h-[500px] bg-white border-2 border-gray-200 border-dashed rounded-lg cursor-pointer dark:bg-gray-800 dark:hover:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+                    >
+                        <img
+                            v-if="dorm_image_src"
+                            :src="dorm_image_src"
+                            alt="dorm_image"
+                            class="h-[500px] w-full object-cover bg-no-repeat bg-center rounded-lg"
+                        />
+                        <div
+                            v-else
+                            class="flex flex-col items-center justify-center px-4 pt-5 pb-6"
+                        >
+                            <span class="text-blue-500 dark:text-gray-400">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="w-8 h-8 bi bi-cloud-upload"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M4.406 1.342A5.53 5.53 0 0 1 8 0c2.69 0 4.923 2 5.166 4.579C14.758 4.804 16 6.137 16 7.773 16 9.569 14.502 11 12.687 11H10a.5.5 0 0 1 0-1h2.688C13.979 10 15 8.988 15 7.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.188 2.825 10.328 1 8 1a4.53 4.53 0 0 0-2.941 1.1c-.757.652-1.153 1.438-1.153 2.055v.448l-.445.049C2.064 4.805 1 5.952 1 7.318 1 8.785 2.23 10 3.781 10H6a.5.5 0 0 1 0 1H3.781C1.708 11 0 9.366 0 7.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
+                                    />
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708l3-3z"
+                                    /></svg></span>
+                            <p
+                                class="mb-2 text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                <span class="font-semibold text-blue-500"
+                                    >Click to upload</span
+                                >
+                            </p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                SVG, PNG, JPG or GIF (upto 10MB)
+                            </p>
+                        </div>
+                        <span class="text-xs text-red-500 ml-2"
+                            >{{ errorMessages.dorm_image_src }}
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <!--Address-->
+            <div class="flex flex-col w-full" v-if="active == 5">
+                <p class="font-bold text-2xl">Step 5: Dorm Address</p>
+                <p class="font-bold text-sm">
+                    Allow seekers to locate your dorm
+                </p>
+                <hr class="mt-5" />
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
+                                    Map Address:
+                                </p>
+                            </div>
+                            <div class="w-full p-3 md:w-1/3">
+                                <input
+                                    id="address"
+                                    v-model="address"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.address,
+                                    }"
+                                    required
+                                    autocomplete="address"
+                                    @input="changeAddress($event)"
+                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                    type="text"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.address }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
+                                    Nearest Landmark:
+                                </p>
+                            </div>
+                            <div class="w-full p-3 md:w-1/2">
+                                <input
+                                    id="detailed_address"
+                                    v-model="landmark"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.landmark,
+                                    }"
+                                    required
+                                    autocomplete="landmark"
+                                    placeholder="Waltermart"
+                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                    type="text"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.landmark }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
+                                    Note Direction(optional):
+                                </p>
+                            </div>
+                            <div class="w-full p-3 md:w-1/2">
+                                <input
+                                    id="detailed_address"
+                                    v-model="note"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.note,
+                                    }"
+                                    required
+                                    autocomplete="landmark"
+                                    placeholder="Kaliwa, kanan kaliwa"
+                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                    type="text"
+                                />
+                                <span class="text-xs text-red-500 ml-2"
+                                    >{{ errorMessages.note }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
+                                <p
+                                    class="text-base font-semibold text-gray-700 dark:text-gray-400"
+                                >
+                                    Detailed Address:
+                                </p>
+                            </div>
+                            <div class="w-full p-3 md:w-1/2">
+                                <input
+                                    id="detailed_address"
+                                    v-model="detailed_address"
+                                    :class="{
+                                        'border-red-500':
+                                            !!errorMessages.detailed_address,
+                                    }"
+                                    required
+                                    autocomplete="detailed_address"
+                                    placeholder="House No., Street, Barangay, Municipaluty, Province, Region"
+                                    class="w-full dark:bg-gray-800 dark:border-gray-800 px-4 placeholder-gray-400 dark:placeholder-gray-500 dark:text-gray-400 py-2.5 text-base text-gray-900 rounded-lg font-normal border border-gray-200"
+                                    type="text"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                    <div class="w-full md:w-9/12">
+                        <div class="flex flex-wrap -m-3">
+                            <div class="w-full p-3 md:w-1/3">
+                                <p
+                                    class="text-sm font-semibold text-gray-800 dark:text-gray-400"
+                                >
+                                    Maps
+                                </p>
+                            </div>
+                            <div class="w-full p-3 md:flex-1">
+                                <div
+                                    class="flex items-center justify-center w-full md:w-1/2"
+                                >
+                                    <div class="w-full p-2">
+                                        <MapboxMap
+                                            style="height: 310px"
+                                            access-token="pk.eyJ1IjoiYmFsb2dzeHh4IiwiYSI6ImNsbHA1dDN2MDAydGczZXFqZHprcW44dXIifQ.Z0dcyAB1W1B4-jcaqC_NKA"
+                                            map-style="mapbox://styles/mapbox/streets-v11"
+                                            :center="[long, lat]"
+                                            :zoom="15"
+                                        >
+                                            <MapboxMarker
+                                                :lng-lat="[long, lat]"
+                                                :draggable="true"
+                                                @mb-dragend="mapDrag($event)"
+                                            />
+                                        </MapboxMap>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!--Rules-->
             <div class="w-full" v-if="active == 6">
                 <p class="text-2xl font-bold mt-1 text-black">Step 6: Rules</p>
@@ -2484,6 +2460,7 @@ export default {
                     </button>
                 </div>
             </div>
+
             <!--Amenities-->
             <div class="w-full" v-if="active == 7">
                                 <p class="text-2xl font-bold mt-1 ">
@@ -2521,7 +2498,7 @@ export default {
                                         {{  selected.name }}
                                     </div>
                                 </div>
-                            </div>
+            </div>
             
             <div class="w-full" v-if="active == 8">
                 <p class="text-2xl font-bold mt-1">
@@ -2653,6 +2630,37 @@ export default {
                 </div> -->
 
             </div>
+
+            <div v-if="active == 9">
+                <div>
+                    <p class="text-2xl font-bold mt-1">
+                        Step 10: Term & Condition
+                    </p>
+
+                    <p class="text-xs mt-1">Set up your terms and condition</p>
+                    <hr class="my-5" />
+                    <Editor
+                        id="content"
+                        api-key="rnwni8gfoofnq592kqlityphztlce2nvzunwxpqqs3a0y8dv"
+                        v-model="terms"
+                        :init="{
+                            menubar: false,
+                            plugins: 'lists link image emoticons',
+                            toolbar:
+                                'undo redo | blocks | ' +
+                                'bold italic backcolor | alignleft aligncenter ' +
+                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                'removeformat | help',
+                            content_style:
+                                'body { font-family:Helvetica,Arial,sans-serif; font-size:16px }',
+                        }"
+                    />
+                    <span class="text-xs text-red-500 ml-2"
+                        >{{ errorMessages.terms }}
+                    </span>
+                </div>
+            </div>
+            
             <div class="w-full" v-if="active == 10">
                 <div clas="w-full grid grid-cols-3 gap-5">
                     <div className=" max-w-screen-lg mx-auto ">
