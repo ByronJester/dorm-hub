@@ -20,8 +20,10 @@ export default {
         const user = page.props.user;
         const myApplication = page.props.myApplication;
         const active = ref(0);
-        const viewRooms = (id) => {
-            router.get(route('tenant.mydorm', id));
+
+        const viewRooms = (arg) => {
+            console.log(arg)
+            router.get(route('tenant.mydorm', [arg.id, arg.tenant]));
         }
 
         console.log(myApplication)
@@ -64,7 +66,7 @@ export default {
                                             alt="user header"
                                             :src="myDorm.room.image"
                                             class="h-[300px] w-full rounded-t-lg"
-                                            @click="viewRooms(myDorm.id)"
+                                            @click="viewRooms(myDorm)"
                                         />
                                         <div class="w-full text-center text-white bg-orange-400">
                                             Room for {{ myDorm.profile.first_name + ' ' + myDorm.profile.last_name}}
@@ -240,7 +242,7 @@ export default {
                                             </div>
                                         </div>
 
-                                    
+
                                     </template>
                                 </Card>
                             </div>
@@ -444,9 +446,9 @@ export default {
                                             </div>
                                         </div>
 
-                                        
 
-                                    
+
+
                                     </template>
                                 </Card>
                             </div>
@@ -455,11 +457,11 @@ export default {
                     <div v-else class="text-center min-h-screen">
                             <p class="text-xl">You don't have application</p>
                     </div>
-                  
+
                 </TabPanel>
             </TabView>
         </div>
-            
+
         </div>
     </SidebarLayout>
 </template>

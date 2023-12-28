@@ -10,9 +10,19 @@ class SubscriptionPayment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'owner_id',
+        'user_id',
         'subscription',
         'amount',
         'invoice_number'
     ];
+
+    protected $with = ['user'
+    ];
+
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

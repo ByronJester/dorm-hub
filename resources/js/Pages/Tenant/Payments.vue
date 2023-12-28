@@ -17,6 +17,12 @@ import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';   // optional
 import Row from 'primevue/row';
 import { FilterMatchMode, FilterOperator } from 'primevue/api';
+import { useConfirm } from "primevue/useconfirm";
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
+
+
 
 export default {
     components: {
@@ -32,7 +38,7 @@ export default {
     },
     methods: {
 
-    exportToPDF() {
+        exportToPDF() {
             const page = usePage();
             const doc = new jsPDF();
             const contacts = page.props.contact;
@@ -45,7 +51,7 @@ export default {
             const phone = contacts.phone;
             const facebook = contacts.facebook;
             const ig = `Ig: ${contacts.ig}`;
-            const address =  contacts.address;
+            const address = contacts.address;
 
 
 
@@ -68,11 +74,11 @@ export default {
 
             const tableData = [this.headers].concat(
                 this.slicedRows.map((row) => [
-                        row.date,
-                        row.payment_method,
-                        row.amount,
-                        row.category,
-                        row.status,
+                    row.date,
+                    row.payment_method,
+                    row.amount,
+                    row.category,
+                    row.status,
                 ])
             );
 
@@ -104,6 +110,8 @@ export default {
         const imageError = ref(null);
         const lastBilled = page.props.lastBilled
         const options = ["E-Wallet", "Cash", "Bank Transfer"];
+
+        const toast = useToast();
 
         onMounted(() => {
             application.value = page.props.application;
@@ -161,7 +169,7 @@ export default {
                     const data = {
                         user_payment_id: selectedPayment.value.id,
                         amount: selectedPayment.value.billing.amount,
-                        payment_method : selectedPaymentMethod.value,
+                        payment_method: selectedPaymentMethod.value,
                         wallet_name: wallet_name.value,
                         account_name: account_name.value,
                         account_number: account_number.value
@@ -216,58 +224,58 @@ export default {
             };
         };
 
-        const headers = ["Payment Date" , "Payment Method", "Amount", "Description", "Status"];
+        const headers = ["Payment Date", "Payment Method", "Amount", "Description", "Status"];
         //
 
-            const searchQuery = ref("");
-            const itemsPerPage = 5; // Set the maximum number of items per page to 10
-            const currentPage = ref(1); // Initialize to the first page
+        const searchQuery = ref("");
+        const itemsPerPage = 5; // Set the maximum number of items per page to 10
+        const currentPage = ref(1); // Initialize to the first page
 
 
-            const filteredData = computed(() => {
-                const query = searchQuery.value.toLowerCase().trim();
+        const filteredData = computed(() => {
+            const query = searchQuery.value.toLowerCase().trim();
 
-                    if (!query) {
-                        if (activeTable.value === 'all') {
-                        return data; // Return all data if 'all' is selected
-                        } else {
-                        return data.filter((row) => {
-                            // Modify the condition based on your logic for 'paid' and 'unpaid'
-                            if (activeTable.value === 'paid') {
-                            return row.status.toLowerCase() === 'paid';
-                            } else if (activeTable.value === 'unpaid') {
-                            return row.status.toLowerCase() === 'unpaid';
-                            }
-                        });
-                        }
-                    }
-
+            if (!query) {
+                if (activeTable.value === 'all') {
+                    return data; // Return all data if 'all' is selected
+                } else {
                     return data.filter((row) => {
-                        // Your existing query conditions
-                        return (
-                        row.date.toLowerCase().includes(query) ||
-                        row.payment_method.toLowerCase().includes(query) ||
-                        row.category.toLowerCase().includes(query) ||
-                        row.status.toLowerCase().includes(query)
-                        );
+                        // Modify the condition based on your logic for 'paid' and 'unpaid'
+                        if (activeTable.value === 'paid') {
+                            return row.status.toLowerCase() === 'paid';
+                        } else if (activeTable.value === 'unpaid') {
+                            return row.status.toLowerCase() === 'unpaid';
+                        }
                     });
-            });
-
-            const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
-
-            const slicedRows = computed(() => {
-                const startIndex = (currentPage.value - 1) * itemsPerPage;
-                const endIndex = startIndex + itemsPerPage;
-                return filteredData.value.slice(startIndex, endIndex);
-            });
-
-            const changePage = (pageChange) => {
-                const newPage = currentPage.value + pageChange;
-                if (newPage >= 1 && newPage <= totalPages.value) {
-                    currentPage.value = newPage;
                 }
-            };
-            //
+            }
+
+            return data.filter((row) => {
+                // Your existing query conditions
+                return (
+                    row.date.toLowerCase().includes(query) ||
+                    row.payment_method.toLowerCase().includes(query) ||
+                    row.category.toLowerCase().includes(query) ||
+                    row.status.toLowerCase().includes(query)
+                );
+            });
+        });
+
+        const totalPages = computed(() => Math.ceil(filteredData.value.length / itemsPerPage));
+
+        const slicedRows = computed(() => {
+            const startIndex = (currentPage.value - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            return filteredData.value.slice(startIndex, endIndex);
+        });
+
+        const changePage = (pageChange) => {
+            const newPage = currentPage.value + pageChange;
+            if (newPage >= 1 && newPage <= totalPages.value) {
+                currentPage.value = newPage;
+            }
+        };
+        //
 
         const moneyFormat = (amount) => {
             amount = parseFloat(amount).toFixed(2);
@@ -314,7 +322,7 @@ export default {
                     axios
                         .post(route("pay.specific.billing"), data)
                         .then((response) => {
-                            if(payment_method.value == 'Online Payment') {
+                            if (payment_method.value == 'Online Payment') {
                                 window.location.href = response.data.data.redirect.checkout_url
                             } else {
                                 location.reload();
@@ -332,7 +340,7 @@ export default {
 
         const activeTable = ref('all')
 
-        const setActiveTable = (table) =>{
+        const setActiveTable = (table) => {
             activeTable.value = table;
             currentPage.value = 1;
         }
@@ -358,20 +366,20 @@ export default {
 
         const statuses = ref([0, 1]);
         const getSeverity = (status) => {
-                switch (status) {
-                    case '0':
-                        return 'danger';
+            switch (status) {
+                case '0':
+                    return 'danger';
 
-                    case 'paid':
-                        return '1';
+                case 'paid':
+                    return '1';
 
-                }
-            };
+            }
+        };
 
         const data = ref([])
 
         const removeUnderscoreAndCapitalizeAfterSpace = (inputString) => {
-            if(inputString ===  undefined || typeof inputString === undefined) {
+            if (inputString === undefined || typeof inputString === undefined) {
                 return
             }
 
@@ -383,7 +391,7 @@ export default {
             // Capitalize the first letter of each word and join them
             const capitalizedString = words.map(word => {
                 if (word.length > 0) {
-                return word[0].toUpperCase() + word.slice(1).toLowerCase();
+                    return word[0].toUpperCase() + word.slice(1).toLowerCase();
                 }
                 return word; // Handle cases where there are multiple spaces
             }).join(' ');
@@ -391,118 +399,125 @@ export default {
             return capitalizedString;
         }
         onMounted(() => {
-            rows.value = page.props.bills.filter(x => { return x.profile_id == selectedProfile.value});
-            balance.value = page.props.balances.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
-                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
-                }, 0);
+            rows.value = page.props.bills.filter(x => { return x.profile_id == selectedProfile.value });
+            data.value = data.value.filter(x => { return x.profile_id == selectedProfile.value })
 
-            totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == selectedProfile.value}).reduce((accumulator, currentValue) => {
-                    return parseFloat(accumulator) + parseFloat(currentValue.amount);
-                }, 0);
+            balance.value = page.props.balances.filter(x => { return x.profile_id == selectedProfile.value }).reduce((accumulator, currentValue) => {
+                return parseFloat(accumulator) + parseFloat(currentValue.amount);
+            }, 0);
 
-            let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == selectedProfile.value})
+            totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == selectedProfile.value }).reduce((accumulator, currentValue) => {
+                return parseFloat(accumulator) + parseFloat(currentValue.amount);
+            }, 0);
+
+            let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == selectedProfile.value })
 
             nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
 
             payments.value = page.props.payments
 
-            for(let p = 0; p < payments.value.length; p++) {
-                data.value.push(
-                    {
-                        payment_method: payments.value[p].payment_method,
-                        amount: parseFloat(payments.value[p].amount),
-                        category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
-                        profile_id: payments.value[p].profile_id
-                    }
-                )
-            }
-
-            data.value = data.value.filter(x => { return x.profile_id == selectedProfile.value})
+            // for (let p = 0; p < payments.value.length; p++) {
+            //     data.value.push(
+            //         {
+            //             payment_method: payments.value[p].payment_method,
+            //             amount: parseFloat(payments.value[p].amount),
+            //             category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
+            //             profile_id: payments.value[p].profile_id
+            //         }
+            //     )
+            // }
 
         });
         const initFilters = () => {
-                filters.value = {
-                    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-                    description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-                    amount: { value: null, matchMode: FilterMatchMode.IN },
+            filters.value = {
+                global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+                description: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+                amount: { value: null, matchMode: FilterMatchMode.IN },
 
-                };
             };
+        };
 
+        initFilters();
+
+        const formatDate = (value) => {
+            // Check if value is a string and convert it to a Date object
+            const date = typeof value === 'string' ? new Date(value) : value;
+
+            // Check if date is a valid Date object
+            if (isNaN(date.getTime())) {
+                // If not a valid Date, you can handle it according to your requirements
+                return "Invalid Date"; // or return value.toString() or any other representation
+            }
+
+            // If it's a valid Date object, format it
+            return date.toLocaleDateString('en-US', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        };
+
+        const clearFilter = () => {
             initFilters();
+        };
 
-            const formatDate = (value) => {
-                // Check if value is a string and convert it to a Date object
-                const date = typeof value === 'string' ? new Date(value) : value;
-
-                // Check if date is a valid Date object
-                if (isNaN(date.getTime())) {
-                    // If not a valid Date, you can handle it according to your requirements
-                    return "Invalid Date"; // or return value.toString() or any other representation
-                }
-
-                // If it's a valid Date object, format it
-                return date.toLocaleDateString('en-US', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
-            };
-
-            const clearFilter = () => {
-                initFilters();
-            };
-
-            const changeSelectedProfile = (evt) => {
-                rows.value = page.props.bills.filter(x => { return x.profile_id == evt.value.id});
-                balance.value = page.props.balances.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
+        const changeSelectedProfile = (evt) => {
+            if (document.getElementById('paymentProfile').innerHTML !== evt.value.label) {
+                document.getElementById('paymentProfile').innerHTML = evt.value.label;
+                document.getElementById('transactionDtls').style = '';
+                document.getElementById('payDtls').style = '';
+                rows.value = page.props.bills.filter(x => { return x.profile_id == evt.value.id });
+                balance.value = page.props.balances.filter(x => { return x.profile_id == evt.value.id }).reduce((accumulator, currentValue) => {
                     return parseFloat(accumulator) + parseFloat(currentValue.amount);
                 }, 0);
 
-                totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == evt.value.id}).reduce((accumulator, currentValue) => {
+                totalAmountPaid.value = page.props.amountPaids.filter(x => { return x.profile_id == evt.value.id }).reduce((accumulator, currentValue) => {
                     return parseFloat(accumulator) + parseFloat(currentValue.amount);
                 }, 0);
 
-                let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == evt.value.id})
+                let nxtp = page.props.nextPayments.filter(x => { return x.profile_id == evt.value.id })
 
                 nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
 
-                for(let p = 0; p < payments.value.length; p++) {
+                console.log(nexPayment)
+
+                for (let p = 0; p < payments.value.length; p++) {
                     data.value.push(
                         {
                             payment_method: payments.value[p].payment_method,
                             amount: parseFloat(payments.value[p].amount),
                             category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
-                            profile_id: payments.value[p].profile_id
+                            profile_id: payments.value[p].profile_id,
+                            payment_date :  payments.value[p].payment_date
                         }
                     )
                 }
 
-                data.value = data.value.filter(x => { return x.profile_id == evt.value.id})
-
-
+                data.value = data.value.filter(x => { return x.profile_id == evt.value.id })
             }
+
+        }
 
         const payNow = (arg) => {
             axios
                 .post(route("tenant.pay-billing"), arg)
-                    .then((response) => {
-                        if(!!response.data) {
-                            window.location.href = response.data
-                        }
+                .then((response) => {
+                    if (!!response.data) {
+                        window.location.href = response.data
+                    }
 
-                    })
-                    .catch((error) => {
-                        // errors.value = error.response.data.errors;
-                    });
+                })
+                .catch((error) => {
+                    toast.add({ severity: 'error', summary: 'Warning', detail: error, life: 3000 });
+                    // errors.value = error.response.data.errors;
+                });
         }
 
-        console.log(rows)
         return {
             filters,
             clearFilter,
             rows,
-            selectedProfile,    
+            selectedProfile,
             optionProfile,
             setActiveTable,
             activeTable,
@@ -554,7 +569,8 @@ export default {
             account_number,
             submitRefund,
             changeSelectedProfile,
-            payNow
+            payNow,
+            formatDate
         };
     },
 };
@@ -563,26 +579,18 @@ export default {
 <template>
     <TenantVerif :user="user" />
     <AuthenticatedLayout v-if="user.status == 'approved'">
-        <div
-            class="p-4  lg:ml-64"
-        >
-        <div class="min-w-screen
+        <div class="p-4  lg:ml-64">
+            <div class="min-w-screen
                         2xl:mx-40
                         mt-16">
                 <section class="pt-6 mb-6 flex items-center justify-between">
                     <div class="flex items-center justify-start">
-                        <span
-                            class="inline-flex justify-center items-center w-6 h-6 mr-2"
-                            ><svg
-                                viewBox="0 0 24 24"
-                                width="20"
-                                height="20"
-                                class="inline-block"
-                            >
-                                <path
-                                    fill="currentColor"
-                                    d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z"
-                                ></path></svg></span>
+                        <span class="inline-flex justify-center items-center w-6 h-6 mr-2"><svg viewBox="0 0 24 24"
+                                width="20" height="20" class="inline-block">
+                                <path fill="currentColor"
+                                    d="M7 12C9.2 12 11 10.2 11 8S9.2 4 7 4 3 5.8 3 8 4.8 12 7 12M11 20V14.7C9.9 14.3 8.5 14 7 14C3.1 14 0 15.8 0 18V20H11M22 4H15C13.9 4 13 4.9 13 6V18C13 19.1 13.9 20 15 20H22C23.1 20 24 19.1 24 18V6C24 4.9 23.1 4 22 4M18 18H16V6H18V18Z">
+                                </path>
+                            </svg></span>
                         <h1 class="text-3xl leading-tight">Payments</h1>
                     </div>
                 </section>
@@ -592,24 +600,26 @@ export default {
                         <div class="block">
                             <p>Select profile</p>
                             <div class="card flex justify-content-center">
-                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)" :options="optionProfile" optionLabel="label"  class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
+                                <DropDown v-model="selectedProfile" @change="changeSelectedProfile($event)"
+                                    :options="optionProfile" optionLabel="label"
+                                    class="w-full md:w-14rem shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]" />
                             </div>
 
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 text-lg">
-                        <div class="bg-white rounded-lg p-4 gap-6 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] justify-center items-center flex">
-                            <img
-                                src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
+                    <div style="display: none;" id="payDtls" class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5 text-lg">
+                        <div
+                            class="bg-white rounded-lg p-4 gap-6 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] justify-center items-center flex">
+                            <img src='https://api.dicebear.com/7.x/avataaars/svg?seed=doe-doe-doe-example-com'
                                 alt="Profile picture"
-                                class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800"
-                            />
+                                class="rounded-full block md:h-40 w-40 bg-no-repeat bg-cover object-fit max-w-full bg-gray-100 dark:bg-slate-800" />
                             <div>
                                 <p>Hello!</p>
-                                <p>Jear</p>
+                                <span id="paymentProfile"></span>
                             </div>
                         </div>
-                        <div class="rounded-lg bg-black text-gray-200 grid grid-cols-2 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                        <div
+                            class="rounded-lg bg-black text-gray-200 grid grid-cols-2 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
                             <div class="flex flex-col gap-10">
                                 <div>
                                     <p class="text-xl font-bold">Next Payment on</p>
@@ -617,7 +627,7 @@ export default {
                                 </div>
                                 <div>
                                     <p class="text-xl font-bold">Last Billed on</p>
-                                    {{ !! lastBilled ? lastBilled.display_created_date : ''}}
+                                    {{ !!lastBilled ? lastBilled.display_created_date : '' }}
                                 </div>
 
                             </div>
@@ -626,51 +636,64 @@ export default {
                                 {{ !!nexPayment ? moneyFormat(nexPayment.amount) : moneyFormat(0) }}
                             </div>
                         </div>
-                        <div class="w-full flex flex-col gap-3 text-gray-900" >
+                        <div class="w-full flex flex-col gap-3 text-gray-900">
                             <!-- <div class="flex flex-row items-center justify-between rounded-lg bg-orange-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
                                 <p class="text-xl font-bold">Upcoming Payment</p>
                                 {{ !!nexPayment ?  moneyFormat(nexPayment.amount) : moneyFormat(0.00) }}
                             </div> -->
-                            <div class="flex flex-row items-center justify-between rounded-lg bg-red-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                            <div
+                                class="flex flex-row items-center justify-between rounded-lg bg-red-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
                                 <p class="text-xl font-bold">Balance</p>
-                                {{moneyFormat(balance)}}
+                                {{ moneyFormat(balance) }}
                             </div>
-                            <div class="flex flex-row items-center justify-between rounded-lg bg-green-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
+                            <div
+                                class="flex flex-row items-center justify-between rounded-lg bg-green-300 p-4 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]">
                                 <p class="text-xl font-bold">Total Amount Paid</p>
-                                <p>{{moneyFormat(totalAmountPaid)}}</p>
+                                <p>{{ moneyFormat(totalAmountPaid) }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 mt-5 gap-2 mb-20">
+                <div style="display: none;" id="transactionDtls" class="grid grid-cols-1 md:grid-cols-3 mt-5 gap-2 mb-20">
                     <div class="md:col-span-2">
                         <div class="card">
-                            <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
-                            :globalFilterFields="['description', 'amount']">
-                            <template #header>
-                                <div class="flex items-center justify-between">
-                                    <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5" icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined @click="clearFilter()" />
-                                    <span class="p-input-icon-left">
-                                        <i class="fa-solid fa-magnifying-glass"></i>
-                                        <input v-model="filters['global'].value" placeholder="Keyword Search" class="pl-10 rounded-lg" />
-                                    </span>
-                                </div>
-                            </template>
-                            <template #empty> No bills found. </template>
-                                <Column field="description" header="Bills" sortable style="min-width: 14rem" class="border-b">
+                            <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem"
+                                :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
+                                :globalFilterFields="['description', 'amount', 'for_the_month']">
+                                <template #header>
+                                    <div class="flex items-center justify-between">
+                                        <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5"
+                                            icon="fa-solid fa-filter-circle-xmark" label="Clear" outlined
+                                            @click="clearFilter()" />
+                                        <span class="p-input-icon-left">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                            <input v-model="filters['global'].value" placeholder="Keyword Search"
+                                                class="pl-10 rounded-lg" />
+                                        </span>
+                                    </div>
+                                </template>
+                                <template #empty> No bills found. </template>
+                                <Column field="description" header="Bills" sortable style="min-width: 14rem"
+                                    class="border-b">
                                     <template #body="{ data }">
-                                        <div class="grid grid-cols-4 place-items-center justify-between">
-                                            <p>{{data.description}}</p>
+                                        <div class="grid grid-cols-5 place-items-center justify-between">
+                                            <p>{{ data.description }}</p>
                                             <div class="w-16 text-center ">
-                                                <p class="bg-green-400  text-white rounded-full text-sm font-bold" v-if="data.is_paid">Paid</p>
-                                                <p class="bg-red-400  text-white rounded-full text-sm font-bold" v-if="!data.is_paid">Unpaid</p>
+                                                <p class="bg-green-400  text-white rounded-full text-sm font-bold"
+                                                    v-if="data.is_paid">Paid</p>
+                                                <p class="bg-red-400  text-white rounded-full text-sm font-bold"
+                                                    v-if="!data.is_paid">Unpaid</p>
                                             </div>
                                             <p class="text-center">{{ moneyFormat(data.amount) }}</p>
+                                            <p class="text-center">{{ data.for_the_month == null ? '' :
+                                                formatDate(data.for_the_month) }}</p>
                                             <div class="text-end">
-                                                <button v-if="data.is_paid" class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay Now</button>
-                                                <button v-if="!data.is_paid" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
-                                                    @click="payNow(data)"
-                                                >
+                                                <button v-if="data.is_paid"
+                                                    class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold"
+                                                    disabled>Pay Now</button>
+                                                <button v-if="!data.is_paid"
+                                                    class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
+                                                    @click="payNow(data)">
                                                     Pay Now
                                                 </button>
                                             </div>
@@ -685,20 +708,29 @@ export default {
                     </div>
                     <div>
                         <div class="card">
-                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 25rem" :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
-                            :globalFilterFields="['description', 'amount']">
-                            <template #empty> No transactions found. </template>
-                                <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem" class="border-b">
+                            <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 25rem"
+                                :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
+                                :globalFilterFields="['description', 'amount','payment_date']">
+                                <template #empty> No transactions found. </template>
+                                <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem"
+                                    class="border-b">
                                     <template #body="{ data }">
-                                        <div class="grid grid-cols-3 w-full place-items-center gap-2">
-                                            <p>{{data.category}}</p>
+                                        <div class="grid grid-cols-4 w-full place-items-center gap-2">
+                                            <p>{{ data.category }}</p>
                                             <div class="">
-                                                <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
-                                                <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
-                                                <img v-if="data.payment_method == 'VISA'" src="/images/visa.png" class="w-10"/>
-                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'" src="/images/ShopeePay.png" class="w-16"/>
-                                                <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png" class="w-10"/>
+                                                <img v-if="data.payment_method == 'PH_GCASH'" src="/images/gcashlogo.png"
+                                                    class="w-20" />
+                                                <img v-if="data.payment_method == 'PH_GRABPAY'" src="/images/grablogo.png"
+                                                    class="w-10" />
+                                                <img v-if="data.payment_method == 'VISA'" src="/images/visa.png"
+                                                    class="w-10" />
+                                                <img v-if="data.payment_method == 'PH_SHOPEEPAY'"
+                                                    src="/images/ShopeePay.png" class="w-16" />
+                                                <img v-if="data.payment_method == 'PH_PAYMAYA'" src="/images/paymaya.png"
+                                                    class="w-10" />
                                             </div>
+                                            <p>{{ data.payment_date == null ? '' :
+                                                formatDate(data.payment_date) }}</p>
                                             <p class="text-end">{{ moneyFormat(data.amount) }}</p>
 
                                         </div>
@@ -878,119 +910,77 @@ export default {
                         </div>
                     </div> -->
 
-                    <div id="payModal" class="payModal mt-10 md:mt-0">
-                        <div class="pay-modal-content flex flex-col" :style="{width: isMobileView ? '97%' : '30%'}">
-                            <div class="w-full">
-                                <span>
-                                    {{ selectedBill ? removeUnderscoreAndCapitalizeAfterSpace(selectedBill.category) : 'Payment'}}
-                                </span>
+                <div id="payModal" class="payModal mt-10 md:mt-0">
+                    <div class="pay-modal-content flex flex-col" :style="{ width: isMobileView ? '97%' : '30%' }">
+                        <div class="w-full">
+                            <span>
+                                {{ selectedBill ? removeUnderscoreAndCapitalizeAfterSpace(selectedBill.category) :
+                                    'Payment' }}
+                            </span>
 
-                                <span class="float-right cursor-pointer"
-                                    @click="closeModal()"
-                                >
-                                    <i class="fa-solid fa-xmark"></i>
-                                </span>
-                            </div>
-
-                            <div class="w-full h-[200px] flex justify-center items-center my-3"
-                                style="border: 1px solid black"
-                            >
-                                <span class="text-2xl">
-                                    {{ selectedBill ? moneyFormat(selectedBill.billing.amount) : 0.00 }}
-                                </span>
-                            </div>
-
-                            <div class="w-full mt-3">
-                                <!-- <div>Payment Method:</div> -->
-
-                                <input type="radio" value="Online Payment" v-model="payment_method" />
-                                <label class="ml-1 mt-2">Online Payment</label>
-
-                                <input type="radio" value="Bank Transfer" class="ml-3" v-model="payment_method" />
-                                <label class="ml-1 mt-2">Bank Transfer</label>
-                            </div>
-
-                            <div class="w-full mt-3" v-if="payment_method == 'Bank Transfer'">
-                                <input
-                                    type="file"
-                                    id="id_picture"
-                                    class="hidden"
-                                    @change="
-                                        proofOfPyamentChange($event)
-                                    "
-                                    accept="image/*"
-                                />
-
-                                <label
-                                    for="id_picture"
-                                    class="relative cursor-pointer"
-                                >
-                                    <div
-                                        class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg"
-                                    >
-                                        <img
-                                            v-if="proof_of_payment"
-                                            :src="proof_of_payment"
-                                            alt="Proof of Payment"
-                                            class="h-48 w-auto rounded-lg"
-                                        />
-                                        <span v-else
-                                            >Input</span
-                                        >
-                                    </div>
-                                </label>
-                            </div>
-
-                            <div class="w-full mt-8">
-                                <button class="rounded-md px-3 py-2 bg-cyan-300 float-right"
-                                    @click="proceedPayment()"
-                                >
-                                    Proceed Payment
-                                </button>
-                            </div>
-
+                            <span class="float-right cursor-pointer" @click="closeModal()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </span>
                         </div>
-                    </div>
 
-                    <div
-                    id="refundModal"
-                    tabindex="-1"
-                    aria-hidden="true"
-                    style="background-color: rgba(0, 0, 0, 0.7)"
-                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
-                >
+                        <div class="w-full h-[200px] flex justify-center items-center my-3" style="border: 1px solid black">
+                            <span class="text-2xl">
+                                {{ selectedBill ? moneyFormat(selectedBill.billing.amount) : 0.00 }}
+                            </span>
+                        </div>
+
+                        <div class="w-full mt-3">
+                            <!-- <div>Payment Method:</div> -->
+
+                            <input type="radio" value="Online Payment" v-model="payment_method" />
+                            <label class="ml-1 mt-2">Online Payment</label>
+
+                            <input type="radio" value="Bank Transfer" class="ml-3" v-model="payment_method" />
+                            <label class="ml-1 mt-2">Bank Transfer</label>
+                        </div>
+
+                        <div class="w-full mt-3" v-if="payment_method == 'Bank Transfer'">
+                            <input type="file" id="id_picture" class="hidden" @change="
+                                proofOfPyamentChange($event)
+                                " accept="image/*" />
+
+                            <label for="id_picture" class="relative cursor-pointer">
+                                <div
+                                    class="h-48 bg-gray-200 border border-dashed border-gray-400 flex justify-center items-center rounded-lg">
+                                    <img v-if="proof_of_payment" :src="proof_of_payment" alt="Proof of Payment"
+                                        class="h-48 w-auto rounded-lg" />
+                                    <span v-else>Input</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="w-full mt-8">
+                            <button class="rounded-md px-3 py-2 bg-cyan-300 float-right" @click="proceedPayment()">
+                                Proceed Payment
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="refundModal" tabindex="-1" aria-hidden="true" style="background-color: rgba(0, 0, 0, 0.7)"
+                    class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
                     <div class="h-screen flex justify-center items-center">
                         <div class="relative w-full max-w-2xl max-h-full">
                             <!-- Modal content -->
                             <div class="relative bg-white rounded-lg shadow">
                                 <!-- Modal header -->
-                                <div
-                                    class="flex items-start justify-between p-4 border-b rounded-t "
-                                >
-                                    <h3
-                                        class="text-xl font-semibold text-black"
-                                    >
+                                <div class="flex items-start justify-between p-4 border-b rounded-t ">
+                                    <h3 class="text-xl font-semibold text-black">
                                         Refund Request
                                     </h3>
-                                    <button
-                                        type="button"
+                                    <button type="button"
                                         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                                        @click="closeLeaveModal()"
-                                    >
-                                        <svg
-                                            class="w-3 h-3"
-                                            aria-hidden="true"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 14 14"
-                                        >
-                                            <path
-                                                stroke="currentColor"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                stroke-width="2"
-                                                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                            />
+                                        @click="closeLeaveModal()">
+                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                            fill="none" viewBox="0 0 14 14">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
                                         </svg>
                                         <span class="sr-only">Close modal</span>
                                     </button>
@@ -999,77 +989,91 @@ export default {
                                 <div class="p-6 space-y-6">
                                     <form class="mt-4">
 
-                                        <label for="desc" class="block mb-2 text-base font-medium text-black">Description:</label>
-                                        <input disabled type="text" :value="!!selectedPayment ? selectedPayment.billing.amount : null" id="desc" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                        <label for="amount" class="block mb-2 text-base font-medium text-black">Amount:</label>
-                                        <input disabled type="text" :value="!!selectedPayment ? removeUnderscoreAndCapitalizeAfterSpace(selectedPayment.description) : null" id="amount"  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                        <label for="desc"
+                                            class="block mb-2 text-base font-medium text-black">Description:</label>
+                                        <input disabled type="text"
+                                            :value="!!selectedPayment ? selectedPayment.billing.amount : null" id="desc"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                        <label for="amount"
+                                            class="block mb-2 text-base font-medium text-black">Amount:</label>
+                                        <input disabled type="text"
+                                            :value="!!selectedPayment ? removeUnderscoreAndCapitalizeAfterSpace(selectedPayment.description) : null"
+                                            id="amount"
+                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
 
-                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how to receive refund:</label>
-                                            <select
-                                                id="subject"
-                                                v-model="selectedPaymentMethod"
-                                                 @change="toggleTransfer"
-                                                class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 "
-                                            >
-                                                <option
-                                                    v-for="option in options"
-                                                    :key="option"
-                                                >
-                                                    {{ option }}
-                                                </option>
-                                            </select>
-                                            <div class=" py-2 mt-2 bg-white rounded-b-lg" v-if="showEwallet">
+                                        <label for="subject" class="block mb-2 text-base font-medium text-black">Choose how
+                                            to receive refund:</label>
+                                        <select id="subject" v-model="selectedPaymentMethod" @change="toggleTransfer"
+                                            class="block w-full px-4 py-1 text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-orange-500 focus:border-orange-500 ">
+                                            <option v-for="option in options" :key="option">
+                                                {{ option }}
+                                            </option>
+                                        </select>
+                                        <div class=" py-2 mt-2 bg-white rounded-b-lg" v-if="showEwallet">
 
-                                                <form class="flex flex-col gap-1 ">
-                                                    <div class="mb-3">
-                                                        <label for="EWalletName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
-                                                        <input type="text" id="EWalletName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
-                                                        <input type="text" id="accName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="accName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
-                                                        <input type="text" id="accName" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class=" py-2 mt-4 bg-white rounded-b-lg" v-if="showBankTransfer">
-                                                <form class="flex flex-col gap-1">
-                                                    <div class="mb-3">
-                                                        <label for="BankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank Name</label>
-                                                        <input type="text" id="BankName" v-model="wallet_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="accbankName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Name:</label>
-                                                        <input type="text" id="accbankName" v-model="account_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label for="accbankNumber" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account Number:</label>
-                                                        <input type="text" id="accbankNumber" v-model="account_number" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
-                                                    </div>
-                                                </form>
-                                            </div>
+                                            <form class="flex flex-col gap-1 ">
+                                                <div class="mb-3">
+                                                    <label for="EWalletName"
+                                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank
+                                                        Name</label>
+                                                    <input type="text" id="EWalletName" v-model="wallet_name"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="accName"
+                                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account
+                                                        Name:</label>
+                                                    <input type="text" id="accName" v-model="account_name"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="accName"
+                                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account
+                                                        Number:</label>
+                                                    <input type="text" id="accName" v-model="account_number"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class=" py-2 mt-4 bg-white rounded-b-lg" v-if="showBankTransfer">
+                                            <form class="flex flex-col gap-1">
+                                                <div class="mb-3">
+                                                    <label for="BankName"
+                                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">E-wallet/Bank
+                                                        Name</label>
+                                                    <input type="text" id="BankName" v-model="wallet_name"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="accbankName"
+                                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account
+                                                        Name:</label>
+                                                    <input type="text" id="accbankName" v-model="account_name"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="accbankNumber"
+                                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Account
+                                                        Number:</label>
+                                                    <input type="text" id="accbankNumber" v-model="account_number"
+                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2.5 ">
+                                                </div>
+                                            </form>
+                                        </div>
                                     </form>
-                                    </div>
                                 </div>
-                                <!-- Modal footer -->
-                                <div
-                                    class="w-full border-t  border-gray-200"
-                                >
-                                    <button
-                                        @click="submitRefund()"
-                                        type="button"
-                                        class="text-white rounded-b-lg bg-orange-500 hover:bg-opacity-25 font-medium w-full text-sm px-5 py-2.5"
-                                    >
-                                        Submit Refund Request
-                                    </button>
+                            </div>
+                            <!-- Modal footer -->
+                            <div class="w-full border-t  border-gray-200">
+                                <button @click="submitRefund()" type="button"
+                                    class="text-white rounded-b-lg bg-orange-500 hover:bg-opacity-25 font-medium w-full text-sm px-5 py-2.5">
+                                    Submit Refund Request
+                                </button>
 
-                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
 
 
@@ -1080,7 +1084,6 @@ export default {
 </template>
 
 <style>
-
 .main {
     height: 100%;
     min-height: 92vh;
@@ -1089,16 +1092,24 @@ export default {
 
 .payModal {
     display: none;
-    position: fixed; /* Stay in place */
-    z-index: 1; /* Sit on top */
-    padding-top: 100px; /* Location of the box */
+    position: fixed;
+    /* Stay in place */
+    z-index: 1;
+    /* Sit on top */
+    padding-top: 100px;
+    /* Location of the box */
     left: 0;
     top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0, 0, 0); /* Fallback color */
-    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+    width: 100%;
+    /* Full width */
+    height: 100%;
+    /* Full height */
+    overflow: auto;
+    /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0);
+    /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* Black w/ opacity */
 }
 
 /* Modal Content */
@@ -1127,6 +1138,7 @@ export default {
 
 ::-webkit-scrollbar {
     width: 0px;
-    background: transparent; /* make scrollbar transparent */
+    background: transparent;
+    /* make scrollbar transparent */
 }
 </style>

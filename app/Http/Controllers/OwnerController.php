@@ -10,13 +10,29 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\
-    {
-        User, Dorm, Room, Amenity, Rule, Payment, Notification, UserIncomeInformation,
-        // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
-        Reservation, Application, Billing, UserPayment, Tenant, CommonAreas, TenantComplaint, Refund, ContactUs, Service,
-        SubscriptionPayment
+{
+    User,
+    Dorm,
+    Room,
+    Amenity,
+    Rule,
+    Payment,
+    Notification,
+    UserIncomeInformation,
+    // TenantApplication, TenantBilling, TenantPayment, TenantReservation, CommonAreas
+    Reservation,
+    Application,
+    Billing,
+    UserPayment,
+    Tenant,
+    CommonAreas,
+    TenantComplaint,
+    Refund,
+    ContactUs,
+    Service,
+    SubscriptionPayment
 };
-use App\Http\Requests\{ SaveDorm };
+use App\Http\Requests\{SaveDorm};
 use App\Rules\{RoomRule, CommonAreasRule};
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +46,7 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
@@ -45,7 +61,7 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
@@ -64,7 +80,7 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
         $reservations = Reservation::with(['dorm', 'room', 'owner_user', 'tenant_user'])
@@ -82,13 +98,13 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
         $dorms = Dorm::with(['rooms' => function ($query) {
-                $query->where('is_available', true);
-            }])
+            $query->where('is_available', true);
+        }])
             ->where('user_id', $auth->id)
             ->get(['id', 'property_name', 'status']);
 
@@ -98,7 +114,7 @@ class OwnerController extends Controller
         $monthlyFeeBalances = [];
 
         foreach ($applications as $application) {
-            $balance = Billing::where('profile_id', $application->profile_id)->where('is_paid', false)->where('description', 'Monthly Fee')->sum('amount');
+            $balance = Billing::where('user_id', $application->user_id)->where('is_paid', false)->where('description', 'Monthly Fee')->sum('amount');
             $billings = Billing::where('f_id', $application->id)->get();
 
             array_push($monthlyFeeBalances, [
@@ -107,13 +123,13 @@ class OwnerController extends Controller
 
         }
 
-// $monthlyFeeBalances now contains the fee balances for each tenant
+        // $monthlyFeeBalances now contains the fee balances for each tenant
 
-    return Inertia::render('Owner/Tenants', [
-        'tenants' => $applications,
-        'dorms' => $dorms,
-        'feeBalances' => $monthlyFeeBalances
-    ]);
+        return Inertia::render('Owner/Tenants', [
+            'tenants' => $applications,
+            'dorms' => $dorms,
+            'feeBalances' => $monthlyFeeBalances
+        ]);
 
     }
 
@@ -121,13 +137,13 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
         $dorms = DB::table('dorms')->where('user_id', $auth->id)->get(['id', 'property_name']);
 
-        $complaints = TenantComplaint::with(['tenant'])->whereHas('tenant', function($query) use ($auth) {
+        $complaints = TenantComplaint::with(['tenant'])->whereHas('tenant', function ($query) use ($auth) {
             $query->where('owner', $auth->id);
         })->get();
 
@@ -138,10 +154,10 @@ class OwnerController extends Controller
         foreach ($refunds as $refund) {
             $payment = UserPayment::where('id', $refund->user_payment_id)->first();
 
-            if(!!$payment->tenant_id) {
+            if (!!$payment->tenant_id) {
                 $tenant = Tenant::where('id', $payment->tenant_id)->first();
 
-                if($tenant->owner == $auth->id) {
+                if ($tenant->owner == $auth->id) {
                     array_push($refundArr, [
                         'dorm_id' => $tenant->dorm_id,
                         'payment_id' => $refund->user_payment_id,
@@ -175,25 +191,25 @@ class OwnerController extends Controller
     public function tenantHistory($tenant_id)
     {
         $tenant = Tenant::with(['room'])->where('profile_id', $tenant_id)->first();
-    
+
         if (!$tenant) {
             // Handle the case where the tenant is not found
             return response()->json(['error' => 'Tenant not found.'], 404);
         }
-    
+
         $billings = Billing::where('profile_id', $tenant->profile_id)->get();
-    
+
         if ($billings->isEmpty()) {
             // Handle the case where there are no billings for the given profile_id
             return response()->json(['message' => 'No billings found.']);
         }
-    
+
         $payments = [];
-    
+
         foreach ($billings as $billing) {
             $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
             $room = (object) $tenant->room;
-    
+
             if ($payment) {
                 array_push($payments, [
                     'billing_id' => $billing->id,
@@ -209,25 +225,95 @@ class OwnerController extends Controller
                 ]);
             }
         }
-        
-        $electricityBillings = $billings->where('subject', 'Electricity')->where('is_paid', false)->first();
-        $waterBillings = $billings->where('subject', 'Water')->where('is_paid', false)->first();
-        $internetBillings = $billings->where('subject', 'Internet')->where('is_paid', false)->first();
-        $monthlyFee = $billings->where('description', 'Monthly Fee')->where('is_paid', false)->first();
-        $othersBillings = $billings->where('subject', 'Others')->where('is_paid', false)->first();
-        
+
+
+
+        $ebs = Billing::where('subject', 'Electricity')->where('is_paid', false)
+            ->where('user_id', $tenant->user_id)
+            ->get();
+
+        $electricityBillings = null;
+        $ebAmount = 0;
+        foreach ($ebs as $eb) {
+            $electricityBillings = $eb;
+            $ebAmount += $eb->amount;
+        }
+
+        if ($electricityBillings) {
+            $electricityBillings->amount = $ebAmount;
+        }
+
+        $wbs = Billing::where('subject', 'Water')->where('is_paid', false)
+            ->where('user_id', $tenant->user_id)
+            ->get();
+
+        $waterBillings = null;
+        $wbAmount = 0;
+        foreach ($wbs as $wb) {
+            $waterBillings = $wb;
+            $wbAmount += $wb->amount;
+        }
+
+        if ($waterBillings) {
+            $waterBillings->amount = $wbAmount;
+        }
+
+        $ibs = Billing::where('subject', 'Internet')->where('is_paid', false)
+            ->where('user_id', $tenant->user_id)
+            ->get();
+
+        $internetBillings = null;
+        $ibAmount = 0;
+        foreach ($ibs as $ib) {
+            $internetBillings = $ib;
+            $ibAmount += $ib->amount;
+        }
+
+        if ($internetBillings) {
+            $internetBillings->amount = $ibAmount;
+        }
+
+        $mbs = Billing::where('description', 'Monthly Fee')->where('is_paid', false)
+            ->where('user_id', $tenant->user_id)
+            ->get();
+
+        $monthlyFee = null;
+        $mbAmount = 0;
+        foreach ($mbs as $mb) {
+            $monthlyFee = $mb;
+            $mbAmount += $mb->amount;
+        }
+
+        if ($monthlyFee) {
+            $monthlyFee->amount = $mbAmount;
+        }
+
+        $obs = Billing::where('subject', 'Others')->where('is_paid', false)
+            ->where('user_id', $tenant->user_id)
+            ->get();
+
+        $othersBillings = null;
+        $obAmount = 0;
+        foreach ($obs as $ob) {
+            $othersBillings = $ib;
+            $obAmount += $ob->amount;
+        }
+
+        if ($othersBillings) {
+            $othersBillings->amount = $obAmount;
+        }
 
         return Inertia::render('Owner/TenantsPaymentHistory', [
             'payments' => $payments,
             'tenant' => $tenant,
-            'electricity'=> $electricityBillings,
-            'water'=> $waterBillings,
-            'other'=> $othersBillings,
-            'internet'=> $internetBillings,
-            'monthly'=> $monthlyFee,
+            'electricity' => $electricityBillings,
+            'water' => $waterBillings,
+            'other' => $othersBillings,
+            'internet' => $internetBillings,
+            'monthly' => $monthlyFee,
         ]);
     }
-    
+
     public function addDorm()
     {
 
@@ -259,15 +345,15 @@ class OwnerController extends Controller
             'terms' => 'required',
         ];
 
-        if($request->curfew == 'Yes') {
+        if ($request->curfew == 'Yes') {
             $req['curfew_hours'] = 'required';
         }
 
-        if($request->short_term == 'Yes') {
+        if ($request->short_term == 'Yes') {
             $req['minimum_stay'] = 'required';
         }
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             $req['sk'] = 'required';
             $req['pk'] = 'required';
 
@@ -285,7 +371,7 @@ class OwnerController extends Controller
         $description = 'Dorm Subscription: ' . $request->subscription;
         $action = 'addDorm';
 
-        switch($request->subscription) {
+        switch ($request->subscription) {
             case 'starter':
                 $amount = 300;
                 break;
@@ -300,7 +386,7 @@ class OwnerController extends Controller
         $xenditService = new XenditService($sk);
         $response = $xenditService->create($amount, $description, $action);
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             auth()->user()->update([
                 'sk' => $request->sk,
                 'pk' => $request->pk
@@ -309,10 +395,10 @@ class OwnerController extends Controller
 
         $dorm = null;
 
-        if($id = $request->id) {
+        if ($id = $request->id) {
             $dorm = Dorm::where('id', $id)->first();
 
-            if($dorm) {
+            if ($dorm) {
                 Amenity::where('dorm_id', $id)->delete();
                 Rule::where('dorm_id', $id)->delete();
             }
@@ -335,7 +421,7 @@ class OwnerController extends Controller
         $dorm->reservation = $request->reservation;
         $dorm->status = 'temp';
 
-        if($dorm_image = $request->dorm_image) {
+        if ($dorm_image = $request->dorm_image) {
 
             $filename = Str::random(10) . '_dorm_image';
 
@@ -343,23 +429,23 @@ class OwnerController extends Controller
             $dorm->dorm_image = $filename;
         }
 
-        if($business_permit_src = $request->business_permit_image_src) {
+        if ($business_permit_src = $request->business_permit_image_src) {
             $business_permit_src = $request->business_permit_image_src;
 
-            $filename = Str::random(10) . '_business_permit' ;
+            $filename = Str::random(10) . '_business_permit';
 
             $uploadFile = $this->uploadFile($business_permit_src, $filename);
             $dorm->business_permit_image = $filename;
         }
 
-        if($dorm->save()) {
+        if ($dorm->save()) {
             $rooms = json_decode($request->rooms);
 
-            foreach($rooms as $key => $r) {
+            foreach ($rooms as $key => $r) {
                 $filename = Str::random(10) . '_room_image';
 
 
-                if($r->id){
+                if ($r->id) {
                     $room = Room::where('id', $id)->first();
                 } else {
                     $room = new Room;
@@ -383,11 +469,11 @@ class OwnerController extends Controller
 
             $commonAreas = json_decode($request->commonAreas);
 
-            foreach($commonAreas as $key => $b) {
+            foreach ($commonAreas as $key => $b) {
                 $filename = Str::random(10) . '_areas_image';
 
 
-                if($b->id){
+                if ($b->id) {
                     $commonArea = CommonAreas::where('id', $id)->first();
                 } else {
                     $commonArea = new CommonAreas;
@@ -404,8 +490,8 @@ class OwnerController extends Controller
 
             $amenities = json_decode($request->amenities);
 
-            foreach($amenities as $a) {
-                if(!!$a) {
+            foreach ($amenities as $a) {
+                if (!!$a) {
                     $amenity = new Amenity;
 
                     $amenity->dorm_id = $dorm->id;
@@ -416,7 +502,7 @@ class OwnerController extends Controller
             }
 
             $services = json_decode($request->services);
-            foreach($services as $a) {
+            foreach ($services as $a) {
                 $service = new Service;
 
                 $service->dorm_id = $dorm->id;
@@ -438,7 +524,7 @@ class OwnerController extends Controller
 
             $rules = [];
 
-            foreach(json_decode($request->rules) as $r) {
+            foreach (json_decode($request->rules) as $r) {
                 array_push($rules, $r->name);
             }
 
@@ -447,7 +533,7 @@ class OwnerController extends Controller
             $rule->save();
 
 
-            if(!$auth->subscription) {
+            if (!$auth->subscription) {
                 User::where('id', $auth->id)->update([
                     'subscription' => $request->subscription
                 ]);
@@ -461,7 +547,8 @@ class OwnerController extends Controller
         return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 422);
     }
 
-    public function updateDorm(Request $request, $id){
+    public function updateDorm(Request $request, $id)
+    {
         $auth = Auth::user();
 
         $req = [
@@ -481,15 +568,15 @@ class OwnerController extends Controller
             'terms' => 'required',
         ];
 
-        if($request->curfew == 'Yes') {
+        if ($request->curfew == 'Yes') {
             $req['curfew_hours'] = 'required';
         }
 
-        if($request->short_term == 'Yes') {
+        if ($request->short_term == 'Yes') {
             $req['minimum_stay'] = 'required';
         }
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             $req['sk'] = 'required';
             $req['pk'] = 'required';
 
@@ -517,7 +604,7 @@ class OwnerController extends Controller
         $dorm->rooms_total = $request->rooms_total;
         $dorm->terms = $request->terms;
 
-        if($dorm_image = $request->dorm_image) {
+        if ($dorm_image = $request->dorm_image) {
 
             $filename = Str::random(10) . '_dorm_image';
 
@@ -525,10 +612,10 @@ class OwnerController extends Controller
             $dorm->dorm_image = $filename;
         }
 
-        if($business_permit_src = $request->business_permit_image_src) {
+        if ($business_permit_src = $request->business_permit_image_src) {
             $business_permit_src = $request->business_permit_image_src;
 
-            $filename = Str::random(10) . '_business_permit' ;
+            $filename = Str::random(10) . '_business_permit';
 
             $uploadFile = $this->uploadFile($business_permit_src, $filename);
             $dorm->business_permit_image = $filename;
@@ -540,11 +627,32 @@ class OwnerController extends Controller
             foreach ($rooms as $key => $r) {
                 $filename = Str::random(10) . '_room_image';
 
-            if ($r->id) {
-                $room = Room::find($r->id);
+                if ($r->id) {
+                    $room = Room::find($r->id);
 
-                if ($room) {
-                    // Room with the given ID found, update its attributes
+                    if ($room) {
+                        // Room with the given ID found, update its attributes
+                        $room->name = $r->name;
+                        $room->type_of_room = $r->type_of_room;
+                        $room->is_aircon = $r->is_aircon;
+                        $room->furnished_type = $r->furnished_type;
+                        $room->fee = $r->fee;
+                        $room->deposit = $r->deposit;
+                        $room->advance = $r->advance;
+                        $room->furnished_desc = $r->furnished_desc;
+
+                        // Update the room image if a new image is provided
+                        if ($r->src) {
+                            $uploadFile = $this->uploadFile($r->src, $filename);
+                            $room->image = $filename;
+                        }
+
+                        $room->save();
+                    }
+                } else {
+                    $room = new Room;
+
+                    $room->dorm_id = $dorm->id;
                     $room->name = $r->name;
                     $room->type_of_room = $r->type_of_room;
                     $room->is_aircon = $r->is_aircon;
@@ -554,7 +662,7 @@ class OwnerController extends Controller
                     $room->advance = $r->advance;
                     $room->furnished_desc = $r->furnished_desc;
 
-                    // Update the room image if a new image is provided
+                    // Upload room image if provided
                     if ($r->src) {
                         $uploadFile = $this->uploadFile($r->src, $filename);
                         $room->image = $filename;
@@ -562,27 +670,6 @@ class OwnerController extends Controller
 
                     $room->save();
                 }
-            }else{
-                $room = new Room;
-
-                $room->dorm_id = $dorm->id;
-                $room->name = $r->name;
-                $room->type_of_room = $r->type_of_room;
-                $room->is_aircon = $r->is_aircon;
-                $room->furnished_type = $r->furnished_type;
-                $room->fee = $r->fee;
-                $room->deposit = $r->deposit;
-                $room->advance = $r->advance;
-                $room->furnished_desc = $r->furnished_desc;
-
-                // Upload room image if provided
-                if ($r->src) {
-                    $uploadFile = $this->uploadFile($r->src, $filename);
-                    $room->image = $filename;
-                }
-
-                $room->save();
-             }
             }
 
             $commonAreas = json_decode($request->commonAreas);
@@ -591,18 +678,18 @@ class OwnerController extends Controller
             foreach ($commonAreas as $key => $b) {
                 $filename = Str::random(10) . '_areas_image';
 
-                    $commonArea = new CommonAreas;
+                $commonArea = new CommonAreas;
 
-                    $commonArea->dorm_id = $dorm->id;
-                    $commonArea->name = $b->name;
+                $commonArea->dorm_id = $dorm->id;
+                $commonArea->name = $b->name;
 
-                    // Upload common area image if provided
-                    if ($b->src) {
-                        $uploadFile = $this->uploadFile($b->src, $filename);
-                        $commonArea->image = $filename;
-                    }
+                // Upload common area image if provided
+                if ($b->src) {
+                    $uploadFile = $this->uploadFile($b->src, $filename);
+                    $commonArea->image = $filename;
+                }
 
-                    $commonArea->save();
+                $commonArea->save();
 
             }
 
@@ -672,15 +759,15 @@ class OwnerController extends Controller
             'terms' => 'required',
         ];
 
-        if($request->curfew == 'Yes') {
+        if ($request->curfew == 'Yes') {
             $req['curfew_hours'] = 'required';
         }
 
-        if($request->short_term == 'Yes') {
+        if ($request->short_term == 'Yes') {
             $req['minimum_stay'] = 'required';
         }
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             $req['sk'] = 'required';
             $req['pk'] = 'required';
 
@@ -693,7 +780,7 @@ class OwnerController extends Controller
         }
 
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             auth()->user()->update([
                 'sk' => $request->sk,
                 'pk' => $request->pk
@@ -702,10 +789,10 @@ class OwnerController extends Controller
 
         $dorm = null;
 
-        if($id = $request->id) {
+        if ($id = $request->id) {
             $dorm = Dorm::where('id', $id)->first();
 
-            if($dorm) {
+            if ($dorm) {
                 Amenity::where('dorm_id', $id)->delete();
                 Rule::where('dorm_id', $id)->delete();
             }
@@ -727,7 +814,7 @@ class OwnerController extends Controller
         $dorm->note = $request->note;
         $dorm->reservation = $request->reservation;
 
-        if($dorm_image = $request->dorm_image) {
+        if ($dorm_image = $request->dorm_image) {
 
             $filename = Str::random(10) . '_dorm_image';
 
@@ -735,23 +822,23 @@ class OwnerController extends Controller
             $dorm->dorm_image = $filename;
         }
 
-        if($business_permit_src = $request->business_permit_image_src) {
+        if ($business_permit_src = $request->business_permit_image_src) {
             $business_permit_src = $request->business_permit_image_src;
 
-            $filename = Str::random(10) . '_business_permit' ;
+            $filename = Str::random(10) . '_business_permit';
 
             $uploadFile = $this->uploadFile($business_permit_src, $filename);
             $dorm->business_permit_image = $filename;
         }
 
-        if($dorm->save()) {
+        if ($dorm->save()) {
             $rooms = json_decode($request->rooms);
 
-            foreach($rooms as $key => $r) {
+            foreach ($rooms as $key => $r) {
                 $filename = Str::random(10) . '_room_image';
 
 
-                if($r->id){
+                if ($r->id) {
                     $room = Room::where('id', $id)->first();
                 } else {
                     $room = new Room;
@@ -775,11 +862,11 @@ class OwnerController extends Controller
 
             $commonAreas = json_decode($request->commonAreas);
 
-            foreach($commonAreas as $key => $b) {
+            foreach ($commonAreas as $key => $b) {
                 $filename = Str::random(10) . '_areas_image';
 
 
-                if($b->id){
+                if ($b->id) {
                     $commonArea = CommonAreas::where('id', $id)->first();
                 } else {
                     $commonArea = new CommonAreas;
@@ -796,7 +883,7 @@ class OwnerController extends Controller
 
             $amenities = json_decode($request->amenities);
 
-            foreach($amenities as $a) {
+            foreach ($amenities as $a) {
                 $amenity = new Amenity;
 
                 $amenity->dorm_id = $dorm->id;
@@ -806,7 +893,7 @@ class OwnerController extends Controller
             }
 
             $services = json_decode($request->services);
-            foreach($services as $a) {
+            foreach ($services as $a) {
                 $service = new Service;
 
                 $service->dorm_id = $dorm->id;
@@ -826,7 +913,7 @@ class OwnerController extends Controller
 
             $rules = [];
 
-            foreach(json_decode($request->rules) as $r) {
+            foreach (json_decode($request->rules) as $r) {
                 array_push($rules, $r->name);
             }
 
@@ -851,13 +938,13 @@ class OwnerController extends Controller
 
         $notification = new Notification;
 
-        if($status == 'approved') {
+        if ($status == 'approved') {
             $application->is_approved = true;
 
             $payment = new TenantPayments;
             $payment->amount_to_pay = $room->fee;
 
-            if($application->status == 'reserve') {
+            if ($application->status == 'reserve') {
                 $payment->partial = 300;
             }
 
@@ -880,7 +967,7 @@ class OwnerController extends Controller
             $notification->redirection = 'tenant.payments';
         }
 
-        if($status == 'declined') {
+        if ($status == 'declined') {
             $application->is_active = false;
             $room->is_available = true;
             $room->save();
@@ -905,21 +992,21 @@ class OwnerController extends Controller
 
         $payment->mode_of_payment = 'Cash';
 
-        if($payment->pending_payment) {
+        if ($payment->pending_payment) {
             $payment->mode_of_payment = 'Bank';
 
-            if($payment->amount_paid != null) {
+            if ($payment->amount_paid != null) {
                 $payment->amount_paid = $payment->amount_paid + $payment->pending_payment;
             } else {
                 $payment->amount_paid = $payment->pending_payment;
             }
 
-            if($payment->partial) {
+            if ($payment->partial) {
                 $payment->pending_payment = $payment->amount_to_pay - 300;
             }
 
         } else {
-            if($payment->partial) {
+            if ($payment->partial) {
                 $payment->amount_paid = $payment->partial;
             } else {
                 $payment->amount_paid = $payment->amount_to_pay;
@@ -949,7 +1036,7 @@ class OwnerController extends Controller
     {
         $user = Auth::user();
 
-        if($user->first_logged_in) {
+        if ($user->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
@@ -959,14 +1046,14 @@ class OwnerController extends Controller
         $paidAmount = 0;
         $unpaidAmount = 0;
 
-        foreach($applications->where('is_active', true)->where('status', 'approved')->get() as $application) {
+        foreach ($applications->where('is_active', true)->where('status', 'approved')->get() as $application) {
             $application = (object) $application;
-            $payments = UserPayment::where('profile_id', $application->profile_id)->get();
+            $payments = UserPayment::where('user_id', $application->user_id)->get();
 
-            foreach($payments as $payment) {
+            foreach ($payments as $payment) {
                 $paymentMonth = Carbon::parse($payment->for_the_month)->month;
 
-                if($payment->is_paid) {
+                if ($payment->is_paid) {
                     $paidAmount += $payment->amount;
                 } else {
                     $paidAmount += $payment->amount;
@@ -985,12 +1072,13 @@ class OwnerController extends Controller
         ]);
     }
 
-    public function subscription(){
+    public function subscription()
+    {
         $auth = Auth::user();
-        $subcriptionPayments = SubscriptionPayment::where('owner_id', $auth->id)->get();
+        $subcriptionPayments = SubscriptionPayment::where('user_id', $auth->id)->get();
 
         return Inertia::render('Owner/Subscription', [
-            'subcriptionPayments' => $subcriptionPayments
+            'subscriptionPayments' => $subcriptionPayments
         ]);
     }
 
@@ -998,7 +1086,7 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
@@ -1010,16 +1098,16 @@ class OwnerController extends Controller
 
         $dormReports = [];
 
-        foreach($dorms as $dorm) {
+        foreach ($dorms as $dorm) {
 
             $ts = Tenant::where('dorm_id', $dorm->id)->get();
 
             $monthlyIncome = 0;
             $yearlyIncome = 0;
 
-            foreach($ts as $t) {
-                $monthlyIncome += Billing::where('profile_id', $t->profile_id)->whereMonth('for_the_month', $now)->sum('amount');
-                $yearlyIncome += Billing::where('profile_id', $t->profile_id)->whereYear('for_the_month', $now)->sum('amount');
+            foreach ($ts as $t) {
+                $monthlyIncome += Billing::where('user_id', $t->user_id)->whereMonth('for_the_month', $now)->sum('amount');
+                $yearlyIncome += Billing::where('user_id', $t->user_id)->whereYear('for_the_month', $now)->sum('amount');
             }
 
             array_push($dormReports, [
@@ -1040,7 +1128,7 @@ class OwnerController extends Controller
             ->where('owner', $auth->id)
             ->where('is_active', true)->get();
 
-        foreach($reservations as $reservation) {
+        foreach ($reservations as $reservation) {
             $tenant = (object) $reservation->tenant_user;
             $room = (object) $reservation->room;
 
@@ -1062,7 +1150,7 @@ class OwnerController extends Controller
         $allTenants = Tenant::with(['room', 'tenant_user'])
             ->where('owner', $auth->id)->get();
 
-        foreach($allTenants as $at) {
+        foreach ($allTenants as $at) {
             $tenant = (object) $at->tenant_user;
             $room = (object) $at->room;
 
@@ -1077,7 +1165,7 @@ class OwnerController extends Controller
                 'created_at' => $at->created_at
             ]);
 
-            if(!!$at->is_active) {
+            if (!!$at->is_active) {
                 array_push($occupancyReports, [
                     'room' => $room->name,
                     'name' => $tenant->name,
@@ -1087,17 +1175,17 @@ class OwnerController extends Controller
                 ]);
             }
 
-            $billings = Billing::where('profile_id', $at->profile_id)->get();
+            $billings = Billing::where('user_id', $at->user_id)->get();
             $totalRentCollected = 0;
             $otherCharges = 0;
 
-            foreach($billings as $billing) {
-                if(!!$billing->is_paid) {
-                    if($billing->description == 'monthly_fee' || $billing->description == 'advance_and_deposit_fee') {
+            foreach ($billings as $billing) {
+                if (!!$billing->is_paid) {
+                    if ($billing->description == 'monthly_fee' || $billing->description == 'advance_and_deposit_fee') {
                         $totalRentCollected += $billing->amount;
                     }
 
-                    if($billing->description != 'monthly_fee' && $billing->description != 'advance_and_deposit_fee') {
+                    if ($billing->description != 'monthly_fee' && $billing->description != 'advance_and_deposit_fee') {
                         $otherCharges += $billing->amount;
                     }
                 }
@@ -1123,7 +1211,7 @@ class OwnerController extends Controller
 
             $complaints = TenantComplaint::where('tenant_id', $at->id)->get();
 
-            foreach($complaints as $complaint) {
+            foreach ($complaints as $complaint) {
                 array_push($requestReports, [
                     'subject' => $complaint->subject,
                     'complain' => $complaint->complain,
@@ -1152,7 +1240,7 @@ class OwnerController extends Controller
     {
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             return redirect()->route('owner.addDorm');
         }
 
@@ -1162,7 +1250,7 @@ class OwnerController extends Controller
         $reservations = Reservation::with(['dorm', 'room', 'tenant_user'])
             ->where('owner', $auth->id)->get();
 
-        foreach($reservations as $reservation) {
+        foreach ($reservations as $reservation) {
             $room = (object) $reservation->room;
             $tenant = (object) $reservation->tenant_user;
             $billings = Billing::where('f_id', $reservation->id)->get();
@@ -1198,8 +1286,8 @@ class OwnerController extends Controller
         foreach ($applications as $application) {
             $tenant = (object) $application->profile;
             $room = (object) $application->room;
-            $balance = Billing::where('profile_id', $application->profile_id)->where('is_paid', false)->sum('amount');
-            $billings = Billing::where('f_id', $application->id)->get();
+            $balance = Billing::where('user_id', $application->user_id)->where('is_paid', false)->sum('amount');
+            $billings = Billing::where('f_id', $application->tenant)->get();
 
             array_push($billTenants, [
                 "tenant_id" => $application->id,
@@ -1308,17 +1396,17 @@ class OwnerController extends Controller
 
         $room = Room::where('id', $request->room_id)->first();
 
-        $room->status='rent';
+        $room->status = 'rent';
         $room->save();
 
         $application = Application::with(['tenant'])->where('id', $id)->first();
 
         $reservation = Reservation::where('room_id', $room->room_id)->first();
-        if($reservation){
+        if ($reservation) {
             $reservation->is_active = false;
             $reservation->save();
         }
-        
+
         $tenant = (object) $application->tenant;
         $this->sendSMS($tenant->phone_number, "Your application has been approved.");
 
@@ -1432,7 +1520,7 @@ class OwnerController extends Controller
             'is_paid' => false,
             'payment_date' => null,
             'for_the_month' => null,
-            'is_active' => false
+            'is_active' => true
         ]);
 
         return true;
@@ -1445,8 +1533,8 @@ class OwnerController extends Controller
 
         $tenant->auto_bill = $request->auto_bill;
 
-        if(!!$request->auto_bill) {
-            if($tenant->auto_bill_date == null) {
+        if (!!$request->auto_bill) {
+            if ($tenant->auto_bill_date == null) {
                 $tenant->auto_bill_date = Carbon::parse($tenant->move_in)->addMonthsNoOverflow(1);
 
                 $billing = Billing::create([
@@ -1485,14 +1573,14 @@ class OwnerController extends Controller
 
     public function changeTenantStatus($id, Request $request)
     {
-        return Tenant::where('profile_id', $id)->update([
+        return Tenant::where('user_id', $id)->update([
             'is_delinquent' => false
         ]);
     }
 
     public function changeTenantStatusActive($id, Request $request)
     {
-        return Tenant::where('profile_id', $id)->update([
+        return Tenant::where('user_id', $id)->update([
             'is_delinquent' => true
         ]);
     }
@@ -1502,7 +1590,7 @@ class OwnerController extends Controller
     {
         $refund = Refund::where('id', $request->id)->first();
 
-        if($request->has('proof_of_refund')) {
+        if ($request->has('proof_of_refund')) {
             $proof_of_refund = $request->proof_of_refund;
 
             $filename = Str::random(10) . '_proof_of_refund';
@@ -1511,19 +1599,19 @@ class OwnerController extends Controller
             $refund->proof_of_refund = $filename;
         }
 
-        if($status == 'declined') {
+        if ($status == 'declined') {
             UserPayment::where('id', $refund->user_payment_id)->update([
                 'status' => 'declined_refund'
             ]);
         }
 
-        if($status == 'ongoing') {
+        if ($status == 'ongoing') {
             UserPayment::where('id', $refund->user_payment_id)->update([
                 'status' => 'ongoing_refund'
             ]);
         }
 
-        if($status == 'refunded') {
+        if ($status == 'refunded') {
             UserPayment::where('id', $refund->user_payment_id)->update([
                 'status' => 'refunded'
             ]);
@@ -1538,7 +1626,7 @@ class OwnerController extends Controller
     {
         $tenant = Tenant::where('id', $request->id)->first();
 
-        $application = Application::where('owner_id', $tenant->owner)
+        $application = Application::where('user_id', $tenant->owner)
             ->where('tenant_id', $tenant->tenant)
             ->where('dorm_id', $tenant->dorm_id)
             ->where('room_id', $tenant->room_id)
@@ -1569,7 +1657,7 @@ class OwnerController extends Controller
     {
         $tenant = Tenant::where('id', $request->id)->first();
 
-        $application = Application::where('owner_id', $tenant->owner)
+        $application = Application::where('user_id', $tenant->owner)
             ->where('tenant_id', $tenant->tenant)
             ->where('dorm_id', $tenant->dorm_id)
             ->where('room_id', $tenant->room_id)
@@ -1651,7 +1739,7 @@ class OwnerController extends Controller
 
 
         $application = new Application;
-        $application->owner_id = $dorm->user_id;
+        $application->user_id = $dorm->user_id;
         $application->tenant_id = $user->id;
         $application->dorm_id = $dorm->id;
         $application->room_id = $room->id;
@@ -1675,14 +1763,14 @@ class OwnerController extends Controller
 
         $dorm = Dorm::where('status', 'temp')->first();
 
-        if($dorm){
+        if ($dorm) {
             $dorm->status = 'pending';
             $dorm->save();
         }
 
         $auth = Auth::user();
 
-        if($auth->first_logged_in) {
+        if ($auth->first_logged_in) {
             auth()->user()->update([
                 'first_logged_in' => false
             ]);
@@ -1701,7 +1789,7 @@ class OwnerController extends Controller
         $subscription = $auth->subscription;
         $amount = 0;
 
-        if($subscription) {
+        if ($subscription) {
             switch ($subscription) {
                 case 'starter':
                     $amount = 300;
@@ -1716,14 +1804,16 @@ class OwnerController extends Controller
         }
 
 
-        if($dorm) {
+        if ($dorm) {
             SubscriptionPayment::updateOrCreate(
                 ['invoice_number' => $invoice],
                 [
                     'subscription' => $subscription,
                     'amount' => $amount,
-                    'owner_id' => $dorm->id,
-                    'invoice_number' => $invoice
+                    'owner_id' => $dorm->user_id,
+                    'invoice_number' => $invoice,
+                    'is_paid' => true,
+                    'for_the_month' => Carbon::now()
                 ]
             );
         }
@@ -1735,5 +1825,72 @@ class OwnerController extends Controller
             'invoice' => $response['data'][0]
         ]);
 
+    }
+
+
+    public function triggerAutoBill(Request $request)
+    {
+        $tenant = (object) $request;
+        $room = (object) $tenant->room;
+
+        $latestBilling = Billing::where('user_id', $tenant->user_id)
+            ->where('description', 'Monthly Fee')
+            ->latest()
+            ->first();
+
+
+        if ($latestBilling) {
+            $latestDate = Carbon::parse($latestBilling->for_the_month);
+
+            $billing = Billing::create([
+                'user_id' => $tenant->tenant,
+                'amount' => $room->fee,
+                'description' => 'Monthly Fee',
+                'for_the_month' => $latestDate->addMonthsNoOverflow(1),
+                'f_id' => $tenant->id,
+                'profile_id' => $tenant->profile_id,
+                'type' => 'rent',
+                'is_active' => true,
+                'is_paid' => false,
+                'payment_date' => null,
+            ]);
+        } else {
+            $latestDate = Carbon::parse($tenant->auto_bill_date);
+
+            $billing = Billing::create([
+                'user_id' => $tenant->tenant,
+                'amount' => $room->fee,
+                'description' => 'Monthly Fee',
+                'for_the_month' => $latestDate->addMonthsNoOverflow(1),
+                'f_id' => $tenant->id,
+                'profile_id' => $tenant->profile_id,
+                'type' => 'rent',
+                'is_active' => true,
+                'is_paid' => false,
+                'payment_date' => null,
+            ]);
+        }
+
+
+        return response()->json('Success', 200);
+
+    }
+
+    public function markAsDue(Request $request)
+    {
+        $user_id = $request->user_id;
+        $type = $request->type;
+
+        $billings = Billing::where('user_id', $user_id);
+
+        if ($type == 'Monthly Fee') {
+            $billings = $billings->where('description', $type);
+        } else {
+            $billings = $billings->where('subject', $type);
+        }
+
+        return $billings->update([
+            'is_overdue' => true
+        ]);
     }
 }

@@ -190,7 +190,9 @@ class SharedController extends Controller
 
     public function autoBill()
     {
-        $tenants = Tenant::where('auto_bill', true)->get();
+        $tenants = Tenant::where('auto_bill', true)
+            ->where('is_active', true)
+            ->get();
 
         foreach ($tenants as $tenant) {
             $tenant = (object) $tenant;

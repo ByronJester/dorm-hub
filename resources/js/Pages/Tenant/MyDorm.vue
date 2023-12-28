@@ -65,10 +65,6 @@ export default {
         const myApplication = ref()
         myApplication.value = page.props.myApplication
 
-        console.log(myDorm)
-
-        console.log(myApplication.value)
-
         const currentRating = ref()
         currentRating.value = page.props.rating
         const rating = ref(currentRating.value ? currentRating.value.rate : 0)
@@ -85,6 +81,7 @@ export default {
                         {
                             rating: rating.value,
                             comment: comment.value,
+                            profile_id: myDorm.value.profile_id
                         }
                     )
                         .then((response) => {
@@ -116,6 +113,7 @@ export default {
                         {
                             subject: subject.value,
                             complain: complain.value,
+                            profile_id: myDorm.value.profile_id
                         }
                     )
                         .then((response) => {
@@ -173,6 +171,7 @@ export default {
                         wallet_name: wallet_name.value,
                         account_name: account_name.value,
                         account_number: account_number.value,
+                        profile_id: myDorm.value.profile_id
                     }
                 )
                     .then((response) => {
@@ -183,7 +182,7 @@ export default {
                         );
 
                         setTimeout(function () {
-                            location.reload();
+                            window.location.href = '/tenant/mydormlist'
                         }, 3000);
                     })
                     .catch((error) => {
@@ -209,7 +208,6 @@ export default {
             );
         };
 
-        console.log(user)
 
         return {
             user,
@@ -393,7 +391,7 @@ export default {
                                     </div>
                                 </div>
 
-    
+
                                 <!--Furnished Description-->
                                 <div class="font-light">
                                     Furnished Description:
@@ -604,7 +602,14 @@ export default {
 
                 <div v-else>
                     <div v-if="myApplication" class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
-                        You have on going application please wait for the dorm owner to approve your application
+                        <p v-if="myApplication.status != 'moved_out'">
+                            You have on going application please wait for the dorm owner to approve your application
+                        </p>
+
+                        <p v-else>
+                            No found application
+                        </p>
+
                     </div>
                     <div v-else class="py-5 px-10 h-40 flex w-full items-center justify-center text-lg bg-gradient-to-b from-gray-100 to-white">
                         You dont have leasing yet

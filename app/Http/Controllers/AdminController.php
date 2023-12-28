@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DatabaseBackup;
+use App\Models\SubscriptionPayment;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -30,14 +31,15 @@ class AdminController extends Controller
         ]);
     }
 
-    public function dashboard() {
+    public function dashboard()
+    {
 
         $users = User::count();
         $dorms = Dorm::count();
         $tenants = Tenant::count();
         $owners = User::where('user_type', 'owner')->count();
 
-        return Inertia::render('Admin/Dashboard',[
+        return Inertia::render('Admin/Dashboard', [
             'users' => $users,
             'dorms' => $dorms,
             'tenants' => $tenants,
@@ -45,29 +47,34 @@ class AdminController extends Controller
         ]);
     }
 
-    public function subscribe() {
-        return Inertia::render('Admin/Subscribe',[
+    public function subscribe()
+    {
+        $subscriber = SubscriptionPayment::get();
+
+        return Inertia::render('Admin/Subscribe', [
+            'subscriber' => $subscriber
+        ]);
+
+    }
+
+    public function maintenance()
+    {
+        return Inertia::render('Admin/Maintenance', [
 
         ]);
 
     }
 
-    public function maintenance() {
-        return Inertia::render('Admin/Maintenance',[
 
-        ]);
-
-    }
-
-
-    public function reports(){
+    public function reports()
+    {
         $dorms = Dorm::get();
 
         $userArr = [];
 
         $users = User::get();
 
-        foreach($users as $user) {
+        foreach ($users as $user) {
             array_push($userArr, [
                 'name' => $user->name,
                 'username' => $user->username,
@@ -79,11 +86,11 @@ class AdminController extends Controller
 
         $incomeArr = [];
 
-        foreach($dorms as $dorm) {
+        foreach ($dorms as $dorm) {
             $tenants = Tenant::where('dorm_id', $dorm->id)->get();
 
             $netSales = 0;
-            foreach($tenants as $tenant) {
+            foreach ($tenants as $tenant) {
                 $netSales += Billing::where('profile_id', $tenant->profile_id)->sum('amount');
             }
 
@@ -97,14 +104,15 @@ class AdminController extends Controller
             ]);
         }
 
-        return Inertia::render('Admin/Reports',[
+        return Inertia::render('Admin/Reports', [
             'dorms' => $dorms,
             'userArr' => $userArr,
             'incomeArr' => $incomeArr
         ]);
     }
 
-    public function refund(){
+    public function refund()
+    {
         $refunds = Refund::where('status', 'ongoing')->get();
 
         $refundArr = [];
@@ -112,7 +120,7 @@ class AdminController extends Controller
         foreach ($refunds as $refund) {
             $payment = UserPayment::where('id', $refund->user_payment_id)->first();
 
-            if(!!$payment->tenant_id) {
+            if (!!$payment->tenant_id) {
                 array_push($refundArr, [
                     'payment_id' => $refund->user_payment_id,
                     'refund_id' => $refund->id,
@@ -131,27 +139,30 @@ class AdminController extends Controller
         }
 
 
-        return Inertia::render('Admin/RefundRequest',[
+        return Inertia::render('Admin/RefundRequest', [
             'refunds' => $refundArr
         ]);
     }
 
-    public function addUser(){
+    public function addUser()
+    {
         $users = User::where('user_type', 'admin')->get(['username', 'user_type', 'phone_number', 'created_at']);
 
-        return Inertia::render('Admin/Utilities/AddUser',[
+        return Inertia::render('Admin/Utilities/AddUser', [
             'users' => $users
         ]);
     }
 
-    public function archive(){
-        return Inertia::render('Admin/Utilities/Archive',[
+    public function archive()
+    {
+        return Inertia::render('Admin/Utilities/Archive', [
 
         ]);
     }
 
-    public function backUp(){
-        return Inertia::render('Admin/Utilities/BackUpAndRestore',[
+    public function backUp()
+    {
+        return Inertia::render('Admin/Utilities/BackUpAndRestore', [
 
         ]);
     }

@@ -55,6 +55,26 @@ const updateProfile = () => {
                                 form.reset("current_password");
                                 currentPasswordInput.value.focus();
                             }
+
+                            //Add validation handler for errors in phone number
+                            if(form.errors.phone_number){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.phone_number, life: 3000 });
+                            }
+
+                            //Add validation handler for errors in first name
+                            if(form.errors.first_name){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.first_name, life: 3000 });
+                            }
+
+                            //Add validation handler for errors in last name
+                            if(form.errors.last_name){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.last_name, life: 3000 });
+                            }
+
+                            //Add validation handler for errors in email
+                            if(form.errors.email){
+                                toast.add({ severity: 'error', summary: 'Error', detail: form.errors.email, life: 3000 });
+                            }
                         },
                     });
                     

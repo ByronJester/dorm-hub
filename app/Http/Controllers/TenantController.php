@@ -30,20 +30,19 @@ class TenantController extends Controller
         ]);
     }
 
-    public function mydorm($room_id)
+    public function mydorm($room_id, $profile_id)
     {
         $auth = Auth::user();
 
-        $myApplication = Application::where('tenant_id', $auth->id)->first();
+        $myApplication = Application::where('tenant_id', $profile_id)->first();
 
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
             ->where('profile_id', $myApplication->profile_id)
-            ->where('is_active', true)
-            ->where('id', $myApplication->room_id)
+            ->where('room_id', $myApplication->room_id)
             ->first();
 
         $rating = null;
-        
+
         if($myDorm) {
             $rating = DormRating::where('profile_id', $myDorm->profile_id)
                 ->where('dorm_id', $myDorm->dorm_id)
@@ -484,10 +483,10 @@ class TenantController extends Controller
 
         return Application::updateOrCreate(
             [
-                "owner_id" => $request->owner_id,
-                "tenant_id" => $request->tenant_id,
-                "room_id" => $request->room_id,
-                "dorm_id" => $request->dorm_id,
+                // "owner_id" => $request->owner_id,
+                // "tenant_id" => $request->tenant_id,
+                // "room_id" => $request->room_id,
+                // "dorm_id" => $request->dorm_id,
                 "profile_id" => $request->profile_id,
                 "is_active" => true,
             ],
@@ -733,7 +732,9 @@ class TenantController extends Controller
         $auth = Auth::user();
 
         $tenant = Tenant::where('tenant', $auth->id)
-            ->where('is_active', true)->first();
+            ->where('profile_id', $request->profile_id)
+            ->where('is_active', true)
+            ->first();
 
         return DormRating::updateOrCreate(
             ['dorm_id' => $tenant->dorm_id, 'tenant_id' => $auth->id, 'profile_id' => $tenant->profile_id],
@@ -752,7 +753,9 @@ class TenantController extends Controller
         $auth = Auth::user();
 
         $tenant = Tenant::where('tenant', $auth->id)
-            ->where('is_active', true)->first();
+            ->where('profile_id', $request->profile_id)
+            ->where('is_active', true)
+            ->first();
 
         return TenantComplaint::create([
             'tenant_id' => $tenant->id,
@@ -767,27 +770,40 @@ class TenantController extends Controller
         $auth = Auth::user();
 
         $tenant = Tenant::where('tenant', $auth->id)
-            ->where('is_active', true)->first();
+            ->where('profile_id', $request->profile_id)
+            ->where('is_active', true)
+            ->first();
 
-        $billing = Billing::where('description', 'advance_and_deposit_fee')
-            ->where('tenant_id', $tenant->id)->first();
+        $billing = Billing::where('description', 'Advance and Deposit Fee')
+            ->where('profile_id', $request->profile_id)
+            ->first();
 
-        $payment = UserPayment::where('billing_id', $billing->id)->first();
+        $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
 
         $room = (object) $tenant->room;
         $tenant->move_out = Carbon::parse($request->move_out);
         $tenant->reason = $request->reason;
         $tenant->reason_description = $request->reason_description;
-        $tenant->status = 'pending_move_out';
+        $tenant->status = 'moved_out';
+        $tenant->is_active = false;
 
-        Refund::create([
-            'user_payment_id' => $payment->id,
-            'amount' => $room->deposit,
-            'payment_method' => $request->payment_method,
-            'wallet_name' => $request->wallet_name,
-            'account_name' => $request->account_name,
-            'account_number' => $request->account_number,
+        Application::where('profile_id', $request->profile_id)
+            ->where('is_active', true)
+            ->delete();
+
+        Room::where('id', $room->id)->update([
+            'is_available' => true,
+            'status' => null
         ]);
+
+        // Refund::create([
+        //     'user_payment_id' => $payment->id,
+        //     'amount' => $room->deposit,
+        //     'payment_method' => $request->payment_method,
+        //     'wallet_name' => $request->wallet_name,
+        //     'account_name' => $request->account_name,
+        //     'account_number' => $request->account_number,
+        // ]);
 
         return $tenant->save();
     }
@@ -879,7 +895,7 @@ class TenantController extends Controller
         if($type == 'rent') {
             $data = Tenant::where('id', $request->f_id)->first();
             $owner = User::where('id', $data->owner)->first();
-        } 
+        }
         else if ($type == 'application'){
             $data = Application::with(['owner'])->where('profile_id', $request->profile_id)->first();
             $owner = User::where('id', $data->owner_id)->first();
@@ -908,7 +924,7 @@ class TenantController extends Controller
                 $data->is_approved = true;
                 $data->is_active = true;
                 $data->save();
-                
+
                 $tenant = Tenant::create([
                     'owner' => $data->owner_id,
                     'tenant' => $data->tenant_id,
@@ -968,8 +984,8 @@ class TenantController extends Controller
                     ]);
 
                     $owner = User::where('id', $application->owner_id)->first();
-                    
-                    
+
+
                 }
             }
 
@@ -979,7 +995,7 @@ class TenantController extends Controller
 
             // return $owner;
 
-            if($owner->sk) {
+            if($owner && $owner->sk) {
 
                 $xenditService = new XenditService($owner->sk);
 

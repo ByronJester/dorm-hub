@@ -70,6 +70,7 @@ return array(
     'App\\Models\\Room' => $baseDir . '/app/Models/Room.php',
     'App\\Models\\Rule' => $baseDir . '/app/Models/Rule.php',
     'App\\Models\\Service' => $baseDir . '/app/Models/Service.php',
+    'App\\Models\\SubscriptionPayment' => $baseDir . '/app/Models/SubscriptionPayment.php',
     'App\\Models\\Tenant' => $baseDir . '/app/Models/Tenant.php',
     'App\\Models\\TenantApplication' => $baseDir . '/app/Models/TenantApplication.php',
     'App\\Models\\TenantBilling' => $baseDir . '/app/Models/TenantBilling.php',
