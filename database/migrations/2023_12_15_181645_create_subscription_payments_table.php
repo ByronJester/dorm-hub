@@ -15,12 +15,13 @@ return new class extends Migration
     {
         Schema::create('subscription_payments', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('owner_id');
+            $table->bigInteger('user_id')->unsigned();
             $table->string('subscription');
             $table->string('amount');
             $table->string('invoice_number');
             $table->date('for_the_month')->nullable();
             $table->boolean('is_paid')->default(false);
+            $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });
     }
