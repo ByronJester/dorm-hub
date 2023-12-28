@@ -990,10 +990,25 @@ export default {
                                     >
                                     <input
                                         type="text"
-                                        id="room_name"
+                                        id="amount"
                                         class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                         required
                                         v-model="manualBillingForm.amount"
+                                    />
+                                </div>
+
+                                <div class="flex-grow">
+                                    <label
+                                        for="due_date"
+                                        class="block text-sm font-medium text-gray-900"
+                                        >Due Date:</label
+                                    >
+                                    <input
+                                        type="date"
+                                        id="room_name"
+                                        class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                        required
+                                        v-model="manualBillingForm.due_date"
                                     />
                                 </div>
                                 <div>
