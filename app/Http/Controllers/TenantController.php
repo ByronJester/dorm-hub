@@ -136,8 +136,10 @@ class TenantController extends Controller
         $totalAmountPaid = 0;
 
         foreach ($paid as $p) {
+            
             $billing = (object) $p->billing;
             $totalAmountPaid += $billing->amount;
+            
         }
 
         $balance = 0;

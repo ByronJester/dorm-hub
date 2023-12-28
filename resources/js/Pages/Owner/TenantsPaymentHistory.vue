@@ -402,7 +402,7 @@ export default {
                     </div>
                 </div>
                 <div class="grid grid-rows-4 gap-2">
-                    <div class="bg-white shadow rounded-lg" v-if="monthly">
+                    <div class="bg-white shadow rounded-lg text-black" v-if="monthly">
                         <div class="flex w-full p-3 justify-between">
                             
                             <div class="flex items-center gap-5">
@@ -425,7 +425,7 @@ export default {
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white shadow rounded-lg" v-if="electric">
+                    <div class="bg-white shadow rounded-lg text-black"  v-if="electric">
                         <div class="flex w-full p-3 justify-between">
                             
                             <div class="flex items-center gap-5" >
