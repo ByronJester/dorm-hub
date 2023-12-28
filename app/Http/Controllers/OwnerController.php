@@ -1253,14 +1253,14 @@ class OwnerController extends Controller
         foreach ($reservations as $reservation) {
             $room = (object) $reservation->room;
             $tenant = (object) $reservation->tenant_user;
-            $billings = Billing::where('f_id', $reservation->id)->get();
+            $billings = Billing::where('user_id', $reservation->tenant)->where('type','reservation')->get();
 
 
             foreach ($billings as $billing) {
                 $payment = UserPayment::where('invoice_number', $billing->invoice_number)->first();
 
                 array_push($billingHistory, [
-                    "tenant_id" => $reservation->id,
+                    "tenant_id" => $reservation->tenant,
                     "room_id" => $room->id,
                     "room" => $room->name,
                     "tenant" => $tenant->name,
@@ -1286,8 +1286,8 @@ class OwnerController extends Controller
         foreach ($applications as $application) {
             $tenant = (object) $application->profile;
             $room = (object) $application->room;
-            $balance = Billing::where('user_id', $application->user_id)->where('is_paid', false)->sum('amount');
-            $billings = Billing::where('f_id', $application->tenant)->get();
+            $balance = Billing::where('user_id', $application->tenant)->where('is_paid', false)->sum('amount');
+            $billings = Billing::where('user_id', $application->tenant)->where('type','<>','reservation')->get();
 
             array_push($billTenants, [
                 "tenant_id" => $application->id,
@@ -1497,6 +1497,7 @@ class OwnerController extends Controller
             'subject' => 'required',
             'description' => 'required',
             'amount' => 'required',
+            'due_date' => 'required',
         ];
 
         $validator = Validator::make($request->all(), $req);
@@ -1519,7 +1520,7 @@ class OwnerController extends Controller
             'type' => 'rent',
             'is_paid' => false,
             'payment_date' => null,
-            'for_the_month' => null,
+            'for_the_month' => $request->due_date,
             'is_active' => true
         ]);
 
