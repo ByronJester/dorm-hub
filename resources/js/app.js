@@ -18,6 +18,8 @@ import Tooltip from 'primevue/tooltip';
 import 'primevue/resources/themes/lara-light-green/theme.css';
 import VueTelInput from 'vue-tel-input';
 import 'vue-tel-input/vue-tel-input.css';
+import Badge from 'primevue/badge';
+import BadgeDirective from 'primevue/badgedirective';
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 const VueTelInputOptions = {
@@ -39,6 +41,7 @@ createInertiaApp({
             .directive('tooltip', Tooltip)
             .component('VueDatePicker', VueDatePicker)
             .component('VsToast', VsToast)
+            .directive('badge', BadgeDirective)
             .mount(el);
             
     },

@@ -5,8 +5,9 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tightenco\Ziggy\Ziggy;
-use App\Models\{ Notification };
+use App\Models\{ Notification,Thread, ThreadMessage};
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -38,6 +39,8 @@ class HandleInertiaRequests extends Middleware
 
         ];
 
+        $threads = Thread::with(['messages', 'owner', 'tenant'])->orderBy('created_at', 'desc');
+
         if($auth) {
             $notifications = Notification::orderBy('created_at', 'desc')->where('user_id', $auth->id)->get();
         }
@@ -51,7 +54,8 @@ class HandleInertiaRequests extends Middleware
                     'location' => $request->url(),
                 ]);
             },
-            'notifications' => $notifications
+            'notifications' => $notifications,
+            'threads' => $threads->get(),
         ]);
     }
 }
