@@ -390,7 +390,20 @@ export default {
             );
         };
 
-        console.log("Selected Dorm:", imgs.value);
+
+        let dataHistoryArray = [];
+
+        const isDuplicate = (entry, arr) => {
+            return arr.some(x => (entry.room_id == x.room_id) && (entry.tenant_id == x.tenant_id) && (entry.description == x.description));
+        }
+
+        for (const entry of dataHistory.value) {
+            if (!isDuplicate(entry, dataHistoryArray)) {
+                dataHistoryArray.push(entry)
+            }
+        }
+
+        console.log(dataHistoryArray)
         return {
             optionDorm,
             expandedRows,
@@ -398,7 +411,7 @@ export default {
             options,
             dates,
             headersHistory,
-            dataHistory,
+            dataHistoryArray,
             headersBill,
             dataBill,
             selectedDay,
@@ -453,7 +466,7 @@ export default {
 
             <div class="grid grid-cols-1 2xl:grid-cols-3 mt-3 gap-4">
                 <div class="card mb-10 2xl:col-span-2">
-                    <DataTable v-model:expandedRowGroups="expandedRowGroups" :value="dataHistory"
+                    <DataTable v-model:expandedRowGroups="expandedRowGroups" :value="dataHistoryArray"
                         tableStyle="min-width: 50rem" expandableRowGroups rowGroupMode="subheader" groupRowsBy="tenant"
                         @rowgroup-expand="onRowGroupExpand" @rowgroup-collapse="onRowGroupCollapse" sortMode="single"
                         sortField="tenant" :sortOrder="1" class="border rounded-xl">

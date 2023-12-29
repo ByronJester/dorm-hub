@@ -1286,8 +1286,8 @@ class OwnerController extends Controller
         foreach ($applications as $application) {
             $tenant = (object) $application->profile;
             $room = (object) $application->room;
-            $balance = Billing::where('user_id', $application->tenant)->where('is_paid', false)->sum('amount');
-            $billings = Billing::where('user_id', $application->tenant)->where('type','<>','reservation')->get();
+            $balance = Billing::where('profile_id', $application->profile_id)->where('is_paid', false)->sum('amount');
+            $billings = Billing::where('profile_id', $application->profile_id)->where('type','<>','reservation')->get();
 
             array_push($billTenants, [
                 "tenant_id" => $application->id,
