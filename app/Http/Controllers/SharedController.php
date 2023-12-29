@@ -5,11 +5,24 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\{
-    Dorm, Notification, Thread, ThreadMessage, Code ,
-    PrivacyPolicy, AboutUs, ContactUs,Room, User,
+    Dorm,
+    Notification,
+    Thread,
+    ThreadMessage,
+    Code,
+    PrivacyPolicy,
+    AboutUs,
+    ContactUs,
+    Room,
+    User,
     // TenantApplication, TenantBilling, TenantPayment,
-    Reservation, Application, Billing, UserPayment, Tenant,
-    Help, Profile
+    Reservation,
+    Application,
+    Billing,
+    UserPayment,
+    Tenant,
+    Help,
+    Profile
 };
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -45,7 +58,7 @@ class SharedController extends Controller
         $reservation = null;
         $application = null;
 
-        if($auth) {
+        if ($auth) {
             $reservation = Reservation::where('tenant', $auth->id)->where('is_active', true)->first();
             $application = Application::where('tenant_id', $auth->id)->where('is_active', true)->first();
         }
@@ -56,7 +69,8 @@ class SharedController extends Controller
         ]);
     }
 
-    public function rooms($dorm_id){
+    public function rooms($dorm_id)
+    {
         $auth = Auth::user();
         $dorm = Dorm::where('id', $dorm_id)->first();
         return Inertia::render('RoomList', [
@@ -85,11 +99,11 @@ class SharedController extends Controller
 
         $threads = Thread::with(['messages', 'owner', 'tenant'])->orderBy('created_at', 'desc');
 
-        if($auth->user_type == 'tenant'){
+        if ($auth->user_type == 'tenant') {
             $threads = $threads->where('tenant_id', $auth->id);
         }
 
-        if($auth->user_type == 'owner'){
+        if ($auth->user_type == 'owner') {
             $threads = $threads->where('owner_id', $auth->id);
         }
 
@@ -108,6 +122,13 @@ class SharedController extends Controller
             'user_id' => $auth->id
         ]);
 
+        if ($request->user_type == 'tenant') {
+            Thread::where('id', $request->thread_id)->update(['is_read_owner' => false]);
+        } else {
+            Thread::where('id', $request->thread_id)->update(['is_read_tenant' => false]);
+        }
+
+
         return Thread::with(['messages', 'owner', 'tenant'])->where('id', $request->thread_id)->first();
     }
 
@@ -117,11 +138,11 @@ class SharedController extends Controller
 
         $threads = Thread::with(['messages', 'owner', 'tenant'])->orderBy('created_at', 'desc');
 
-        if($auth->user_type == 'tenant'){
+        if ($auth->user_type == 'tenant') {
             $threads = $threads->where('tenant_id', $auth->id);
         }
 
-        if($auth->user_type == 'owner'){
+        if ($auth->user_type == 'owner') {
             $threads = $threads->where('owner_id', $auth->id);
         }
 
@@ -135,7 +156,7 @@ class SharedController extends Controller
             'first_name' => 'required|string|max:50',
             'last_name' => 'required|string|max:50',
             'user_type' => 'required',
-            'username' => 'required|string|max:255|unique:'.User::class,
+            'username' => 'required|string|max:255|unique:' . User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -205,7 +226,7 @@ class SharedController extends Controller
 
             $is30DaysDifference = $date1->diffInDays($date2) == 0;
 
-            if($is30DaysDifference) {
+            if ($is30DaysDifference) {
                 $tenant->auto_bill_date = Carbon::now()->addMonthsNoOverflow(1);
                 $tenant->save();
 
@@ -240,7 +261,7 @@ class SharedController extends Controller
 
             $is5DaysBeforeDue = $billingDate->diffInDays($now) == 5;
 
-            if($is5DaysBeforeDue) {
+            if ($is5DaysBeforeDue) {
                 $messageDate = $billingDate->isoFormat('LL');
                 $message = "Your due is on $messageDate with amount of $amount pesos. Login your account https://dormhub.onrender.com";
                 $this->sendSMS($tenant->contact, $message);
@@ -250,7 +271,7 @@ class SharedController extends Controller
 
             $overDue = false;
 
-            if($isAfterDue) {
+            if ($isAfterDue) {
                 $overDue = true;
                 $messageDate = $billingDate->isoFormat('LL');
                 $message = "Your due on $messageDate is overdue with amount of $amount pesos, please pay the overdue to avoid eviction. Login your account https://dormhub.onrender.com";
@@ -266,7 +287,7 @@ class SharedController extends Controller
         $reservations = Reservation::where('is_active', true)->get();
         $now = Carbon::now();
 
-        foreach($reservations as $reservation) {
+        foreach ($reservations as $reservation) {
             $expirationDate = Carbon::parse($reservation->expired_at);
             $room = Room::where('id', $reservation->room_id)->first();
 
@@ -301,5 +322,23 @@ class SharedController extends Controller
         $xenditService = new XenditService($sk);
         $response = $xenditService->get('INV-1700979640');
         return response()->json($response['data'][0]);
+    }
+
+    public function messageMarkAsRead($id, $user_type)
+    {
+        $auth = Auth::user();
+
+        if ($user_type == 'owner') {
+            Thread::where('id', $id)->update(['is_read_tenant' => true]);
+        } else {
+            Thread::where('id', $id)->update(['is_read_owner' => true]);
+        }
+
+
+        $threads = Thread::with(['messages', 'owner', 'tenant'])->orderBy('created_at', 'desc');
+
+        Inertia::share('threads', $threads);
+
+        return redirect()->back();
     }
 }

@@ -46,13 +46,12 @@ export default {
         const filterArray = (array, fields, value) => {
             fields = Array.isArray(fields) ? fields : [fields];
 
-            array.filter((item) => fields.some((field) => item[field] === value))
             return array.filter((item) => fields.some((field) => item[field] === value));
         };
         let messageCount = 0;
-        threads.forEach(element => {
-            messageCount += filterArray(element['messages'], 'user_id', user['user_type'] === 'owner' ? element['tenant_id'] : element['owner_id']).length
-        });
+        let messages = null;
+
+        messages = filterArray(threads, user['user_type'] === 'owner' ? 'owner_id' : 'tenant_id', user['id'])
 
         const openModal = () => {
             var modal = document.getElementById("notificationModal");
@@ -84,6 +83,10 @@ export default {
                     errors.value = error.response.data.errors;
                 });
         };
+
+        const markAsReadMessage = (id, user_type) => {
+            router.get(route("message.mark-as-read", [id, user_type]));
+        }
         return {
             showSidebar,
             user,
@@ -97,7 +100,11 @@ export default {
             markAsRead,
             viewNotification,
             logOut,
-            messageCount
+            messageCount,
+            threads,
+            filterArray,
+            messages,
+            markAsReadMessage
         };
     },
 };
@@ -106,7 +113,7 @@ export default {
 <template>
     <div>
         <nav class="fixed top-0 z-40 w-full bg-white shadow-md ">
-            <div class="px-3 py-3 lg:px-5 lg:pl-3">
+            <div class="px-5 py-5 lg:px-5 lg:pl-3">
                 <div class="flex items-center justify-between mx-10">
                     <div class="flex items-center justify-start">
                         <button @click="clickShowSideBar()"
@@ -119,13 +126,68 @@ export default {
                         </Link>
                     </div>
                     <div class="flex flex-row gap-3 items-center text-gray-700">
-                        <a v-if="user['user_type'] !== 'admin'" :href="route('view.user.messages')"
+                        <!--a v-if="user['user_type'] !== 'admin'" :href="route('view.user.messages')"
                             class="inline-flex p-3 items-center text-sm cursor-pointer rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 ">
                             <span v-if="messageCount !== 0"><i v-badge.danger="{ value: messageCount }"
                                     class="pi pi-comment p-overlay-badge" style="font-size: 1.5rem;" /></span>
                             <span v-if="messageCount === 0"><i class="pi pi-comment p-overlay-badge"
                                     style="font-size: 1.5rem;" /></span>
-                        </a>
+                        </a-->
+                        <AppDropdown v-if="user['user_type'] !== 'admin'">
+                            <button>
+                                <i v-badge.danger="{
+                                    value: messages.filter((x) => {
+                                        return user['user_type'] == 'tenant' ? !x.is_read_tenant : !x.is_read_owner;
+                                    }).length
+                                }" class="pi pi-comment p-overlay-badge" style="font-size: 1.5rem;" />
+                            </button>
+
+                            <AppDropdownContent class="w-80 p-5 h-auto">
+                                <div class="block px-4 py-2 w-auto font-medium text-center">
+                                    <a :href="route('view.user.messages')"
+                                        class="inline-flex p-3 items-center text-sm cursor-pointer rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 ">View
+                                        Messages</a>
+                                </div>
+                                <hr />
+                                <div class="w-ful mt-3 text-center py-5 rounded-md" v-if="messages.length == 0">
+                                    There's no message.
+                                </div>
+
+                                <div class="w-full flex flex-col bg-gray-300 mt-3 overflow-y-scroll"
+                                    style="border-radius: 5px" v-for="message in messages" :key="message.id">
+                                    <div class="px-3 my-3">
+                                        <p class="text-xs font-bold mt-1">
+                                            {{ user['user_type'] === 'owner' ? message['tenant']['name']
+                                                : message['owner']['name'] }}
+                                        </p>
+
+                                        <p class="text-xs mt-2">
+                                            {{
+                                                message['messages'].slice(-1)[0]['user_id'] === message['owner']['id'] ?
+                                                message['owner']['first_name'] : message['tenant']['first_name'] }} : {{
+        message['messages'].slice(-1)[0]['message'] }}
+                                        </p>
+
+                                        <p class="text-xs mt-5">
+                                            <span class="cursor-pointer"
+                                                v-if="!message.is_read_tenant && user['user_type'] === 'tenant'" @click="
+                                                    markAsReadMessage(message.id, 'owner')
+                                                    ">
+                                                Mark as Read
+                                            </span>
+
+                                            <span class="cursor-pointer"
+                                                v-else-if="!message.is_read_owner && user['user_type'] === 'owner'"
+                                                @click="
+                                                    markAsReadMessage(message.id, 'tenant')
+                                                    ">
+                                                Mark as Read
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </AppDropdownContent>
+                        </AppDropdown>
 
                         <AppDropdown>
                             <button>

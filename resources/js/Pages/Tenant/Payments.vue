@@ -479,7 +479,7 @@ export default {
 
                 nexPayment.value = nxtp.length > 0 ? nxtp[0] : 0
 
-                console.log(nexPayment)
+                console.log(rows.value)
 
                 for (let p = 0; p < payments.value.length; p++) {
                     data.value.push(
@@ -488,7 +488,8 @@ export default {
                             amount: parseFloat(payments.value[p].amount),
                             category: removeUnderscoreAndCapitalizeAfterSpace(payments.value[p].description),
                             profile_id: payments.value[p].profile_id,
-                            payment_date :  payments.value[p].payment_date
+                            payment_date: payments.value[p].payment_date,
+                            invoiceNo: payments.value[p].invoice_number
                         }
                     )
                 }
@@ -659,7 +660,7 @@ export default {
                         <div class="card">
                             <DataTable v-model:filters="filters" :value="rows" tableStyle="min-width: 50rem"
                                 :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="10"
-                                :globalFilterFields="['description', 'amount', 'for_the_month']">
+                                :globalFilterFields="['description', 'amount', 'for_the_month', 'invoice_number']">
                                 <template #header>
                                     <div class="flex items-center justify-between">
                                         <Button type="button" class="rounded-lg border-green-400 border px-3 py-2.5"
@@ -676,7 +677,7 @@ export default {
                                 <Column field="description" header="Bills" sortable style="min-width: 14rem"
                                     class="border-b">
                                     <template #body="{ data }">
-                                        <div class="grid grid-cols-5 place-items-center justify-between">
+                                        <div class="grid grid-cols-6 place-items-center justify-between">
                                             <p>{{ data.description }}</p>
                                             <div class="w-16 text-center ">
                                                 <p class="bg-green-400  text-white rounded-full text-sm font-bold"
@@ -698,6 +699,11 @@ export default {
                                                 </button>
                                             </div>
 
+                                            <div class="text-end">
+                                                <a :href="'/tenant/payment-success/' + data.invoice_number" target="_blank" class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
+                                                    v-if="data.is_paid">Download Receipt</a>
+                                            </div>
+
                                         </div>
                                     </template>
                                 </Column>
@@ -710,7 +716,7 @@ export default {
                         <div class="card">
                             <DataTable v-model:filters="filters" :value="data" tableStyle="min-width: 25rem"
                                 :rowsPerPageOptions="[5, 10, 20, 50]" class="border" paginator :rows="5"
-                                :globalFilterFields="['description', 'amount','payment_date']">
+                                :globalFilterFields="['description', 'amount', 'payment_date']">
                                 <template #empty> No transactions found. </template>
                                 <Column field="description" header="Recent Transactions" sortable style="min-width: 14rem"
                                     class="border-b">

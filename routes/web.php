@@ -209,6 +209,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/view/messages', [SharedController::class, 'viewMessages'])->name('view.user.messages');
         Route::get('/fetch/messages', [SharedController::class, 'fetchMessages'])->name('fetch.messages');
         Route::post('/send-message', [SharedController::class, 'sendMessage'])->name('send.message');
+        Route::get('/message/mark-as-read/{id}/{user_type}', [SharedController::class, 'messageMarkAsRead'])->name('message.mark-as-read');
         Route::post('/get-long-lat/{address}', [SharedController::class, 'getlongLat'])->name('location.long.lat');
     });
 });
