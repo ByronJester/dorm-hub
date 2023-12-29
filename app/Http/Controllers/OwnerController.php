@@ -1893,4 +1893,12 @@ class OwnerController extends Controller
             'is_overdue' => true
         ]);
     }
+
+    public function changeplan()
+    {
+
+        return Inertia::render('Owner/ChangePlan', [
+
+        ]);
+    }
 }
