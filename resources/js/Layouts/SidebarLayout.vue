@@ -607,17 +607,6 @@ export default {
                         </Link>
                     </li>
                     <li>
-<<<<<<< HEAD
-                        <Link
-                        :class="{
-                                    'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.payments'
-                                }"
-                            :href="route('tenant.payments')"
-                            class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group"
-                        >
-                            <i class="fa-regular fa-credit-card" style="color: #000000;"></i>
-                            <span class="ml-1">Payment</span>
-=======
                         <Link :class="{
                             'text-white bg-gradient-to-r from-orange-400 to-red-600': route().current() == 'tenant.reservation'
                         }" :href="route('tenant.reservationlist')"
@@ -633,7 +622,6 @@ export default {
                             class="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-orange-400 hover:text-white group">
                         <i class="fa-regular fa-credit-card" style="color: #000000;"></i>
                         <span class="ml-1">Payment</span>
->>>>>>> 489af13742afbc7c34d096329742051dfeac1ba2
                         </Link>
                     </li>
                 </ul>
