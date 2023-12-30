@@ -10,6 +10,10 @@ import { FilterMatchMode, FilterOperator } from 'primevue/api';
 import { ref, onMounted, watch } from "vue";
 
 import { usePage, useForm, router } from "@inertiajs/vue3";
+
+import { useToast } from "primevue/usetoast";
+import ConfirmDialog from 'primevue/confirmdialog';
+import Toast from 'primevue/toast';
 export default {
     components: {
         SidebarLayout,
@@ -21,6 +25,7 @@ export default {
 
     },
     setup() {
+        const toast = useToast();
         const page = usePage();
         const filters = ref();
         const getSeverity = (status) => {
@@ -83,16 +88,16 @@ export default {
         const payNow = (arg) => {
             axios
                 .post(route("payment.mark-as-paid"), arg)
-                    .then((response) => {
-                        if(!!response.data) {
-                            window.location.href = response.data
-                        }
+                .then((response) => {
+                    if (!!response.data) {
+                        window.location.href = response.data
+                    }
 
-                    })
-                    .catch((error) => {
-                        toast.add({ severity: 'error', summary: 'Warning', detail: error, life: 3000 });
-                        // errors.value = error.response.data.errors;
-                    });
+                })
+                .catch((error) => {
+                    toast.add({ severity: 'error', summary: 'Warning', detail: error, life: 3000 });
+                    // errors.value = error.response.data.errors;
+                });
         }
 
 
@@ -155,21 +160,28 @@ export default {
                                 </Column>
                                 <Column field="Action" header="Action" sortable style="min-width: 4rem" class="border-b">
                                     <template #body="{ data }">
-                                        <button v-if="data.is_paid"
+                                        <span v-if="!data.is_paid">
+                                            <button
+                                                class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
+                                                @click="payNow(data)">
+                                                Pay Now
+                                            </button> |
+                                        </span>
+                                        <!-- <button v-if="data.is_paid"
                                             class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay
-                                            Now</button>
-                                        <button v-if="!data.is_paid"
-                                            class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold"
-                                            @click="payNow(data)">
-                                            Pay Now
-                                        </button>
+                                            Now</button> -->
+
+                                        <a href="/owner/changeplan"
+                                            class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold">Change
+                                            Plan </a>
+
                                     </template>
                                 </Column>
 
                             </DataTable>
                         </div>
                     </div>
-                    <div class="bg-orange-400 text-white rounded-lg w-64 h-64 px-10 py-8 shadow">
+                    <!--div class="bg-orange-400 text-white rounded-lg w-64 h-64 px-10 py-8 shadow">
                         <p>Your Subscription</p>
                         <p class="mt-4 text-3xl font-extrabold ">Basic</p>
                         <p class=" text-md font-light">5 Dorm Listing</p>
@@ -177,14 +189,15 @@ export default {
                         <button class="w-full border mt-3 rounded-lg py-2 hover:bg-white hover:text-orange-400">
                             Upgrade
                         </button>
-                    </div>
+                    </div-->
                 </div>
             </div>
         </div>
     </SidebarLayout>
 </template>
 
-<style>.p-datatable,
+<style>
+.p-datatable,
 .p-datatable-tbody,
 .p-datatable-emptymessage,
 .p-datatable-thead,
@@ -192,4 +205,5 @@ export default {
     border: none;
     padding: 0;
     background-color: transparent;
-}</style>
+}
+</style>

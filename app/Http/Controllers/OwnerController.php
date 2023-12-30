@@ -1253,7 +1253,7 @@ class OwnerController extends Controller
         foreach ($reservations as $reservation) {
             $room = (object) $reservation->room;
             $tenant = (object) $reservation->tenant_user;
-            $billings = Billing::where('user_id', $reservation->tenant)->where('type','reservation')->get();
+            $billings = Billing::where('user_id', $reservation->tenant)->where('type', 'reservation')->get();
 
 
             foreach ($billings as $billing) {
@@ -1286,8 +1286,8 @@ class OwnerController extends Controller
         foreach ($applications as $application) {
             $tenant = (object) $application->profile;
             $room = (object) $application->room;
-            $balance = Billing::where('user_id', $application->tenant)->where('is_paid', false)->sum('amount');
-            $billings = Billing::where('user_id', $application->tenant)->where('type','<>','reservation')->get();
+            $balance = Billing::where('profile_id', $application->profile_id)->where('is_paid', false)->sum('amount');
+            $billings = Billing::where('profile_id', $application->profile_id)->where('type', '<>', 'reservation')->get();
 
             array_push($billTenants, [
                 "tenant_id" => $application->id,
@@ -1806,8 +1806,7 @@ class OwnerController extends Controller
 
 
         if ($dorm) {
-            SubscriptionPayment::updateOrCreate(
-                ['invoice_number' => $invoice],
+            SubscriptionPayment::create(
                 [
                     'subscription' => $subscription,
                     'amount' => $amount,
@@ -1892,6 +1891,14 @@ class OwnerController extends Controller
 
         return $billings->update([
             'is_overdue' => true
+        ]);
+    }
+
+    public function changeplan()
+    {
+
+        return Inertia::render('Owner/ChangePlan', [
+
         ]);
     }
 }

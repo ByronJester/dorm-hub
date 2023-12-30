@@ -24,29 +24,34 @@ export default {
         const source = ref();
         const captureDiv = ref(null);
         const tenant = ref(null);
-        
+
         const description = ref(null);
         const invoice = page.props.invoice;
         const billing = page.props.billing;
 
         const captureAsImage = () => {
             if (captureDiv.value) {
+                let date = new Date();
+                let hours = date.getHours();
+                let minutes = date.getMinutes();
+                hours = hours % 24
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                let strTime = hours + '' + minutes;
                 html2canvas(captureDiv.value).then((canvas) => {
                     const imageBase64 = canvas.toDataURL("image/png");
 
                     // Create a link to download the image
                     const link = document.createElement("a");
                     link.href = imageBase64;
-                    link.download = "receipt.png";
+                    link.download = `${invoice.reference_id}_${date.getFullYear() + date.getMonth()+1 + "" + date.getDate() + "" +"" + strTime}.png`;
                     link.click();
                 });
             }
         };
-
-        console.log(billing);
-
+        
         onMounted(() => {
-            tenant.value = billing.profile.first_name + ' ' +billing.profile.last_name;
+            tenant.value = billing.profile.first_name + ' ' + billing.profile.last_name;
             amount.value = invoice.amount;
             description.value = billing.description;
 
@@ -80,13 +85,8 @@ export default {
     <AuthenticatedLayout>
         <div class="mt-20 mb-10 rid-rows mx-5">
             <div>
-                <div
-                    class="bg-white border rounded-lg shadow-lg px-6 py-8 max-w-md mx-auto"
-                    ref="captureDiv"
-                >
-                    <h1
-                        class="font-bold text-2xl my-4 text-center text-blue-600"
-                    >
+                <div class="bg-white border rounded-lg shadow-lg px-6 py-8 max-w-md mx-auto" ref="captureDiv">
+                    <h1 class="font-bold text-2xl my-4 text-center text-blue-600">
                         <ApplicationLogo />
                     </h1>
                     <hr class="mb-2" />
@@ -108,9 +108,11 @@ export default {
                                 }}<span></span>
                             </div>
                             <div class="flex items-center gap-2">
-                                Method #: <span> 
-                                    <img v-if="invoice.channel_code == 'PH_GCASH'" src="/images/gcashlogo.png" class="w-20"/>
-                                    <img v-if="invoice.channel_code == 'PH_GRABPAY'" src="/images/grablogo.png" class="w-10"/>
+                                Method #: <span>
+                                    <img v-if="invoice.channel_code == 'PH_GCASH'" src="/images/gcashlogo.png"
+                                        class="w-20" />
+                                    <img v-if="invoice.channel_code == 'PH_GRABPAY'" src="/images/grablogo.png"
+                                        class="w-10" />
                                 </span>
                             </div>
                         </div>
@@ -161,27 +163,21 @@ export default {
                     </div>
                     <div class="text-gray-700 mb-2 mt-3 text-center">
                         <p
-                            class="flex rounded-lg text-neutral-700 items-center justify-center px-3 py-2 border border-blue-500"
-                        >
+                            class="flex rounded-lg text-neutral-700 items-center justify-center px-3 py-2 border border-blue-500">
                             Powered by
                             <img src="/images/xenditlogo.png" class="w-16" />
                         </p>
                     </div>
                 </div>
                 <div class="flex item-center mt-5 justify-center w-full mb-10 gap-5">
-                    <button
-                        @click="captureAsImage()"
-                        class="bg-orange-400 py-2 px-4 rounded-lg text-white font-bold text-md"
-                    >
+                    <button @click="captureAsImage()"
+                        class="bg-orange-400 py-2 px-4 rounded-lg text-white font-bold text-md">
                         Download Receipt
                     </button>
-                    <Link
-                        v-if="description=='Reservation Fee'"
-                        :href="route('tenant.reservationlist')"
-                        class="bg-orange-400 py-2 px-4 rounded-lg text-white font-bold text-md"
-                    >
-                        Go To My Reservation
-                </Link>
+                    <Link v-if="description == 'Reservation Fee'" :href="route('tenant.reservationlist')"
+                        class="bg-orange-400 py-2 px-4 rounded-lg text-white font-bold text-md">
+                    Go To My Reservation
+                    </Link>
                 </div>
             </div>
         </div>

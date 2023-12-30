@@ -13,7 +13,8 @@ class SubscriptionPayment extends Model
         'user_id',
         'subscription',
         'amount',
-        'invoice_number'
+        'invoice_number',
+        'is_paid'
     ];
 
     protected $with = ['user'

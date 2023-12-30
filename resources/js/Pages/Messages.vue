@@ -55,6 +55,7 @@ export default {
             const data = {
                 thread_id: selectedThread.value.id,
                 message: messageToSend.value,
+                user_type: user['user_type'],
             };
 
             axios.post(route("send.message", data)).then((response) => {

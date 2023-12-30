@@ -173,6 +173,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
         Route::post('/trigger/auto-bill', [OwnerController::class, 'triggerAutoBill'])->name('owner.trigger-auto-bill');
         Route::post('/trigger/mark-as-due', [OwnerController::class, 'markAsDue'])->name('owner.trigger-mark-as-due');
+        Route::get('/changeplan', [OwnerController::class, 'changeplan'])->name('owner.changeplan');
     });
 
     Route::prefix('tenant')->group(function () {
@@ -209,6 +210,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::get('/view/messages', [SharedController::class, 'viewMessages'])->name('view.user.messages');
         Route::get('/fetch/messages', [SharedController::class, 'fetchMessages'])->name('fetch.messages');
         Route::post('/send-message', [SharedController::class, 'sendMessage'])->name('send.message');
+        Route::get('/message/mark-as-read/{id}/{user_type}', [SharedController::class, 'messageMarkAsRead'])->name('message.mark-as-read');
         Route::post('/get-long-lat/{address}', [SharedController::class, 'getlongLat'])->name('location.long.lat');
     });
 });
