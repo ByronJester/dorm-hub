@@ -171,9 +171,11 @@ export default {
                                             class="text-gray-400 disabled:cursor-not-allowed text-sm font-bold" disabled>Pay
                                             Now</button> -->
 
-                                        <a href="/owner/changeplan"
-                                            class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold">Change
-                                            Plan </a>
+                                        <span v-if="data.is_active">
+                                            <a :href="'/owner/changeplan/' + data.user_id"
+                                                class="text-gray-900 hover:text-orange-400 hover:underline text-sm font-bold">Change
+                                                Plan </a>
+                                        </span>
 
                                     </template>
                                 </Column>

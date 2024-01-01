@@ -54,6 +54,10 @@ class XenditService {
             $successRoute = route('tenant-payment.success', $invoice);
         }
 
+        if($action == 'updateSubscription') {
+            $successRoute = route('update-subscription.success', $invoice);
+        }
+
         try {
             $payload = [
                 'amount' => $amount,

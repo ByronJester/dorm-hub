@@ -173,7 +173,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
         Route::post('/trigger/auto-bill', [OwnerController::class, 'triggerAutoBill'])->name('owner.trigger-auto-bill');
         Route::post('/trigger/mark-as-due', [OwnerController::class, 'markAsDue'])->name('owner.trigger-mark-as-due');
-        Route::get('/changeplan', [OwnerController::class, 'changeplan'])->name('owner.changeplan');
+        Route::get('/changeplan/{id}', [OwnerController::class, 'changeplan'])->name('owner.changeplan');
+        Route::post('/updateSubscription', [OwnerController::class, 'updateSubscription'])->name('update.subscription');
+        Route::get('/update-subscription-success/{invoice}', [OwnerController::class, 'updateSubscriptionSuccess'])->name('update-subscription.success');
     });
 
     Route::prefix('tenant')->group(function () {
@@ -202,6 +204,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
         Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
         Route::post('/sub-profile', [TenantController::class, 'createSubProfile'])->name('tenant.sub-profile');
+        Route::post('/update-sub-profile', [TenantController::class, 'updateSubProfile'])->name('tenant.update-sub-profile');
         Route::post('/pay-billing', [TenantController::class, 'payBill'])->name('tenant.pay-billing');
     });
 
