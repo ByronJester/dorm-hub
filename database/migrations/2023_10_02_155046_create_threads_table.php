@@ -18,8 +18,8 @@ return new class extends Migration
             $table->bigInteger('owner_id')->nullable()->unsigned()->comment('Foreign key from table users');
             $table->bigInteger('tenant_id')->nullable()->unsigned()->comment('Foreign key from table users');
             $table->string('name', 150)->nullable();
-            $table->tinyInteger('is_read_owner', 1)->default(0);
-            $table->tinyInteger('is_read_tenant', 1)->default(0);
+            $table->tinyInteger('is_read_owner')->default(0);
+            $table->tinyInteger('is_read_tenant')->default(0);
 
             $table->foreign('owner_id')->references('id')->on('users');
             $table->foreign('tenant_id')->references('id')->on('users');
