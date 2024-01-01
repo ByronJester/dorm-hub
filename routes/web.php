@@ -204,6 +204,7 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/move-out', [TenantController::class, 'tenantMoveOut'])->name('tenant.move.out');
         Route::post('/request-refund', [TenantController::class, 'requestRefund'])->name('request.refund');
         Route::post('/sub-profile', [TenantController::class, 'createSubProfile'])->name('tenant.sub-profile');
+        Route::post('/update-sub-profile', [TenantController::class, 'updateSubProfile'])->name('tenant.update-sub-profile');
         Route::post('/pay-billing', [TenantController::class, 'payBill'])->name('tenant.pay-billing');
     });
 

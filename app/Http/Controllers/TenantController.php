@@ -6,10 +6,28 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\{
-    Dorm, Room, Amenity, Rule, Payment, User, Notification,
-    Thread, ThreadMember, ThreadMessage,Hero, DormRating, TenantComplaint,
+    Dorm,
+    Room,
+    Amenity,
+    Rule,
+    Payment,
+    User,
+    Notification,
+    Thread,
+    ThreadMember,
+    ThreadMessage,
+    Hero,
+    DormRating,
+    TenantComplaint,
     //TenantApplication, TenantRefund, , TenantReservation, TenantBilling, TenantPayment,
-    Reservation, Billing, UserPayment, Application, Tenant, Refund, ContactUs, Profile,
+    Reservation,
+    Billing,
+    UserPayment,
+    Application,
+    Tenant,
+    Refund,
+    ContactUs,
+    Profile,
     UserIncomeInformation
 };
 use Illuminate\Support\Facades\Validator;
@@ -43,7 +61,7 @@ class TenantController extends Controller
 
         $rating = null;
 
-        if($myDorm) {
+        if ($myDorm) {
             $rating = DormRating::where('profile_id', $myDorm->profile_id)
                 ->where('dorm_id', $myDorm->dorm_id)
                 ->first();
@@ -51,7 +69,7 @@ class TenantController extends Controller
 
         $complaints = [];
 
-        if($myDorm) {
+        if ($myDorm) {
             $complaints = TenantComplaint::where('profile_id', $myDorm->profile_id)->get();
         }
 
@@ -64,7 +82,8 @@ class TenantController extends Controller
         ]);
     }
 
-    public function myDormList(){
+    public function myDormList()
+    {
         $auth = Auth::user();
 
 
@@ -85,7 +104,8 @@ class TenantController extends Controller
     }
 
     public function myreservation($room_id)
-    {   $auth = Auth::user();
+    {
+        $auth = Auth::user();
 
         $myApplication = Application::where('tenant_id', $auth->id)->first();
 
@@ -103,8 +123,8 @@ class TenantController extends Controller
     }
 
     public function myReservationList()
-
-    {   $auth = Auth::user();
+    {
+        $auth = Auth::user();
 
 
         $reservation = Reservation::with(['dorm', 'room'])
@@ -141,8 +161,8 @@ class TenantController extends Controller
 
         $balance = 0;
 
-        foreach($payments as $payment) {
-            if($payment->status == 'pending') {
+        foreach ($payments as $payment) {
+            if ($payment->status == 'pending') {
                 $balance += $payment->amount;
             }
         }
@@ -180,8 +200,8 @@ class TenantController extends Controller
             'lastBilled' => $lastBilled,
             'balance' => $balance,
             'totalAmountPaid' => $totalAmountPaid,
-            'profile'=>$profile,
-            'bills'=>$billing,
+            'profile' => $profile,
+            'bills' => $billing,
             'nextPayments' => $nextPayments,
             'balances' => $balances,
             'amountPaids' => $amountPaids
@@ -281,11 +301,11 @@ class TenantController extends Controller
 
     public function payRent($id, Request $request)
     {
-        if($request->method == 'Bank Payment') {
+        if ($request->method == 'Bank Payment') {
             return self::payViaBank($id, $request);
         }
 
-        if($request->method == 'GCash Payment') {
+        if ($request->method == 'GCash Payment') {
             return self::payViaGcash($id);
         }
 
@@ -302,17 +322,17 @@ class TenantController extends Controller
 
         $filename = null;
 
-        if($request->has('receipt')) {
+        if ($request->has('receipt')) {
             $receipt = $request->receipt;
 
-            $filename = Str::random(10) . '_bank_receipt' ;
+            $filename = Str::random(10) . '_bank_receipt';
 
             $uploadFile = $this->uploadFile($receipt, $filename);
         }
 
         $amount = 0;
 
-        if($payment->partial) {
+        if ($payment->partial) {
             $payment->pending_payment = $payment->partial;
             $amount = $payment->partial;
             $payment->partial_receipt = $filename;
@@ -321,7 +341,7 @@ class TenantController extends Controller
             $payment->pending_payment = $payment->amount_to_pay;
             $amount = $payment->amount_to_pay;
 
-            if($payment->amount_paid != null && $payment->amount_to_pay != $payment->amount_paid) {
+            if ($payment->amount_paid != null && $payment->amount_to_pay != $payment->amount_paid) {
                 $payment->pending_payment = $payment->amount_to_pay - $payment->amount_paid;
                 $amount = $payment->amount_to_pay - $payment->amount_paid;
             }
@@ -354,19 +374,19 @@ class TenantController extends Controller
         $partial = $payment->partial;
         $is_paid = false;
 
-        if(!!$payment->partial) {
+        if (!!$payment->partial) {
             $amount_paid = $payment->partial;
             $partial = null;
 
-            if($application->status == 'reserve') {
+            if ($application->status == 'reserve') {
                 $expired_at = Carbon::now()->addDay(7);
             }
         } else {
-            if($payment->amount_paid != null && $payment->amount_paid != $payment->amount_to_pay) {
+            if ($payment->amount_paid != null && $payment->amount_paid != $payment->amount_to_pay) {
                 $amount_paid = $payment->amount_to_pay - $payment->amount_paid;
             }
 
-            if($payment->amount_paid == null) {
+            if ($payment->amount_paid == null) {
                 $amount_paid = $payment->amount_to_pay;
             }
 
@@ -411,7 +431,8 @@ class TenantController extends Controller
         session()->put('source_id', $body->data->id);
         session()->put('source', $source);
         session()->put('owner', $owner);
-        session()->put('payment',
+        session()->put(
+            'payment',
             (object) [
                 'id' => $id,
                 'amount_paid' => $amount_paid,
@@ -420,7 +441,8 @@ class TenantController extends Controller
                 'is_paid' => $is_paid
             ]
         );
-        session()->put('application',
+        session()->put(
+            'application',
             (object) [
                 'id' => $application->id,
                 'expired_at' => $expired_at
@@ -430,7 +452,8 @@ class TenantController extends Controller
         return $source;
     }
 
-    public function tenantverif(){
+    public function tenantverif()
+    {
         return Inertia::render('Tenant/TenantVerif');
     }
 
@@ -458,7 +481,7 @@ class TenantController extends Controller
         $reservation = Reservation::where('room_id', $request->room_id)->where('tenant', $auth->id)
             ->first();
 
-        if($reservation) {
+        if ($reservation) {
             $reservation->is_active = false;
             $reservation->save();
         }
@@ -468,7 +491,7 @@ class TenantController extends Controller
         $incomeInfo->source_of_income = $request->source_of_income;
         $incomeInfo->monthly_income = $request->monthly_income;
 
-        if($proof = $request->proof_of_income) {
+        if ($proof = $request->proof_of_income) {
 
             $filename = Str::random(10) . '_proof';
 
@@ -518,7 +541,7 @@ class TenantController extends Controller
 
             $response = $xenditService->create($amount, $description, $action);
 
-            if(!!$response) {
+            if (!!$response) {
                 $profile = Profile::where('user_id', $auth->id)->where('relationship', 'Me')->first();
 
                 $reservation = Reservation::create([
@@ -572,7 +595,7 @@ class TenantController extends Controller
         $method = $request->payment_method;
         $amount = $request->amount;
 
-        if($method == 'Online Payment') {
+        if ($method == 'Online Payment') {
             return [
                 "data" => $this->payOnline($amount, $tenant->owner, $tenant->tenant, 'Deposit and Advance Fee', $request->id)
             ];
@@ -675,7 +698,7 @@ class TenantController extends Controller
         $notification->type = 'Payment';
         $notification->save();
 
-        if($payment_id) {
+        if ($payment_id) {
             $payment = UserPayment::where('id', $payment_id)->first();
             $billing = Billing::where('id', $payment->billing_id)->first();
 
@@ -885,20 +908,31 @@ class TenantController extends Controller
         return response()->json(["success" => true], 200);
     }
 
+    public function updateSubProfile(Request $request)
+    {
+
+
+        $data = $request->toArray();
+
+        // $data['user_id'] = $auth->id;
+
+        Profile::where('id', $request->id)->update($data);
+
+        return response()->json(["success" => true], 200);
+    }
+
     public function payBill(Request $request)
     {
         $data = null;
         $type = $request->type;
 
-        if($type == 'rent') {
+        if ($type == 'rent') {
             $data = Tenant::where('id', $request->f_id)->first();
             $owner = User::where('id', $data->owner)->first();
-        }
-        else if ($type == 'application'){
+        } else if ($type == 'application') {
             $data = Application::with(['owner'])->where('profile_id', $request->profile_id)->first();
             $owner = User::where('id', $data->owner_id)->first();
-        }
-        else {
+        } else {
             $data = Reservation::where('id', $request->f_id)->first();
         }
 
@@ -911,7 +945,7 @@ class TenantController extends Controller
 
         $response = $xenditService->create($amount, $description, $action);
 
-        if(!!$response) {
+        if (!!$response) {
             $billing = Billing::where('id', $request->id)->first();
             $billing->invoice_number = $response['external_id'];
             $billing->save();
@@ -951,13 +985,13 @@ class TenantController extends Controller
 
         $owner = null;
 
-        if($billing) {
+        if ($billing) {
             $sk = null;
 
-            if($billing->type == 'reservation') {
+            if ($billing->type == 'reservation') {
                 $reservation = Reservation::where('id', $billing->f_id)->first();
 
-                if($reservation) {
+                if ($reservation) {
                     $xxx = $reservation;
                     $xxx->is_active = true;
 
@@ -972,7 +1006,7 @@ class TenantController extends Controller
             } else {
                 $application = Application::where('profile_id', $billing->profile_id)->first();
 
-                if($application) {
+                if ($application) {
                     $xxx = $application;
                     $xxx->is_active = true;
 
@@ -993,7 +1027,7 @@ class TenantController extends Controller
 
             // return $owner;
 
-            if($owner && $owner->sk) {
+            if ($owner && $owner->sk) {
 
                 $xenditService = new XenditService($owner->sk);
 
@@ -1005,7 +1039,7 @@ class TenantController extends Controller
 
                 $existingPayment = UserPayment::where('invoice_number', $invoice)->first();
 
-                if(!$existingPayment) {
+                if (!$existingPayment) {
                     UserPayment::create([
                         'f_id' => $billing->f_id,
                         'user_id' => $billing->user_id,
@@ -1026,7 +1060,7 @@ class TenantController extends Controller
 
         return Inertia::render('Xendit/SuccessTenant', [
             'billing' => $billing,
-            'invoice' => count($response['data'])  > 0 ? $response['data'][0] : null
+            'invoice' => count($response['data']) > 0 ? $response['data'][0] : null
         ]);
 
     }
