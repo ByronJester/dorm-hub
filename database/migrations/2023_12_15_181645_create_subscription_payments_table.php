@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('invoice_number');
             $table->date('for_the_month')->nullable();
             $table->boolean('is_paid')->default(false);
+            $table->tinyInteger('is_active')->default(1);
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
         });

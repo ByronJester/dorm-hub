@@ -102,9 +102,11 @@ class OwnerController extends Controller
             return redirect()->route('owner.addDorm');
         }
 
-        $dorms = Dorm::with(['rooms' => function ($query) {
-            $query->where('is_available', true);
-        }])
+        $dorms = Dorm::with([
+            'rooms' => function ($query) {
+                $query->where('is_available', true);
+            }
+        ])
             ->where('user_id', $auth->id)
             ->get(['id', 'property_name', 'status']);
 
@@ -1894,11 +1896,106 @@ class OwnerController extends Controller
         ]);
     }
 
-    public function changeplan()
+    public function changeplan($id)
     {
+        $auth = Auth::user();
+
+        $subscriptionPayments = SubscriptionPayment::where('user_id', $auth->id)->where('is_active',true)->get();
 
         return Inertia::render('Owner/ChangePlan', [
-
+            'subscriptionPayments' => $subscriptionPayments
         ]);
+    }
+
+    public function updateSubscription(Request $request)
+    {
+
+        $auth = Auth::user();
+
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+
+        $amount = 0;
+        $description = 'Update Subscription: ' . $request->subscription;
+        $action = 'updateSubscription';
+
+        switch ($request->subscription) {
+            case 'starter':
+                $amount = 300;
+                break;
+            case 'basic':
+                $amount = 500;
+                break;
+            case 'plus':
+                $amount = 1000;
+                break;
+        }
+
+        $xenditService = new XenditService($sk);
+        $response = $xenditService->create($amount, $description, $action);
+
+        if ($auth->first_logged_in) {
+            auth()->user()->update([
+                'sk' => $request->sk,
+                'pk' => $request->pk
+            ]);
+        }
+
+        User::where('id', $auth->id)->update([
+            'subscription' => $request->subscription
+        ]);
+
+        SubscriptionPayment::where('id', $request->subscriptionPaymentId)->update(['is_active' => false]);
+
+        return $response['invoice_url'];
+
+        // return response()->json(['message' => 'Error creating dorm.', 'status' => 500], 422);
+
+    }
+
+    public function updateSubscriptionSuccess($invoice)
+    {
+        $auth = Auth::user();
+
+        if ($auth->first_logged_in) {
+            auth()->user()->update([
+                'first_logged_in' => false
+            ]);
+        }
+
+        $sk = 'xnd_development_2hh1kPCMyT6d7sHYBRItuUTcP3v1ukfXAHz6WKBjosbZkR0RtLtxeZTw2TPaX5Zr';
+        $xenditService = new XenditService($sk);
+
+        $response = $xenditService->get($invoice);
+
+        $subscription = $auth->subscription;
+        $amount = 0;
+
+        if ($subscription) {
+            switch ($subscription) {
+                case 'starter':
+                    $amount = 300;
+                    break;
+                case 'basic':
+                    $amount = 500;
+                    break;
+                case 'plus':
+                    $amount = 1000;
+                    break;
+            }
+        }
+
+        SubscriptionPayment::create(
+            [
+                'subscription' => $subscription,
+                'amount' => $amount,
+                'user_id' => $auth->id,
+                'invoice_number' => $invoice,
+                'is_paid' => true,
+            ]
+        );
+        return Inertia::render('Xendit/Success', [
+            'invoice' => $response['data'][0]
+        ]);
+
     }
 }

@@ -173,7 +173,9 @@ Route::group(['middleware' => ['auth', 'cors']], function() {
         Route::post('/tenant/add', [OwnerController::class, 'addTenant'])->name('tenant.add');
         Route::post('/trigger/auto-bill', [OwnerController::class, 'triggerAutoBill'])->name('owner.trigger-auto-bill');
         Route::post('/trigger/mark-as-due', [OwnerController::class, 'markAsDue'])->name('owner.trigger-mark-as-due');
-        Route::get('/changeplan', [OwnerController::class, 'changeplan'])->name('owner.changeplan');
+        Route::get('/changeplan/{id}', [OwnerController::class, 'changeplan'])->name('owner.changeplan');
+        Route::post('/updateSubscription', [OwnerController::class, 'updateSubscription'])->name('update.subscription');
+        Route::get('/update-subscription-success/{invoice}', [OwnerController::class, 'updateSubscriptionSuccess'])->name('update-subscription.success');
     });
 
     Route::prefix('tenant')->group(function () {

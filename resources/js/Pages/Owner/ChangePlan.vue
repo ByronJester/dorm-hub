@@ -12,11 +12,13 @@ import { ref, onMounted, watch } from "vue";
 import { usePage, useForm, router } from "@inertiajs/vue3";
 
 import { useToast } from "primevue/usetoast";
+import { useConfirm } from "primevue/useconfirm";
 import ConfirmDialog from 'primevue/confirmdialog';
 import Toast from 'primevue/toast';
 import Image from 'primevue/image';
 import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
+import axios from "axios";
 export default {
     components: {
         SidebarLayout,
@@ -27,10 +29,16 @@ export default {
         Row,
         Image,
         InputLabel,
-        TextInput
+        TextInput,
+        ConfirmDialog,
+        router
 
     },
     setup() {
+        const loading = ref(false);
+        const termsAndCondition = ref([]);
+        const confirm = useConfirm();
+        const data = new FormData();
         const toast = useToast();
         const page = usePage();
         const filters = ref();
@@ -114,12 +122,65 @@ export default {
             { label: 'Plus', value: 'plus', description: 'Unlimited Dorm Listings', price: 1000 },
         ];
 
-        const selectedSubscription = ref(subscriptions[0]);
+        let subscriptionArray = [];
+
+        subscriptions.filter((x) => {
+            if (x['value'] === subs[0]['subscription']) {
+                subscriptionArray = x;
+            }
+
+        });
+
+        const selectedSubscription = ref(subscriptionArray);
 
         // Watch for changes in the selected subscription
         watch(() => selectedSubscription.value, (newValue) => {
             console.log(`Selected subscription changed to: ${newValue.label}`);
         });
+
+        const confirmPayment = () => {
+
+            if (termsAndCondition.value.length == 2 && subs[0]['subscription'] !== selectedSubscription.value.value) {
+                confirm.require({
+                    message: 'Are you sure you want to proceed?',
+                    header: 'Confirmation',
+                    icon: 'fa-solid fa-triangle-exclamation',
+                    accept: () => {
+                        loading.value = true;
+
+                        // Subscription Table
+                        data.append("subscription", selectedSubscription.value.value);
+                        subs.filter((x) => {
+                            if (x['is_active'] == 1) {
+                                data.append("subscriptionPaymentId", x['id']);
+                            }
+                        })
+                        // const selectedServices = services.value.map(service => service.name);
+                        // const selectedAmenities = amenities.value.map(amenity => amenity.name);
+
+                        // if (!!id.value) {
+                        //     data.append("id", id.value);
+                        // }
+
+                        axios
+                            .post(route("update.subscription"), data)
+                            .then((response) => {
+                                loading.value = false;
+                                window.location.href = response.data
+                            })
+                            .catch((error) => {
+                                // errors.value = error.response.data.errors;
+                                // console.log(data);
+                                // console.log(error);
+                                // loading.value = false;
+                            });
+                    },
+                    reject: () => {
+
+                    }
+                });
+            }
+        }
 
 
         return {
@@ -130,7 +191,9 @@ export default {
             moneyFormat,
             payNow,
             subscriptions,
-            selectedSubscription
+            selectedSubscription,
+            confirmPayment,
+            termsAndCondition
         }
     }
 }
@@ -170,7 +233,8 @@ export default {
                                         <!--Payment Method-->
                                         <div class="w-full">
                                             <label class="text-sm font-semibold">Name:</label>
-                                            <TextInput type="text" class="placeholder:text-gray-400 w-full" />
+                                            <TextInput type="text" class="placeholder:text-gray-400 w-full"
+                                                :model-value="subs[0]['user']['name']" disabled />
                                         </div>
                                         <!--Total-->
                                         <div class="mt-6 border-t border-b py-2">
@@ -206,7 +270,7 @@ export default {
                                         </div>
                                         <Toast />
                                         <ConfirmDialog />
-                                        <!-- <button @click="saveDorm()" :class="{
+                                        <button @click="confirmPayment()" :class="{
                                             'cursor-not-allowed bg-orange-200':
                                                 loading || termsAndCondition.length < 2,
                                             'bg-orange-500 text-white':
@@ -214,7 +278,7 @@ export default {
                                         }"
                                             class="mt-4 mb-8 w-full rounded-md bg-orange-400 px-6 py-3 font-medium text-white">
                                             Proceed to Payment
-                                        </button> -->
+                                        </button>
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-center mt-5 justify-center">
