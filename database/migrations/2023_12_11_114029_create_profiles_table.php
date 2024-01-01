@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('contact');
             $table->string('image')->nullable();
-            $table->string('otherRelationship');
+            $table->string('otherRelationship')->nullable();
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
