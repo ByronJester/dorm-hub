@@ -508,7 +508,7 @@ export default {
                         </template>
                     </Column>
 
-                    <Column header="Action" style="min-width: 5rem" class="border-b">
+                    <!--Column header="Action" style="min-width: 5rem" class="border-b">
                         <template #body ="{data}">
                             <AppDropdown class="flex justify-center items-center">
                                     <ConfirmDialog />
@@ -541,7 +541,7 @@ export default {
                                                 </AppDropdownContent>
                                     </AppDropdown>
                         </template>
-                    </Column>
+                    </Column-->
                 </DataTable>
             </div>
 

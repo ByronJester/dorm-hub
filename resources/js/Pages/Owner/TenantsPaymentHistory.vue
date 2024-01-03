@@ -290,6 +290,7 @@ export default {
         const other = page.props.other
         const internet = page.props.internet
         const monthly = page.props.monthly
+        console.log(monthly)
 
         const triggerAutoBill = (arg) => {
             axios

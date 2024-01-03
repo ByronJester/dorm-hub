@@ -551,11 +551,12 @@ export default {
         const validateStep = () => {
             let isValid = true;
             const roomValidation = validateRooms();
-            const commtotal = validateCommonTotal();
+            // const commtotal = validateCommonTotal();
+            let errors = null;
 
             switch (active.value) {
                 case 1:
-                    isValid = commtotal && validateDormDetails();
+                    isValid = validateDormDetails();
                     break;
                 case 2:
                     isValid = roomValidation && validateRoomsTotal();
@@ -572,9 +573,9 @@ export default {
                 case 6:
                     isValid = validateRules();
                     break;
-                case 7:
-                    isValid = validateAmenities();
-                    break;
+                // case 7:
+                //     isValid = validateAmenities();
+                //     break;
                 case 8:
                     isValid = validatePM();
                     break;
@@ -2300,7 +2301,7 @@ export default {
                     tenants.
                 </p>
                 <hr class="mt-5" />
-                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                <!--div class="py-6 border-b border-gray-100 dark:border-gray-800">
                     <div class="w-full md:w-9/12">
                         <div class="flex flex-wrap -m-3">
                             <div class="w-full p-3 md:w-1/3">
@@ -2417,7 +2418,7 @@ export default {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div-->
 
                 <div class="w-full flex flex-col mt-5 px-1">
                     <div

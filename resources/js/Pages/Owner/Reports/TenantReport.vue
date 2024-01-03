@@ -26,11 +26,11 @@ export default {
 
         const presetDates = ref([
             { label: "Today", value: [new Date(), new Date()] },
-            {
-                label: "Today (Slot)",
-                value: [new Date(), new Date()],
-                slot: "preset-date-range-button",
-            },
+            // {
+            //     label: "Today (Slot)",
+            //     value: [new Date(), new Date()],
+            //     slot: "preset-date-range-button",
+            // },
             {
                 label: "This month",
                 value: [startOfMonth(new Date()), endOfMonth(new Date())],
@@ -66,7 +66,7 @@ export default {
             amount = parseFloat(amount).toFixed(2);
 
             return (
-                '₱' + amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             );
         };
         console.log(data)

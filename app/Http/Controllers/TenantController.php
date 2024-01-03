@@ -52,11 +52,11 @@ class TenantController extends Controller
     {
         $auth = Auth::user();
 
-        $myApplication = Application::where('tenant_id', $profile_id)->first();
+        $myApplication = Application::where('profile_id', $profile_id)->where('room_id', $room_id)->first();
 
         $myDorm = Tenant::with(['dorm', 'room', 'owner_user', 'tenant_user'])
-            ->where('profile_id', $myApplication->profile_id)
-            ->where('room_id', $myApplication->room_id)
+            ->where('profile_id', $profile_id)
+            ->where('room_id', $room_id)
             ->first();
 
         $rating = null;
@@ -805,7 +805,7 @@ class TenantController extends Controller
         $tenant->move_out = Carbon::parse($request->move_out);
         $tenant->reason = $request->reason;
         $tenant->reason_description = $request->reason_description;
-        $tenant->status = 'moved_out';
+        $tenant->status = 'pending_move_out';
         $tenant->is_active = false;
 
         Application::where('profile_id', $request->profile_id)
@@ -813,18 +813,19 @@ class TenantController extends Controller
             ->delete();
 
         Room::where('id', $room->id)->update([
-            'is_available' => true,
+            'is_available' => false,
             'status' => null
         ]);
 
-        // Refund::create([
-        //     'user_payment_id' => $payment->id,
-        //     'amount' => $room->deposit,
-        //     'payment_method' => $request->payment_method,
-        //     'wallet_name' => $request->wallet_name,
-        //     'account_name' => $request->account_name,
-        //     'account_number' => $request->account_number,
-        // ]);
+        Refund::create([
+            'user_payment_id' => $payment->id,
+            'amount' => $room->deposit,
+            'payment_method' => $request->payment_method,
+            'wallet_name' => $request->wallet_name,
+            'account_name' => $request->account_name,
+            'account_number' => $request->account_number,
+            'profile_id' => $request->profile_id
+        ]);
 
         return $tenant->save();
     }

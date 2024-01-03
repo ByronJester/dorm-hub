@@ -10,14 +10,21 @@ class Refund extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_payment_id', 'amount', 'payment_method', 'wallet_name',
-        'account_name', 'account_number', 'proof_of_refund'
+        'user_payment_id',
+        'amount',
+        'payment_method',
+        'wallet_name',
+        'account_name',
+        'account_number',
+        'proof_of_refund',
+        'profile_id'
     ];
 
     public function getProofOfRefundAttribute($value)
     {
-        if(!$value) return $value;
+        if (!$value)
+            return $value;
 
-        return  "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
+        return "http://res.cloudinary.com/dcmgsini6/image/upload/" . $value;
     }
 }

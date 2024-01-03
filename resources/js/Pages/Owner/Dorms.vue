@@ -500,8 +500,9 @@ export default {
         //validationn
         const validateStep = () => {
             let isValid = true;
+            let errors = {};
             const roomValidation = validateRooms();
-            const commTotal = validateCommonTotal();
+            // const commTotal = validateCommonTotal();
 
             switch (active.value) {
                 case 1:
@@ -522,12 +523,13 @@ export default {
                 case 6:
                     isValid = validateRules();
                     break;
-                case 7:
-                    isValid = validateAmenities();
-                    break;
                 default:
                     (isValid = true), (errors = {});
             }
+
+              // case 7:
+                //     isValid = validateAmenities();
+                //     break;
             return isValid;
         };
 
@@ -974,7 +976,7 @@ export default {
                     Ready to unlock even more benefits? Upgrade your
                     subscription now to create more dorm listings
                 </p>
-                <Link
+                <Link href="/owner/subscription"
                     class="px-3 py-1.5 rounded border border-white hover:bg-white hover:text-orange-400"
                 >
                     Upgrade
@@ -2248,7 +2250,7 @@ export default {
                                     tenants.
                                 </p>
                                 <hr class="mt-5" />
-                                <div class="py-6 border-b border-gray-100 dark:border-gray-800">
+                                <!--div class="py-6 border-b border-gray-100 dark:border-gray-800">
                                     <div class="w-full md:w-9/42">
                                         <div class="flex flex-wrap -m-3">
                                             <div class="w-full p-3 md:w-1/3">
@@ -2365,7 +2367,7 @@ export default {
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div-->
 
                                 <div class="w-full grid grid-cols-4 gap-5 mt-5 px-1">
                                     <div

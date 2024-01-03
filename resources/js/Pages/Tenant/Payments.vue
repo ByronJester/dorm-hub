@@ -514,6 +514,8 @@ export default {
                 });
         }
 
+        // console.log(selectedProfile)
+
         return {
             filters,
             clearFilter,

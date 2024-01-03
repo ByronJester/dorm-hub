@@ -23,7 +23,7 @@ export default {
 
         const viewRooms = (arg) => {
             console.log(arg)
-            router.get(route('tenant.mydorm', [arg.id, arg.tenant]));
+            router.get(route('tenant.mydorm', [arg.room_id, arg.profile_id]));
         }
 
         console.log(myApplication)
