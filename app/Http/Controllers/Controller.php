@@ -36,25 +36,20 @@ class Controller extends BaseController
 
     public function sendSMS($number, $message)
     {
+        $apiKey = base64_decode('MjZjMDE1OTZkNDc3NjZhM2E1NzI4MTgyZDM5YmNhMDU=');
+
         $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://semaphore.co/api/v4/messages');
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/x-www-form-urlencoded',
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, "apikey=$apiKey&number=$number&message=$message");
 
-        $parameters = array(
-            'apikey' =>  base64_decode("OWVlZTYyNzM1ZWFhNmE1OGQ1ZjY2YzQ2M2M3YzE3NGI="),
-            'number' => $number,
-            'message' => $message,
-            'sendername' => 'SEMAPHORE'
-        );
+        $response = curl_exec($ch);
 
-        curl_setopt( $ch, CURLOPT_URL,'https://semaphore.co/api/v4/messages' );
-        curl_setopt( $ch, CURLOPT_POST, 1 );
-
-        //Send the parameters set above with the request
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, http_build_query( $parameters ) );
-
-        // Receive response from server
-        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-        $output = curl_exec( $ch );
-        curl_close ($ch);
+        curl_close($ch);
     }
 
     public function generateInvoice($user_id)
