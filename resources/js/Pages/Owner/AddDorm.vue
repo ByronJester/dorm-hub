@@ -1334,7 +1334,7 @@ export default {
                     <hr class="my-5" />
                     <Editor
                         id="content"
-                        api-key="rnwni8gfoofnq592kqlityphztlce2nvzunwxpqqs3a0y8dv"
+                        api-key="icip085bwgg64sssn7fz9ad0ce4jocpdusiocj0xw73f6ssr"
                         v-model="terms"
                         :init="{
                             menubar: false,
