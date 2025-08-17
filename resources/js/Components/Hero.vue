@@ -19,7 +19,7 @@ export default{
 <img 
             alt="bg-image"
             class="absolute rounded-2xl object-cover w-full h-[400px] bg-center shadow-lg bg-no-repeat inset-0 "
-            :src="heroImage ?? 'https://images.unsplash.com/photo-1604014237800-1c9102c219da?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'"
+            src="https://images.unsplash.com/photo-1604014237800-1c9102c219da?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
             />
         
 <div class="absolute inset-0 h-[400px] shadow-lg rounded-2xl bg-black bg-opacity-50"></div>
