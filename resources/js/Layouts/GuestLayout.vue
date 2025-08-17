@@ -207,8 +207,12 @@ export default {
                 axios
                     .post(route("send.otp"), form)
                     .then((response) => {
-                        openModal();
+                        console.log(response)
+                        form.code = response
                         console.log(form.code);
+                        openModal();
+                        
+                        
                     })
                     .catch((error) => {});
             } else {
