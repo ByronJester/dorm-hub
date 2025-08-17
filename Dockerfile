@@ -1,6 +1,5 @@
 # Accepted values: 8.1 - 8.0
 ARG PHP_VERSION=8.1
-
 ARG COMPOSER_VERSION=latest
 
 ###########################################
@@ -11,7 +10,6 @@ FROM node:18.0.0-alpine as frontend
 WORKDIR /frontend
 
 COPY package.json package-lock.json /frontend/
-
 RUN npm install
 
 COPY artisan jsconfig.json tailwind.config.js postcss.config.js vite.config.js  /frontend/
@@ -27,7 +25,6 @@ RUN npm run build
 ###########################################
 # PHP dependencies
 ###########################################
-
 FROM composer:${COMPOSER_VERSION} AS vendor
 WORKDIR /var/www/html
 COPY composer* ./
@@ -44,8 +41,8 @@ RUN composer install \
 
 ###########################################
 
-
-FROM php:${PHP_VERSION}-cli-buster
+# ✅ FIX: Use bullseye instead of buster
+FROM php:${PHP_VERSION}-cli-bullseye
 
 LABEL maintainer="Seyed Morteza Ebadi <seyed.me720@gmail.com>"
 
@@ -55,7 +52,6 @@ ARG TZ=UTC
 
 # Accepted values: app - horizon - scheduler
 ARG CONTAINER_MODE=app
-
 ARG APP_WITH_HORIZON=false
 ARG APP_WITH_SCHEDULER=false
 
@@ -73,6 +69,7 @@ SHELL ["/bin/bash", "-eou", "pipefail", "-c"]
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone
 
+# ✅ Works fine now since bullseye has active repos
 RUN apt-get update; \
     apt-get upgrade -yqq; \
     pecl -q channel-update pecl.php.net; \
@@ -107,160 +104,89 @@ RUN apt-get update; \
           procps
 
 ###########################################
-# pdo_mysql
+# Extensions (pdo_mysql, zip, mbstring, gd, etc.)
 ###########################################
+RUN docker-php-ext-install pdo_mysql \
+ && docker-php-ext-configure zip && docker-php-ext-install zip \
+ && docker-php-ext-install mbstring \
+ && docker-php-ext-configure gd \
+        --prefix=/usr \
+        --with-jpeg \
+        --with-webp \
+        --with-freetype \
+    && docker-php-ext-install gd
 
-RUN docker-php-ext-install pdo_mysql;
-
-###########################################
-# zip
-###########################################
-
-RUN docker-php-ext-configure zip && docker-php-ext-install zip;
-
-###########################################
-# mbstring
-###########################################
-
-RUN docker-php-ext-install mbstring;
-
-###########################################
-# GD
-###########################################
-
-RUN docker-php-ext-configure gd \
-            --prefix=/usr \
-            --with-jpeg \
-            --with-webp \
-            --with-freetype \
-    && docker-php-ext-install gd;
-
-###########################################
 # OPcache
-###########################################
-
 ARG INSTALL_OPCACHE=true
-
 RUN if [ ${INSTALL_OPCACHE} = true ]; then \
       docker-php-ext-install opcache; \
   fi
 
-###########################################
-# PHP Redis
-###########################################
-
+# Redis
 ARG INSTALL_PHPREDIS=true
-
 RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
       pecl -q install -o -f redis \
       && rm -rf /tmp/pear \
       && docker-php-ext-enable redis; \
   fi
 
-###########################################
 # PCNTL
-###########################################
-
 ARG INSTALL_PCNTL=true
-
 RUN if [ ${INSTALL_PCNTL} = true ]; then \
       docker-php-ext-install pcntl; \
   fi
 
-###########################################
 # BCMath
-###########################################
-
 ARG INSTALL_BCMATH=true
-
 RUN if [ ${INSTALL_BCMATH} = true ]; then \
       docker-php-ext-install bcmath; \
   fi
 
-###########################################
-# RDKAFKA
-###########################################
-
+# Kafka
 ARG INSTALL_RDKAFKA=true
-
 RUN if [ ${INSTALL_RDKAFKA} = true ]; then \
       apt-get install -yqq --no-install-recommends --show-progress librdkafka-dev \
       && pecl -q install -o -f rdkafka \
       && docker-php-ext-enable rdkafka; \
   fi
 
-###########################################
-# OpenSwoole/Swoole extension
-###########################################
-
+# OpenSwoole/Swoole
 ARG INSTALL_SWOOLE=true
 ARG SERVER=openswoole
-
 RUN if [ ${INSTALL_SWOOLE} = true ]; then \
       apt-get install -yqq --no-install-recommends --show-progress libc-ares-dev \
       && pecl -q install -o -f -D 'enable-openssl="yes" enable-http2="yes" enable-swoole-curl="yes" enable-mysqlnd="yes" enable-cares="yes"' ${SERVER} \
       && docker-php-ext-enable ${SERVER}; \
     fi
 
-###########################################################################
-# Human Language and Character Encoding Support
-###########################################################################
-
+# Intl
 ARG INSTALL_INTL=true
-
 RUN if [ ${INSTALL_INTL} = true ]; then \
       apt-get install -yqq --no-install-recommends --show-progress zlib1g-dev libicu-dev g++ \
       && docker-php-ext-configure intl \
       && docker-php-ext-install intl; \
   fi
 
-###########################################
-# Memcached
-###########################################
-
-ARG INSTALL_MEMCACHED=false
-
-RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
-      pecl -q install -o -f memcached && docker-php-ext-enable memcached; \
-  fi
-
-###########################################
-# MySQL Client
-###########################################
-
+# MySQL client
 ARG INSTALL_MYSQL_CLIENT=true
-
 RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
       apt-get install -yqq --no-install-recommends --show-progress default-mysql-client; \
   fi
 
-###########################################
-# pdo_pgsql
-###########################################
-
+# PostgreSQL
 ARG INSTALL_PDO_PGSQL=true
-
 RUN if [ ${INSTALL_PDO_PGSQL} = true ]; then \
       docker-php-ext-install pdo_pgsql; \
   fi
 
-###########################################
-# pgsql
-###########################################
-
 ARG INSTALL_PGSQL=true
-
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
       docker-php-ext-install pgsql; \
   fi
 
-###########################################
-# pgsql client and postgis
-###########################################
-
+# Postgres client + PostGIS
 ARG INSTALL_PG_CLIENT=true
 ARG INSTALL_POSTGIS=true
-
 RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
         apt-get install -yqq gnupg \
         && . /etc/os-release \
@@ -274,10 +200,7 @@ RUN if [ ${INSTALL_PG_CLIENT} = true ]; then \
         && apt-get purge -yqq gnupg; \
   fi
 
-###########################################
 # Laravel scheduler
-###########################################
-
 RUN if [ ${CONTAINER_MODE} = 'scheduler' ] || [ ${APP_WITH_SCHEDULER} = true ]; then \
       wget -q "https://github.com/aptible/supercronic/releases/download/v0.2.1/supercronic-linux-amd64" \
            -O /usr/bin/supercronic \
@@ -287,7 +210,8 @@ RUN if [ ${CONTAINER_MODE} = 'scheduler' ] || [ ${APP_WITH_SCHEDULER} = true ]; 
   fi
 
 ###########################################
-
+# User setup & cleanup
+###########################################
 RUN groupadd --force -g $WWWGROUP octane \
     && useradd -ms /bin/bash --no-log-init --no-user-group -g $WWWGROUP -u $WWWUSER octane
 
@@ -319,7 +243,6 @@ RUN chmod +x deployment/octane/entrypoint.sh
 RUN cat deployment/octane/utilities.sh >> ~/.bashrc
 
 EXPOSE 9000
-
 ENTRYPOINT ["deployment/octane/entrypoint.sh"]
 
 HEALTHCHECK --start-period=5s --interval=2s --timeout=5s --retries=8 CMD php artisan octane:status || exit 1
