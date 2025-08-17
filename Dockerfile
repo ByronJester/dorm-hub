@@ -1,5 +1,5 @@
-# Accepted values: 8.1 - 8.0
-ARG PHP_VERSION=8.1
+# Accepted values: 8.2 (minimum for openswoole)
+ARG PHP_VERSION=8.2
 ARG COMPOSER_VERSION=latest
 
 ###########################################
@@ -20,11 +20,10 @@ COPY resources ./resources
 COPY vendor ./vendor
 
 RUN npm run build
-############################################
 
-###########################################
+############################################
 # PHP dependencies
-###########################################
+############################################
 FROM composer:${COMPOSER_VERSION} AS vendor
 WORKDIR /var/www/html
 COPY composer* ./
@@ -39,8 +38,8 @@ RUN composer install \
   --no-scripts
 
 ###########################################
-
-# ✅ FIX: Use bullseye instead of buster
+# Final PHP image
+###########################################
 FROM php:${PHP_VERSION}-cli-bullseye
 
 LABEL maintainer="Seyed Morteza Ebadi <seyed.me720@gmail.com>"
@@ -68,7 +67,6 @@ SHELL ["/bin/bash", "-eou", "pipefail", "-c"]
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone
 
-# ✅ Works fine now since bullseye has active repos
 RUN apt-get update; \
     apt-get upgrade -yqq; \
     pecl -q channel-update pecl.php.net; \
@@ -103,7 +101,7 @@ RUN apt-get update; \
           procps
 
 ###########################################
-# Extensions (pdo_mysql, zip, mbstring, gd, etc.)
+# Extensions
 ###########################################
 RUN docker-php-ext-install pdo_mysql \
  && docker-php-ext-configure zip && docker-php-ext-install zip \
@@ -149,12 +147,12 @@ RUN if [ ${INSTALL_RDKAFKA} = true ]; then \
       && docker-php-ext-enable rdkafka; \
   fi
 
-# OpenSwoole/Swoole
+# OpenSwoole (requires PHP >= 8.2)
 ARG INSTALL_SWOOLE=true
 ARG SERVER=openswoole
 RUN if [ ${INSTALL_SWOOLE} = true ]; then \
       apt-get install -yqq --no-install-recommends --show-progress libc-ares-dev \
-      && pecl -q install -o -f -D 'enable-openssl="yes" enable-http2="yes" enable-swoole-curl="yes" enable-mysqlnd="yes" enable-cares="yes"' ${SERVER} \
+      && pecl install -o -f -D 'enable-openssl="yes" enable-http2="yes" enable-swoole-curl="yes" enable-mysqlnd="yes" enable-cares="yes"' ${SERVER} \
       && docker-php-ext-enable ${SERVER}; \
     fi
 
